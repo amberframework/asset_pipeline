@@ -1,0 +1,9 @@
+name: asset_pipeline
+version: 0.1.0
+
+authors:
+  - Seth Tucker <crimsonknightstudios@gmail.com>
+
+crystal: '>= 1.10.1'
+
+license: MIT
