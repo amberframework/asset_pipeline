@@ -13,7 +13,7 @@ Asset Pipeline is a shard written to handle 3 types of assets:
    dependencies:
      asset_pipeline:
        github: amberframework/asset_pipeline
-       version: 0.1.0
+       version: 0.34.0
    ```
 
 2. Run `shards install`

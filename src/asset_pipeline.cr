@@ -2,7 +2,7 @@ require "./import_map/import_map"
 
 # TODO: Write documentation for `AssetPipeline`
 module AssetPipeline
-  VERSION = "0.1.0"
+  VERSION = "0.34.0"
 
   # The asset pipeline is responsible for loading assets from the import maps, asset loader and compiling styling.
   #
