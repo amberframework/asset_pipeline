@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stimulus Counter Example</title>
+    <script type="importmap">
+    { 
+        "imports": 
+        {
+            "stimulus": "https://cdn.jsdelivr.net/npm/stimulus@3.2.2/+esm"
+        }
+    } 
+    </script>
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/stimulus@3.2.2/+esm">
+    
+    <script type="module">
+        // Simple counter controller for the counter_example
+        import { Application, Controller } from "stimulus";
+
+        // Define the controller
+        class CounterController extends Controller {
+        static targets = ["total"];
+
+        initialize() {
+            this.count = 0;
+        }
+
+        increment() {
+            this.count++;
+            this.updateTotal();
+        }
+
+        decrement() {
+            this.count--;
+            this.updateTotal();
+        }
+
+        updateTotal() {
+            this.totalTarget.textContent = this.count;
+        }
+        }
+
+        // Start Stimulus application
+        const application = Application.start();
+        application.register("counter", CounterController);
+    </script>
+</head>
+
+<body>
+    <div data-controller="counter">
+        <button data-action="click->counter#decrement">-</button>
+        <span data-counter-target="total">0</span>
+        <button data-action="click->counter#increment">+</button>
+    </div>
+</body>
+
+</html>

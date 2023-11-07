@@ -1,9 +1,9 @@
 # Asset Pipeline
 
 Asset Pipeline is a shard written to handle 3 types of assets:
-- Javascript, by using ESM modules and import maps
-- CSS/SASS, by utilizing Node SASS from an import map
-- Images
+- Javascript, by using ESM modules and import maps 
+- CSS/SASS, by utilizing Node SASS from an import map (Pending)
+- Images (Pending)
 
 ## Installation
 
@@ -20,17 +20,15 @@ Asset Pipeline is a shard written to handle 3 types of assets:
 
 ## Usage
 
-```crystal
-require "asset_pipeline"
+For the fullest examples, please view the docs for `AssetPipeline::FrontLoader`.
 
-import_map = AssetPipeline::ImportMap.new
-```
-
-TODO: Write usage instructions here
+The `FrontLoader` class is the primary class to use for handling all of your assets with the AssetPipeline.
 
 ## Development
 
-TODO: Write development instructions here
+Thank you for your interest in contributing! Please join the Amber (discord)[https://discord.gg/JKCczAEh4D] to get the most up to date information.
+
+If you're interested in contributing, please check out the open github issues and then ask about them in the discord group to see if anyone has made any attempts or has additional information about the issue.
 
 ## Contributing
 
