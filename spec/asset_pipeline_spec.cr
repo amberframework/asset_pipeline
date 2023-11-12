@@ -104,4 +104,22 @@ describe AssetPipeline::FrontLoader do
 
     front_loader.render_import_map_as_file.gsub(" ", "").gsub("\n", "").should_not eq(final_import_map)
   end
+
+  it "properly creates an import map with a specificed asset base path" do
+    tmp_map = AssetPipeline::ImportMap.new(public_asset_base_path: Path["/assets"])
+    tmp_map.add_import("test", "some_js.js")
+
+    front_loader = AssetPipeline::FrontLoader.new(js_source_path: Path["spec/test_js"], js_output_path: Path["spec/test_output"]) do |import_maps|
+      import_maps << tmp_map
+    end
+
+    file_hash = Digest::SHA256.new.file("spec/test_js/some_js.js").hexfinal
+
+    final_import_map = <<-STRING
+    <scripttype="importmap">{"imports":{"test":"/assets/some_js-#{file_hash}.js"}}</script>
+    STRING
+
+    # Test both of these, this ensures the overlapping file names are still created correctly.
+    front_loader.render_import_map_tag.gsub(" ", "").gsub("\n", "").should eq(final_import_map)
+  end
 end

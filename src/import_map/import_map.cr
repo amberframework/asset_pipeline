@@ -13,9 +13,15 @@ module AssetPipeline
     @preload_module_links : String = ""
     @scopes : Hash(String, Array(Hash(String, String))) = Hash(String, Array(Hash(String, String))).new { |hash, key| hash[key] = [] of Hash(String, String) }
     @import_tag = ""
+    @public_asset_base_path : Path
 
     # Set the name of the import map during initialization. The default is `application`
-    def initialize(@name = "application")
+    # Set the base path for your assets. This is used to make sure that relative paths are correct.
+    #
+    # For example, if you're serving your javascript files from `/assets/js` then you would set `public_asset_bate_path` to `/assets/js`
+    #
+    def initialize(@name = "application", @public_asset_base_path : Path = Path["/"])
+      @public_asset_base_path = @public_asset_base_path.join(Path[""])
     end
 
     # This renders the complete HTML tag for the import map, including the modulepreload tags required.
@@ -86,6 +92,11 @@ module AssetPipeline
     end
 
     # :nodoc:
+    def public_asset_base_path
+      @public_asset_base_path
+    end
+
+    # :nodoc:
     private def create_map_list_as_string : String
       final_string = ""
 
@@ -98,7 +109,7 @@ module AssetPipeline
           first_value = import[import.first_key].to_s
 
           if !first_value.starts_with?(/\/|\.\//)
-            import[import.first_key] = "/" + first_value
+            import[import.first_key] = @public_asset_base_path.join(first_value).to_s
           end
         end
 

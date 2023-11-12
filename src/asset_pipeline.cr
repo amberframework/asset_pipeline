@@ -90,6 +90,8 @@ module AssetPipeline
     end
 
     # Returns the url to the import_map.json file that has been generated
+    #
+    # Warning: currently there is minimal browser support for this part of the spec. Please test thoroughly before using this approach.
     def render_import_map_as_file(name : String = "application") : String
       generate_file_version_hash(name)
       import_map = get_import_map(name)
@@ -128,7 +130,7 @@ module AssetPipeline
           end
 
           first_key = target_import_map.imports[found_index].first_key
-          target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, "/")
+          target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, target_import_map.public_asset_base_path.join(Path[""]).to_s)
         end
       end
     end

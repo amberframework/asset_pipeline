@@ -1,9 +1,9 @@
 # Asset Pipeline
 
 Asset Pipeline is a shard written to handle 3 types of assets:
-- Javascript, by using ESM modules and import maps 
-- CSS/SASS, by utilizing Node SASS from an import map (Pending)
-- Images (Pending)
+- Javascript, by using ESM modules and import maps  (Done! v0.34)
+- CSS/SASS, by utilizing Node SASS from an import map (TBD)
+- Images (TBD)
 
 ## Installation
 
