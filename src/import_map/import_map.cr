@@ -1,5 +1,4 @@
 module AssetPipeline
-
   # The `ImportMap` is the main way that javascript is handled. This is a no-bundle approach using the "import map" browser standard.
   #
   # The `ImportMap` supports several features that are provided by the import map specification:
@@ -8,7 +7,6 @@ module AssetPipeline
   #   - preloading: any import that's added with `preload: true` will also render a <link> tag to have the module preloaded
   #
   class ImportMap
-
     # The name of your import map. Updatable with the `name=` method.
     property name : String
     @imports : Array(Hash(String, String | Bool)) = [] of Hash(String, String | Bool)
@@ -83,6 +81,11 @@ module AssetPipeline
     end
 
     # :nodoc:
+    def preload_module_links
+      @preload_module_links
+    end
+
+    # :nodoc:
     private def create_map_list_as_string : String
       final_string = ""
 
@@ -92,7 +95,13 @@ module AssetPipeline
         end
 
         if !import.first_value.to_s.starts_with?(/http|\.\//)
-          import[import.first_key] = "./" + import.first_value.to_s
+          first_value = import[import.first_key].to_s
+
+          if first_value.starts_with?(/\//)
+            import[import.first_key] = "." + first_value
+          else
+            import[import.first_key] = "./" + first_value
+          end
         end
 
         final_string += "\"#{import.first_key}\": \"#{import.first_value}\""

@@ -1,2 +1,3 @@
-// Something to test that the js is being loaded
-console.log('some_js.js');
+// Here's some text for the comment
+
+console.log('test-7-3');
