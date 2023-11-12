@@ -46,13 +46,13 @@ describe AssetPipeline::FrontLoader do
     file_1_hash = Digest::SHA256.new.file("spec/test_js/some_js.js").hexfinal
 
     final_import_map = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./some_js-#{file_1_hash}.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"/some_js-#{file_1_hash}.js"}}</script>
     STRING
 
     file_2_hash = Digest::SHA256.new.file("spec/test_js/sub_folder/second_sub_folder/second_nested_file.js").hexfinal
 
     final_import_map2 = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./sub_folder/second_sub_folder/second_nested_file-#{file_2_hash}.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"/sub_folder/second_sub_folder/second_nested_file-#{file_2_hash}.js"}}</script>
     STRING
 
     # Test both of these, this ensures the overlapping file names are still created correctly.
@@ -71,7 +71,7 @@ describe AssetPipeline::FrontLoader do
     file_hash = Digest::SHA256.new.file("spec/test_js/some_js.js").hexfinal
 
     final_import_map = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./some_js-#{file_hash}.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"/some_js-#{file_hash}.js"}}</script>
     STRING
 
     # Test both of these, this ensures the overlapping file names are still created correctly.
@@ -95,7 +95,7 @@ describe AssetPipeline::FrontLoader do
     digest << file_contents
 
     final_import_map = <<-STRING
-      <scripttype="importmap"src="./application-#{digest.hexfinal}.json"></script>
+      <scripttype="importmap"src="/application-#{digest.hexfinal}.json"></script>
       STRING
 
     front_loader.render_import_map_as_file.gsub(" ", "").gsub("\n", "").should eq(final_import_map)

@@ -103,7 +103,7 @@ module AssetPipeline
       File.write(@js_output_path.join(file_name), file_contents)
 
       <<-STRING
-        <script type="importmap" src="./#{file_name}"></script>
+        <script type="importmap" src="/#{file_name}"></script>
         #{import_map.preload_module_links}
       STRING
     end
@@ -128,7 +128,7 @@ module AssetPipeline
           end
 
           first_key = target_import_map.imports[found_index].first_key
-          target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, "./")
+          target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, "/")
         end
       end
     end
