@@ -1,3 +1,5 @@
+require "digest/sha256"
+require "file_utils"
 require "./import_map/import_map"
 
 # TODO: Write documentation for `AssetPipeline`
@@ -50,21 +52,23 @@ module AssetPipeline
   class FrontLoader
 
     property import_maps : Array(ImportMap) = [] of ImportMap
-    @javascript_source_path : Path = Path.new("src/app/javascript")
+    @js_source_path : Path
+    @js_output_path : Path
 
     # The default initializer for the `FrontLoader` class.
-    def initialize(@javascript_source_path : Path = Path.new("src/app/javascript"), @import_maps : Array(ImportMap) = [] of ImportMap)
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets"), @import_maps : Array(ImportMap) = [] of ImportMap)
       @import_maps << AssetPipeline::ImportMap.new("application") if @import_maps.empty?
     end
 
-    def initialize(@javascript_source_path : Path = Path.new("src/app/javascript"), import_map : ImportMap = ImportMap.new)
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets"), import_map : ImportMap = ImportMap.new)
+      
       @import_maps << import_map
     end
 
     # Initialize the asset pipeline with the given *block*.
     #
     # The block is the import maps that will be used by the asset pipeline.
-    def initialize(@javascript_source_path : Path = Path.new("src/app/javascript"), &block)
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets"), &block)
       yield @import_maps
     end
 
@@ -77,8 +81,32 @@ module AssetPipeline
 
     # Returns the named import map JSON as a rendered, non-minified, string.
     def render_import_map_tag(name : String = "application") : String
+      generate_file_version_hash(name)
       get_import_map(name).build_import_map_tag
     end
 
+    # TODO: Make this a private def once done building
+    # :nodoc:
+    def generate_file_version_hash(import_map_name : String = "application")
+      file_hashes = Hash(String, String).new
+      target_import_map = get_import_map(import_map_name)
+
+      Dir.glob("#{@js_source_path}/**/*.js").each do |file|
+        file_hash = Digest::SHA256.new.file(file).hexfinal
+        file_index = file.index('.') || next
+        cached_file_name = file.insert(file_index, "-"+file_hash).gsub(@js_source_path.to_s, @js_output_path.to_s)
+        puts "File basename: " + File.basename(file)
+        found_index = target_import_map.imports.index { |r| r.first_value.to_s.includes?(File.basename(file)) }
+        puts "Globbed a file named: " + file
+        puts "found index: #{found_index}"
+
+        if !found_index.nil? && !File.exists?(cached_file_name)
+          puts "Cached file name: " + cached_file_name
+          FileUtils.cp_r(file, cached_file_name)
+          first_key = target_import_map.imports[found_index].first_key
+          target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, "./")
+        end
+      end
+    end
   end
 end

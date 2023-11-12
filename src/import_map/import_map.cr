@@ -11,7 +11,7 @@ module AssetPipeline
 
     # The name of your import map. Updatable with the `name=` method.
     property name : String
-    @import_map : Array(Hash(String, String | Bool)) = [] of Hash(String, String | Bool)
+    @imports : Array(Hash(String, String | Bool)) = [] of Hash(String, String | Bool)
     @preload_module_links : String = ""
     @scopes : Hash(String, Array(Hash(String, String))) = Hash(String, Array(Hash(String, String))).new { |hash, key| hash[key] = [] of Hash(String, String) }
     @import_tag = ""
@@ -66,7 +66,7 @@ module AssetPipeline
     #
     # Think of it like this: you are importing the class `name` associated `to` a library file path.
     def add_import(name : String, to : String, preload : Bool = false)
-      @import_map << {name => to, "preload" => preload}
+      @imports << {name => to, "preload" => preload}
     end
 
     # Add a scope to your import map. Scopes are paths relative to your application.
@@ -77,41 +77,16 @@ module AssetPipeline
       @scopes[scope] << {name => to}
     end
 
-    # Import all of the js files from a directory.
-    #
-    # The path to the directory must be relative to the root folder the binary is executing.
-    #
-    # Files imported this way will be loaded using relative file names that resolve to their base URLs.
-    #
-    # ```
-    #  import_all_from("src/custom_javascripts/")
-    # ```
-    #
-    # Will create an import map like:
-    # ```html
-    # <script type="importmap">
-    # {
-    #   "imports": {
-    #     "../custom_javascripts/file1": "/custom_javascripts/file1.js",
-    #     "../custom_javascripts/file2": "/custom_javascripts/file2.js"
-    #   }
-    # }
-    # </script>
-    # ```
-    #
-    def import_all_from(directory : String, preload : Bool = false)
-      Dir.glob("#{directory}/*.js").each do |file|
-        file_name = File.basename(file, ".js")
-        puts "File name: " + file_name
-        add_import(file_name, file_name, preload)
-      end
+    # :nodoc:
+    def imports
+      @imports
     end
 
     # :nodoc:
     private def create_map_list_as_string : String
       final_string = ""
 
-      @import_map.each_with_index do |import, index|
+      @imports.each_with_index do |import, index|
         if import["preload"]
           @preload_module_links += %(<link rel="modulepreload" href="#{import.first_value}">\n)
         end
@@ -121,7 +96,7 @@ module AssetPipeline
         end
 
         final_string += "\"#{import.first_key}\": \"#{import.first_value}\""
-        final_string += ",\n" unless index + 1 == @import_map.size
+        final_string += ",\n" unless index + 1 == @imports.size
       end
 
       final_string

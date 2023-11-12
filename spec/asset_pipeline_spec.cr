@@ -1,6 +1,10 @@
 require "./spec_helper"
+require "file_utils"
 
 describe AssetPipeline::FrontLoader do
+  Spec.after_each do
+    FileUtils.rm_r(Dir.glob("spec/test_output/**/*.js"))
+  end
 
   it "registers the default import map" do
     front_loader = AssetPipeline::FrontLoader.new
@@ -28,22 +32,22 @@ describe AssetPipeline::FrontLoader do
 
   it "properly renders an import map from the FrontLoader" do
     tmp_map = AssetPipeline::ImportMap.new(name: "test")
-    tmp_map.add_import("test", "test.js")
+    tmp_map.add_import("test", "some_js.js")
 
     tmp_map2 = AssetPipeline::ImportMap.new
-    tmp_map2.add_import("test", "test2.js")
+    tmp_map2.add_import("test", "subfolder/second_sub_folder/second_nested_file.js")
 
-    front_loader = AssetPipeline::FrontLoader.new do |import_maps|
+    front_loader = AssetPipeline::FrontLoader.new(js_source_path: Path["spec/test_js"], js_output_path: Path["spec/test_output"]) do |import_maps|
       import_maps << tmp_map
       import_maps << tmp_map2
     end
 
     final_import_map = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./test.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"./some_js.js"}}</script>
     STRING
 
     final_import_map2 = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./test2.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"./subfolder/second_sub_folder/second_nested_file.js"}}</script>
     STRING
 
     front_loader.render_import_map_tag("test").gsub(" ", "").gsub("\n", "").should eq(final_import_map)
