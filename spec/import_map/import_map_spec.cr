@@ -8,7 +8,7 @@ describe AssetPipeline::ImportMap do
     import_map.add_import("test", "test.js")
 
     expected_response = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./test.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"/test.js"}}</script>
     STRING
     import_map.build_import_map_tag.gsub(" ", "").gsub("\n", "").should eq(expected_response)
   end
@@ -20,7 +20,7 @@ describe AssetPipeline::ImportMap do
     import_map.add_import("test2", "test2.js")
 
     expected_response = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./test.js","test2":"./test2.js"}}</script>
+    <scripttype="importmap">{"imports":{"test":"/test.js","test2":"/test2.js"}}</script>
     STRING
     import_map.build_import_map_tag.gsub(" ", "").gsub("\n", "").should eq(expected_response)
   end
@@ -32,7 +32,7 @@ describe AssetPipeline::ImportMap do
     import_map.add_import("test2", "test2.js")
 
     expected_response = <<-STRING
-    <scripttype="importmap">{"imports":{"test":"./test.js","test2":"./test2.js"}}</script><linkrel="modulepreload"href="test.js">
+    <scripttype="importmap">{"imports":{"test":"/test.js","test2":"/test2.js"}}</script><linkrel="modulepreload"href="test.js">
     STRING
     import_map.build_import_map_tag.gsub(" ", "").gsub("\n", "").should eq(expected_response)
   end

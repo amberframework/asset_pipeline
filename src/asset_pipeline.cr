@@ -17,7 +17,7 @@ module AssetPipeline
   # ```
   # front_loader = AssetPipeline::FrontLoader.new
   # import_map = front_loader.get_import_map
-  # import_map.add_import("someClass", "./your_file.js")
+  # import_map.add_import("someClass", "your_file.js")
   # front_loader.render_import_map_tag # Generates the import map tag and any module preload directives
   # ```
   #
@@ -26,7 +26,7 @@ module AssetPipeline
   # ```
   # front_loader = AssetPipeline::FrontLoader.new(import_map: AssetPipeline::ImportMap.new(name: "my_import_map"))
   # import_map = front_loader.get_import_map("my_import_map") # You must specify the import map by the name you created
-  # import_map.add_import("someClass", "./your_file.js")
+  # import_map.add_import("someClass", "your_file.js")
   # front_loader.render_import_map_tag("my_import_map") # You must specify the name of the import map by the name you created
   # ```
   #

@@ -97,10 +97,8 @@ module AssetPipeline
         if !import.first_value.to_s.starts_with?(/http|\.\//)
           first_value = import[import.first_key].to_s
 
-          if first_value.starts_with?(/\//)
-            import[import.first_key] = "." + first_value
-          else
-            import[import.first_key] = "./" + first_value
+          if !first_value.starts_with?(/\/|\.\//)
+            import[import.first_key] = "/" + first_value
           end
         end
 
