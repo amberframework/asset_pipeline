@@ -20,9 +20,11 @@ Asset Pipeline is a shard written to handle 3 types of assets:
 
 ## Usage
 
+View the full documentation for the [current version here](https://amberframework.github.io/asset_pipeline/AssetPipeline/FrontLoader.html)
+
 For the fullest examples, please view the docs for `AssetPipeline::FrontLoader`.
 
-The `FrontLoader` class is the primary class to use for handling all of your assets with the AssetPipeline.
+The `FrontLoader` class is the primary class to use for handling all of your assets with the AssetPipeline, including the `ImportMaps`.
 
 ## Development
 
