@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.5.1">
+<meta name="crystal_docs.project_version" content="v0.34.0">
+<meta name="crystal_docs.project_name" content="asset_pipeline">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="asset_pipeline">
+  <title>AssetPipeline::FrontLoader - asset_pipeline v0.34.0</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          asset_pipeline
+        </a>
+      </h1>
+
+      <span class="project-version">
+        v0.34.0
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="asset_pipeline/AssetPipeline" data-name="assetpipeline">
+      <a href="../AssetPipeline.html">AssetPipeline</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="asset_pipeline/AssetPipeline/FrontLoader" data-name="assetpipeline::frontloader">
+      <a href="../AssetPipeline/FrontLoader.html">FrontLoader</a>
+      
+    </li>
+  
+  <li class=" " data-id="asset_pipeline/AssetPipeline/ImportMap" data-name="assetpipeline::importmap">
+      <a href="../AssetPipeline/ImportMap.html">ImportMap</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> AssetPipeline::<wbr>FrontLoader
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../AssetPipeline/FrontLoader.html">AssetPipeline::FrontLoader</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>The asset pipeline is responsible for loading assets from the import maps, asset loader and compiling styling.</p>
+<p>Use the <code><a href="../AssetPipeline/FrontLoader.html">FrontLoader</a></code> class to initialize and manage your asset pipeline as a whole.</p>
+<h1><a id="how-to-use-import-maps" class="anchor" href="#how-to-use-import-maps">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>How to use Import Maps</h1>
+<p>Using import maps is simple. A default &quot;application&quot; import map is created when a <code><a href="../AssetPipeline/FrontLoader.html">AssetPipeline::FrontLoader</a></code> is initialized:</p>
+<pre><code class="language-crystal">front_loader <span class="o">=</span> <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">FrontLoader</span>.new
+import_map <span class="o">=</span> front_loader.get_import_map
+import_map.add_import(<span class="s">&quot;someClass&quot;</span>, <span class="s">&quot;your_file.js&quot;</span>)
+front_loader.render_import_map_tag <span class="c"># Generates the import map tag and any module preload directives</span></code></pre>
+<p>You can also specify the name of your import map by initializing the with an import map</p>
+<pre><code class="language-crystal">front_loader <span class="o">=</span> <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">FrontLoader</span>.new(import_map: <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">ImportMap</span>.new(name: <span class="s">&quot;my_import_map&quot;</span>))
+import_map <span class="o">=</span> front_loader.get_import_map(<span class="s">&quot;my_import_map&quot;</span>) <span class="c"># You must specify the import map by the name you created</span>
+import_map.add_import(<span class="s">&quot;someClass&quot;</span>, <span class="s">&quot;your_file.js&quot;</span>)
+front_loader.render_import_map_tag(<span class="s">&quot;my_import_map&quot;</span>) <span class="c"># You must specify the name of the import map by the name you created</span></code></pre>
+<p>If you need to create multiple import maps, the initializer can take a block:</p>
+<pre><code class="language-crystal">front_loader <span class="o">=</span> <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">FrontLoader</span>.new <span class="k">do</span> <span class="o">|</span>import_maps<span class="o">|</span>
+  import_map1 <span class="o">=</span> <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">ImportMap</span>.new
+  import_map1.add_import(<span class="s">&quot;stimulus&quot;</span>, <span class="s">&quot;https://cdn.jsdelivr.net/npm/stimulus@3.2.2/+esm&quot;</span>, preload: <span class="n">true</span>)
+
+  import_map2 <span class="o">=</span> <span class="t">AssetPipeline</span><span class="t">::</span><span class="t">ImportMap</span>.new(<span class="s">&quot;admin_area&quot;</span>)
+  import_map2.add_import(<span class="s">&quot;alpine&quot;</span>, <span class="s">&quot;https://cdn.jsdelivr.net/npm/alpinejs@3.13.2/+esm&quot;</span>)
+
+  import_maps <span class="o">&lt;&lt;</span> import_map1
+  import_maps <span class="o">&lt;&lt;</span> import_map2
+<span class="k">end</span>
+
+front_loader.render_import_map_tag               <span class="c"># Renders the import_map1 using the default &quot;application&quot; name</span>
+front_loader.render_import_map_tag(<span class="s">&quot;admin_area&quot;</span>) <span class="c"># Renders the import_map2. Tip: only 1 import map should be on a page</span></code></pre>
+<p>Read more about the <code><a href="../AssetPipeline/ImportMap.html">ImportMap</a></code> class to know all of your options, including the 'preload' and 'scope' feature.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L52" target="_blank">
+        asset_pipeline.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets/%22%29%2Cimport_maps%3AArray%28ImportMap%29%3D%5B%5DofImportMap%29-class-method" class="signature"><strong>.new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets/&quot;</span>), import_maps : Array(ImportMap) = <span class="o">[]</span> <span class="k">of</span> <span class="t">ImportMap</span>)</a>
+        
+          <div class="summary"><p>The default initializer for the <code><a href="../AssetPipeline/FrontLoader.html">FrontLoader</a></code> class.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets/%22%29%2Cimport_map%3AImportMap%3DImportMap.new%29-class-method" class="signature"><strong>.new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets/&quot;</span>), import_map : ImportMap = <span class="t">ImportMap</span>.new)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript/%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets%22%29%2C%26%29-class-method" class="signature"><strong>.new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript/&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets&quot;</span>), &)</a>
+        
+          <div class="summary"><p>Initialize the asset pipeline with the given <em>block</em>.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#generate_file_version_hash%28import_map_name%3AString%3D%22application%22%29-instance-method" class="signature"><strong>#generate_file_version_hash</strong>(import_map_name : String = <span class="s">&quot;application&quot;</span>)</a>
+        
+          <div class="summary"><p>Generates the file hash and appends it to the file name.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#get_import_map%28name%3AString%3D%22application%22%29%3AAssetPipeline%3A%3AImportMap-instance-method" class="signature"><strong>#get_import_map</strong>(name : String = <span class="s">&quot;application&quot;</span>) : AssetPipeline::ImportMap</a>
+        
+          <div class="summary"><p>Gets the import map with the given <em>name</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#import_maps%3AArray%28ImportMap%29-instance-method" class="signature"><strong>#import_maps</strong> : Array(ImportMap)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#import_maps%3D%28import_maps%3AArray%28ImportMap%29%29-instance-method" class="signature"><strong>#import_maps=</strong>(import_maps : Array(ImportMap))</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_import_map_as_file%28name%3AString%3D%22application%22%29%3AString-instance-method" class="signature"><strong>#render_import_map_as_file</strong>(name : String = <span class="s">&quot;application&quot;</span>) : String</a>
+        
+          <div class="summary"><p>Returns the url to the import_map.json file that has been generated</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_import_map_tag%28name%3AString%3D%22application%22%29%3AString-instance-method" class="signature"><strong>#render_import_map_tag</strong>(name : String = <span class="s">&quot;application&quot;</span>) : String</a>
+        
+          <div class="summary"><p>Returns the named import map JSON as a rendered, non-minified, string.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(js_source_path:Path=Path.new(&quot;src/app/javascript&quot;),js_output_path:Path=Path.new(&quot;public/assets/&quot;),import_maps:Array(ImportMap)=[]ofImportMap)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets/&quot;</span>), import_maps : Array(<a href="../AssetPipeline/ImportMap.html">ImportMap</a>) = <span class="o">[]</span> <span class="k">of</span> <span class="t">ImportMap</span>)
+
+        <a class="method-permalink" href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets/%22%29%2Cimport_maps%3AArray%28ImportMap%29%3D%5B%5DofImportMap%29-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The default initializer for the <code><a href="../AssetPipeline/FrontLoader.html">FrontLoader</a></code> class.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L58" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(js_source_path:Path=Path.new(&quot;src/app/javascript&quot;),js_output_path:Path=Path.new(&quot;public/assets/&quot;),import_map:ImportMap=ImportMap.new)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets/&quot;</span>), import_map : <a href="../AssetPipeline/ImportMap.html">ImportMap</a> = <span class="t">ImportMap</span>.new)
+
+        <a class="method-permalink" href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets/%22%29%2Cimport_map%3AImportMap%3DImportMap.new%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L64" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(js_source_path:Path=Path.new(&quot;src/app/javascript/&quot;),js_output_path:Path=Path.new(&quot;public/assets&quot;),&amp;)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(js_source_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;src/app/javascript/&quot;</span>), js_output_path : Path = <span class="t">Path</span>.new(<span class="s">&quot;public/assets&quot;</span>), &)
+
+        <a class="method-permalink" href="#new%28js_source_path%3APath%3DPath.new%28%22src/app/javascript/%22%29%2Cjs_output_path%3APath%3DPath.new%28%22public/assets%22%29%2C%26%29-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Initialize the asset pipeline with the given <em>block</em>.</p>
+<p>The block is the import maps that will be used by the asset pipeline.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L73" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="generate_file_version_hash(import_map_name:String=&quot;application&quot;)-instance-method">
+      <div class="signature">
+        
+        def <strong>generate_file_version_hash</strong>(import_map_name : String = <span class="s">&quot;application&quot;</span>)
+
+        <a class="method-permalink" href="#generate_file_version_hash%28import_map_name%3AString%3D%22application%22%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Generates the file hash and appends it to the file name.
+:nodoc:</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L115" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="get_import_map(name:String=&quot;application&quot;):AssetPipeline::ImportMap-instance-method">
+      <div class="signature">
+        
+        def <strong>get_import_map</strong>(name : String = <span class="s">&quot;application&quot;</span>) : <a href="../AssetPipeline/ImportMap.html">AssetPipeline::ImportMap</a>
+
+        <a class="method-permalink" href="#get_import_map%28name%3AString%3D%22application%22%29%3AAssetPipeline%3A%3AImportMap-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Gets the import map with the given <em>name</em>.</p>
+<p>Default name is &quot;application&quot;.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L82" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="import_maps:Array(ImportMap)-instance-method">
+      <div class="signature">
+        
+        def <strong>import_maps</strong> : Array(<a href="../AssetPipeline/ImportMap.html">ImportMap</a>)
+
+        <a class="method-permalink" href="#import_maps%3AArray%28ImportMap%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L53" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="import_maps=(import_maps:Array(ImportMap))-instance-method">
+      <div class="signature">
+        
+        def <strong>import_maps=</strong>(import_maps : Array(<a href="../AssetPipeline/ImportMap.html">ImportMap</a>))
+
+        <a class="method-permalink" href="#import_maps%3D%28import_maps%3AArray%28ImportMap%29%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L53" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_import_map_as_file(name:String=&quot;application&quot;):String-instance-method">
+      <div class="signature">
+        
+        def <strong>render_import_map_as_file</strong>(name : String = <span class="s">&quot;application&quot;</span>) : String
+
+        <a class="method-permalink" href="#render_import_map_as_file%28name%3AString%3D%22application%22%29%3AString-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the url to the import_map.json file that has been generated</p>
+<p>Warning: currently there is minimal browser support for this part of the spec. Please test thoroughly before using this approach.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L95" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_import_map_tag(name:String=&quot;application&quot;):String-instance-method">
+      <div class="signature">
+        
+        def <strong>render_import_map_tag</strong>(name : String = <span class="s">&quot;application&quot;</span>) : String
+
+        <a class="method-permalink" href="#render_import_map_tag%28name%3AString%3D%22application%22%29%3AString-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the named import map JSON as a rendered, non-minified, string.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/amberframework/asset_pipeline/blob/7bfaec4b50578c2b48b62f85f5edccb57d85278c/src/asset_pipeline.cr#L87" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>
