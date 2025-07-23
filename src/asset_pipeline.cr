@@ -3,11 +3,15 @@ require "file_utils"
 require "./import_map/import_map"
 require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
+require "./asset_pipeline/framework_registry"
 require "./asset_pipeline/stimulus/stimulus_renderer"
 
 # TODO: Write documentation for `AssetPipeline`
 module AssetPipeline
   VERSION = "0.36.0"
+
+  # Initialize the framework registry with built-in framework support
+  FrameworkRegistry.register_builtin_frameworks
 
   # The asset pipeline is responsible for loading assets from the import maps, asset loader and compiling styling.
   #
@@ -201,11 +205,90 @@ module AssetPipeline
     # ```
     #
     # The *custom_js_block* parameter contains any custom JavaScript code to analyze and include.
-    # The *import_map_name* specifies which import map to use (defaults to "application").
     def render_initialization_script_with_analysis(custom_js_block : String = "", import_map_name : String = "application") : String
       import_map = get_import_map(import_map_name)
       renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
-      renderer.render_initialization_script_with_analysis
+      
+      script_content = renderer.generate_script_content
+      analysis = renderer.analyze_dependencies
+      
+      # Add dependency analysis comments if warnings exist, but only for dependencies not already in import map
+      warning_comments = [] of String
+      
+      if external_libs = analysis[:external]?
+        external_libs.each do |library|
+          # Check if dependency is already in import map before adding warning
+          unless import_map.imports.any? { |import_entry| import_entry.first_key == library }
+            warning_comments << "// WARNING: Add to import map: import_map.add_import(\"#{library}\", \"...\")"
+          end
+        end
+      end
+      
+      if local_modules = analysis[:local]?
+        local_modules.each do |module_name|
+          # Check if dependency is already in import map before adding warning
+          unless import_map.imports.any? { |import_entry| import_entry.first_key == module_name }
+            warning_comments << "// INFO: Consider adding local module: import_map.add_import(\"#{module_name}\", \"#{module_name}.js\")"
+          end
+        end
+      end
+      
+      final_content = warning_comments.empty? ? script_content : ([warning_comments.join("\n"), script_content].join("\n\n"))
+      
+      # Wrap content in script tag manually since wrap_in_script_tag is protected
+      return "" if final_content.strip.empty?
+      
+      <<-HTML
+      <script type="module">
+      #{final_content}
+      </script>
+      HTML
+    end
+
+    # Renders a framework-specific initialization script using the framework registry
+    #
+    # This method provides a generic interface for rendering framework-specific scripts
+    # based on the registered framework renderers. It automatically detects and uses
+    # the appropriate renderer for the specified framework.
+    #
+    # ```
+    # front_loader.render_framework_script("stimulus", "// Custom code", "application")
+    # front_loader.render_framework_script("alpine", "// Alpine setup", "application")
+    # ```
+    #
+    # The *framework_name* specifies which framework renderer to use (e.g., "stimulus", "alpine").
+    # The *custom_js_block* parameter contains any custom JavaScript code to include.
+    # The *import_map_name* specifies which import map to use (defaults to "application").
+    #
+    # Returns an empty string if the framework is not registered.
+    def render_framework_script(framework_name : String, custom_js_block : String = "", import_map_name : String = "application") : String
+      import_map = get_import_map(import_map_name)
+      renderer = FrameworkRegistry.create_renderer(framework_name, import_map, custom_js_block)
+      
+      if renderer.responds_to?(:render_framework_initialization_script)
+        renderer.render_framework_initialization_script
+      elsif renderer.responds_to?(:render_stimulus_initialization_script)
+        # Backward compatibility for StimulusRenderer
+        renderer.render_stimulus_initialization_script
+      else
+        ""
+      end
+    end
+
+    # Returns information about supported frameworks and their capabilities
+    #
+    # ```
+    # front_loader.framework_capabilities
+    # # => {
+    # #   "supported_frameworks" => ["stimulus"],
+    # #   "registry_summary" => {...}
+    # # }
+    # ```
+    def framework_capabilities : Hash(String, Array(String) | Hash(String, String | Array(String) | Int32 | Hash(String, Hash(String, String))))
+      {
+        "supported_frameworks" => FrameworkRegistry.supported_frameworks,
+        "registry_summary" => FrameworkRegistry.registry_summary
+      }
     end
 
     # Analyzes JavaScript dependencies in a custom code block

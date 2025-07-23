@@ -6,6 +6,7 @@ module AssetPipeline
   #   - scopes: this is a feature that can help rescrict which librarys are loaded. The keys here are relative paths in your application.
   #   - preloading: any import that's added with `preload: true` will also render a <link> tag to have the module preloaded
   #
+  # Enhanced in Phase 4 with metadata support for categorizing imports by type and framework.
   class ImportMap
     # The name of your import map. Updatable with the `name=` method.
     property name : String
@@ -73,12 +74,137 @@ module AssetPipeline
       @imports << {name => to, "preload" => preload}
     end
 
+    # Enhanced import method with metadata support for categorizing imports by type and framework
+    #
+    # ```
+    # import_map.add_import_with_metadata("HelloController", "hello_controller.js", 
+    #                                     type: "controller", framework: "stimulus")
+    # ```
+    #
+    # Supported types: "controller", "library", "utility", "framework", "component"
+    # Supported frameworks: "stimulus", "alpine", "vue", "react", nil (for framework-agnostic)
+    def add_import_with_metadata(name : String, to : String, preload : Bool = false, type : String? = nil, framework : String? = nil)
+      import_entry = {name => to, "preload" => preload}
+      import_entry["type"] = type if type
+      import_entry["framework"] = framework if framework
+      @imports << import_entry
+    end
+
     # Add a scope to your import map. Scopes are paths relative to your application.
     #
     # To learn how to use scopes, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap" target="_blank">read about import maps and scopes here</a>
     def add_scope(scope : String, name : String, to : String)
       raise "Scope key must start with `/`, `./`, or `../`" unless scope.starts_with?(/\/|\.\/|\.\.\//)
       @scopes[scope] << {name => to}
+    end
+
+    # Returns imports filtered by type (e.g., "controller", "library", "utility")
+    #
+    # ```
+    # import_map.imports_by_type("controller")  # Returns only controller imports
+    # ```
+    def imports_by_type(type : String) : Array(Hash(String, String | Bool))
+      @imports.select { |import_entry| import_entry["type"]? == type }
+    end
+
+    # Returns imports filtered by framework (e.g., "stimulus", "alpine", "vue")
+    #
+    # ```
+    # import_map.imports_by_framework("stimulus")  # Returns only Stimulus-related imports
+    # ```
+    def imports_by_framework(framework : String) : Array(Hash(String, String | Bool))
+      @imports.select { |import_entry| import_entry["framework"]? == framework }
+    end
+
+    # Returns imports that have no framework specified (framework-agnostic)
+    #
+    # ```
+    # import_map.framework_agnostic_imports  # Returns general/utility imports
+    # ```
+    def framework_agnostic_imports : Array(Hash(String, String | Bool))
+      @imports.select { |import_entry| import_entry["framework"]?.nil? }
+    end
+
+    # Returns stimulus controller imports specifically
+    #
+    # Convenience method that combines type="controller" and framework="stimulus" filtering
+    def stimulus_controller_imports : Array(Hash(String, String | Bool))
+      @imports.select do |import_entry|
+        import_entry["type"]? == "controller" && import_entry["framework"]? == "stimulus"
+      end
+    end
+
+    # Auto-detects and categorizes imports based on naming patterns
+    #
+    # This method analyzes existing imports and adds metadata based on common patterns:
+    # - Names ending in "Controller" → type: "controller", framework: "stimulus"
+    # - Framework names (@hotwired/stimulus, alpinejs, etc.) → type: "framework"
+    # - Known utility libraries → type: "library"
+    #
+    # ```
+    # import_map.auto_categorize_imports!
+    # ```
+    def auto_categorize_imports!
+      @imports.each do |import_entry|
+        import_name = import_entry.first_key
+        
+        # Skip if already categorized
+        next if import_entry.has_key?("type") || import_entry.has_key?("framework")
+        
+        # Auto-detect Stimulus controllers
+        if import_name.match(/^[A-Z][a-zA-Z0-9_]*Controller$/)
+          import_entry["type"] = "controller"
+          import_entry["framework"] = "stimulus"
+        # Auto-detect framework imports
+        elsif import_name.match(/@hotwired\/stimulus|stimulus/)
+          import_entry["type"] = "framework"
+          import_entry["framework"] = "stimulus"
+        elsif import_name.match(/alpinejs|alpine/)
+          import_entry["type"] = "framework"
+          import_entry["framework"] = "alpine"
+        elsif import_name.match(/vue/)
+          import_entry["type"] = "framework"
+          import_entry["framework"] = "vue"
+        elsif import_name.match(/react/)
+          import_entry["type"] = "framework"
+          import_entry["framework"] = "react"
+        # Auto-detect common libraries
+        elsif import_name.match(/lodash|underscore|jquery|axios|fetch/)
+          import_entry["type"] = "library"
+        # Default to utility for unrecognized patterns
+        else
+          import_entry["type"] = "utility"
+        end
+      end
+    end
+
+    # Returns a summary of import types and frameworks in the import map
+    #
+    # ```
+    # import_map.import_summary
+    # # => {
+    # #   types: {"controller" => 3, "library" => 2, "framework" => 1},
+    # #   frameworks: {"stimulus" => 4, "alpine" => 1}
+    # # }
+    # ```
+    def import_summary : Hash(String, Hash(String, Int32))
+      type_counts = Hash(String, Int32).new(0)
+      framework_counts = Hash(String, Int32).new(0)
+      
+      @imports.each do |import_entry|
+        if type = import_entry["type"]?.as?(String)
+          type_counts[type] += 1
+        end
+        
+        if framework = import_entry["framework"]?.as?(String)
+          framework_counts[framework] += 1
+        end
+      end
+      
+      {
+        "types" => type_counts,
+        "frameworks" => framework_counts
+      }
     end
 
     # :nodoc:

@@ -74,22 +74,25 @@ Improve AssetPipeline import map usage by adding automatic script generation cap
 ---
 
 ## Phase 4: Integration and API Enhancement
-**Status**: 🔲 Not Started  
+**Status**: ✅ Completed  
 **Goal**: Integrate both general and Stimulus-specific functionality into `FrontLoader`
 
 ### Tasks:
-- [ ] 4.1 Extend `FrontLoader` with framework-aware methods
-  - [ ] `render_initialization_script(custom_js_block, import_map_name)` method
-  - [ ] `render_stimulus_initialization_script(custom_js_block, import_map_name)` method
-  - [ ] Proper method signatures and parameter handling
-- [ ] 4.2 Enhance import map integration
-  - [ ] Add metadata to distinguish controller files from general JavaScript
-  - [ ] Create helper methods to categorize imports
-  - [ ] Support both framework-specific and general file detection
-- [ ] 4.3 Implement extensible architecture
-  - [ ] Allow for future framework modules (Alpine.js, Vue, etc.)
-  - [ ] Maintain clean separation of concerns
-  - [ ] Provide consistent APIs across framework modules
+- [x] 4.1 Extend `FrontLoader` with framework-aware methods
+  - [x] `render_initialization_script(custom_js_block, import_map_name)` method
+  - [x] `render_stimulus_initialization_script(custom_js_block, import_map_name)` method
+  - [x] `render_initialization_script_with_analysis` method with dependency warnings
+  - [x] Proper method signatures and parameter handling
+- [x] 4.2 Enhance import map integration
+  - [x] Add metadata support to distinguish controller files from general JavaScript
+  - [x] Create helper methods to categorize imports by type and framework
+  - [x] Support framework-specific filtering (`imports_by_framework`, `stimulus_controller_imports`)
+  - [x] Auto-categorization based on naming patterns
+- [x] 4.3 Implement extensible architecture
+  - [x] FrameworkRegistry for future framework modules (Alpine.js, Vue, etc.)
+  - [x] Factory pattern for creating framework-specific renderers
+  - [x] Clean separation of concerns with base FrameworkRenderer class
+  - [x] Consistent APIs across framework modules
 
 ---
 
