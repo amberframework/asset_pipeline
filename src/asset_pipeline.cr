@@ -1,6 +1,7 @@
 require "digest/sha256"
 require "file_utils"
 require "./import_map/import_map"
+require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
 require "./asset_pipeline/stimulus/stimulus_renderer"
 
@@ -186,6 +187,100 @@ module AssetPipeline
       import_map = get_import_map(import_map_name)
       renderer = AssetPipeline::Stimulus::StimulusRenderer.new(import_map, custom_js_block)
       renderer.render_stimulus_initialization_script
+    end
+
+    # Renders a JavaScript initialization script with dependency analysis and warnings
+    #
+    # This enhanced version includes comments about potentially missing dependencies to assist
+    # with development. It analyzes the custom JavaScript block and provides warnings about
+    # external libraries or local modules that may need to be added to the import map.
+    #
+    # ```
+    # front_loader.render_initialization_script_with_analysis("$('#app').fadeIn();", "application")
+    # # Includes comment: "// WARNING: Add to import map: import_map.add_import("jquery", "...")"
+    # ```
+    #
+    # The *custom_js_block* parameter contains any custom JavaScript code to analyze and include.
+    # The *import_map_name* specifies which import map to use (defaults to "application").
+    def render_initialization_script_with_analysis(custom_js_block : String = "", import_map_name : String = "application") : String
+      import_map = get_import_map(import_map_name)
+      renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
+      renderer.render_initialization_script_with_analysis
+    end
+
+    # Analyzes JavaScript dependencies in a custom code block
+    #
+    # Returns a hash containing:
+    # - :external - Array of detected external library names (e.g., ["jquery", "lodash"])
+    # - :local - Array of detected local module names (e.g., ["MyClass", "UtilityHelper"])
+    # - :suggestions - Array of human-readable import suggestions
+    #
+    # ```
+    # analysis = front_loader.analyze_javascript_dependencies("$('.modal').show(); MyClass.init();")
+    # puts analysis[:external]    # => ["jquery"]
+    # puts analysis[:local]       # => ["MyClass"]
+    # puts analysis[:suggestions] # => ["Add to import map: import_map.add_import(...)"]
+    # ```
+    def analyze_javascript_dependencies(custom_js_block : String, import_map_name : String = "application") : Hash(Symbol, Array(String))
+      import_map = get_import_map(import_map_name)
+      renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
+      renderer.analyze_dependencies
+    end
+
+    # Gets import suggestions for detected but missing dependencies
+    #
+    # Analyzes the JavaScript block and returns suggestions for dependencies that are used
+    # in the code but not present in the import map.
+    #
+    # ```
+    # suggestions = front_loader.get_dependency_suggestions("moment().format('YYYY-MM-DD')")
+    # puts suggestions # => ["Add to import map: import_map.add_import("moment", "https://...")"]
+    # ```
+    def get_dependency_suggestions(custom_js_block : String, import_map_name : String = "application") : Array(String)
+      import_map = get_import_map(import_map_name)
+      renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
+      renderer.get_import_suggestions
+    end
+
+    # Generates a comprehensive development report for JavaScript analysis
+    #
+    # This method provides detailed information about:
+    # - Detected dependencies (external and local)
+    # - Code complexity metrics
+    # - Import suggestions
+    # - Code organization recommendations
+    #
+    # Useful for development and debugging to understand what the dependency analyzer detected.
+    #
+    # ```
+    # report = front_loader.generate_dependency_report(my_javascript_code)
+    # puts report
+    # ```
+    def generate_dependency_report(custom_js_block : String, import_map_name : String = "application") : String
+      import_map = get_import_map(import_map_name)
+      renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
+      renderer.generate_development_report
+    end
+
+    # Analyzes code complexity and provides organization suggestions
+    #
+    # Returns metrics about the JavaScript code including:
+    # - lines: Number of non-empty lines
+    # - functions: Number of function definitions
+    # - classes: Number of class definitions  
+    # - event_listeners: Number of event listener registrations
+    # - suggestions: Array of code organization recommendations
+    #
+    # ```
+    # complexity = front_loader.analyze_code_complexity(large_javascript_block)
+    # puts "Lines: #{complexity[:lines]}"
+    # puts "Suggestions: #{complexity[:suggestions]}"
+    # ```
+    def analyze_code_complexity(custom_js_block : String)
+      # Don't need import map for complexity analysis
+      import_map = AssetPipeline::ImportMap.new("temp")
+      renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
+      renderer.analyze_code_complexity
     end
 
     # Clears the cache if the clear_cache_upon_change option is enabled.

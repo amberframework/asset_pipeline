@@ -33,22 +33,22 @@ Improve AssetPipeline import map usage by adding automatic script generation cap
 ---
 
 ## Phase 2: General Script Generation Engine  
-**Status**: 🔲 Not Started  
+**Status**: ✅ Completed  
 **Goal**: Build the framework-agnostic script generation functionality
 
 ### Tasks:
-- [ ] 2.1 Implement general `ScriptRenderer` class
-  - [ ] Handle custom JavaScript initialization blocks
-  - [ ] Generate basic import statements for detected dependencies
-  - [ ] Provide foundation for framework-specific renderers
-- [ ] 2.2 Create automatic import detection
-  - [ ] Local JavaScript files referenced in import maps
-  - [ ] External library dependencies
-  - [ ] Framework-agnostic patterns
-- [ ] 2.3 Build base script template system
-  - [ ] Wrap content in `<script type="module">` tags
-  - [ ] Handle basic import/initialization structure
-  - [ ] Provide extension points for framework-specific logic
+- [x] 2.1 Implement general `ScriptRenderer` class
+  - [x] Handle custom JavaScript initialization blocks
+  - [x] Generate basic import statements for detected dependencies
+  - [x] Provide foundation for framework-specific renderers
+- [x] 2.2 Create automatic import detection
+  - [x] Local JavaScript files referenced in import maps
+  - [x] External library dependencies
+  - [x] Framework-agnostic patterns
+- [x] 2.3 Build base script template system
+  - [x] Wrap content in `<script type="module">` tags
+  - [x] Handle basic import/initialization structure
+  - [x] Provide extension points for framework-specific logic
 
 ---
 
