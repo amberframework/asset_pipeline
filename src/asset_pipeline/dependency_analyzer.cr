@@ -2,6 +2,11 @@ module AssetPipeline
   # The `DependencyAnalyzer` analyzes JavaScript code to detect dependencies that should be imported.
   # It can identify references to external libraries, local modules, and common JavaScript patterns
   # that indicate missing imports.
+  #
+  # Performance optimizations:
+  # - Caches dependency analysis results based on JavaScript content hash
+  # - Memoizes expensive regex operations
+  # - Caches import suggestions to avoid regeneration
   class DependencyAnalyzer
     # Common external library patterns and their typical import names
     EXTERNAL_LIBRARY_PATTERNS = {
@@ -49,8 +54,17 @@ module AssetPipeline
     ]
 
     @javascript_content : String
+    @content_hash : UInt64
+    
+    # Performance caches - class level to share across instances
+    @@dependency_cache : Hash(UInt64, Hash(Symbol, Array(String))) = {} of UInt64 => Hash(Symbol, Array(String))
+    @@external_deps_cache : Hash(UInt64, Array(String)) = {} of UInt64 => Array(String)
+    @@local_deps_cache : Hash(UInt64, Array(String)) = {} of UInt64 => Array(String)
+    @@imports_cache : Hash(UInt64, Array(String)) = {} of UInt64 => Array(String)
+    @@complexity_cache : Hash(UInt64, Hash(String, String)) = {} of UInt64 => Hash(String, String)
     
     def initialize(@javascript_content : String)
+      @content_hash = @javascript_content.hash.to_u64
     end
 
     # Analyzes the JavaScript content and returns detected dependencies
@@ -60,19 +74,37 @@ module AssetPipeline
     # - :local - Array of local module names detected
     # - :suggestions - Array of import suggestions
     def analyze_dependencies : Hash(Symbol, Array(String))
+      # Check cache first
+      if cached_result = @@dependency_cache[@content_hash]?
+        return cached_result
+      end
+      
       external_deps = detect_external_dependencies
       local_deps = detect_local_dependencies
       suggestions = generate_import_suggestions(external_deps, local_deps)
       
-      Hash(Symbol, Array(String)).new.tap do |hash|
+      result = Hash(Symbol, Array(String)).new.tap do |hash|
         hash[:external] = external_deps
         hash[:local] = local_deps
         hash[:suggestions] = suggestions
       end
+      
+      # Cache the result
+      @@dependency_cache[@content_hash] = result
+      
+      # Limit cache size to prevent memory growth
+      limit_cache_size(@@dependency_cache, 100)
+      
+      result
     end
 
     # Detects external library dependencies from common usage patterns
     def detect_external_dependencies : Array(String)
+      # Check cache first
+      if cached_deps = @@external_deps_cache[@content_hash]?
+        return cached_deps
+      end
+      
       detected = Set(String).new
       
       EXTERNAL_LIBRARY_PATTERNS.each do |pattern, library_name|
@@ -81,11 +113,22 @@ module AssetPipeline
         end
       end
       
-      detected.to_a
+      result = detected.to_a
+      
+      # Cache the result
+      @@external_deps_cache[@content_hash] = result
+      limit_cache_size(@@external_deps_cache, 200)
+      
+      result
     end
 
     # Detects local module dependencies from usage patterns
     def detect_local_dependencies : Array(String)
+      # Check cache first
+      if cached_deps = @@local_deps_cache[@content_hash]?
+        return cached_deps
+      end
+      
       detected = Set(String).new
       
       LOCAL_MODULE_PATTERNS.each do |pattern|
@@ -95,7 +138,13 @@ module AssetPipeline
         end
       end
       
-      detected.to_a
+      result = detected.to_a
+      
+      # Cache the result
+      @@local_deps_cache[@content_hash] = result
+      limit_cache_size(@@local_deps_cache, 200)
+      
+      result
     end
 
     # Generates import statement suggestions based on detected dependencies
@@ -155,6 +204,11 @@ module AssetPipeline
 
     # Analyzes import statements that are already present in the code
     def extract_existing_imports : Array(String)
+      # Check cache first
+      if cached_imports = @@imports_cache[@content_hash]?
+        return cached_imports
+      end
+      
       imports = [] of String
       
       # Match import statements
@@ -167,7 +221,13 @@ module AssetPipeline
         imports << match[1]
       end
       
-      imports.uniq
+      result = imports.uniq
+      
+      # Cache the result
+      @@imports_cache[@content_hash] = result
+      limit_cache_size(@@imports_cache, 200)
+      
+      result
     end
 
     # Checks if the code uses any module syntax
@@ -179,6 +239,11 @@ module AssetPipeline
 
     # Analyzes the code complexity to determine if it needs modularization
     def analyze_code_complexity
+      # Check cache first
+      if cached_complexity = @@complexity_cache[@content_hash]?
+        return cached_complexity
+      end
+      
       lines = @javascript_content.split('\n').reject(&.strip.empty?)
       # Count function declarations, arrow functions, and class methods
       function_declarations = @javascript_content.scan(/function\s+\w+/).size
@@ -203,13 +268,70 @@ module AssetPipeline
         suggestions << "Consider using a framework like Stimulus for event handling"
       end
       
-      {
-        lines: lines.size,
-        functions: functions,
-        classes: classes,
-        event_listeners: event_listeners,
-        suggestions: suggestions
+      result = {
+        "lines" => lines.size.to_s,
+        "functions" => functions.to_s,
+        "classes" => classes.to_s,
+        "event_listeners" => event_listeners.to_s,
+        "suggestions" => suggestions.join(", ")
       }
+      
+      # Cache the result
+      @@complexity_cache[@content_hash] = result
+      limit_cache_size(@@complexity_cache, 100)
+      
+      result
+    end
+
+    # Performance monitoring and cache management methods
+    
+    # Returns cache statistics for monitoring performance
+    def self.cache_stats : Hash(String, Int32)
+      {
+        "dependency_cache_size" => @@dependency_cache.size,
+        "external_deps_cache_size" => @@external_deps_cache.size,
+        "local_deps_cache_size" => @@local_deps_cache.size,
+        "imports_cache_size" => @@imports_cache.size,
+        "complexity_cache_size" => @@complexity_cache.size
+      }
+    end
+
+    # Clears all performance caches (useful for testing or memory management)
+    def self.clear_caches
+      @@dependency_cache.clear
+      @@external_deps_cache.clear
+      @@local_deps_cache.clear
+      @@imports_cache.clear
+      @@complexity_cache.clear
+    end
+
+    # Limits cache size using FIFO eviction
+    private def limit_cache_size(cache, max_size)
+      if cache.size > max_size
+        # Remove oldest entries (simple FIFO eviction)
+        keys_to_remove = cache.keys.first((cache.size - max_size) + 1)
+        keys_to_remove.each { |key| cache.delete(key) }
+      end
+    end
+
+    # Bulk analysis for multiple JavaScript blocks (optimized for performance)
+    def self.bulk_analyze(javascript_blocks : Array(String)) : Array(Hash(Symbol, Array(String)))
+      results = [] of Hash(Symbol, Array(String))
+      
+      javascript_blocks.each do |js_content|
+        analyzer = new(js_content)
+        results << analyzer.analyze_dependencies
+      end
+      
+      results
+    end
+
+    # Pre-warm cache with common patterns (useful for production deployments)
+    def self.warm_cache(common_patterns : Array(String))
+      common_patterns.each do |pattern|
+        analyzer = new(pattern)
+        analyzer.analyze_dependencies
+      end
     end
   end
 end 

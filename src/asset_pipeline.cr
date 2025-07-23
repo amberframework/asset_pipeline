@@ -210,7 +210,7 @@ module AssetPipeline
       renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
       
       script_content = renderer.generate_script_content
-      analysis = renderer.analyze_dependencies
+      analysis = renderer.analyze_dependencies_with_suggestions
       
       # Add dependency analysis comments if warnings exist, but only for dependencies not already in import map
       warning_comments = [] of String
@@ -307,7 +307,7 @@ module AssetPipeline
     def analyze_javascript_dependencies(custom_js_block : String, import_map_name : String = "application") : Hash(Symbol, Array(String))
       import_map = get_import_map(import_map_name)
       renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
-      renderer.analyze_dependencies
+      renderer.analyze_dependencies_with_suggestions
     end
 
     # Gets import suggestions for detected but missing dependencies

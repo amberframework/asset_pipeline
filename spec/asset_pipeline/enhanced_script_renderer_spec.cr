@@ -16,7 +16,7 @@ describe AssetPipeline::ScriptRenderer do
         JS
         
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code, enable_dependency_analysis: true)
-        analysis = renderer.analyze_dependencies
+        analysis = renderer.analyze_dependencies_with_suggestions
         
         analysis[:external].should contain("chartjs")
         analysis[:external].should contain("jquery")
@@ -55,7 +55,7 @@ describe AssetPipeline::ScriptRenderer do
         js_code = "$('#app').fadeIn();"
         
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code, enable_dependency_analysis: false)
-        analysis = renderer.analyze_dependencies
+        analysis = renderer.analyze_dependencies_with_suggestions
         
         analysis[:external].should be_empty
         analysis[:local].should be_empty
