@@ -284,7 +284,7 @@ module AssetPipeline
     # #   "registry_summary" => {...}
     # # }
     # ```
-    def framework_capabilities : Hash(String, Array(String) | Hash(String, String | Array(String) | Int32 | Hash(String, Hash(String, String))))
+    def framework_capabilities
       {
         "supported_frameworks" => FrameworkRegistry.supported_frameworks,
         "registry_summary" => FrameworkRegistry.registry_summary

@@ -110,7 +110,7 @@ module AssetPipeline
     # #   "details" => {...}
     # # }
     # ```
-    def self.registry_summary : Hash(String, String | Array(String) | Int32 | Hash(String, Hash(String, String)))
+    def self.registry_summary
       total_patterns = @@framework_patterns.values.sum(&.size)
       
       {
