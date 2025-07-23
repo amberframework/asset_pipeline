@@ -1,6 +1,8 @@
 require "digest/sha256"
 require "file_utils"
 require "./import_map/import_map"
+require "./asset_pipeline/script_renderer"
+require "./asset_pipeline/stimulus/stimulus_renderer"
 
 # TODO: Write documentation for `AssetPipeline`
 module AssetPipeline
@@ -140,6 +142,50 @@ module AssetPipeline
           target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, target_import_map.public_asset_base_path.join(Path[""]).to_s)
         end
       end
+    end
+
+    # Renders a general JavaScript initialization script with imports and custom code
+    #
+    # This method generates a complete `<script type="module">` tag containing:
+    # - Import statements based on the specified import map
+    # - Custom JavaScript initialization code
+    #
+    # ```
+    # front_loader.render_initialization_script("console.log('App initialized');", "application")
+    # ```
+    #
+    # The *custom_js_block* parameter contains any custom JavaScript code to include in the script.
+    # The *import_map_name* specifies which import map to use for generating imports (defaults to "application").
+    def render_initialization_script(custom_js_block : String = "", import_map_name : String = "application") : String
+      import_map = get_import_map(import_map_name)
+      renderer = ScriptRenderer.new(import_map, custom_js_block)
+      renderer.render_initialization_script
+    end
+
+    # Renders a Stimulus-specific initialization script with automatic controller detection
+    #
+    # This method generates a complete `<script type="module">` tag containing:
+    # - Stimulus core imports (@hotwired/stimulus)
+    # - Automatic controller imports based on import map entries
+    # - Stimulus application initialization and controller registration
+    # - Custom JavaScript initialization code (with automatic filtering of redundant code)
+    #
+    # ```
+    # front_loader.render_stimulus_initialization_script("// Custom initialization code", "application")
+    # ```
+    #
+    # The renderer automatically:
+    # - Detects controller classes from import map entries ending in "Controller"
+    # - Generates proper controller registrations with kebab-case identifiers
+    # - Filters out duplicate import and registration statements from custom code
+    # - Sets up the Stimulus application with proper startup sequence
+    #
+    # The *custom_js_block* parameter contains any custom JavaScript code to include.
+    # The *import_map_name* specifies which import map to use (defaults to "application").
+    def render_stimulus_initialization_script(custom_js_block : String = "", import_map_name : String = "application") : String
+      import_map = get_import_map(import_map_name)
+      renderer = AssetPipeline::Stimulus::StimulusRenderer.new(import_map, custom_js_block)
+      renderer.render_stimulus_initialization_script
     end
 
     # Clears the cache if the clear_cache_upon_change option is enabled.
