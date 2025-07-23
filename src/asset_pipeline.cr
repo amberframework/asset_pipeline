@@ -4,7 +4,7 @@ require "./import_map/import_map"
 
 # TODO: Write documentation for `AssetPipeline`
 module AssetPipeline
-  VERSION = "0.34.0"
+  VERSION = "0.36.0"
 
   # The asset pipeline is responsible for loading assets from the import maps, asset loader and compiling styling.
   #
@@ -53,15 +53,17 @@ module AssetPipeline
     property import_maps : Array(ImportMap) = [] of ImportMap
     @js_source_path : Path
     @js_output_path : Path
+    @clear_cache_upon_change : Bool
+    @cache_cleared : Bool = false
 
     # The default initializer for the `FrontLoader` class.
-    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets/"), @import_maps : Array(ImportMap) = [] of ImportMap)
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets/"), @import_maps : Array(ImportMap) = [] of ImportMap, @clear_cache_upon_change : Bool = true)
       @js_output_path = @js_output_path.join(Path[""])
       @js_source_path = @js_source_path.join(Path[""])
       @import_maps << AssetPipeline::ImportMap.new("application") if @import_maps.empty?
     end
 
-    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets/"), import_map : ImportMap = ImportMap.new)
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript"), @js_output_path : Path = Path.new("public/assets/"), import_map : ImportMap = ImportMap.new, @clear_cache_upon_change : Bool = true)
       @js_output_path = @js_output_path.join(Path[""])
       @js_source_path = @js_source_path.join(Path[""])
       @import_maps << import_map
@@ -70,7 +72,10 @@ module AssetPipeline
     # Initialize the asset pipeline with the given *block*.
     #
     # The block is the import maps that will be used by the asset pipeline.
-    def initialize(@js_source_path : Path = Path.new("src/app/javascript/"), @js_output_path : Path = Path.new("public/assets"), &block)
+    #
+    # Set `clear_cache_upon_change` to `false` to disable automatic clearing of the output path before generating new cached files.
+    # By default, cache clearing is enabled to prevent accumulation of old cached files.
+    def initialize(@js_source_path : Path = Path.new("src/app/javascript/"), @js_output_path : Path = Path.new("public/assets"), @clear_cache_upon_change : Bool = true, &block)
       @js_output_path = @js_output_path.join(Path[""])
       @js_source_path = @js_source_path.join(Path[""])
       yield @import_maps
@@ -113,6 +118,8 @@ module AssetPipeline
     # Generates the file hash and appends it to the file name.
     # :nodoc:
     def generate_file_version_hash(import_map_name : String = "application")
+      clear_cache_if_needed
+
       file_hashes = Hash(String, String).new
       target_import_map = get_import_map(import_map_name)
 
@@ -132,6 +139,18 @@ module AssetPipeline
           first_key = target_import_map.imports[found_index].first_key
           target_import_map.imports[found_index][first_key] = cached_file_name.gsub(@js_output_path.to_s, target_import_map.public_asset_base_path.join(Path[""]).to_s)
         end
+      end
+    end
+
+    # Clears the cache if the clear_cache_upon_change option is enabled.
+    # This method is called automatically before generating file version hashes.
+    # :nodoc:
+    private def clear_cache_if_needed
+      if @clear_cache_upon_change && !@cache_cleared
+        if Dir.exists?(@js_output_path.to_s)
+          FileUtils.rm_rf(@js_output_path.to_s)
+        end
+        @cache_cleared = true
       end
     end
   end
