@@ -223,11 +223,11 @@ describe AssetPipeline::DependencyAnalyzer do
       analyzer = AssetPipeline::DependencyAnalyzer.new(simple_js)
       complexity = analyzer.analyze_code_complexity
       
-      complexity[:lines].should eq(4)
-      complexity[:functions].should eq(1)
-      complexity[:classes].should eq(0)
-      complexity[:event_listeners].should eq(0)
-      complexity[:suggestions].as(Array(String)).should be_empty
+      complexity["lines"].should eq("4")
+      complexity["functions"].should eq("1")
+      complexity["classes"].should eq("0")
+      complexity["event_listeners"].should eq("0")
+      complexity["suggestions"].should be_empty
     end
 
     it "provides suggestions for complex code" do
@@ -250,14 +250,14 @@ describe AssetPipeline::DependencyAnalyzer do
       analyzer = AssetPipeline::DependencyAnalyzer.new(complex_js)
       complexity = analyzer.analyze_code_complexity
       
-      complexity[:lines].as(Int32).should be > 50
-      complexity[:functions].as(Int32).should be > 5
-      complexity[:event_listeners].as(Int32).should be > 3
+      complexity["lines"].to_i.should be > 50
+      complexity["functions"].to_i.should be > 5
+      complexity["event_listeners"].to_i.should be > 3
       
-      suggestions = complexity[:suggestions].as(Array(String))
-      suggestions.any?(&.includes?("splitting large JavaScript")).should be_true
-      suggestions.any?(&.includes?("organizing functions")).should be_true
-      suggestions.any?(&.includes?("Stimulus")).should be_true
+              suggestions = complexity["suggestions"]
+      suggestions.includes?("splitting large JavaScript").should be_true
+      suggestions.includes?("organizing functions").should be_true
+      suggestions.includes?("Stimulus").should be_true
     end
 
     it "detects classes in code" do
@@ -274,7 +274,7 @@ describe AssetPipeline::DependencyAnalyzer do
       analyzer = AssetPipeline::DependencyAnalyzer.new(js_with_classes)
       complexity = analyzer.analyze_code_complexity
       
-      complexity[:classes].should eq(2)
+      complexity["classes"].should eq("2")
     end
   end
 

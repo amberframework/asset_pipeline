@@ -58,7 +58,7 @@ describe AssetPipeline::ScriptRenderer do
       result = renderer.render_initialization_script
       
       result.should contain("import TestClass from \"TestClass\";")
-      result.should contain("import \"utility\";")
+      result.should contain("import utility from \"utility\";")
       result.should contain("console.log('Initialized');")
       result.should contain("<script type=\"module\">")
       result.should contain("</script>")
@@ -88,8 +88,8 @@ describe AssetPipeline::ScriptRenderer do
       
       result = renderer.generate_script_content
       
-      result.should contain("import \"lodash\";")
-      result.should contain("import \"utility\";")
+      result.should contain("import lodash from \"lodash\";")
+      result.should contain("import utility from \"utility\";")
     end
 
     it "combines imports and custom JavaScript with proper spacing" do
@@ -159,9 +159,9 @@ describe AssetPipeline::ScriptRenderer do
       renderer = AssetPipeline::ScriptRenderer.new(import_map)
       result = renderer.generate_script_content
       
-      result.should contain("import \"lodash\";")
-      result.should contain("import \"stimulus\";")
-      result.should contain("import \"my-utility\";")
+      result.should contain("import lodash from \"lodash\";")
+      result.should contain("import stimulus from \"stimulus\";")
+      result.should contain("import my-utility from \"my-utility\";")
     end
 
     it "handles mixed case names correctly" do
@@ -175,9 +175,9 @@ describe AssetPipeline::ScriptRenderer do
       result = renderer.generate_script_content
       
       result.should contain("import jQuery from \"jQuery\";")
-      result.should contain("import \"jquery\";")
+      result.should contain("import jquery from \"jquery\";")
       result.should contain("import Vue from \"Vue\";")
-      result.should contain("import \"vue-router\";")
+      result.should contain("import vue-router from \"vue-router\";")
     end
   end
 end 

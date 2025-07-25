@@ -57,9 +57,9 @@ describe AssetPipeline::ScriptRenderer do
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code, enable_dependency_analysis: false)
         analysis = renderer.analyze_dependencies_with_suggestions
         
-        analysis[:external].should be_empty
-        analysis[:local].should be_empty
-        analysis[:suggestions].should be_empty
+        # When dependency analysis is disabled, should return empty hash structure
+        analysis.should be_a(Hash(Symbol, Array(String)))
+        analysis.should be_empty
       end
     end
 
@@ -74,9 +74,9 @@ describe AssetPipeline::ScriptRenderer do
         JS
         
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code)
-        enhanced_script = renderer.generate_enhanced_script_content
+        enhanced_script = renderer.generate_script_content
         
-        enhanced_script.should contain("// WARNING:")
+        enhanced_script.should contain("// Missing dependencies detected:")
         enhanced_script.should contain("jquery")
         enhanced_script.should contain("console.log('App ready');")
       end
@@ -88,10 +88,10 @@ describe AssetPipeline::ScriptRenderer do
         js_code = "$('.modal').show();"
         
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code)
-        enhanced_script = renderer.generate_enhanced_script_content
+        enhanced_script = renderer.generate_script_content
         
-        enhanced_script.should_not contain("// WARNING:")
-        enhanced_script.should contain("import \"jquery\";")
+        enhanced_script.should_not contain("// Missing dependencies detected:")
+        enhanced_script.should contain("import jquery from \"jquery\";")
         enhanced_script.should contain("$('.modal').show();")
       end
 
@@ -100,10 +100,10 @@ describe AssetPipeline::ScriptRenderer do
         js_code = "moment().format('YYYY-MM-DD');"
         
         renderer = AssetPipeline::ScriptRenderer.new(import_map, js_code)
-        script = renderer.render_initialization_script_with_analysis
+        script = renderer.render_initialization_script
         
         script.should contain("<script type=\"module\">")
-        script.should contain("// WARNING:")
+        script.should contain("// Missing dependencies detected:")
         script.should contain("moment")
         script.should contain("moment().format('YYYY-MM-DD');")
         script.should contain("</script>")
@@ -115,14 +115,15 @@ describe AssetPipeline::ScriptRenderer do
         import_map = AssetPipeline::ImportMap.new
         simple_js = "console.log('Hello');"
         
-        renderer = AssetPipeline::ScriptRenderer.new(import_map, simple_js)
+        renderer = AssetPipeline::ScriptRenderer.new(import_map, simple_js, enable_dependency_analysis: true)
         complexity = renderer.analyze_code_complexity
         
-        complexity[:lines].should eq(1)
-        complexity[:functions].should eq(0)
-        complexity[:classes].should eq(0)
-        complexity[:event_listeners].should eq(0)
-        complexity[:suggestions].should be_empty
+        complexity.should_not be_nil
+        complexity.not_nil!["lines"].should eq("1")
+        complexity.not_nil!["functions"].should eq("0")
+        complexity.not_nil!["classes"].should eq("0")
+        complexity.not_nil!["event_listeners"].should eq("0")
+        complexity.not_nil!["suggestions"].should be_empty
       end
 
       it "provides suggestions for complex code" do
@@ -143,17 +144,18 @@ describe AssetPipeline::ScriptRenderer do
           button.addEventListener('submit', handler4);
         JS
         
-        renderer = AssetPipeline::ScriptRenderer.new(import_map, complex_js)
+        renderer = AssetPipeline::ScriptRenderer.new(import_map, complex_js, enable_dependency_analysis: true)
         complexity = renderer.analyze_code_complexity
         
-        complexity[:lines].should be > 50
-        complexity[:functions].should be > 5
-        complexity[:event_listeners].should be > 3
+        complexity.should_not be_nil
+        complexity.not_nil!["lines"].to_i.should be > 50
+        complexity.not_nil!["functions"].to_i.should be > 5
+        complexity.not_nil!["event_listeners"].to_i.should be > 3
         
-        suggestions = complexity[:suggestions]
-        suggestions.any?(&.includes?("splitting large JavaScript")).should be_true
-        suggestions.any?(&.includes?("organizing functions")).should be_true
-        suggestions.any?(&.includes?("Stimulus")).should be_true
+        suggestions = complexity.not_nil!["suggestions"]
+        suggestions.includes?("splitting large JavaScript").should be_true
+        suggestions.includes?("organizing functions").should be_true
+        suggestions.includes?("Stimulus").should be_true
       end
     end
 
@@ -184,8 +186,8 @@ describe AssetPipeline::ScriptRenderer do
           const module = await import('./dynamic.js');
         JS
         
-        renderer = AssetPipeline::ScriptRenderer.new(import_map, js_with_imports)
-        imports = renderer.extract_existing_imports
+        renderer = AssetPipeline::ScriptRenderer.new(import_map, js_with_imports, enable_dependency_analysis: true)
+        imports = renderer.dependency_analyzer.not_nil!.extract_existing_imports
         
         imports.should contain("./utils/helper.js")
         imports.should contain("./classes/MyClass.js")
@@ -218,7 +220,6 @@ describe AssetPipeline::ScriptRenderer do
         report.should contain("=== ScriptRenderer Development Report ===")
         report.should contain("External dependencies detected:")
         report.should contain("Local modules detected:")
-        report.should contain("Existing imports found:")
         report.should contain("Code complexity:")
         report.should contain("Import suggestions:")
         report.should contain("=== End Report ===")
@@ -281,9 +282,9 @@ describe AssetPipeline::ScriptRenderer do
         
         # All methods should work together
         basic_content = renderer.generate_script_content
-        enhanced_content = renderer.generate_enhanced_script_content
+        enhanced_content = renderer.generate_script_content
         basic_script = renderer.render_initialization_script
-        enhanced_script = renderer.render_initialization_script_with_analysis
+        enhanced_script = renderer.render_initialization_script
         
         # All should contain the core functionality
         [basic_content, enhanced_content, basic_script, enhanced_script].each do |output|

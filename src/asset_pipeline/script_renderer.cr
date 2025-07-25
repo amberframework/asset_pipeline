@@ -244,7 +244,16 @@ module AssetPipeline
       return [] of String unless @dependency_analyzer
       
       deps = @dependency_analyzer.not_nil!.analyze_dependencies
-      deps[:suggestions]
+      external_deps = deps[:external]
+      local_deps = deps[:local]
+      
+      # Filter out dependencies that are already in the import map
+      existing_imports = @import_map.imports.map(&.first_key)
+      missing_external_deps = external_deps.reject { |dep| existing_imports.includes?(dep) }
+      missing_local_deps = local_deps.reject { |dep| existing_imports.includes?(dep) }
+      
+      # Generate suggestions only for missing dependencies
+      @dependency_analyzer.not_nil!.generate_import_suggestions(missing_external_deps, missing_local_deps)
     end
 
     # Performance monitoring methods

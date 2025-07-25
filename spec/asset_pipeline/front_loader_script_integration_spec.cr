@@ -16,7 +16,7 @@ describe AssetPipeline::FrontLoader do
         result.should contain("<script type=\"module\">")
         result.should contain("</script>")
         result.should contain("import TestClass from \"TestClass\";")
-        result.should contain("import \"utility\";")
+        result.should contain("import utility from \"utility\";")
         result.should contain("console.log('Application initialized');")
       end
 

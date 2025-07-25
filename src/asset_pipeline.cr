@@ -5,6 +5,7 @@ require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
 require "./asset_pipeline/framework_registry"
 require "./asset_pipeline/stimulus/stimulus_renderer"
+require "./asset_pipeline/components"
 
 # TODO: Write documentation for `AssetPipeline`
 module AssetPipeline
