@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Understanding Crystal Components - My Blog</title><style>* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.site-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+}
+
+.site-header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.site-header a {
+  color: white;
+  text-decoration: none;
+}
+
+.main-nav {
+  text-align: center;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.site-main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+  background-color: white;
+  min-height: 500px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.blog-post {
+  padding: 2rem;
+}
+
+.post-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.post-header h1 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.post-meta {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.post-content {
+  margin-bottom: 2rem;
+}
+
+.post-content p {
+  margin-bottom: 1rem;
+}
+
+.post-footer {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.tags {
+  color: #666;
+}
+
+.tag {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.tag:hover {
+  text-decoration: underline;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}</style></head><body><header class="site-header"><div class="logo"><a href="/">Crystal Blog</a></div>&lt;nav class=&quot;main-nav&quot;&gt;&lt;ul class=&quot;nav-list&quot;&gt;&lt;li&gt;&lt;a href=&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;/contact&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;</header><main class="site-main">&lt;article class=&quot;blog-post&quot;&gt;&lt;header class=&quot;post-header&quot;&gt;&lt;h1&gt;Building Type-Safe Web Components in Crystal&lt;/h1&gt;&lt;div class=&quot;post-meta&quot;&gt;&lt;span class=&quot;author&quot;&gt;By Jane Developer&lt;/span&gt; | &lt;span class=&quot;date&quot;&gt;December 15, 2023&lt;/span&gt;&lt;/div&gt;&lt;/header&gt;&lt;div class=&quot;post-content&quot;&gt;&amp;lt;p&amp;gt;Crystal is a powerful language that combines the elegance of Ruby with the performance of C. In this post, we&amp;amp;#39;ll explore how to build type-safe web components that generate HTML without templates.&amp;lt;/p&amp;gt;&amp;lt;h2&amp;gt;Why Type-Safe Components?&amp;lt;/h2&amp;gt;&amp;lt;p&amp;gt;Traditional template engines offer flexibility but sacrifice compile-time safety. With Crystal components, we get:&amp;lt;/p&amp;gt;&amp;lt;ul&amp;gt;&amp;lt;li&amp;gt;Compile-time HTML validation&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Type-safe attribute handling&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Better refactoring support&amp;lt;/li&amp;gt;&amp;lt;li&amp;gt;Performance optimizations&amp;lt;/li&amp;gt;&amp;lt;/ul&amp;gt;&amp;lt;h2&amp;gt;Example Code&amp;lt;/h2&amp;gt;&amp;lt;pre&amp;gt;&amp;lt;code class=&amp;quot;language-crystal&amp;quot;&amp;gt;class ButtonComponent &amp;amp;lt; Components::StatelessComponent
+  def render_content : String
+    Components::Elements::Button.new(
+      class: @attributes[&amp;amp;quot;class&amp;amp;quot;]? || &amp;amp;quot;btn&amp;amp;quot;,
+      type: @attributes[&amp;amp;quot;type&amp;amp;quot;]? || &amp;amp;quot;button&amp;amp;quot;
+    ).build do |button|
+      button &amp;amp;lt;&amp;amp;lt; (@attributes[&amp;amp;quot;label&amp;amp;quot;]? || &amp;amp;quot;Click me&amp;amp;quot;)
+    end.render
+  end
+end&amp;lt;/code&amp;gt;&amp;lt;/pre&amp;gt;&lt;/div&gt;&lt;footer class=&quot;post-footer&quot;&gt;&lt;div class=&quot;tags&quot;&gt;Tags: &lt;a href=&quot;/tags/crystal&quot; class=&quot;tag&quot;&gt;crystal&lt;/a&gt;, &lt;a href=&quot;/tags/web development&quot; class=&quot;tag&quot;&gt;web development&lt;/a&gt;, &lt;a href=&quot;/tags/components&quot; class=&quot;tag&quot;&gt;components&lt;/a&gt;&lt;/div&gt;&lt;/footer&gt;&lt;/article&gt;</main><footer class="site-footer"><p>© 2025 Crystal Blog. All rights reserved.</p></footer></body></html>
