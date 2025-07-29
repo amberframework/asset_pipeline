@@ -2,6 +2,7 @@ require "../src/components/elements/**"
 require "../src/components/base/**"
 require "../src/components/cache/**"
 require "../src/components/elements/grouping/figure"
+require "../src/components/elements/base/raw_html"
 
 # Example 1: Blog Post Component
 class BlogPostComponent < Components::StatelessComponent
@@ -32,7 +33,18 @@ class BlogPostComponent < Components::StatelessComponent
       
       # Post content
       content_div = Components::Elements::Div.new(class: "post-content")
-      content_div << (@children.map(&.to_s).join)
+      @children.each do |child|
+        case child
+        when Components::Component
+          content_div << Components::Elements::RawHTML.new(child.render)
+        when Components::Elements::HTMLElement
+          content_div << child
+        when Components::Elements::RawHTML
+          content_div << child
+        when String
+          content_div << child
+        end
+      end
       article << content_div
       
       # Post footer with tags
@@ -124,13 +136,24 @@ class LayoutComponent < Components::StatelessComponent
       
       # Add navigation
       nav = NavigationComponent.new
-      site_header << nav.render
+      site_header << Components::Elements::RawHTML.new(nav.render)
       
       body << site_header
       
       # Main content
       main = Components::Elements::Main.new(class: "site-main")
-      main << @children.map(&.to_s).join
+      @children.each do |child|
+        case child
+        when Components::Component
+          main << Components::Elements::RawHTML.new(child.render)
+        when Components::Elements::HTMLElement
+          main << child
+        when Components::Elements::RawHTML
+          main << child
+        when String
+          main << child
+        end
+      end
       body << main
       
       # Footer
@@ -303,16 +326,16 @@ def generate_blog_post_page
   post << Components::Elements::P.new.build do |p|
     p << "Crystal is a powerful language that combines the elegance of Ruby with the performance of C. "
     p << "In this post, we'll explore how to build type-safe web components that generate HTML without templates."
-  end.render
+  end
   
   post << Components::Elements::H2.new.build do |h2|
     h2 << "Why Type-Safe Components?"
-  end.render
+  end
   
   post << Components::Elements::P.new.build do |p|
     p << "Traditional template engines offer flexibility but sacrifice compile-time safety. "
     p << "With Crystal components, we get:"
-  end.render
+  end
   
   list = Components::Elements::Ul.new.build do |ul|
     ["Compile-time HTML validation", "Type-safe attribute handling", "Better refactoring support", "Performance optimizations"].each do |item|
@@ -322,11 +345,11 @@ def generate_blog_post_page
     end
   end
   
-  post << list.render
+  post << list
   
   post << Components::Elements::H2.new.build do |h2|
     h2 << "Example Code"
-  end.render
+  end
   
   code_block = Components::Elements::Pre.new.build do |pre|
     code = Components::Elements::Code.new(class: "language-crystal")
@@ -345,10 +368,10 @@ def generate_blog_post_page
     pre << code
   end
   
-  post << code_block.render
+  post << code_block
   
   # Add the post to the layout
-  layout << post.render
+  layout << Components::Elements::RawHTML.new(post.render)
   
   layout.render
 end
@@ -378,10 +401,10 @@ def generate_gallery_page
       ].join(",")
     )
     
-    page << gallery.render
+    page << Components::Elements::RawHTML.new(gallery.render)
   end
   
-  layout << content.render
+  layout << Components::Elements::RawHTML.new(content.render)
   layout.render
 end
 
@@ -432,10 +455,10 @@ def generate_static_site
         ul << li
       end
     end
-    page << features.render
+    page << Components::Elements::RawHTML.new(features.render)
   end
   
-  about_layout << about_content.render
+  about_layout << Components::Elements::RawHTML.new(about_content.render)
   File.write("output/about.html", about_layout.render)
   puts "Generated: output/about.html"
   

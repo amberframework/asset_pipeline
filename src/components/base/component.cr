@@ -1,3 +1,5 @@
+require "../elements/base/raw_html"
+
 module Components
   # Base class for all components
   # Components are reusable, composable units built from HTML elements
@@ -9,12 +11,12 @@ module Components
     getter attributes : Hash(String, String)
     
     # Component children
-    getter children : Array(Component | Elements::HTMLElement | String)
+    getter children : Array(Component | Elements::HTMLElement | String | Elements::RawHTML)
     
     def initialize(**attrs)
       @component_id = generate_component_id
       @attributes = {} of String => String
-      @children = [] of Component | Elements::HTMLElement | String
+      @children = [] of Component | Elements::HTMLElement | String | Elements::RawHTML
       
       # Process attributes
       attrs.each do |key, value|
@@ -23,13 +25,13 @@ module Components
     end
     
     # Add a child to the component
-    def <<(child : Component | Elements::HTMLElement | String) : self
+    def <<(child : Component | Elements::HTMLElement | String | Elements::RawHTML) : self
       @children << child
       self
     end
     
     # Add multiple children
-    def add_children(*children : Component | Elements::HTMLElement | String) : self
+    def add_children(*children : Component | Elements::HTMLElement | String | Elements::RawHTML) : self
       children.each { |child| self << child }
       self
     end
@@ -55,6 +57,11 @@ module Components
       render_content
     end
     
+    # Render the component as raw HTML (for adding to elements)
+    def to_raw_html : Elements::RawHTML
+      Elements::RawHTML.new(render)
+    end
+    
     # Abstract method to be implemented by subclasses
     abstract def render_content : String
     
@@ -70,6 +77,8 @@ module Components
         when Component
           child.render
         when Elements::HTMLElement
+          child.render
+        when Elements::RawHTML
           child.render
         when String
           escape_html(child)

@@ -1,4 +1,5 @@
 require "./html_element"
+require "./raw_html"
 
 module Components
   module Elements
@@ -9,18 +10,24 @@ module Components
       end
       
       # Add a child element or text content
-      def <<(child : HTMLElement | String) : self
+      def <<(child : HTMLElement | String | RawHTML) : self
         @children << child
         self
       end
       
+      # Add raw HTML content (not escaped)
+      def add_raw_html(html : String) : self
+        @children << RawHTML.new(html)
+        self
+      end
+      
       # Add a child element or text content (alias for <<)
-      def add_child(child : HTMLElement | String) : self
+      def add_child(child : HTMLElement | String | RawHTML) : self
         self << child
       end
       
       # Add multiple children at once
-      def add_children(*children : HTMLElement | String) : self
+      def add_children(*children : HTMLElement | String | RawHTML) : self
         children.each { |child| self << child }
         self
       end
@@ -52,6 +59,8 @@ module Components
         @children.map do |child|
           case child
           when HTMLElement
+            child.render
+          when RawHTML
             child.render
           when String
             escape_html(child)

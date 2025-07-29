@@ -1,4 +1,5 @@
 require "../base/stateful_component"
+require "../elements/base/raw_html"
 require "./reactive_handler"
 
 module Components
@@ -16,7 +17,7 @@ module Components
         )
         
         # Add the component content
-        wrapped << render_content
+        wrapped << Elements::RawHTML.new(render_content)
         
         wrapped.render
       end

@@ -4,11 +4,11 @@ module Components
     abstract class HTMLElement
       getter tag_name : String
       getter attributes : Hash(String, String)
-      getter children : Array(HTMLElement | String)
+      getter children : Array(HTMLElement | String | RawHTML)
       
       def initialize(@tag_name : String, **attrs)
         @attributes = {} of String => String
-        @children = [] of HTMLElement | String
+        @children = [] of HTMLElement | String | RawHTML
         
         # Process attributes
         attrs.each do |key, value|

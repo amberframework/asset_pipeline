@@ -1,4 +1,5 @@
 require "../src/components/**"
+require "../src/components/elements/base/raw_html"
 
 # Contact Form Component
 class ContactFormComponent < Components::StatefulComponent
@@ -25,10 +26,10 @@ class ContactFormComponent < Components::StatefulComponent
       action: "/contact"
     ).build do |form|
       # Name field
-      form << render_field("name", "text", "Your Name", "Enter your full name")
+      form << Components::Elements::RawHTML.new(render_field("name", "text", "Your Name", "Enter your full name"))
       
       # Email field
-      form << render_field("email", "email", "Email Address", "your@email.com")
+      form << Components::Elements::RawHTML.new(render_field("email", "email", "Email Address", "your@email.com"))
       
       # Message field
       message_group = Components::Elements::Div.new(class: "form-group")
@@ -190,7 +191,7 @@ class ShoppingCartComponent < Components::Reactive::ReactiveComponent
       header << badge
       
       toggle_btn = Components::Elements::Button.new(
-        class: "cart-toggle",
+        class: "btn btn-secondary",
         "data-action": "click->toggleCart"
       )
       toggle_btn << (get_state("is_open").try(&.as_bool?) ? "Close" : "Open")
@@ -361,7 +362,7 @@ class EcommercePage
       # Shopping cart
       cart = ShoppingCartComponent.new
       cart.register  # Register for reactive updates
-      container << cart.render
+      container << Components::Elements::RawHTML.new(cart.render)
       
       header << container
       body << header
@@ -423,7 +424,7 @@ class EcommercePage
       
       products.each do |product|
         product_card = ProductCardComponent.new(**product)
-        products_grid << product_card.render
+        products_grid << Components::Elements::RawHTML.new(product_card.render)
       end
       
       products_section << products_grid
@@ -436,7 +437,7 @@ class EcommercePage
       contact_section << contact_h2
       
       contact_form = ContactFormComponent.new
-      contact_section << contact_form.render
+      contact_section << Components::Elements::RawHTML.new(contact_form.render)
       
       main_container << contact_section
       
@@ -455,7 +456,7 @@ class EcommercePage
       body << footer
       
       # Add reactive JavaScript
-      body << Components::Integration.reactive_script_tag(debug: true)
+      body << Components::Elements::RawHTML.new(Components::Integration.reactive_script_tag(debug: true))
       
       html << body
     end.render
