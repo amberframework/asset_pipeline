@@ -50,6 +50,11 @@ module Components
         combined = (existing + new_classes).uniq
         @attributes["class"] = combined.join(" ") unless combined.empty?
         
+        # Register classes with the CSS system
+        if defined?(Components::CSS::ClassRegistry)
+          Components::CSS::ClassRegistry.instance.register_class(combined.join(" "))
+        end
+        
         self
       end
       
