@@ -1,6 +1,13 @@
 require "./reactive/reactive_handler"
 require "./cache/configuration"
 require "./elements/document/script"
+require "./css/class_registry"
+require "./css/class_builder"
+require "./css/styleable"
+require "./css/config/css_config"
+require "./css/engine/css_generator"
+require "./css/scanner/class_scanner"
+require "./assets/css_asset"
 
 module Components
   # Integration helpers for web frameworks
@@ -42,6 +49,39 @@ module Components
           JS
         end
       end.render
+    end
+    
+    # Configure CSS system
+    def self.configure_css(&block : CSS::Config -> Nil) : CSS::Config
+      config = CSS::Config.new
+      yield config
+      config
+    end
+    
+    # Generate CSS asset
+    def self.css_asset(
+      config : CSS::Config? = nil,
+      mode : Symbol = :development,
+      scan_paths : Array(String) = ["./src"]
+    ) : Assets::CSSAsset
+      # Scan for classes if paths provided
+      unless scan_paths.empty?
+        CSS::Scanner.scan_project(scan_paths)
+      end
+      
+      # Create CSS asset
+      config ||= CSS::Config.new
+      Assets::CSS.create(config, mode)
+    end
+    
+    # Helper to include CSS in layouts
+    def self.css_tag(
+      config : CSS::Config? = nil,
+      mode : Symbol = :development,
+      scan_paths : Array(String) = ["./src"]
+    ) : String
+      asset = css_asset(config, mode, scan_paths)
+      asset.to_style_tag
     end
     
     # Helper to wrap a component for reactive updates
@@ -107,6 +147,18 @@ module Components
       # Include reactive JavaScript
       def reactive_scripts(debug = false)
         Components::Integration.reactive_script_tag(debug: debug)
+      end
+      
+      # Include CSS styles
+      def css_styles(config : CSS::Config? = nil, mode : Symbol = :development)
+        Components::Integration.css_tag(config: config, mode: mode)
+      end
+      
+      # CSS builder DSL
+      def css(&block : CSS::ClassBuilder -> Nil) : String
+        builder = Components::CSS::ClassBuilder.new
+        yield builder
+        builder.build
       end
     end
   end
