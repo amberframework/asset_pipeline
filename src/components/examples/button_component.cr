@@ -263,7 +263,7 @@ module Components
           @children.each do |child|
             case child
             when Component
-              button << child.render
+              button << child.render.to_s
             when Elements::HTMLElement
               button << child
             when Elements::RawHTML

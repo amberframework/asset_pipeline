@@ -17,7 +17,7 @@ class TestStatelessComponent < Components::StatelessComponent
     @children.each do |child|
       case child
       when Components::Component
-        div << child.render
+        div << child.render.to_s
       when Components::Elements::HTMLElement
         div << child
       when String

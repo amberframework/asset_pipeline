@@ -440,7 +440,7 @@ module Components
           value: @seat_value,
           hint_html: %(<span #{hint_hooks}>#{escaped(@seat_value)}</span> #{escaped(@seat_hint_suffix)}),
           data_attrs: data_attrs
-        ).render
+        ).render.to_s
       end
 
       private def render_order_summary_passthrough_attributes(io : IO) : Nil

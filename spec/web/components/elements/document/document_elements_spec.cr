@@ -41,9 +41,10 @@ describe "Document Elements" do
       body.render.should eq("<body class=\"main\"></body>")
     end
     
-    it "accepts event handlers" do
-      body = Components::Elements::Body.new(onload: "init()")
-      body["onload"].should eq("init()")
+    it "rejects inline event-handler attributes (SafeHTML v1 on* ban)" do
+      expect_raises(ArgumentError, "inline event-handler attribute") do
+        Components::Elements::Body.new(onload: "init()")
+      end
     end
   end
   
@@ -157,48 +158,62 @@ describe "Document Elements" do
   end
   
   describe Components::Elements::Script do
-    it "renders script element with JavaScript" do
-      script = Components::Elements::Script.new
-      script << "console.log('Hello');"
+    it "renders script element with JavaScript via the static-JS door" do
+      script = Components::Elements::Script.static("console.log('Hello');", reason: "spec: static JS literal")
       script.render.should eq("<script>console.log('Hello');</script>")
     end
-    
-    it "can be initialized with JavaScript content" do
-      script = Components::Elements::Script.new("alert('Hi');")
+
+    it "can be initialized with JavaScript content via the static-JS door" do
+      script = Components::Elements::Script.static("alert('Hi');", reason: "spec: static JS literal")
       script.render.should eq("<script>alert('Hi');</script>")
     end
-    
+
+    it "rejects a plain String child (SafeHTML v1 script-interpolation ban)" do
+      script = Components::Elements::Script.new
+
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script << "console.log('should be banned');"
+      end
+    end
+
     it "only accepts text content" do
       script = Components::Elements::Script.new
-      
+
       expect_raises(ArgumentError, "Script element should only contain JavaScript text") do
         script << Components::Elements::Html.new
       end
     end
-    
+
     it "validates boolean attributes" do
       script = Components::Elements::Script.new(async: "true", defer: "")
       script["async"].should eq("true")
       script["defer"].should eq("")
-      
+
       expect_raises(ArgumentError, "async is a boolean attribute") do
         Components::Elements::Script.new(async: "yes")
       end
     end
-    
+
     it "validates crossorigin attribute" do
       Components::Elements::Script.new(crossorigin: "anonymous")
       Components::Elements::Script.new(crossorigin: "use-credentials")
-      
+
       expect_raises(ArgumentError, "Invalid crossorigin value: invalid") do
         Components::Elements::Script.new(crossorigin: "invalid")
       end
     end
-    
-    it "does not escape JavaScript content" do
-      script = Components::Elements::Script.new
-      script << "if (x < 10 && y > 5) { alert('test'); }"
+
+    it "does not escape JavaScript content on the static-JS door" do
+      script = Components::Elements::Script.static("if (x < 10 && y > 5) { alert('test'); }", reason: "spec: static JS literal")
       script.render.should contain("if (x < 10 && y > 5) { alert('test'); }")
+    end
+
+    it "serializes data via the typed json_data helper and neutralizes </script> breakout" do
+      script = Components::Elements::Script.json_data("page-data", {name: "</script><script>alert(1)</script>"})
+      rendered = script.render
+      rendered.should contain(%(<script id="page-data" type="application/json">))
+      rendered.should_not contain("</script><script>alert(1)")
+      rendered.should contain("<\\/script")
     end
   end
   
@@ -215,10 +230,10 @@ describe "Document Elements" do
         end
         
         doc << Components::Elements::Body.new.build do |body|
-          body << Components::Elements::Script.new("console.log('Loaded');")
+          body << Components::Elements::Script.static("console.log('Loaded');", reason: "spec: static JS literal")
         end
       end
-      
+
       rendered = html.render
       rendered.should contain("<html lang=\"en\">")
       rendered.should contain("<meta charset=\"UTF-8\">")

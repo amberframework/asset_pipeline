@@ -111,7 +111,7 @@ describe "HTML Element Integration" do
             footer << Components::Elements::P.new << "© 2025 Test Site"
           end
           
-          body << Components::Elements::Script.new("console.log('Page loaded');")
+          body << Components::Elements::Script.static("console.log('Page loaded');", reason: "spec: static JS literal")
         end
       end
       
@@ -314,9 +314,9 @@ describe "HTML Element Integration" do
       style << ".class > div { color: red; }"
       style.render.should contain(".class > div { color: red; }")
       
-      # Script doesn't escape JavaScript
-      script = Components::Elements::Script.new
-      script << "if (x < 10 && y > 5) { alert('test'); }"
+      # Script doesn't escape JavaScript on the static-JS door (SafeHTML v1:
+      # a plain String child is banned — see script.cr)
+      script = Components::Elements::Script.static("if (x < 10 && y > 5) { alert('test'); }", reason: "spec: static JS literal")
       script.render.should contain("if (x < 10 && y > 5) { alert('test'); }")
     end
   end

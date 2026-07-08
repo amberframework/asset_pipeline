@@ -368,7 +368,7 @@ describe "Components::DesignSystem generic primitives" do
           href: "dashboard.html",
           title: "Dashboard",
           summary: "Metrics and controls."
-        ).render
+        ).render.to_s
       )
     end.render
 
@@ -385,7 +385,7 @@ describe "Components::DesignSystem generic primitives" do
           href: "forms.html",
           title: "Forms",
           summary: "Auth and payment flows."
-        ).render
+        ).render.to_s
       )
     end.render
 
@@ -939,7 +939,7 @@ describe "Components::DesignSystem generic primitives" do
       tone: "warning",
       role: "status",
       hidden: "true"
-    ).render
+    ).render.to_s
     html = Components::DesignSystem::Disclosure.new(
       label: "Show advanced settings",
       panel_id: "advanced-panel",

@@ -1,5 +1,6 @@
 require "../elements/base/raw_html"
 require "../css/component_css_registry"
+require "../safe/safe_html"
 
 module Components
   # Base class for all components
@@ -53,14 +54,38 @@ module Components
       @attributes[name] = value
     end
 
-    # Render the component to HTML string
-    def render : String
-      render_content
+    # THE OUTPUT CONTRACT (docs/SAFE_HTML_V1.md). Every `Component` renders
+    # to `SafeHTML`, not `String` — this is the type-level boundary that
+    # makes "a component that hand-built unsafe markup and forgot to escape
+    # a sink" a thing the compiler catches at the response-sink type, rather
+    # than a thing a human has to notice at review time.
+    #
+    # This delegates to `render_safe_content`, which subclasses may override
+    # directly (the preferred, migrated path — see `DataTableComponent` for
+    # the exemplar). The default implementation bridges the legacy
+    # `render_content : String` path through the loud, greppable
+    # `SafeHTML.unsafe` escape hatch, so every existing hand-built component
+    # keeps compiling and running unchanged — but its output is now
+    # explicitly, auditably marked "not yet vouched for by the safe DSL."
+    # `grep -rn 'reason: "legacy component' src/` finds every component
+    # still on this bridge; that grep result is the migration progress list.
+    def render : SafeHTML
+      render_safe_content
+    end
+
+    # Override this in a migrated component to build `SafeHTML` directly via
+    # the `Elements`/tag DSL (escaped by construction) instead of hand-built
+    # `String.build`. See `docs/SAFE_HTML_V1.md` "migration guide".
+    def render_safe_content : SafeHTML
+      SafeHTML.unsafe(
+        render_content,
+        reason: "legacy component #{self.class} has not migrated to render_safe_content — see docs/SAFE_HTML_V1.md"
+      )
     end
 
     # Render the component as raw HTML (for adding to elements)
     def to_raw_html : Elements::RawHTML
-      Elements::RawHTML.new(render)
+      render.to_raw_html
     end
 
     # Macro for registering component-level CSS.
@@ -100,7 +125,7 @@ module Components
       @children.map do |child|
         case child
         when Component
-          child.render
+          child.render.to_s
         when Elements::HTMLElement
           child.render
         when Elements::RawHTML
@@ -120,6 +145,12 @@ module Components
         .gsub('>', "&gt;")
         .gsub('"', "&quot;")
         .gsub('\'', "&#39;")
+    end
+
+    # Ergonomic, in-component spelling of `SafeHTML.unsafe` — the loud,
+    # greppable escape hatch (docs/SAFE_HTML_V1.md). `reason:` is mandatory.
+    protected def raw(html : String, reason : String) : SafeHTML
+      SafeHTML.unsafe(html, reason: reason)
     end
 
     # Convert to string (alias for render)

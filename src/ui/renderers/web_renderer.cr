@@ -1799,8 +1799,10 @@ module UI
           style_block << CONTEXT_MENU_FALLBACK_CSS
           host.add_child(style_block)
 
-          script_block = Components::Elements::Script.new
-          script_block << CONTEXT_MENU_FALLBACK_JS
+          script_block = Components::Elements::Script.static(
+            CONTEXT_MENU_FALLBACK_JS,
+            reason: "static framework-authored context-menu fallback JS constant — no interpolated data"
+          )
           host.add_child(script_block)
         end
 
@@ -2862,8 +2864,10 @@ module UI
           style_block << ACTION_SHEET_FALLBACK_CSS
           root.add_child(style_block)
 
-          script_block = Components::Elements::Script.new
-          script_block << ACTION_SHEET_FALLBACK_JS
+          script_block = Components::Elements::Script.static(
+            ACTION_SHEET_FALLBACK_JS,
+            reason: "static framework-authored action-sheet fallback JS constant — no interpolated data"
+          )
           root.add_child(script_block)
         end
 

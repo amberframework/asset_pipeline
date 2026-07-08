@@ -1,4 +1,6 @@
 require "../../css/class_registry"
+require "../../safe/safe_url"
+require "../../safe/safe_style"
 
 module Components
   module Elements
@@ -104,6 +106,20 @@ module Components
 
       # Validate attributes (to be overridden by specific elements)
       protected def validate_attribute(name : String, value : String?)
+        # SafeHTML v1 hard ban (docs/SAFE_HTML_V1.md): inline event-handler
+        # attributes are never allowed, on any element, through any
+        # construction path. This is unconditional (not staged behind an
+        # opt-in) because nothing in this shard sets one today — see the
+        # v1 audit in SAFE_HTML_V1.md — so there is zero legacy call site
+        # this can break. Attach behavior with a `data-*` hook + external JS
+        # instead.
+        if name.size > 2 && name[0..1].downcase == "on" && name[2].ascii_letter?
+          raise ArgumentError.new(
+            "SafeHTML ban: inline event-handler attribute #{name.inspect} is forbidden. " \
+            "Attach behavior with a data-* attribute + an external script, not on#{name[2..]}=\"...\"."
+          )
+        end
+
         # Global attribute validation
         case name
         when "id"
@@ -114,6 +130,37 @@ module Components
             raise ArgumentError.new("tabindex must be an integer")
           end
         end
+      end
+
+      # ---- SafeHTML v1 typed setters (docs/SAFE_HTML_V1.md) --------------
+      #
+      # These are the NEW, additive, construction-time-safe entry points for
+      # the two sink classes plain-`String` attributes cannot safely cover:
+      # URL-bearing attributes and the `style` attribute. They sit beside the
+      # existing `set_attribute(String, String)` / `add_style(String)` methods
+      # rather than replacing them — see SAFE_HTML_V1.md "the legacy
+      # boundary" for why the pre-existing String-typed path stays available
+      # (it is still used by the cross-platform native UI renderer, which is
+      # out of this v1's scope) while new and migrated component code should
+      # use these instead. Because the parameter type is `SafeURL` /
+      # `SafeStyleValue`, not `String`, passing a raw string through either
+      # of these is a **compile error**, not a runtime check.
+
+      # Sets a URL-bearing attribute (`href`, `src`, `action`, `formaction`,
+      # `poster`, `cite`, `ping`, `xlink:href`, meta-refresh `content`, ...)
+      # from a validated `SafeURL`. Scheme validation happened when the
+      # `SafeURL` was constructed (`SafeURL.parse!`); the value still passes
+      # through the normal attribute-escaping path when rendered.
+      def set_safe_url_attribute(name : String, url : SafeURL) : self
+        set_attribute(name, url.to_s)
+      end
+
+      # Sets the `style` attribute from a validated `SafeStyleValue` (the
+      # output of `SafeStyle#build`). There is no overload that accepts a
+      # bare `String` for this — that is the "raw style attribute" ban from
+      # docs/SAFE_HTML_V1.md.
+      def set_safe_style(style : SafeStyleValue) : self
+        set_attribute("style", style.to_s)
       end
 
       # Render attributes as HTML string
