@@ -1,6 +1,7 @@
 require "../../spec_helper"
 require "../../../../src/components/elements/grouping/div"
 require "../../../../src/components/elements/text/a"
+require "../../../../src/components/elements/document/meta"
 require "../../../../src/components/safe/safe_url"
 require "../../../../src/components/safe/safe_style"
 
@@ -62,6 +63,25 @@ describe "SafeHTML v1 — typed URL/style setters (docs/SAFE_HTML_V1.md)" do
     style = Components::SafeStyle.new.keyword("display", "flex").build
     div.set_safe_style(style)
     div.render.should eq(%(<div style="display: flex"></div>))
+  end
+
+  describe "Meta.safe_refresh — the meta-refresh compound-content sink" do
+    it "assembles a validated content=\"N; url=...\" value" do
+      meta = Components::Elements::Meta.safe_refresh(5, Components::SafeURL.parse!("/dashboard"))
+      meta.render.should eq(%(<meta http-equiv="refresh" content="5; url=/dashboard">))
+    end
+
+    it "adversarial: a javascript: refresh target is rejected before it can reach content=" do
+      expect_raises(Components::SafeURL::UnsafeURLError) do
+        Components::Elements::Meta.safe_refresh(0, Components::SafeURL.parse!("javascript:alert(1)"))
+      end
+    end
+
+    it "rejects a negative seconds value" do
+      expect_raises(ArgumentError, "seconds must be >= 0") do
+        Components::Elements::Meta.safe_refresh(-1, Components::SafeURL.parse!("/x"))
+      end
+    end
   end
 
   describe "falsifiability: the typed setters reject plain strings at compile time" do

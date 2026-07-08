@@ -138,8 +138,10 @@ DSL for structure instead.
 | Text nodes | HTML-escaped by construction | `ContainerElement#render_children` / `Component#render_children` (pre-existing) |
 | Normal attributes | HTML-escaped by construction | `HTMLElement#render_attributes` (pre-existing) |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
-| URL-bearing attributes (`href`, `src`, `action`, `formaction`, `poster`, `cite`, `ping`, meta-refresh `content`, SVG `href`/`xlink:href`) | Require a `SafeURL` via the new typed setter | `HTMLElement#set_safe_url_attribute` |
+| URL-bearing attributes (`href`, `src`, `action`, `formaction`, `poster`, `cite`, `ping`, ...) | Require a `SafeURL` via the new typed setter | `HTMLElement#set_safe_url_attribute` |
+| `<meta http-equiv="refresh" content="N; url=...">` | Dedicated typed constructor (the `content` value is a *compound* format, not a plain URL, so the generic URL setter is the wrong shape for it) | `Elements::Meta.safe_refresh(seconds, SafeURL)` |
 | `srcset` | Require a `SafeSrcSet` (own parser — a URL *list with descriptors*, not a single URL) | `Components::SafeSrcSet` |
+| SVG `href` / `xlink:href` | `set_safe_url_attribute` works by attribute *name*, so it covers these the moment an SVG element exists — but this shard has no SVG element classes yet, so this is untested/theoretical, not shipped-and-verified | *(no SVG element classes in this shard yet)* |
 | `style` | Require a `SafeStyleValue` via the new typed setter (never a raw string) | `HTMLElement#set_safe_style` / `Components::SafeStyle` |
 | `<script>` body | Plain `String` children **rejected outright** | `Elements::Script#<<` |
 
@@ -183,6 +185,15 @@ can't validate it. `SafeSrcSet.parse!` validates every candidate's URL
 through `SafeURL` and its descriptor against the width/density grammar
 (`NNNw` / `N.Nx`), and rejects the **whole** value if any one candidate is
 unsafe — fail closed, not "escape what we can."
+
+`<meta http-equiv="refresh" content="...">` also gets its own constructor,
+`Elements::Meta.safe_refresh(seconds, url : SafeURL)`, because its `content`
+value is `"<seconds>; url=<URL>"` — a compound format, not a bare URL — so
+handing it a `SafeURL` directly through the generic setter would produce the
+wrong attribute value (missing the timing prefix), not just a validation
+gap. `safe_refresh` validates the URL the same way any other URL-bearing
+attribute is and assembles the compound string only from that validated
+`SafeURL` plus a plain, checked-non-negative integer.
 
 ### 3.3 `style` — typed `SafeStyle` / `SafeColor` / `SafeLength`
 
