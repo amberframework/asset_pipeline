@@ -137,6 +137,7 @@ DSL for structure instead.
 |---|---|---|
 | Text nodes | HTML-escaped by construction | `ContainerElement#render_children` / `Component#render_children` (pre-existing) |
 | Normal attributes | HTML-escaped by construction | `HTMLElement#render_attributes` (pre-existing) |
+| Attribute *names* (not values) | **Rejected unconditionally**, on every element, both construction paths, if the name contains ASCII whitespace, a control character, or any of `/ \ > < " ' =` | `HTMLElement#set_attribute` → `HTMLElement#validate_attribute_name!` |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
 | URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element, matched case-insensitively and with surrounding whitespace ignored (`HREF`, `Href`, `" href"`, `"href "` all match `"href"`) — not just the typed setter | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) |
 | URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Q`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute` | *(no per-attribute enforcement; see §6)* |
@@ -159,6 +160,97 @@ Enforced in the shared `HTMLElement#validate_attribute`, so it applies to
 with zero migration cost: an audit of the whole shard at implementation time
 found **zero** existing `on*` attribute usages anywhere, so there was no
 legacy call site to break.
+
+### 3.1b Attribute-*name* grammar — the general fix for name-based bypasses
+
+Every check described in this document — `on*`, `SafeURL`, everything —
+assumes it is being asked "is *this* attribute (`href`, `onclick`, ...)
+safe?" That assumption silently depends on the attribute's *name* meaning
+what it looks like it means once rendered. `HTMLElement#render_attributes`
+emits the attribute name **verbatim** — only the *value* is HTML-escaped:
+
+```crystal
+protected def render_attributes : String
+  attrs.map { |name, value| %(#{name}="#{escape_attribute(value)}") }
+  # ^ name is never escaped or validated here — only `value` is
+end
+```
+
+A re-gate audit found that this makes the name itself a sink: a
+caller-supplied name containing a byte the HTML tokenizer treats specially
+changes what the *browser* parses, independent of anything the `on*`/
+`SafeURL` checks do with the value:
+
+```crystal
+Components::Elements::A.new("/href": "javascript:alert(document.cookie)")
+# Before this fix: rendered as `<a /href="javascript:alert(document.cookie)">`.
+# The leading `/` survives `UrlAttributeValidation`'s `name.strip.downcase`
+# normalization (`.strip` does not remove a `/`), so `url_bearing_attribute?`
+# never matches "href" and the SafeURL check never fires. In the browser
+# tokenizer, `/` in the "before attribute name" state starts a
+# self-closing-start-tag attempt; the very next byte (not `>`) is a parse
+# error that reconsumes in "before attribute name" state — the `/` is
+# silently dropped and `href` starts a brand-new, live attribute. Net
+# effect: a real, clickable `javascript:` href, with the SafeURL gate never
+# having run.
+
+Components::Elements::Div.new("/onclick": "alert(document.cookie)")
+# Same trick, this time bypassing the on*-ban in `HTMLElement#validate_attribute`
+# (name[0..1].downcase == "on" tests "/on", not "on" — never matches).
+```
+
+A second shape of the same root cause: an embedded space, `=`, `>`, or
+quote in the name ends the current attribute mid-stream and starts an
+adjacent, attacker-controlled attribute the caller never asked for —
+`set_attribute(%(x onload=alert(1)), "y")` renders a live `onload=`
+attribute next to `x`.
+
+**The fix is not another per-variant patch.** Point-fixing `/href`,
+`/onclick`, and every other case/whitespace/punctuation variant
+individually is an unbounded list. Instead, `HTMLElement#set_attribute`
+now validates the *name*'s grammar, once, as the first thing it does,
+before `validate_attribute`/`UrlAttributeValidation`/anything
+element-specific ever sees it:
+
+```crystal
+def set_attribute(name : String, value : String?) : self
+  return self if value.nil?
+  validate_attribute_name!(name)   # <- raises before anything else runs
+  validate_attribute(name, value)
+  ...
+end
+```
+
+`validate_attribute_name!` (`src/components/elements/base/html_element.cr`)
+raises `ArgumentError` unless `name` is non-empty and free of:
+
+- **ASCII whitespace** — space, tab, LF, FF, CR.
+- **Control characters** — C0 controls (`U+0000`–`U+001F`) and DEL/C1
+  controls (`U+007F`–`U+009F`).
+- **`/ > = " '`** — spec-mandated per WHATWG HTML §13.1.2.3 "Attributes":
+  these are the actual bytes the tokenizer's before-attribute-name /
+  attribute-name states treat as state transitions (self-closing attempt,
+  tag end, value start) or as syntax-forbidden.
+- **`\` and `<`** — not individually tokenizer-breaking *inside* an
+  already-started name, but banned too as defense-in-depth: no legitimate
+  HTML/ARIA/`data-*`/SVG attribute name ever contains either, and `<` is
+  always a parse error per spec even when it doesn't structurally break
+  out.
+
+Because this lives in the one method every attribute-setting path funnels
+through — constructor kwargs (`HTMLElement#initialize` calls
+`#set_attribute` once per kwarg) and every direct `#set_attribute` call,
+on **every** element, including the ones that `include
+UrlAttributeValidation` (their override runs its own logic and then calls
+`super`, landing here) — it closes the SafeURL-gate bypass, the on*-ban
+bypass, and adjacent-attribute injection **simultaneously**, for all ~94
+element classes, in one place. It does **not** restrict ordinary names:
+letters, digits, hyphen, colon, and underscore are all still allowed, so
+`href`, `data-x`, `aria-label`, `viewBox` (SVG camelCase), `xml:lang`
+(colon-namespaced), and `xlink:href` are unaffected. It also does not
+touch the *value* side — `escape_attribute` still does that job, unchanged.
+
+Specs: `spec/web/components/safe/attribute_name_grammar_spec.cr`.
 
 ### 3.2 URL-bearing attributes — `SafeURL`
 
@@ -217,6 +309,16 @@ form. The *rendered* attribute name is left exactly as the caller passed it
 (`super` still receives the original, un-normalized `name`) — normalization
 only ever widens which calls get checked, never changes what gets written to
 the DOM string.
+
+**`name.strip.downcase` only strips ASCII whitespace and folds case — it
+does not remove punctuation**, so a name like `/href` normalizes to `/href`
+(not `href`) and `url_bearing_attribute?` correctly does **not** match it.
+That used to be a silent SafeURL-gate bypass (the malformed name reached
+`render_attributes` unchecked and the browser tokenizer parsed it as a live
+`href`); it no longer is, because `/href` is now rejected two lines later
+by `HTMLElement#set_attribute`'s call to `validate_attribute_name!` (§3.1b)
+the moment `super` is reached — a name-grammar backstop this module doesn't
+need to know about or duplicate.
 
 This is deliberately narrower than "ban `href`/`src` everywhere": it does
 **not** modify `HTMLElement#set_attribute` itself (the shared, generic,
@@ -458,6 +560,7 @@ aren't actually true):**
 
 | Sink | Enforced unconditionally, on every element? | What's actually true |
 |---|---|---|
+| Attribute-*name* grammar (§3.1b) | **Yes.** `HTMLElement#set_attribute` calls `validate_attribute_name!` as the first thing it does, for every element, both construction paths — including elements that `include UrlAttributeValidation`, whose override calls `super` and lands here. | Genuinely unconditional, and the one check every other row in this table implicitly depends on: `on*`/`SafeURL`/etc. all reason about "the attribute named X," an assumption a malformed name (`/href`, `/onclick`, an embedded space/`=`/`>`/quote) could otherwise falsify. |
 | `on*` inline handlers | **Yes.** `HTMLElement#validate_attribute` runs for every `#set_attribute` call on every element, both construction paths. | Genuinely unconditional — there is no element class and no attribute-setting path that skips it. |
 | `<script>` body content | **Yes, for `Elements::Script` specifically.** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children` that re-checks `@children` regardless of how a value entered it (closes the public, mutable `children` getter as a bypass). | Unconditional *for the one element type this sink exists on* — there is no other element with executable-JS-context children. |
 | URL-bearing attributes | **No — conditional on element type.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) validate that attribute name through `SafeURL`, on both the constructor-kwarg and `#set_attribute` paths, no matter who the caller is (component code or `web_renderer.cr`) and no matter what casing or surrounding whitespace the caller spells the attribute name with (`href`/`HREF`/`Href`/`" href"`/`"href "` are all the same check to `UrlAttributeValidation`, matching HTML's own case-insensitive attribute-name matching). Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global — but exhaustive across name casing/whitespace *within* that scope. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims. |

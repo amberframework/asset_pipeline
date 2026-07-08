@@ -24,6 +24,12 @@ module Components
       def set_attribute(name : String, value : String?) : self
         return self if value.nil?
 
+        # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.1b): reject a malformed
+        # attribute NAME before anything else. This is the single
+        # chokepoint every attribute flows through — see
+        # `validate_attribute_name!` below for why.
+        validate_attribute_name!(name)
+
         # Validate the attribute
         validate_attribute(name, value)
 
@@ -102,6 +108,84 @@ module Components
       def has_class?(class_name : String) : Bool
         return false unless classes = @attributes["class"]?
         classes.split(/\s+/).includes?(class_name)
+      end
+
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.1b): the GENERAL fix for the
+      # re-gate finding that closed the case/whitespace point-fixes above.
+      # `render_attributes` (below) emits the attribute NAME verbatim —
+      # only the *value* is escaped. That means any caller-supplied name
+      # containing a tokenizer-significant byte changes what the browser
+      # parses, no matter what the value is or how well it's escaped:
+      #
+      #   - A leading solidus bypasses `UrlAttributeValidation`'s
+      #     `name.strip.downcase` check (`.strip` doesn't remove a `/`) —
+      #     `A.new("/href": "javascript:...")` reaches `render_attributes`
+      #     as `/href="javascript:..."`. In the tokenizer, `/` in the
+      #     "before attribute name" state switches to the "self-closing
+      #     start tag" state; the very next byte (not `>`) is a parse
+      #     error that reconsumes in "before attribute name" state — i.e.
+      #     the `/` is silently dropped and `href` starts a brand-new,
+      #     live attribute. Same story for `/onclick` and the `on*` ban.
+      #   - An embedded space/equals/greater-than/quote
+      #     (`set_attribute(%(x onload=alert(1)), "y")`) ends the current
+      #     attribute name mid-stream and starts an adjacent,
+      #     attacker-controlled attribute the caller never asked for.
+      #
+      # Rejecting these at the name itself — once, here, for every element
+      # and every attribute — closes the SafeURL-gate bypass, the on*-ban
+      # bypass, and adjacent-attribute injection simultaneously, instead of
+      # chasing each concrete payload shape as its own point-fix.
+      #
+      # Forbidden set (WHATWG HTML §13.1.2.3 "Attributes" + the Infra
+      # "controls" definition, confirmed against the tokenizer's
+      # before-attribute-name/attribute-name states):
+      #   - ASCII whitespace: space, tab, LF, FF, CR.
+      #   - Controls: C0 (U+0000–U+001F) and DEL/C1 (U+007F–U+009F).
+      #   - `/ > = " '` — spec-mandated: these are the actual
+      #     tokenizer-state transitions (self-closing/tag-end/value-start)
+      #     or syntax-forbidden bytes.
+      #   - `\` and `<` — not individually tokenizer-breaking inside an
+      #     already-started attribute name, but banned too as
+      #     defense-in-depth: no legitimate HTML/ARIA/`data-*`/SVG
+      #     attribute name ever contains either, and `<` is always a
+      #     parse error per the spec even though it doesn't structurally
+      #     break out.
+      #
+      # This intentionally does NOT touch the *value* side (that's
+      # `escape_attribute`'s job, unchanged) and does NOT restrict
+      # legitimate names: letters, digits, hyphen, colon, and underscore
+      # are all still allowed, so `href`, `data-x`, `aria-label`,
+      # `viewBox`, `xml:lang`, and `xlink:href` are unaffected.
+      protected def validate_attribute_name!(name : String) : Nil
+        if name.empty?
+          raise ArgumentError.new("SafeHTML ban: attribute name cannot be empty.")
+        end
+
+        name.each_char do |char|
+          next unless forbidden_attribute_name_char?(char)
+
+          raise ArgumentError.new(
+            "SafeHTML ban: malformed attribute name #{name.inspect} rejected " \
+            "(offending character #{char.inspect}). Attribute names must not " \
+            "contain ASCII whitespace, control characters, or any of " \
+            "/ \\ > < \" ' = -- a name containing one of these can change " \
+            "what the browser parses as the attribute or tag boundary, " \
+            "independent of how well the *value* is escaped."
+          )
+        end
+      end
+
+      private def forbidden_attribute_name_char?(char : Char) : Bool
+        return true if char == ' '
+        return true if char.ord <= 0x1F                     # C0 controls (incl. TAB/LF/FF/CR)
+        return true if char.ord >= 0x7F && char.ord <= 0x9F # DEL + C1 controls
+
+        case char
+        when '/', '\\', '>', '<', '"', '\'', '='
+          true
+        else
+          false
+        end
       end
 
       # Validate attributes (to be overridden by specific elements)
