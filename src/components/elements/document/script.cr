@@ -71,11 +71,11 @@ module Components
         @children << child
         self
       end
-      
+
       # Validate script-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
-        
+
         case name
         when "type"
           # Common script types
@@ -93,7 +93,7 @@ module Components
           end
         end
       end
-      
+
       # Override rendering to not escape JavaScript content
       protected def render_children : String
         @children.map do |child|
