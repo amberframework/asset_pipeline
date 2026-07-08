@@ -138,7 +138,8 @@ DSL for structure instead.
 | Text nodes | HTML-escaped by construction | `ContainerElement#render_children` / `Component#render_children` (pre-existing) |
 | Normal attributes | HTML-escaped by construction | `HTMLElement#render_attributes` (pre-existing) |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
-| URL-bearing attributes (`href`, `src`, `action`, `formaction`, `poster`, `cite`, `ping`, ...) | Require a `SafeURL` via the new typed setter | `HTMLElement#set_safe_url_attribute` |
+| URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element — not just the typed setter | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) |
+| URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Q`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute` | *(no per-attribute enforcement; see §6)* |
 | `<meta http-equiv="refresh" content="N; url=...">` | Dedicated typed constructor (the `content` value is a *compound* format, not a plain URL, so the generic URL setter is the wrong shape for it) | `Elements::Meta.safe_refresh(seconds, SafeURL)` |
 | `srcset` | Require a `SafeSrcSet` (own parser — a URL *list with descriptors*, not a single URL) | `Components::SafeSrcSet` |
 | SVG `href` / `xlink:href` | `set_safe_url_attribute` works by attribute *name*, so it covers these the moment an SVG element exists — but this shard has no SVG element classes yet, so this is untested/theoretical, not shipped-and-verified | *(no SVG element classes in this shard yet)* |
@@ -178,6 +179,43 @@ scheme not on the allowlist — is rejected. Before checking the scheme,
 bypass some HTML/URL parsers are vulnerable to) and leading/trailing
 whitespace. `SafeURL.unsafe(url, reason:)` is the loud opt-out for an
 intentional non-allowlisted scheme (e.g. an app-custom URI scheme).
+
+**Construction/`#set_attribute`-time enforcement on link/src-bearing
+elements.** The typed `set_safe_url_attribute` setter above is opt-in — it
+only closes the hole for call sites that already chose to use it. The far
+more common way `href`/`src` reach an element is the ordinary, pre-existing
+path everyone already uses without thinking about it:
+
+```crystal
+Components::Elements::A.new(href: "javascript:alert(document.cookie)")
+# => ArgumentError: SafeHTML ban: "href"="javascript:alert(document.cookie)" rejected...
+
+a = Components::Elements::A.new
+a.set_attribute("href", "javascript:alert(document.cookie)")
+# => ArgumentError, same as above
+```
+
+`Components::Elements::UrlAttributeValidation` (`src/components/elements/base/url_attribute_validation.cr`)
+is a module included by each concrete element whose defining feature *is* a
+URL-bearing attribute: `A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/
+`Track`/`Embed`/`Audio`#`src`, `Video`#`src` and `poster`, `Area`/`Base`#
+`href`, `Form`#`action`. Each override declares which attribute name(s) on
+*that* tag are URL-bearing; the module then intercepts `#set_attribute` for
+just that name and runs it through `SafeURL.parse!` before delegating to the
+normal `HTMLElement#set_attribute`. Because `HTMLElement#initialize` calls
+`#set_attribute` once per constructor kwarg, this closes the constructor-kwarg
+path and the explicit `#set_attribute` path with one mechanism.
+
+This is deliberately narrower than "ban `href`/`src` everywhere": it does
+**not** modify `HTMLElement#set_attribute` itself (the shared, generic,
+`String`-typed setter every element class has), so every other attribute
+name, on every element, is completely unaffected — including the ~185
+`add_style`/generic-attribute calls the cross-platform native UI renderer
+(`src/ui/renderers/web_renderer.cr`) makes (see §6). It also means an
+element *outside* this list (e.g. a `Div` with a non-standard `href`
+attribute someone set by hand) is not covered — `href`/`src`/`action` are
+only meaningful, browser-actioned URLs on the specific tags above, so that
+is exactly the set that needed closing.
 
 `srcset` gets its own type, `SafeSrcSet` — it's a comma-separated list of
 `"<url> <descriptor>"` candidates, not a single URL, so `SafeURL` alone
@@ -268,9 +306,34 @@ instance method on `Component`) and `SafeHTML.unsafe(html, reason:)` are the
   `Component`'s own legacy bridge uses the fixed prefix
   `reason: "legacy component ..."`, so `grep -rn 'reason: "legacy component'`
   specifically finds every component still on the un-migrated path.
-- There is deliberately **no** easy `SafeHTML.new(String)` — see §2.1. The
-  raw door is the *only* hole, which is what makes it auditable instead of a
-  second `html_safe`-style label anyone can slap on any string.
+- There is deliberately **no** easy `SafeHTML.new(String)` — see §2.1.
+
+**`raw()`/`SafeHTML.unsafe` is not the *only* raw door — it is the only
+*reasoned* one.** Two more ways to inject unescaped markup exist and are
+**not** gated by a mandatory `reason:`:
+
+| Door | Reason required? | Where |
+|---|---|---|
+| `SafeHTML.unsafe(html, reason:)` / `raw(html, reason:)` | **Yes** — raises if blank | `src/components/safe/safe_html.cr` |
+| `SafeURL.unsafe(url, reason:)` | **Yes** — raises if blank | `src/components/safe/safe_url.cr` |
+| `Elements::RawHTML.new(html)` | **No** | `src/components/elements/base/raw_html.cr` |
+| `ContainerElement#add_raw_html(html)` (thin wrapper over the above) | **No** | `src/components/elements/base/container_element.cr` |
+
+`RawHTML.new`/`add_raw_html` are used throughout this shard today —
+`Script.static`/`.json_data` build on `RawHTML.new` internally,
+`SafeHTML#to_raw_html` uses it to bridge an *already-validated* `SafeHTML`
+into the `Elements` children union (not a fresh hole — the bytes were
+already vouched for), and roughly a dozen call sites in
+`src/components/examples/*.cr` and `src/ui/renderers/web_renderer.cr` push
+hand-built markup through `add_raw_html`/`RawHTML.new` directly, with no
+`reason:` and no compiler-enforced justification.
+`grep -rn 'RawHTML.new\|add_raw_html' src/` finds all of them — that grep,
+not `grep -rn 'SafeHTML.unsafe\|\.raw('` alone, is the complete raw-door
+audit for this shard as of v1. Unifying these onto a mandatory-`reason:`
+API (matching `SafeHTML.unsafe`/`SafeURL.unsafe`) is a natural, bounded v1.x
+follow-up — not done in this pass, to keep this hardening change scoped to
+the sinks it was asked to close rather than a mechanical touch of ~20
+existing call sites across `src/` and `spec/`.
 
 **Policy going forward:** every new `raw(...)` / `SafeHTML.unsafe(...)` /
 `SafeURL.unsafe(...)` call site added to this shard should be reviewed the
@@ -352,33 +415,51 @@ Two subsystems in this shard reuse the same `HTMLElement`/`ContainerElement`
 base classes but are **not** touched by this hardening pass:
 
 - **`src/ui/renderers/web_renderer.cr`** (the cross-platform native UI web
-  renderer) calls `HTMLElement#add_style(String)` roughly 180 times and
-  `#set_attribute("href"/"src"/"action", value)` a handful of times. Every
-  one of those strings is framework-computed (design tokens, `Color`
-  fields already converted to RGB integers, layout enums) — not
-  attacker-controlled text forwarded from a component. Retrofitting the
-  `style`/URL bans onto the shared `set_attribute`/`add_style` methods
-  would either break this ~2800-line, already-tested, unrelated subsystem
-  wholesale, or require rewriting all ~185 call sites in this change — both
-  disproportionate to what this task authorizes ("do not mass-migrate app
-  components"). The two `<script>` call sites in this file (both genuinely
-  static JS constants) **were** migrated to `Script.static(...)`, since that
-  was a 2-line, zero-risk fix that directly demonstrates the correct pattern.
+  renderer) calls `HTMLElement#add_style(String)` roughly 180 times, plus a
+  handful of `#set_attribute("href"/"src"/"action", value)` calls on `A`/
+  `Img`/`Form`/`Iframe` instances. The `add_style` calls are genuinely
+  untouched and unenforced by this v1 (see "the style gap" below) — every
+  one of those ~180 strings is framework-computed (design tokens, `Color`
+  fields already converted to RGB integers, layout enums), not
+  attacker-controlled text forwarded from a component, so leaving `style`
+  fully open here is a deliberate, bounded risk acceptance, not an oversight.
+  The `href`/`src`/`action` calls are a **different case**: as of this v1
+  they route through `Elements::UrlAttributeValidation` (§3.2) like any
+  other caller of `A#set_attribute("href", ...)` etc. — that module is
+  attached to the *element class*, not to a "new vs. legacy" call path, so
+  there is no way for `web_renderer.cr`'s calls into these same classes to
+  opt out of it. This required **zero code changes** in `web_renderer.cr`
+  itself: every existing `href`/`src`/`action` value it passes today is
+  already an `http(s)://` URL or a relative path (verified by grepping every
+  URL-attribute literal and view value in `src/` and `spec/` at
+  implementation time — none used a non-allowlisted scheme), so none of
+  those call sites were ever at risk of the `SafeURL` check firing. The two
+  `<script>` call sites in this file (both genuinely static JS constants)
+  **were** migrated to `Script.static(...)`, since that was a 2-line,
+  zero-risk fix that directly demonstrates the correct pattern.
 - **The Amber v2 ECR compiler** (Front B of the hardening proposal) is
   explicitly a separate, later front (owner decision E4=B) and is untouched
   by this branch.
 
-The v1 enforcement boundary is therefore two-tier by design, and documented
-as such rather than pretended away:
+**The v1 enforcement boundary, precisely (no "unconditional" claims that
+aren't actually true):**
 
-| Path | `on*` | URL attrs | `style` | `<script>` |
-|---|---|---|---|---|
-| **New**: `set_safe_url_attribute` / `set_safe_style` / `Script.static`/`.json_data` | banned (shared) | `SafeURL`-typed, compile error for `String` | `SafeStyleValue`-typed, compile error for `String` | banned, typed doors only |
-| **Legacy**: `set_attribute("href", "...")` / `add_style("...")` — still used internally by the native UI renderer | banned (shared) | unchanged — still accepts a raw `String` | unchanged — still accepts a raw `String` | banned (unconditional — zero legacy usage) |
+| Sink | Enforced unconditionally, on every element? | What's actually true |
+|---|---|---|
+| `on*` inline handlers | **Yes.** `HTMLElement#validate_attribute` runs for every `#set_attribute` call on every element, both construction paths. | Genuinely unconditional — there is no element class and no attribute-setting path that skips it. |
+| `<script>` body content | **Yes, for `Elements::Script` specifically.** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children` that re-checks `@children` regardless of how a value entered it (closes the public, mutable `children` getter as a bypass). | Unconditional *for the one element type this sink exists on* — there is no other element with executable-JS-context children. |
+| URL-bearing attributes | **No — conditional on element type.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) validate that attribute name through `SafeURL`, on both the constructor-kwarg and `#set_attribute` paths, no matter who the caller is (component code or `web_renderer.cr`). Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims. |
+| `style` attribute | **No — this is the one sink still fully open on the legacy path.** `set_safe_style` (typed, `SafeStyleValue`-only) enforces; `add_style(String)`/`set_attribute("style", "...")` (used ~180x by `web_renderer.cr`) accept and render a raw string completely unchecked, on every element, unconditionally. | This is the genuinely-unclosed half of the "two-tier" story — not a documentation gap, an actual scope boundary. |
 
-Extending `SafeURL`/`SafeStyle` enforcement onto the legacy path (and thereby
-onto the native UI renderer) is a natural, bounded follow-up, but is not part
-of this v1.
+Extending `SafeStyle` enforcement onto the legacy `add_style`/`set_attribute`
+path (and thereby onto the native UI renderer's ~180 calls) — mirroring what
+this v1 already did for the URL-bearing element list — is the natural,
+bounded follow-up left for v1.x/v2. It was not done in this pass because,
+unlike the URL case, `web_renderer.cr`'s style strings were not individually
+audited call-by-call against `SafeStyle`'s closed keyword/color/length
+grammar (that grammar is intentionally much narrower than arbitrary CSS, and
+~180 call sites is a large enough surface that doing so responsibly is its
+own task, not a same-pass follow-on to the URL fix).
 
 ---
 
@@ -394,11 +475,18 @@ Per the source proposal:
   the template layer. This requires the compiler to track HTML context
   around each `<%= %>` (inside a quoted attribute? which attribute? inside
   `<script>`/`style`?) to apply the same §3 rules there.
-- **Extending the bans onto the legacy `HTMLElement` path** (§6) — a
-  `strict_attributes!`-style opt-in flag (default off) that, once every
-  caller of `add_style`/`set_attribute` for URL-bearing names has migrated,
-  flips to make the ban unconditional everywhere, matching the proposal's
-  "additive first, flip once migrated" rollout shape.
+- **Extending `SafeStyle` enforcement onto the legacy `add_style`/
+  `set_attribute("style", ...)` path** (§6) — the one sink this v1 leaves
+  fully open. Same shape as the URL-attribute fix this v1 already shipped:
+  either a `strict_attributes!`-style opt-in flag (default off) that flips
+  once every `add_style` call site is audited against `SafeStyle`'s
+  keyword/color/length grammar, or per-element enforcement the way
+  `Elements::UrlAttributeValidation` closed the URL sink.
+- **Widening `Elements::UrlAttributeValidation` coverage** — `formaction`
+  (`Button`/`Input`), `cite` (`Blockquote`/`Q`/`Ins`/`Del`), `ping` (`A`),
+  and SVG `href`/`xlink:href` (once this shard has SVG element classes) are
+  still only reachable through the fully-generic, unvalidated
+  `set_attribute`, or the opt-in `set_safe_url_attribute` typed setter.
 - **Migrating the remaining ~18 example components** onto
   `render_safe_content`, retiring `String.build` from this shard's own
   component library entirely (not just the one exemplar).

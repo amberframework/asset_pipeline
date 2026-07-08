@@ -1,14 +1,23 @@
 require "../base/container_element"
 require "../base/void_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
     # Represents the <video> element - video content
     class Video < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): both `src` (the video
+      # resource) and `poster` (the preview-frame image) are URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("video", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src" || name == "poster"
+      end
+
       # Validate video-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -32,10 +41,17 @@ module Components
     
     # Represents the <audio> element - audio content
     class Audio < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("audio", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate audio-specific attributes (similar to video)
       protected def validate_attribute(name : String, value : String?)
         super
@@ -59,11 +75,17 @@ module Components
     
     # Represents the <source> element - media resource
     class Source < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("source", **attrs)
       end
-      
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate source-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -82,10 +104,18 @@ module Components
     
     # Represents the <track> element - text track for media
     class Track < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` (the WebVTT file
+      # URL) is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("track", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate track-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -104,10 +134,19 @@ module Components
     
     # Represents the <iframe> element - nested browsing context
     class Iframe < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` loads an entire
+      # nested browsing context — a `javascript:`/`data:` value here is one
+      # of the highest-value URL sinks in the whole element set.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("iframe", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate iframe-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -132,10 +171,17 @@ module Components
     
     # Represents the <embed> element - external content
     class Embed < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("embed", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate embed-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super

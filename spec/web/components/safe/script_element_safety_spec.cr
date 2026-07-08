@@ -1,5 +1,6 @@
 require "../../spec_helper"
 require "../../../../src/components/elements/document/script"
+require "../../../../src/components/elements/grouping/div"
 
 describe "SafeHTML v1 — <script> interpolation ban (docs/SAFE_HTML_V1.md)" do
   describe "adversarial: interpolated data must never reach <script> as executable code" do
@@ -15,6 +16,97 @@ describe "SafeHTML v1 — <script> interpolation ban (docs/SAFE_HTML_V1.md)" do
     it "the ban applies even to content that looks harmless" do
       script = Components::Elements::Script.new
       expect_raises(ArgumentError) { script << "1 + 1" }
+    end
+  end
+
+  describe "adversarial: all three insertion paths into @children are closed, not just <<" do
+    breakout = %(</script><img src=x onerror=alert(1)>)
+
+    it "path 1 (<<): rejected at call time, never reaches render" do
+      script = Components::Elements::Script.new
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script << breakout
+      end
+      # Nothing was appended -- render is still the empty tag, not a
+      # half-built breakout.
+      script.render.should eq("<script></script>")
+    end
+
+    it "path 2 (#add_child, inherited from ContainerElement but overridden here): rejected at call time" do
+      script = Components::Elements::Script.new
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script.add_child(breakout)
+      end
+      script.render.should eq("<script></script>")
+    end
+
+    it "path 2b (#add_children, plural): rejected at call time" do
+      script = Components::Elements::Script.new
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script.add_children(breakout)
+      end
+      script.render.should eq("<script></script>")
+    end
+
+    it "path 3 (direct `children << string` mutation via the public getter): the <<veil bypass is closed at RENDER time" do
+      script = Components::Elements::Script.new
+      # `children` is a public, mutable `getter` -- nothing stops this at
+      # call time, which is exactly why the render-time backstop exists.
+      script.children << breakout
+
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script.render
+      end
+    end
+
+    it "path 3b (`children.concat`): also closed at render time" do
+      script = Components::Elements::Script.new
+      extra = [breakout] of Components::Elements::HTMLElement | String | Components::Elements::RawHTML
+      script.children.concat(extra)
+
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        script.render
+      end
+    end
+
+    it "the breakout payload never appears in any rendered output, across all three paths" do
+      # Belt-and-suspenders: even if a future refactor weakened one of the
+      # three defenses, this asserts the actual security property (the
+      # literal payload bytes never escape into rendered HTML) rather than
+      # just asserting "an exception was raised".
+      via_shovel = Components::Elements::Script.new
+      begin
+        via_shovel << breakout
+      rescue ArgumentError
+      end
+      via_shovel.render.should_not contain("<img src=x onerror=alert(1)>")
+
+      via_add_child = Components::Elements::Script.new
+      begin
+        via_add_child.add_child(breakout)
+      rescue ArgumentError
+      end
+      via_add_child.render.should_not contain("<img src=x onerror=alert(1)>")
+
+      via_direct_mutation = Components::Elements::Script.new
+      via_direct_mutation.children << breakout
+      rendered = begin
+        via_direct_mutation.render
+      rescue ArgumentError
+        "<script></script>"
+      end
+      rendered.should_not contain("<img src=x onerror=alert(1)>")
+    end
+
+    it "an HTMLElement child (not String, not RawHTML) is also rejected at render time via direct mutation" do
+      script = Components::Elements::Script.new
+      rogue = Components::Elements::Div.new
+      extra = [rogue] of Components::Elements::HTMLElement | String | Components::Elements::RawHTML
+      script.children.concat(extra)
+
+      expect_raises(ArgumentError, "should only contain JavaScript text") do
+        script.render
+      end
     end
   end
 

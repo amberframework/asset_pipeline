@@ -53,7 +53,18 @@ module Components
         end
       end
 
-      new(url)
+      # Store/render the *sanitized* candidate, not the original `url`. The
+      # scheme check above validates `candidate` (control characters and
+      # surrounding whitespace stripped) precisely because a browser strips
+      # those before scheme-sniffing — but if we then wrapped the original
+      # `url`, the control characters would still be sitting in the stored
+      # value and would render verbatim into the attribute, byte-for-byte,
+      # the next time this `SafeURL` is serialized. That's not exploitable
+      # on its own (the stripped candidate is what was *validated*, and the
+      # scheme can't hide a control character past this check either way),
+      # but it is a correctness bug: `parse!("h\nttp://x/a")` validated one
+      # string and would have rendered a different one.
+      new(candidate)
     end
 
     # Explicit, loud opt-out for an intended-but-not-yet-allowlisted scheme
