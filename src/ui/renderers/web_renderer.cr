@@ -2103,7 +2103,14 @@ module UI
         el.set_attribute("loading", "lazy")
         el.set_attribute("src", view.url) unless view.url.empty?
         if html = view.html
-          el.set_attribute("srcdoc", html)
+          # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5): `srcdoc` is an
+          # HTML-document-valued attribute -- `Iframe` bans a bare-String
+          # value at #set_attribute. `view.html` is app-author-supplied
+          # local web content handed to the platform view (the same trust
+          # tier as `UI::WebViewComponent#url`, not interpolated
+          # end-user/request data flowing through this renderer), so it is
+          # routed through the typed, reasoned door instead.
+          el.set_srcdoc(html, reason: "UI::WebViewComponent#html is app-author-supplied embedded web content, forwarded verbatim by the platform-visitor bridge")
         end
         if t = view.title
           el.set_attribute("title", t)

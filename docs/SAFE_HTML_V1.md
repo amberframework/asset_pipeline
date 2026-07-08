@@ -1,6 +1,10 @@
 # SafeHTML v1 — the auto-escape output contract (Front A)
 
-> **Status:** Shipped, v1 (safe-html-v1 branch).
+> **Status:** Shipped, v1 (safe-html-v1 branch). Re-gated 2026-07-08 to
+> close the `<iframe srcdoc>` HTML-document-valued attribute sink and the
+> `<svg>` foreign-content text-node sink, plus a systematic completeness
+> sweep of every HTML-injection sink class in this shard — see §3.5, §3.6,
+> and **§8 (the completeness sweep)**.
 > **Scope:** `asset_pipeline` view components (`Components::Component`,
 > `Components::Elements::*`). Does **not** touch the Amber v2 ECR compiler
 > (Front B) or the cross-platform native UI renderer's own internal CSS
@@ -140,12 +144,14 @@ DSL for structure instead.
 | Attribute *names* (not values) | **Rejected unconditionally**, on every element, both construction paths, if the name contains ASCII whitespace, a control character, or any of `/ \ > < " ' =` | `HTMLElement#set_attribute` → `HTMLElement#validate_attribute_name!` |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
 | URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element, matched case-insensitively and with surrounding whitespace ignored (`HREF`, `Href`, `" href"`, `"href "` all match `"href"`) — not just the typed setter | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) |
-| URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Q`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute` | *(no per-attribute enforcement; see §6)* |
+| URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Ins`/`Del`, `ping` on `A`, `data` on `Object`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute` | *(no per-attribute enforcement; see §6 and §8(d))* |
 | `<meta http-equiv="refresh" content="N; url=...">` | Dedicated typed constructor (the `content` value is a *compound* format, not a plain URL, so the generic URL setter is the wrong shape for it) | `Elements::Meta.safe_refresh(seconds, SafeURL)` |
 | `srcset` | Require a `SafeSrcSet` (own parser — a URL *list with descriptors*, not a single URL) | `Components::SafeSrcSet` |
-| SVG `href` / `xlink:href` | `set_safe_url_attribute` works by attribute *name*, so it covers these the moment an SVG element exists — but this shard has no SVG element classes yet, so this is untested/theoretical, not shipped-and-verified | *(no SVG element classes in this shard yet)* |
+| SVG `href` / `xlink:href` | `set_safe_url_attribute` works by attribute *name*, so it covers this the moment it's called — `Elements::Svg` exists in this shard (see the `<svg>` foreign-content row below) but does not itself have an `href`/`xlink:href`-bearing child element class yet (no `Elements::Use`/`Elements::Image` SVG-specific class), so the *attribute* case remains untested/theoretical even though the *element* it would apply to is real. Corrects a stale claim in a prior revision of this doc that said "no SVG element classes in this shard yet." | *(no SVG `href`/`xlink:href`-bearing element class in this shard yet)* |
 | `style` | Require a `SafeStyleValue` via the new typed setter (never a raw string) | `HTMLElement#set_safe_style` / `Components::SafeStyle` |
 | `<script>` body | Plain `String` children **rejected outright** | `Elements::Script#<<` |
+| `<iframe srcdoc>` | **HTML-document-valued** attribute — plain `String` **rejected unconditionally**, on the constructor-kwarg path, the `#set_attribute` path, *and* a render-time backstop (matching the `<script>`-body ban's three-path closure) | `Elements::Iframe#set_attribute` / `#render_attributes` — typed doors: `Iframe.srcdoc(html, reason:)` / `#set_srcdoc(html, reason:)` |
+| `<svg>` foreign-content children | `String` children **HTML-escaped by construction**, same as every other element (previously rendered raw/unescaped — see §3.6) | `Elements::Svg` (no override; inherits `ContainerElement#render_children`) |
 
 ### 3.1 `on*` — hard, unconditional ban
 
@@ -403,6 +409,109 @@ or a boolean-flag interpolation), and were migrated to `Script.static(...)`
 as part of this change; see the commit history on this branch for the exact
 diffs.
 
+### 3.5 `<iframe srcdoc>` — HTML-document-valued attribute ban (2026-07-08)
+
+```crystal
+Components::Elements::Iframe.new(srcdoc: "<script>alert(1)</script>")
+# => ArgumentError: SafeHTML ban: "srcdoc"=... rejected. <iframe srcdoc> is
+#    an HTML-DOCUMENT-valued attribute ...
+```
+
+`srcdoc` looks like an ordinary attribute — a `String` — but it isn't one
+semantically. Every other attribute value this shard escapes
+(`escape_attribute`: `&`/`"`/`'`/`<`/`>`) is consumed by the browser as
+*data* (a URL, a class name, an ARIA label, ...): entity-decoding it back
+to the literal bytes never causes those bytes to be re-parsed as markup.
+`srcdoc` breaks that assumption. The browser HTML-entity-decodes the
+(correctly-escaped-for-the-*outer*-document) attribute value and then feeds
+the **decoded result to a fresh HTML parser** as the entire source document
+of the iframe's nested browsing context. A `<script>` inside that decoded
+value executes — value-escaping is the right tool for keeping the *outer*
+document well-formed, and does nothing at all for the *nested* one. This
+makes `srcdoc` exactly as dangerous as `<script>` body content (§3.4), just
+carried in an attribute instead of element children, and it gets the
+identical treatment:
+
+- A bare `String` is **rejected unconditionally** at every path a `String`
+  could reach it: the constructor-kwarg path (`Iframe.new(srcdoc: ...)`,
+  since `HTMLElement#initialize` calls `#set_attribute` once per kwarg),
+  the direct `#set_attribute("srcdoc", ...)` path, and a **render-time
+  backstop** in `Iframe#render_attributes` — because `@attributes` is a
+  public, mutable `Hash` `getter` on `HTMLElement` (exactly like
+  `Script#children` was, see §3.4's "path 3" closure), nothing stops
+  `iframe.attributes["srcdoc"] = "..."` from mutating it directly,
+  bypassing `#set_attribute` entirely. The render-time check re-verifies,
+  immediately before emitting bytes, that whatever currently sits at
+  `@attributes["srcdoc"]` is `==` the exact `String` that was vouched
+  through one of the two doors below — a different value written into the
+  Hash by any other means, even after a legitimate vouch already happened
+  once, is rejected, fail-closed.
+- Two reasoned doors remain, matching `Script.static`/`SafeURL.unsafe`'s
+  shape (`reason:` mandatory, raises if blank):
+  - **`Iframe.srcdoc(html, reason:, **attrs)`** — a typed constructor for a
+    fresh `Iframe`, for the shape `Script.static` uses.
+  - **`iframe.set_srcdoc(html, reason:)`** — a typed instance-level setter
+    for an already-constructed `Iframe`, matching the shape
+    `#set_safe_url_attribute`/`#set_safe_style` already use elsewhere in
+    `HTMLElement`. This is the door the live call site below needed, since
+    it builds the `Iframe` first (setting `loading`/`src`/`title`/
+    `sandbox`) and only conditionally attaches `srcdoc` after.
+
+Both doors still route the value through the ordinary attribute-value
+escaping every attribute gets when rendered — that is correct, not a gap:
+it is what keeps the *outer* document well-formed, and the browser decodes
+it back losslessly before using it as the nested document's source.
+`Iframe.srcdoc("<p>Hello</p>", reason: "...").render` is
+`<iframe srcdoc="&lt;p&gt;Hello&lt;/p&gt;"></iframe>` — the round-trip is
+intentional; the vouching gate is what's new, not a change to how the
+byte-for-byte rendering works.
+
+**The live call site this closed:** `web_renderer.cr:2106`
+(`UI::Web::Renderer#visit(view : UI::WebViewComponent)`) called
+`el.set_attribute("srcdoc", html)` with `html` sourced from
+`UI::WebViewComponent#html` — an app-author-set `property` on the
+cross-platform view (the same trust tier as `WebViewComponent#url`, not
+interpolated end-user/request data flowing through the renderer). Migrated
+to `el.set_srcdoc(html, reason: "UI::WebViewComponent#html is
+app-author-supplied embedded web content, forwarded verbatim by the
+platform-visitor bridge")`. Specs:
+`spec/web/components/safe/iframe_srcdoc_safety_spec.cr` (the element-level
+ban/backstop/doors) and the `UI::WebViewComponent#html` block in
+`spec/web/ui/renderers/web_renderer_spec.cr` (the fixed call site,
+end-to-end).
+
+### 3.6 `<svg>` foreign content — text-node ban (2026-07-08)
+
+`<svg>` is HTML5 "foreign content": the tokenizer switches namespace for
+everything inside it, but a `<script>` element inside that namespace is
+still recognized and **still executes** —
+`<svg><script>alert(1)</script></svg>` is a well-known, browser-verified
+XSS payload class, reachable inline in an ordinary HTML document (it does
+not require a standalone `.svg` file or an `<img src="data:image/svg+xml,...">`
+detour). Before this fix, `Elements::Svg` overrode `render_children` to
+pass every `String` child through **completely unescaped** ("SVG content is
+not escaped like HTML") — exactly as dangerous as `<script>` accepting a
+plain-`String` child (§3.4), just reached through a different, public,
+always-available element class. `Elements::Svg` had zero call sites
+anywhere in this shard's `src/`, so nothing shipped was exploiting it —
+but it is public API any downstream consumer of this shard could reach
+directly (`Components::Elements::Svg.new << some_string`), which is a
+worse residual-risk shape than dead code: a live, ungated, unused-so-far
+foreign-content sink waiting on its first caller, not a defended one.
+
+The fix is a **deletion**, not a new mechanism: the custom
+`render_children` override is removed entirely, restoring the inherited
+`ContainerElement#render_children` — the same safe-by-default behavior
+every other container element already has. `HTMLElement`/`RawHTML`
+children render exactly as before (element structure was never the
+vulnerable part); a `String` child is now HTML-escaped like a text node
+anywhere else. Legitimate hand-authored SVG markup (`<path d="...">` and
+friends) uses the same pre-existing, documented, greppable raw door every
+other element in this shard already has available —
+`RawHTML.new(...)`/`#add_raw_html(...)` (§4) — no new escape hatch was
+introduced for this. Specs:
+`spec/web/components/safe/svg_foreign_content_safety_spec.cr`.
+
 ---
 
 ## 4. The `raw()` policy
@@ -555,6 +664,30 @@ base classes but are **not** touched by this hardening pass:
   explicitly a separate, later front (owner decision E4=B) and is untouched
   by this branch.
 
+**Third residual, found and documented (not fixed) in the 2026-07-08
+completeness sweep — `Elements::Style` body content.** `Style#<<`/
+`#render_children` (`src/components/elements/document/style.cr`) accept and
+render a `String` child **completely unescaped** ("Override rendering to
+not escape CSS content") — the `<style>...</style>` **element** analog of
+the `add_style` **attribute** residual above, same severity class, same
+"framework-computed, not attacker-controlled" audit bar. Verified by
+`grep -rn 'Elements::Style' src/`: exactly two call sites in this shard,
+`web_renderer.cr`'s `CONTEXT_MENU_FALLBACK_CSS` and
+`ACTION_SHEET_FALLBACK_CSS` — both `HEREDOC` constants with **zero**
+`#{...}` interpolation (grepped and confirmed at audit time), i.e. genuinely
+static, framework-authored CSS, not attacker-reachable text. **Severity,
+explicitly, in contrast to `srcdoc` (§3.5) and `<svg>` (§3.6):** a raw
+`<style>` body is a CSS-context-breakout sink (attribute-selector-based
+data exfiltration, clickjacking-via-`position:fixed`, visual spoofing) —
+**not** a script-execution sink. `srcdoc`/`<svg>` were closed in this same
+session precisely *because* they yield full, unqualified script execution
+and CSS-context sinks do not; that severity gap is the actual reason this
+one stays a documented residual instead of also being closed. Extending
+`Elements::Style` to require a typed `SafeStyle`-built body (or at minimum
+an unconditional ban + a reasoned `Style.static(css, reason:)` door
+mirroring `Script.static`) is the natural v1.x follow-up, tracked alongside
+the `add_style` extension in §7.
+
 **The v1 enforcement boundary, precisely (no "unconditional" claims that
 aren't actually true):**
 
@@ -564,7 +697,10 @@ aren't actually true):**
 | `on*` inline handlers | **Yes.** `HTMLElement#validate_attribute` runs for every `#set_attribute` call on every element, both construction paths. | Genuinely unconditional — there is no element class and no attribute-setting path that skips it. |
 | `<script>` body content | **Yes, for `Elements::Script` specifically.** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children` that re-checks `@children` regardless of how a value entered it (closes the public, mutable `children` getter as a bypass). | Unconditional *for the one element type this sink exists on* — there is no other element with executable-JS-context children. |
 | URL-bearing attributes | **No — conditional on element type.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) validate that attribute name through `SafeURL`, on both the constructor-kwarg and `#set_attribute` paths, no matter who the caller is (component code or `web_renderer.cr`) and no matter what casing or surrounding whitespace the caller spells the attribute name with (`href`/`HREF`/`Href`/`" href"`/`"href "` are all the same check to `UrlAttributeValidation`, matching HTML's own case-insensitive attribute-name matching). Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global — but exhaustive across name casing/whitespace *within* that scope. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims. |
-| `style` attribute | **No — this is the one sink still fully open on the legacy path.** `set_safe_style` (typed, `SafeStyleValue`-only) enforces; `add_style(String)`/`set_attribute("style", "...")` (used ~180x by `web_renderer.cr`) accept and render a raw string completely unchecked, on every element, unconditionally. | This is the genuinely-unclosed half of the "two-tier" story — not a documentation gap, an actual scope boundary. |
+| `style` attribute | **No — this is the one sink still fully open on the legacy path.** `set_safe_style` (typed, `SafeStyleValue`-only) enforces; `add_style(String)`/`set_attribute("style", "...")` (used ~180x by `web_renderer.cr`) accept and render a raw string completely unchecked, on every element, unconditionally. | This is the genuinely-unclosed half of the "two-tier" story — not a documentation gap, an actual scope boundary. CSS-context severity, not script execution — see the residual note above. |
+| `<style>` element body | **No — same shape as the `style` attribute, on `Elements::Style` specifically.** No ban, no typed door; a `String` child renders raw. | Undocumented until the 2026-07-08 sweep; documented now as a residual (not closed) — CSS-context severity only, and both of the shard's two call sites are verified-static constants. See the residual note above. |
+| `<iframe srcdoc>` | **Yes.** `Iframe#set_attribute` rejects a bare `String` unconditionally at both construction paths, plus a render-time backstop in `#render_attributes` that closes the public-mutable-`@attributes`-getter bypass. | Genuinely unconditional, added 2026-07-08 (§3.5) — closed, not residual, because a `srcdoc` sink yields full script execution, same severity tier as `<script>` body content. |
+| `<svg>` foreign-content children | **Yes.** `Elements::Svg` no longer overrides `render_children`; a `String` child is HTML-escaped like every other element's text node, unconditionally. | Genuinely unconditional, added 2026-07-08 (§3.6) — closed, not residual, for the same full-script-execution reason as `srcdoc`. |
 
 Extending `SafeStyle` enforcement onto the legacy `add_style`/`set_attribute`
 path (and thereby onto the native UI renderer's ~180 calls) — mirroring what
@@ -598,8 +734,9 @@ Per the source proposal:
   keyword/color/length grammar, or per-element enforcement the way
   `Elements::UrlAttributeValidation` closed the URL sink.
 - **Widening `Elements::UrlAttributeValidation` coverage** — `formaction`
-  (`Button`/`Input`), `cite` (`Blockquote`/`Q`/`Ins`/`Del`), `ping` (`A`),
-  and SVG `href`/`xlink:href` (once this shard has SVG element classes) are
+  (`Button`/`Input`), `cite` (`Blockquote`/`Ins`/`Del`), `ping` (`A`), `data`
+  (`Object`), and SVG `href`/`xlink:href` (once this shard has an
+  `href`/`xlink:href`-bearing SVG sub-element class, e.g. `Use`/`Image`) are
   still only reachable through the fully-generic, unvalidated
   `set_attribute`, or the opt-in `set_safe_url_attribute` typed setter.
 - **Migrating the remaining ~18 example components** onto
@@ -611,3 +748,42 @@ Per the source proposal:
   audited allowlist, and (d) a structural CI gate replaces the grep gate,
   the grep gate can be deleted. None of those four conditions hold yet after
   this v1 — it ships the types and the exemplar, not the full migration.
+
+---
+
+## 8. Sink-class completeness sweep (2026-07-08)
+
+Every prior gate on this branch closed exactly the one sink class the
+adversarial pass happened to find that round (attribute *name* grammar,
+then `SafeURL` case/whitespace bypasses, then `<script>` interpolation,
+then `srcdoc`). This section is the answer to "what else is out there" —
+the complete taxonomy of HTML-injection sink *classes* reachable through
+`Components::Elements::*`, each one walked to a **CLOSED** (with a spec) or
+an explicitly **DOCUMENTED RESIDUAL** verdict, so the next gate isn't
+another single point-fix.
+
+| # | Sink class | Verdict | One-line proof / rationale |
+|---|---|---|---|
+| (a) | HTML text context (element children) | **CLOSED**, shard-wide, with two now-fixed exceptions | `ContainerElement#render_children` HTML-escapes every `String` child by construction, for all ~94 element classes, with zero opt-out short of the documented `RawHTML`/`add_raw_html` raw door (§4/(i) below). Two elements previously carved themselves an *unescaped*-`String`-child exception outside that raw-door mechanism: `Elements::Script` (closed pre-existing, §3.4) and `Elements::Svg` (closed this session, §3.6). Grep proof: `grep -rn 'def render_children' src/components/elements/` returns exactly 4 overrides (`Script`, `Style`, `Svg`, `Pre`) plus the base `ContainerElement`/base `HTMLElement` definitions — `Style` is the one documented CSS-severity residual (§6), `Pre` still calls `escape_html` (only whitespace handling differs, not escaping — not a sink). |
+| (b) | Attribute VALUE | **CLOSED**, unconditionally, shard-wide | `HTMLElement#render_attributes` runs every attribute value through `escape_attribute` (`&`/`"`/`'`/`<`/`>`), for every element, no opt-out — this is pre-v1 behavior, unchanged and re-verified this sweep. `srcdoc` (§3.5) is the one attribute where value-escaping alone is provably insufficient (because the *decoded* value is re-parsed as a nested document, not consumed as inert data) — that's a distinct sink class (g), not a hole in this one. |
+| (c) | Attribute NAME | **CLOSED**, unconditionally, shard-wide (§3.1b) | `HTMLElement#set_attribute` calls `validate_attribute_name!` as the first thing it does, before any other check, for every element and both construction paths — re-verified this sweep: `grep -rn 'def set_attribute' src/components/elements/` returns exactly 2 definitions (`HTMLElement`, `UrlAttributeValidation`), and `UrlAttributeValidation#set_attribute` calls `super`, landing in the same chokepoint. No element overrides `set_attribute` in a way that skips it. |
+| (d) | URL attributes (`href`/`src`/`action`/etc.) | **Element-scoped CLOSED + DOCUMENTED RESIDUAL for the rest** (§3.2/§6, unchanged this sweep except documentation accuracy) | Closed, unconditionally within scope, for `A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action` — verified via `grep -rn 'include UrlAttributeValidation' src/components/elements/`. Residual, documented: `formaction` (`Button`/`Input`), `cite` (`Blockquote`/`Ins`/`Del`), `ping` (`A`), **`data` (`Object`, confirmed via this sweep — `Object` does not `include UrlAttributeValidation`)**, and SVG `href`/`xlink:href` (no `href`-bearing SVG sub-element class exists in this shard yet, corrected from a prior doc claim that no SVG element class existed at all — `Elements::Svg` itself does exist). Severity: URL-scheme injection (`javascript:`), not neutralized by escaping alone but also not silently full-script on every browser the way `srcdoc`/`<svg>` are — residual acceptable because these are all narrow, low-traffic attributes with no current call site (verified via `grep -rn` for each name across `src/`), unlike `srcdoc` which had a live call site. |
+| (e) | CSS/style context | **DOCUMENTED RESIDUAL** (§6/§7, extended this sweep) | Two sub-sinks, same severity tier (CSS-context breakout, not script execution): the `style` **attribute** (`add_style`/`set_attribute("style", ...)`, ~180 call sites in `web_renderer.cr`, all framework-computed, pre-existing documented residual) and the `<style>` **element body** (`Elements::Style`, newly documented this sweep, exactly 2 call sites, both verified-static constants — see §6). Neither yields script execution; both are accepted, bounded risk, tracked as v1.x/v2 follow-up in §7. |
+| (f) | JS / `<script>` body | **CLOSED**, unconditionally, three-path closure (§3.4, pre-existing, re-verified) | `Elements::Script` rejects a bare `String` at `<<`, `add_child`/`add_children`, and a render-time backstop in `render_children` that closes the public-mutable-`children`-getter bypass. Two typed doors (`Script.static`/`Script.json_data`) remain. Re-verified green this sweep: `spec/web/components/safe/script_element_safety_spec.cr`. |
+| (g) | HTML-document-valued attributes (`srcdoc` and siblings) | **CLOSED this session** (§3.5) | `srcdoc` was the only HTML-document-valued attribute found on any of the ~94 element classes in this shard (the compound-but-URL-based `<meta refresh>` `content` attribute is a different, already-closed shape, §3.2). Swept every element file for a second HTML-valued (as opposed to URL-valued) attribute — none found. `Elements::Iframe#set_attribute`/`#render_attributes` now reject a bare `String` unconditionally, three-path closure matching (f); typed doors `Iframe.srcdoc`/`#set_srcdoc`. Spec: `spec/web/components/safe/iframe_srcdoc_safety_spec.cr`, plus the fixed `web_renderer.cr:2106` call site covered end-to-end in `spec/web/ui/renderers/web_renderer_spec.cr`. |
+| (h) | `<template>`/SVG/MathML foreign-content or other exotic sinks | **CLOSED for the one foreign-content element this shard has** (§3.6) | No `Elements::Template` or MathML element class exists in this shard (`grep -rn 'class Template\|MathML' src/components/elements/` — no matches), so those are not-yet-applicable, not open sinks. `Elements::Svg` is the one foreign-content element class present; its raw/unescaped-`String`-child override is removed this session (§3.6), closing the one live exotic-sink shape that existed. If/when `Template`/MathML element classes are added, this row should be re-audited — `<template>` content in particular has its own HTML5 parsing quirks (inert `content` document fragment) that would need a fresh review, not an assumption that this sweep already covers it. |
+| (i) | Raw doors (`RawHTML`/`add_raw_html`/`raw`/`unsafe`) | **DOCUMENTED RESIDUAL by design** (§4, unchanged, re-counted this sweep) | These are deliberately the escape hatch, not a bug. Two are gated with a mandatory, non-blank `reason:` (`SafeHTML.unsafe`/`raw`, `SafeURL.unsafe`) and are loud/greppable. Two are not reason-gated (`Elements::RawHTML.new`, `ContainerElement#add_raw_html`) — re-counted this sweep via `grep -rn 'RawHTML.new\|add_raw_html' src/` (excluding the base-class definitions themselves): 9 call sites (`components.cr`, `web_renderer.cr` ×2, `integration.cr`, `reactive_component.cr`, and four `src/components/examples/*.cr` files), consistent with §4's "roughly a dozen" — all pre-existing, none touched by this session, all already covered by §4's policy note that unifying these onto a mandatory-`reason:` API is bounded v1.x follow-up work, not a v1 gap. |
+
+**Net effect of this sweep:** two sink classes were found genuinely open
+and **closed** in this session — `srcdoc` (g) and `<svg>` foreign content
+(h), both full-script-execution severity, both now gated exactly like
+`<script>` body content. One sink class was found open, undocumented, and
+**left open but now documented** — `<style>` element body (part of (e)) —
+because its severity (CSS-context, not script execution) matches the
+already-accepted `add_style` residual bar, not the srcdoc bar. Every other
+category was already closed by a prior gate on this branch and is
+re-verified, not re-litigated, here. The residual list going into v1.x/v2
+is therefore: the `style`-attribute/`<style>`-element CSS-context pair (e),
+the narrow-and-currently-unused URL-attribute tail (d), and the explicit,
+by-design raw doors (i) — short, and each one individually a lower-severity
+or lower-reachability shape than the two that got closed.
