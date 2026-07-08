@@ -187,6 +187,59 @@ describe "SafeHTML v1 — SafeURL enforcement on link/src-bearing elements" do
     end
   end
 
+  describe Components::Elements::Object do
+    # SafeHTML v1 §8(d), closed 2026-07-08: `data` loads a resource into a
+    # child navigable and renders it as an embedded HTML document,
+    # executing any `<script>` inside — unconditionally, no user
+    # interaction required (the same severity tier as `srcdoc`/`<svg>`/
+    # `<style>` body, not the "requires a click" tier `href`/`action`/
+    # `formaction` occupy). Confirmed by a Codex xhigh adversarial pass
+    # during the render-time-authority re-gate.
+    it "adversarial: rejects a javascript: data via constructor kwarg" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Object.new(data: "javascript:alert(1)")
+      end
+    end
+
+    it "adversarial: rejects a data: URI carrying an inline HTML document with a <script>, via constructor kwarg" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Object.new(data: "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==")
+      end
+    end
+
+    it "adversarial: rejects a data: URI via #set_attribute" do
+      obj = Components::Elements::Object.new
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        obj.set_attribute("data", "data:text/html,<script>alert(1)</script>")
+      end
+      obj["data"].should be_nil
+    end
+
+    it "adversarial: rejects a case-varied DATA via the constructor-kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Object.new("DATA": "data:text/html,<script>alert(1)</script>")
+      end
+    end
+
+    it "the breakout payload never appears in any rendered output" do
+      obj = Components::Elements::Object.new
+      begin
+        obj.set_attribute("data", "data:text/html,<script>alert(document.cookie)</script>")
+      rescue ArgumentError
+      end
+      obj.render.should_not contain("<script>alert(document.cookie)</script>")
+    end
+
+    it "allows an ordinary https data URL through both paths, unchanged" do
+      obj1 = Components::Elements::Object.new(data: "https://example.com/embed.pdf", type: "application/pdf")
+      obj1.render.should eq(%(<object data="https://example.com/embed.pdf" type="application/pdf"></object>))
+
+      obj2 = Components::Elements::Object.new
+      obj2.set_attribute("data", "/assets/embed.pdf")
+      obj2["data"].should eq("/assets/embed.pdf")
+    end
+  end
+
   describe Components::Elements::Form do
     it "adversarial: rejects a javascript: action" do
       expect_raises(ArgumentError, /SafeHTML ban/) do

@@ -131,28 +131,41 @@ describe "Document Elements" do
   end
   
   describe Components::Elements::Style do
-    it "renders style element with CSS" do
-      style = Components::Elements::Style.new
-      style << "body { margin: 0; }"
+    # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.8): a plain `String` child is
+    # banned — `</style>` breaks out of the element and lets a following
+    # `<script>` execute, exactly like the `<script>`-body ban. Use
+    # `Style.css(css, reason:)`. See
+    # `spec/web/components/safe/style_element_safety_spec.cr` for the full
+    # adversarial suite.
+    it "renders style element with CSS via the static-CSS door" do
+      style = Components::Elements::Style.css("body { margin: 0; }", reason: "spec: static CSS literal")
       style.render.should eq("<style>body { margin: 0; }</style>")
     end
-    
-    it "can be initialized with CSS content" do
-      style = Components::Elements::Style.new("h1 { color: blue; }")
-      style.render.should eq("<style>h1 { color: blue; }</style>")
+
+    it "Style.css requires a non-empty reason" do
+      expect_raises(ArgumentError, "requires a non-empty") do
+        Components::Elements::Style.css("h1 { color: blue; }", reason: "")
+      end
     end
-    
-    it "only accepts text content" do
+
+    it "rejects a plain String child" do
       style = Components::Elements::Style.new
-      
+
+      expect_raises(ArgumentError, "does not accept a plain String child") do
+        style << ".class > div { color: red; }"
+      end
+    end
+
+    it "only accepts CSS text (via Style.css), not other HTML elements" do
+      style = Components::Elements::Style.new
+
       expect_raises(ArgumentError, "Style element should only contain CSS text") do
         style << Components::Elements::Html.new
       end
     end
-    
-    it "does not escape CSS content" do
-      style = Components::Elements::Style.new
-      style << ".class > div { color: red; }"
+
+    it "does not escape CSS content vouched through Style.css" do
+      style = Components::Elements::Style.css(".class > div { color: red; }", reason: "spec: static CSS literal")
       style.render.should contain(".class > div { color: red; }")
     end
   end

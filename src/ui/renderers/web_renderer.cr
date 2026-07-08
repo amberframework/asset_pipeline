@@ -1795,8 +1795,10 @@ module UI
 
         unless @context_menu_css_emitted
           @context_menu_css_emitted = true
-          style_block = Components::Elements::Style.new
-          style_block << CONTEXT_MENU_FALLBACK_CSS
+          style_block = Components::Elements::Style.css(
+            CONTEXT_MENU_FALLBACK_CSS,
+            reason: "static framework-authored context-menu fallback CSS constant — no interpolated data"
+          )
           host.add_child(style_block)
 
           script_block = Components::Elements::Script.static(
@@ -2867,8 +2869,10 @@ module UI
         # registers exactly once at runtime.
         unless @action_sheet_css_emitted
           @action_sheet_css_emitted = true
-          style_block = Components::Elements::Style.new
-          style_block << ACTION_SHEET_FALLBACK_CSS
+          style_block = Components::Elements::Style.css(
+            ACTION_SHEET_FALLBACK_CSS,
+            reason: "static framework-authored action-sheet fallback CSS constant — no interpolated data"
+          )
           root.add_child(style_block)
 
           script_block = Components::Elements::Script.static(

@@ -14,6 +14,14 @@ module Components
         @attributes = {} of String => String
         @children = [] of HTMLElement | String | RawHTML
 
+        # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.7): the exact `String` values
+        # vouched into an HTML-DOCUMENT-valued attribute (currently only
+        # `<iframe srcdoc>`) through a typed door, keyed by the
+        # `name.strip.downcase`-normalized attribute name. `render_attributes`
+        # (below) is the sole authority that checks against this map — see
+        # `document_sink_attribute?`/`vouch_document_attribute`.
+        @vouched_document_attributes = {} of String => String
+
         # Process attributes
         attrs.each do |key, value|
           set_attribute(key.to_s, value.to_s)
@@ -196,8 +204,11 @@ module Components
         # opt-in) because nothing in this shard sets one today — see the
         # v1 audit in SAFE_HTML_V1.md — so there is zero legacy call site
         # this can break. Attach behavior with a `data-*` hook + external JS
-        # instead.
-        if name.size > 2 && name[0..1].downcase == "on" && name[2].ascii_letter?
+        # instead. (Shared with the render-time authority below via
+        # `event_handler_attribute_name?` — one predicate, two enforcement
+        # points: this one is fail-fast at call time, `render_attributes`'s
+        # is the unbypassable one.)
+        if event_handler_attribute_name?(name)
           raise ArgumentError.new(
             "SafeHTML ban: inline event-handler attribute #{name.inspect} is forbidden. " \
             "Attach behavior with a data-* attribute + an external script, not on#{name[2..]}=\"...\"."
@@ -214,6 +225,17 @@ module Components
             raise ArgumentError.new("tabindex must be an integer")
           end
         end
+      end
+
+      # Shared by `validate_attribute` (call-time) and
+      # `validate_rendered_attribute!` (render-time, the authority) — see
+      # docs/SAFE_HTML_V1.md §3.7. `name` may be raw (call-time caller) or
+      # `strip.downcase`-normalized (render-time caller, matching how
+      # `UrlAttributeValidation` and `document_sink_attribute?` are keyed);
+      # downcasing an already-lowercase string is a no-op, so one predicate
+      # serves both.
+      private def event_handler_attribute_name?(name : String) : Bool
+        name.size > 2 && name[0..1].downcase == "on" && name[2].ascii_letter?
       end
 
       # ---- SafeHTML v1 typed setters (docs/SAFE_HTML_V1.md) --------------
@@ -247,11 +269,141 @@ module Components
         set_attribute("style", style.to_s)
       end
 
+      # ---- SafeHTML v1 §3.7: the render-time validation authority --------
+      #
+      # A re-gate finding proved that `set_attribute`-time checks (grammar,
+      # `on*`, `SafeURL`, `srcdoc`) are all bypassable the same way: `
+      # attributes` is a public, mutable `getter` (`Hash(String, String)`),
+      # so `element.attributes["SRCDOC"] = "<script>...</script>"` — or
+      # `"/href"`, `" onclick"`, any case/whitespace-varied key — mutates the
+      # live Hash directly and never touches `set_attribute` at all. Chasing
+      # each concrete key-casing/sink combination as its own point-fix is an
+      # unbounded list (five prior gates on this branch each closed exactly
+      # one). The convergent fix: `render_attributes` — the one place every
+      # attribute, however it entered `@attributes`, is turned into bytes —
+      # is now the SOLE, COMPLETE, unbypassable validation authority. It
+      # re-runs the FULL suite, by NORMALIZED name, against whatever
+      # currently sits in `@attributes`, regardless of provenance:
+      #
+      #   (a) attribute-name grammar on the RAW name (`validate_attribute_name!`)
+      #   (b) the `on*` ban, keyed by `name.strip.downcase`
+      #   (c) `SafeURL` on url-bearing attributes (`url_bearing_attribute?`,
+      #       keyed by `name.strip.downcase` — the same predicate
+      #       `UrlAttributeValidation` already declares per element)
+      #   (d) HTML-document-valued attributes (`document_sink_attribute?`,
+      #       e.g. `srcdoc`) — the current value must be `==` the exact
+      #       `String` a typed door vouched for that normalized name
+      #
+      # `set_attribute`-time enforcement (`validate_attribute_name!`,
+      # `validate_attribute`, `UrlAttributeValidation#set_attribute`,
+      # `Iframe#set_attribute`) stays exactly as it was — it is still useful
+      # as a fail-FAST error at the call site that caused the bad value —
+      # but it is no longer what makes this safe. `render_attributes` is.
+
+      # Is `name` (already `strip.downcase`-normalized by the caller) a
+      # URL-bearing attribute on *this* element? Default `false`; overridden
+      # per element by `include Elements::UrlAttributeValidation` (see
+      # `url_attribute_validation.cr`) exactly as before — this default just
+      # makes the method universally callable from the base class so
+      # `render_attributes` doesn't need a `responds_to?` check.
+      protected def url_bearing_attribute?(name : String) : Bool
+        false
+      end
+
+      # Is `name` (already normalized) an HTML-DOCUMENT-valued attribute on
+      # *this* element (fed to a fresh HTML parser as an entire document,
+      # e.g. `<iframe srcdoc>`) — as opposed to an ordinary data-valued one?
+      # Default `false`; override alongside `vouch_document_attribute` calls
+      # from the element's own typed door(s).
+      protected def document_sink_attribute?(name : String) : Bool
+        false
+      end
+
+      # The one legitimate way to populate a `document_sink_attribute?`
+      # attribute: called from a typed, `reason:`-carrying door (e.g.
+      # `Iframe.srcdoc`/`#set_srcdoc`). Records the vouched value under the
+      # *normalized* name (so a case/whitespace-varied direct mutation of
+      # `@attributes` can never coincidentally match it) and writes the
+      # canonical-cased attribute into `@attributes` for rendering.
+      protected def vouch_document_attribute(name : String, value : String) : Nil
+        @vouched_document_attributes[name.strip.downcase] = value
+        @attributes[name] = value
+      end
+
+      # The error raised when a `document_sink_attribute?` attribute's
+      # current `@attributes` value doesn't match what was vouched (or
+      # nothing was ever vouched at all). Override per element for a more
+      # specific message pointing at that element's typed door(s) — see
+      # `Iframe#document_sink_ban_error`.
+      protected def document_sink_ban_error(name : String, value : String) : ArgumentError
+        ArgumentError.new(
+          "SafeHTML ban: #{name.inspect}=... rejected. This is an " \
+          "HTML-DOCUMENT-valued attribute — the browser re-parses the " \
+          "decoded value as an entire nested document, so a bare String is " \
+          "banned exactly like <script> body content, regardless of how it " \
+          "reached @attributes. Use this element's typed vouching door " \
+          "instead of #set_attribute or direct `attributes[...]` mutation."
+        )
+      end
+
+      # THE authority: every check §3.7 above describes, run once per
+      # currently-live attribute, immediately before it is turned into
+      # bytes. Raises fail-closed on the first violation found.
+      protected def validate_rendered_attribute!(name : String, value : String) : Nil
+        # (a) name grammar, on the RAW name — independent of case/whitespace
+        # normalization, this is what closes `/href`, `" onclick"`, an
+        # embedded `=`/`>`/quote, etc., no matter how the name reached
+        # `@attributes` (constructor, `#set_attribute`, or a direct
+        # `attributes["..."] = ...` mutation through the public getter).
+        validate_attribute_name!(name)
+
+        key = name.strip.downcase
+
+        # (b) on* ban, keyed by normalized name.
+        if event_handler_attribute_name?(key)
+          raise ArgumentError.new(
+            "SafeHTML ban: inline event-handler attribute #{name.inspect} is forbidden. " \
+            "Attach behavior with a data-* attribute + an external script, not on#{key[2..]}=\"...\"."
+          )
+        end
+
+        # (c) SafeURL on url-bearing attributes, keyed by normalized name,
+        # reusing whatever this element already declared via
+        # `url_bearing_attribute?` (the same predicate
+        # `UrlAttributeValidation` uses at set-time).
+        if url_bearing_attribute?(key)
+          begin
+            Components::SafeURL.parse!(value)
+          rescue ex : Components::SafeURL::UnsafeURLError
+            raise ArgumentError.new(
+              "SafeHTML ban: #{name.inspect}=#{value.inspect} rejected — #{ex.message} " \
+              "For an intentional non-allowlisted scheme, build the value with " \
+              "SafeURL.unsafe(url, reason: \"...\") and pass it via " \
+              "\#set_safe_url_attribute(#{name.inspect}, ...) instead of \#set_attribute."
+            )
+          end
+        end
+
+        # (d) HTML-document-valued attributes — the live value must be
+        # exactly what a typed door vouched for, under the normalized name.
+        # A case/whitespace-varied key (`SRCDOC`, `" srcdoc"`) written
+        # directly into `@attributes` normalizes to the same `key` here and
+        # is caught even though it is a *different* Hash entry than the
+        # legitimately-vouched one.
+        if document_sink_attribute?(key)
+          vouched = @vouched_document_attributes[key]?
+          if vouched.nil? || value != vouched
+            raise document_sink_ban_error(name, value)
+          end
+        end
+      end
+
       # Render attributes as HTML string
       protected def render_attributes : String
         return "" if @attributes.empty?
 
         attrs = @attributes.map do |name, value|
+          validate_rendered_attribute!(name, value)
           # Escape attribute values
           escaped_value = escape_attribute(value)
           %(#{name}="#{escaped_value}")

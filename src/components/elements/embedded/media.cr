@@ -139,7 +139,7 @@ module Components
       # of the highest-value URL sinks in the whole element set.
       include UrlAttributeValidation
 
-      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5): `srcdoc` is an
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5, §3.7): `srcdoc` is an
       # HTML-DOCUMENT-VALUED attribute, not a plain string one. The browser
       # HTML-entity-decodes the (correctly-escaped-for-the-*outer*-document)
       # attribute value and then feeds the decoded result to a *fresh HTML
@@ -155,24 +155,27 @@ module Components
       # a bare `String` is banned unconditionally, with a loud, reasoned,
       # typed door as the only way through.
       #
-      # `@vouched_srcdoc` holds the exact `String` that was accepted through
-      # that door. `@attributes` (the `Hash(String, String)` that backs
-      # every other attribute) is a public, mutable `getter` on
-      # `HTMLElement` — nothing stops `iframe.attributes["srcdoc"] = "..."`
-      # from mutating it directly, the same public-mutable-getter bypass
-      # `docs/SAFE_HTML_V1.md` §3.4 closes for `Script#children` via a
-      # render-time backstop. `render_attributes` below re-checks, immediately
-      # before emitting bytes, that whatever currently sits at
-      # `@attributes["srcdoc"]` is identical to the exact value that was
-      # vouched — closing that bypass too.
-      @vouched_srcdoc : String? = nil
-
+      # `document_sink_attribute?`/`vouch_document_attribute` (declared on
+      # `HTMLElement`, §3.7) are the GENERAL mechanism this used to
+      # implement locally with its own `@vouched_srcdoc` ivar and a
+      # one-off `render_attributes` override. That override only ever
+      # re-checked the exact key `"srcdoc"` — a case/whitespace-varied
+      # direct mutation (`iframe.attributes["SRCDOC"] = "..."`) landed in a
+      # *different* Hash entry and sailed past it unchecked. Declaring
+      # `document_sink_attribute?` here instead means `HTMLElement`
+      # `render_attributes`' single authority checks EVERY live attribute by
+      # normalized name, closing that gap without `Iframe` needing its own
+      # render-time backstop at all.
       def initialize(**attrs)
         super("iframe", **attrs)
       end
 
       protected def url_bearing_attribute?(name : String) : Bool
         name == "src"
+      end
+
+      protected def document_sink_attribute?(name : String) : Bool
+        name == "srcdoc"
       end
 
       # The typed, reasoned door for `srcdoc` — mirrors `Script.static(js,
@@ -201,10 +204,11 @@ module Components
 
       # :nodoc: the one place that is allowed to write `srcdoc` into
       # `@attributes` directly (bypassing the `#set_attribute` ban below) —
-      # only reachable via the two reasoned doors above.
+      # only reachable via the two reasoned doors above. Delegates to
+      # `HTMLElement#vouch_document_attribute` (§3.7), which records the
+      # vouched value under the *normalized* key and writes `@attributes`.
       protected def set_vouched_srcdoc(html : String) : Nil
-        @vouched_srcdoc = html
-        @attributes["srcdoc"] = html
+        vouch_document_attribute("srcdoc", html)
       end
 
       # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5): reject a bare-`String`
@@ -217,7 +221,9 @@ module Components
       # `" srcdoc"` are all caught too — real HTML attribute names are
       # ASCII-case-insensitive and tolerant of incidental whitespace from
       # hand-built call sites, exactly like `UrlAttributeValidation`'s own
-      # normalization.
+      # normalization. This is fail-FAST, call-time defense-in-depth — the
+      # render-time authority (`document_sink_attribute?` + `HTMLElement
+      # #validate_rendered_attribute!`, §3.7) is what's actually unbypassable.
       def set_attribute(name : String, value : String?) : self
         if value && name.strip.downcase == "srcdoc"
           raise srcdoc_string_ban_error(name, value)
@@ -234,6 +240,14 @@ module Components
           "Iframe.srcdoc(html, reason: \"...\") or " \
           "iframe.set_srcdoc(html, reason: \"...\") instead."
         )
+      end
+
+      # `HTMLElement#validate_rendered_attribute!` (§3.7) calls this instead
+      # of its generic document-sink message when the current `srcdoc`
+      # value doesn't match what was vouched — reuses the exact,
+      # door-naming wording above instead of the base class's generic text.
+      protected def document_sink_ban_error(name : String, value : String) : ArgumentError
+        srcdoc_string_ban_error(name, value)
       end
 
       # Validate iframe-specific attributes
@@ -262,20 +276,14 @@ module Components
       # above rejects a bare-String `srcdoc` at call time, but `@attributes`
       # is reachable directly through the public, mutable `attributes`
       # getter (`HTMLElement#attributes`), completely bypassing
-      # `#set_attribute`. This re-checks the invariant at the one point
-      # that can't be bypassed: immediately before emitting bytes. The
-      # current `@attributes["srcdoc"]` value must be `==` the exact
-      # `String` that was vouched via `Iframe.srcdoc`/`#set_srcdoc` — any
-      # other value (including a same-named but different string written
-      # directly into the Hash) is rejected, fail-closed.
-      protected def render_attributes : String
-        if value = @attributes["srcdoc"]?
-          unless value == @vouched_srcdoc
-            raise srcdoc_string_ban_error("srcdoc", value)
-          end
-        end
-        super
-      end
+      # `#set_attribute` — and a case/whitespace-varied key
+      # (`attributes["SRCDOC"] = ...`) would even bypass a same-key-only
+      # recheck. This element no longer needs its own `render_attributes`
+      # override to close that: declaring `document_sink_attribute?` above
+      # is enough — `HTMLElement#render_attributes`'s single authority
+      # (§3.7) iterates every live attribute by *normalized* name and
+      # enforces this invariant generically, for `srcdoc` and any future
+      # HTML-document-valued attribute alike.
     end
     
     # Represents the <embed> element - external content
@@ -307,10 +315,36 @@ module Components
     
     # Represents the <object> element - external resource
     class Object < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2/§8(d), closed 2026-07-08):
+      # `data` loads a resource into a CHILD NAVIGABLE — unlike `href`/
+      # `action`/`formaction`, which merely link/submit and need a user
+      # click/submit to fire, `<object data="data:text/html;base64,...">`
+      # renders that resource as an embedded HTML document and executes
+      # any `<script>` inside it UNCONDITIONALLY, the moment the browser
+      # parses this element — no user interaction required. That is the
+      # same on-parse severity as `srcdoc`/`<svg>`/`<style>` body, not the
+      # "requires a click" tier the rest of the URL-attribute residual
+      # tail occupies (confirmed via a Codex xhigh adversarial pass during
+      # the render-time-authority re-gate — see docs/SAFE_HTML_V1.md §8
+      # row (d)). `Object` previously did not `include
+      # UrlAttributeValidation` at all, so `data` was reachable, entirely
+      # unvalidated, through both the constructor-kwarg and `#set_attribute`
+      # paths. Declaring it here is the whole fix: the render-time
+      # authority (`HTMLElement#render_attributes`, §3.7) picks up any
+      # element's `url_bearing_attribute?` declaration automatically, so
+      # this closes the call-time path (`UrlAttributeValidation#set_attribute`)
+      # and the render-time/direct-mutation path in one declaration, with
+      # no further changes needed anywhere else.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("object", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "data"
+      end
+
       # Validate object-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super

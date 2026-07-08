@@ -76,6 +76,15 @@ describe "SafeHTML v1 -- <iframe srcdoc> HTML-document-valued attribute ban" do
         iframe.render
       end
     end
+
+    it "path 3c: a CASE-VARIED key written directly (`SRCDOC`, not `srcdoc`) is also caught at render time — the render-time authority keys the document-sink check by NORMALIZED name, so this is a different Hash entry than any legitimately-vouched `srcdoc` but is still checked" do
+      iframe = Components::Elements::Iframe.new
+      iframe.attributes["SRCDOC"] = breakout
+
+      expect_raises(ArgumentError, /HTML-DOCUMENT-valued attribute/) do
+        iframe.render
+      end
+    end
   end
 
   describe "the two legitimate doors" do
