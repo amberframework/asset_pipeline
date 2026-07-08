@@ -138,7 +138,7 @@ DSL for structure instead.
 | Text nodes | HTML-escaped by construction | `ContainerElement#render_children` / `Component#render_children` (pre-existing) |
 | Normal attributes | HTML-escaped by construction | `HTMLElement#render_attributes` (pre-existing) |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
-| URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element — not just the typed setter | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) |
+| URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element, matched case-insensitively and with surrounding whitespace ignored (`HREF`, `Href`, `" href"`, `"href "` all match `"href"`) — not just the typed setter | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) |
 | URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Q`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute` | *(no per-attribute enforcement; see §6)* |
 | `<meta http-equiv="refresh" content="N; url=...">` | Dedicated typed constructor (the `content` value is a *compound* format, not a plain URL, so the generic URL setter is the wrong shape for it) | `Elements::Meta.safe_refresh(seconds, SafeURL)` |
 | `srcset` | Require a `SafeSrcSet` (own parser — a URL *list with descriptors*, not a single URL) | `Components::SafeSrcSet` |
@@ -205,6 +205,18 @@ just that name and runs it through `SafeURL.parse!` before delegating to the
 normal `HTMLElement#set_attribute`. Because `HTMLElement#initialize` calls
 `#set_attribute` once per constructor kwarg, this closes the constructor-kwarg
 path and the explicit `#set_attribute` path with one mechanism.
+
+The name comparison inside `UrlAttributeValidation#set_attribute` normalizes
+the caller-supplied name (`name.strip.downcase`) **only for the
+`url_bearing_attribute?` check** — real HTML attribute names are ASCII-case-
+insensitive and tolerant of incidental whitespace from hand-built call sites,
+so `A.new("HREF": "javascript:...")`, `A.new("Href": ...)`,
+`a.set_attribute("HREF", ...)`, and `a.set_attribute(" href", ...)` all match
+`"href"` and go through `SafeURL.parse!` exactly like the plain-lowercase
+form. The *rendered* attribute name is left exactly as the caller passed it
+(`super` still receives the original, un-normalized `name`) — normalization
+only ever widens which calls get checked, never changes what gets written to
+the DOM string.
 
 This is deliberately narrower than "ban `href`/`src` everywhere": it does
 **not** modify `HTMLElement#set_attribute` itself (the shared, generic,
@@ -448,7 +460,7 @@ aren't actually true):**
 |---|---|---|
 | `on*` inline handlers | **Yes.** `HTMLElement#validate_attribute` runs for every `#set_attribute` call on every element, both construction paths. | Genuinely unconditional — there is no element class and no attribute-setting path that skips it. |
 | `<script>` body content | **Yes, for `Elements::Script` specifically.** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children` that re-checks `@children` regardless of how a value entered it (closes the public, mutable `children` getter as a bypass). | Unconditional *for the one element type this sink exists on* — there is no other element with executable-JS-context children. |
-| URL-bearing attributes | **No — conditional on element type.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) validate that attribute name through `SafeURL`, on both the constructor-kwarg and `#set_attribute` paths, no matter who the caller is (component code or `web_renderer.cr`). Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims. |
+| URL-bearing attributes | **No — conditional on element type.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`) validate that attribute name through `SafeURL`, on both the constructor-kwarg and `#set_attribute` paths, no matter who the caller is (component code or `web_renderer.cr`) and no matter what casing or surrounding whitespace the caller spells the attribute name with (`href`/`HREF`/`Href`/`" href"`/`"href "` are all the same check to `UrlAttributeValidation`, matching HTML's own case-insensitive attribute-name matching). Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global — but exhaustive across name casing/whitespace *within* that scope. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims. |
 | `style` attribute | **No — this is the one sink still fully open on the legacy path.** `set_safe_style` (typed, `SafeStyleValue`-only) enforces; `add_style(String)`/`set_attribute("style", "...")` (used ~180x by `web_renderer.cr`) accept and render a raw string completely unchecked, on every element, unconditionally. | This is the genuinely-unclosed half of the "two-tier" story — not a documentation gap, an actual scope boundary. |
 
 Extending `SafeStyle` enforcement onto the legacy `add_style`/`set_attribute`

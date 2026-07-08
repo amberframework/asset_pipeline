@@ -45,7 +45,15 @@ module Components
       end
 
       def set_attribute(name : String, value : String?) : self
-        if value && url_bearing_attribute?(name)
+        # HTML attribute names are case-insensitive and callers may pad them
+        # with whitespace (`A.new("HREF": ...)`, `set_attribute(" href", ...)`).
+        # Normalize *only* for the url_bearing_attribute? check below — the
+        # original `name` (and its casing) is still what gets rendered via
+        # `super`, so this never changes output, only whether the SafeURL
+        # gate fires.
+        key = name.strip.downcase
+
+        if value && url_bearing_attribute?(key)
           begin
             Components::SafeURL.parse!(value)
           rescue ex : Components::SafeURL::UnsafeURLError

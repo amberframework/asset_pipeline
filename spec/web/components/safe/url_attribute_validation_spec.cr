@@ -206,4 +206,264 @@ describe "SafeHTML v1 — SafeURL enforcement on link/src-bearing elements" do
       form.render.should contain(%(action="/submit"))
     end
   end
+
+  # Regression suite for the re-gate finding: HTML attribute names are
+  # case-INSENSITIVE and may be whitespace-padded, but `url_bearing_attribute?`
+  # was being called with the raw caller-supplied name and every per-element
+  # override did an exact lowercase `==` comparison. That let
+  # `A.new("HREF": "javascript:...")`, `A.new("Href": ...)`,
+  # `a.set_attribute("HREF", ...)`, and `set_attribute(" href", ...)` /
+  # `set_attribute("href ", ...)` all sail past `url_bearing_attribute?`
+  # (it returned `false` for anything that wasn't byte-for-byte "href") and
+  # render a live `javascript:` sink. Every example below is a payload that
+  # a browser treats identically to the plain-lowercase form — HTML
+  # attribute-name matching is ASCII-case-insensitive and tolerant of
+  # surrounding whitespace in source markup/tooling — so a spec suite that
+  # only ever exercised lowercase names (as this file did before this fix)
+  # is a false green: it proves nothing about the actual attacker-controlled
+  # input space. Each `it` below must independently fail (raise nothing) if
+  # `set_attribute` regresses to comparing raw, un-normalized names again.
+  describe "case-insensitive / whitespace-normalized enforcement (regression)" do
+    describe Components::Elements::A do
+      it "adversarial: rejects HREF (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::A.new("HREF": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects Href (mixed-case) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::A.new("Href": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects HREF (all-caps) via #set_attribute" do
+        a = Components::Elements::A.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          a.set_attribute("HREF", "javascript:alert(1)")
+        end
+        a["HREF"].should be_nil
+      end
+
+      it "adversarial: rejects a leading-whitespace-padded name via #set_attribute" do
+        a = Components::Elements::A.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          a.set_attribute(" href", "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a trailing-whitespace-padded name via #set_attribute" do
+        a = Components::Elements::A.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          a.set_attribute("href ", "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded name via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::A.new(" href": "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Link do
+      it "adversarial: rejects HREF via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Link.new("HREF": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded href via #set_attribute" do
+        link = Components::Elements::Link.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          link.set_attribute(" href ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Img do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Img.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects Src (mixed-case) via #set_attribute" do
+        img = Components::Elements::Img.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          img.set_attribute("Src", "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        img = Components::Elements::Img.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          img.set_attribute("src ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Script do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Script.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        script = Components::Elements::Script.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          script.set_attribute(" src", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Iframe do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Iframe.new("SRC": "javascript:alert(document.domain)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        iframe = Components::Elements::Iframe.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          iframe.set_attribute("src ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Video do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Video.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects POSTER (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Video.new("POSTER": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded poster via #set_attribute" do
+        video = Components::Elements::Video.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          video.set_attribute(" poster", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Audio do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Audio.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        audio = Components::Elements::Audio.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          audio.set_attribute("src ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Source do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Source.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        source = Components::Elements::Source.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          source.set_attribute(" src", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Track do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Track.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        track = Components::Elements::Track.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          track.set_attribute("src ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Embed do
+      it "adversarial: rejects SRC (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Embed.new("SRC": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded src via #set_attribute" do
+        embed = Components::Elements::Embed.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          embed.set_attribute(" src", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Area do
+      it "adversarial: rejects HREF (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Area.new("HREF": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded href via #set_attribute" do
+        area = Components::Elements::Area.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          area.set_attribute("href ", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Base do
+      it "adversarial: rejects HREF (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Base.new("HREF": "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded href via #set_attribute" do
+        base = Components::Elements::Base.new
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          base.set_attribute(" href", "javascript:alert(1)")
+        end
+      end
+    end
+
+    describe Components::Elements::Form do
+      it "adversarial: rejects ACTION (all-caps) via the constructor kwarg path" do
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          Components::Elements::Form.new("ACTION": "javascript:alert(document.cookie)")
+        end
+      end
+
+      it "adversarial: rejects Action (mixed-case) via #set_attribute" do
+        form = Components::Elements::Form.new(method: "POST")
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          form.set_attribute("Action", "javascript:alert(1)")
+        end
+      end
+
+      it "adversarial: rejects a whitespace-padded action via #set_attribute" do
+        form = Components::Elements::Form.new(method: "POST")
+        expect_raises(ArgumentError, /SafeHTML ban/) do
+          form.set_attribute(" action ", "javascript:alert(1)")
+        end
+      end
+    end
+  end
 end
