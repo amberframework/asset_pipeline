@@ -6,6 +6,8 @@ require "../../../../src/components/elements/document/script"
 require "../../../../src/components/elements/embedded/media"
 require "../../../../src/components/elements/void/void_elements"
 require "../../../../src/components/elements/forms/form"
+require "../../../../src/components/elements/forms/form_controls"
+require "../../../../src/components/elements/forms/input"
 
 # SafeHTML v1 — construction/#set_attribute-time SafeURL enforcement on
 # link/src-bearing elements (docs/SAFE_HTML_V1.md §3.2). Before this fix,
@@ -257,6 +259,119 @@ describe "SafeHTML v1 — SafeURL enforcement on link/src-bearing elements" do
     it "allows an ordinary relative form action, matching every existing web_renderer.cr call site" do
       form = Components::Elements::Form.new(action: "/submit", method: "POST")
       form.render.should contain(%(action="/submit"))
+    end
+  end
+
+  describe Components::Elements::Button do
+    # SafeHTML v1 §3.10, closed 2026-07-08: `formaction` (on a
+    # `type="submit"`/`type="image"` button) overrides the owning
+    # `<form>`'s `action` for that one submitter -- a `javascript:`
+    # `formaction` is evaluated as a classic script by the navigation
+    # algorithm once the button submits its form, the exact same sink
+    # `Form#action` already closed. `Button` previously did not `include
+    # UrlAttributeValidation` at all, so `formaction` was reachable,
+    # entirely unvalidated, through both paths exercised below.
+    it "adversarial: rejects a javascript: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Button.new(type: "submit", formaction: "javascript:alert(document.cookie)")
+      end
+    end
+
+    it "adversarial: rejects a data: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Button.new(type: "submit", formaction: "data:text/html,<script>alert(1)</script>")
+      end
+    end
+
+    it "adversarial: rejects a vbscript: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Button.new(type: "submit", formaction: "vbscript:msgbox(1)")
+      end
+    end
+
+    it "adversarial: rejects a javascript: formaction via #set_attribute" do
+      button = Components::Elements::Button.new(type: "submit")
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        button.set_attribute("formaction", "javascript:alert(document.cookie)")
+      end
+      button["formaction"].should be_nil
+    end
+
+    it "the breakout payload never appears in any rendered output" do
+      button = Components::Elements::Button.new(type: "submit")
+      begin
+        button.set_attribute("formaction", "javascript:alert(document.cookie)")
+      rescue ArgumentError
+      end
+      button.render.should_not contain("javascript:")
+    end
+
+    it "allows an ordinary https/relative formaction through both paths, unchanged" do
+      button1 = Components::Elements::Button.new(type: "submit", formaction: "https://example.com/submit")
+      button1.render.should eq(%(<button type="submit" formaction="https://example.com/submit"></button>))
+
+      button2 = Components::Elements::Button.new(type: "submit")
+      button2.set_attribute("formaction", "/alt-submit")
+      button2["formaction"].should eq("/alt-submit")
+    end
+
+    it "other attributes on Button are completely unaffected by the formaction check" do
+      button = Components::Elements::Button.new(type: "submit", name: "action", value: "save")
+      button["value"].should eq("save")
+    end
+  end
+
+  describe Components::Elements::Input do
+    # SafeHTML v1 §3.10, closed 2026-07-08 -- see the Button block above
+    # for the full rationale; `Input` (a `type="submit"`/`type="image"`
+    # input) shares the exact same `formaction` sink.
+    it "adversarial: rejects a javascript: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Input.new(type: "submit", formaction: "javascript:alert(document.cookie)")
+      end
+    end
+
+    it "adversarial: rejects a data: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Input.new(type: "submit", formaction: "data:text/html,<script>alert(1)</script>")
+      end
+    end
+
+    it "adversarial: rejects a vbscript: formaction via the constructor kwarg path" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Input.new(type: "submit", formaction: "vbscript:msgbox(1)")
+      end
+    end
+
+    it "adversarial: rejects a javascript: formaction via #set_attribute" do
+      input = Components::Elements::Input.new(type: "submit")
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        input.set_attribute("formaction", "javascript:alert(document.cookie)")
+      end
+      input["formaction"].should be_nil
+    end
+
+    it "the breakout payload never appears in any rendered output" do
+      input = Components::Elements::Input.new(type: "submit")
+      begin
+        input.set_attribute("formaction", "javascript:alert(document.cookie)")
+      rescue ArgumentError
+      end
+      input.render.should_not contain("javascript:")
+    end
+
+    it "allows an ordinary https/relative formaction through both paths, unchanged" do
+      input1 = Components::Elements::Input.new(type: "submit", formaction: "https://example.com/submit")
+      input1.render.should eq(%(<input type="submit" formaction="https://example.com/submit">))
+
+      input2 = Components::Elements::Input.new(type: "submit")
+      input2.set_attribute("formaction", "/alt-submit")
+      input2["formaction"].should eq("/alt-submit")
+    end
+
+    it "other attributes on Input are completely unaffected by the formaction check" do
+      input = Components::Elements::Input.new(type: "submit", name: "action")
+      input["name"].should eq("action")
     end
   end
 

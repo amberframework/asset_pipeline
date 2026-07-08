@@ -1,11 +1,30 @@
 require "../base/void_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
     # Represents the <input> element - form input
     class Input < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2/§3.10, closed 2026-07-08):
+      # `formaction` (on `type="submit"`/`type="image"` inputs) overrides
+      # the owning `<form>`'s `action` for that one submitter — a
+      # `javascript:` `formaction` is evaluated as a classic script by the
+      # navigation algorithm once the input submits its form, exactly like
+      # `Form#action` already closed. `Input` previously did not `include
+      # UrlAttributeValidation` at all, so `formaction` reached it entirely
+      # unvalidated through both the constructor-kwarg and `#set_attribute`
+      # paths, and the render-time authority (`HTMLElement#render_attributes`,
+      # §3.7) never checked it either, since `url_bearing_attribute?`
+      # defaults to `false`. Declaring it here closes all three paths at
+      # once — see `Object#data` (§3.9) for the identical two-line pattern.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("input", **attrs)
+      end
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "formaction"
       end
       
       # Convenience constructors for common input types

@@ -3,6 +3,8 @@ require "../../../../src/components/elements/grouping/div"
 require "../../../../src/components/elements/text/a"
 require "../../../../src/components/elements/embedded/media"
 require "../../../../src/components/elements/forms/form"
+require "../../../../src/components/elements/forms/form_controls"
+require "../../../../src/components/elements/forms/input"
 require "../../../../src/components/elements/document/script"
 require "../../../../src/components/elements/document/style"
 
@@ -134,6 +136,45 @@ describe "SafeHTML v1 RE-GATE — direct-mutation of public getters at the rende
       expect_raises(ArgumentError, /SafeHTML ban/) { obj.render }
     end
 
+    # SafeHTML v1 §3.10, closed 2026-07-08: `Button`/`Input#formaction` --
+    # every key-casing/whitespace variant the mandate names, mirroring the
+    # `Form#action[ACTION]` case directly above.
+    {"FORMACTION", "formaction", " formaction"}.each do |key|
+      it "Button#formaction[#{key.inspect}] = javascript: raises at render" do
+        button = Components::Elements::Button.new(type: "submit")
+        button.attributes[key] = "javascript:alert(document.cookie)"
+        expect_raises(ArgumentError, /SafeHTML ban/) { button.render }
+      end
+
+      it "Input#formaction[#{key.inspect}] = javascript: raises at render" do
+        input = Components::Elements::Input.new(type: "submit")
+        input.attributes[key] = "javascript:alert(document.cookie)"
+        expect_raises(ArgumentError, /SafeHTML ban/) { input.render }
+      end
+    end
+
+    it "Button#formaction[formaction] = data: raises at render" do
+      button = Components::Elements::Button.new(type: "submit")
+      button.attributes["formaction"] = "data:text/html,<script>alert(document.cookie)</script>"
+      expect_raises(ArgumentError, /SafeHTML ban/) { button.render }
+    end
+
+    it "Input#formaction[formaction] = vbscript: raises at render" do
+      input = Components::Elements::Input.new(type: "submit")
+      input.attributes["formaction"] = "vbscript:msgbox(1)"
+      expect_raises(ArgumentError, /SafeHTML ban/) { input.render }
+    end
+
+    it "legit https / relative formaction written by direct mutation still renders (over-broad guard)" do
+      button = Components::Elements::Button.new(type: "submit")
+      button.attributes["formaction"] = "https://example.com/submit"
+      button.render.should eq(%(<button type="submit" formaction="https://example.com/submit"></button>))
+
+      input = Components::Elements::Input.new(type: "submit")
+      input.attributes["formaction"] = "/alt-submit"
+      input.render.should eq(%(<input type="submit" formaction="/alt-submit">))
+    end
+
     it "vbscript: and control-char-obfuscated java\\tscript: are also rejected at render" do
       a1 = Components::Elements::A.new
       a1.attributes["href"] = "vbscript:msgbox(1)"
@@ -231,6 +272,18 @@ describe "SafeHTML v1 RE-GATE — direct-mutation of public getters at the rende
     it "Object.new(data: data:text/html) raises" do
       expect_raises(ArgumentError, /SafeHTML ban/) do
         Components::Elements::Object.new(data: "data:text/html,<script>alert(1)</script>")
+      end
+    end
+
+    it "Button.new(formaction: javascript:) raises" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Button.new(type: "submit", formaction: "javascript:alert(1)")
+      end
+    end
+
+    it "Input.new(formaction: javascript:) raises" do
+      expect_raises(ArgumentError, /SafeHTML ban/) do
+        Components::Elements::Input.new(type: "submit", formaction: "javascript:alert(1)")
       end
     end
 

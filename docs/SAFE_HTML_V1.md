@@ -24,6 +24,11 @@
 > actually unconditional, on-parse script execution via a `data:` URI —
 > closed the same session. See **§3.7** (the render-time authority),
 > **§3.8** (`<style>` body closure), and **§3.9** (`Object#data` closure).
+> **Same day, follow-up fix:** `Button`/`Input#formaction` — the one
+> remaining URL-attribute-tail item that was a live gap in the render-time
+> authority's own declared-element list rather than a genuinely open
+> residual — closed via the identical `include UrlAttributeValidation`
+> two-line pattern. See **§3.10**.
 > **Scope:** `asset_pipeline` view components (`Components::Component`,
 > `Components::Elements::*`). Does **not** touch the Amber v2 ECR compiler
 > (Front B) or the cross-platform native UI renderer's own internal CSS
@@ -162,8 +167,8 @@ DSL for structure instead.
 | Normal attributes | HTML-escaped by construction | `HTMLElement#render_attributes` (pre-existing) |
 | Attribute *names* (not values) | **Rejected unconditionally**, on every element, both construction paths, if the name contains ASCII whitespace, a control character, or any of `/ \ > < " ' =` | `HTMLElement#set_attribute` → `HTMLElement#validate_attribute_name!` |
 | `on*` inline event handlers | **Banned unconditionally**, on every element, both construction paths | `HTMLElement#validate_attribute` |
-| URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, `Object`#`data`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element, matched case-insensitively and with surrounding whitespace ignored (`HREF`, `Href`, `" href"`, `"href "` all match `"href"`) — not just the typed setter — **and** re-checked at render regardless of entry path (§3.7) | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) **and** `HTMLElement#render_attributes` (render-time authority, §3.7) |
-| URL-bearing attributes not on the list above (`formaction` on `Button`/`Input`, `cite` on `Blockquote`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute`. **`data` on `Object` was in this row until 2026-07-08 — see §3.9 for why it was pulled out and closed separately, ahead of the rest of this tail.** | *(no per-attribute enforcement; see §6 and §8(d))* |
+| URL-bearing attributes on link/src-bearing elements (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, `Object`#`data`, `Button`/`Input`#`formaction`) | Validated through `SafeURL` on **every** construction/`#set_attribute` call for that attribute name on that element, matched case-insensitively and with surrounding whitespace ignored (`HREF`, `Href`, `" href"`, `"href "` all match `"href"`) — not just the typed setter — **and** re-checked at render regardless of entry path (§3.7) | `HTMLElement#set_safe_url_attribute` (typed path) **and** `Elements::UrlAttributeValidation` (included by each of the elements above; enforces the same `SafeURL` check on the ordinary `String`-typed `#set_attribute`/constructor-kwarg path too) **and** `HTMLElement#render_attributes` (render-time authority, §3.7) |
+| URL-bearing attributes not on the list above (`cite` on `Blockquote`/`Ins`/`Del`, `ping` on `A`, SVG `href`/`xlink:href`, arbitrary `data-*`/custom attributes on any element) | Not enforced in v1 — only reachable via the typed `set_safe_url_attribute` setter or the fully-generic, unchecked `set_attribute`. **`data` on `Object` was in this row until 2026-07-08 — see §3.9 for why it was pulled out and closed separately, ahead of the rest of this tail. `formaction` on `Button`/`Input` was in this row until 2026-07-08 — see §3.10 for its closure, mirroring `Object#data`'s.** | *(no per-attribute enforcement; see §6 and §8(d))* |
 | `<meta http-equiv="refresh" content="N; url=...">` | Dedicated typed constructor (the `content` value is a *compound* format, not a plain URL, so the generic URL setter is the wrong shape for it) | `Elements::Meta.safe_refresh(seconds, SafeURL)` |
 | `srcset` | Require a `SafeSrcSet` (own parser — a URL *list with descriptors*, not a single URL) | `Components::SafeSrcSet` |
 | SVG `href` / `xlink:href` | `set_safe_url_attribute` works by attribute *name*, so it covers this the moment it's called — `Elements::Svg` exists in this shard (see the `<svg>` foreign-content row below) but does not itself have an `href`/`xlink:href`-bearing child element class yet (no `Elements::Use`/`Elements::Image` SVG-specific class), so the *attribute* case remains untested/theoretical even though the *element* it would apply to is real. Corrects a stale claim in a prior revision of this doc that said "no SVG element classes in this shard yet." | *(no SVG `href`/`xlink:href`-bearing element class in this shard yet)* |
@@ -318,7 +323,8 @@ a.set_attribute("href", "javascript:alert(document.cookie)")
 is a module included by each concrete element whose defining feature *is* a
 URL-bearing attribute: `A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/
 `Track`/`Embed`/`Audio`#`src`, `Video`#`src` and `poster`, `Area`/`Base`#
-`href`, `Form`#`action`, `Object`#`data` (added 2026-07-08, §3.9). Each
+`href`, `Form`#`action`, `Object`#`data` (added 2026-07-08, §3.9),
+`Button`/`Input`#`formaction` (added 2026-07-08, §3.10). Each
 override declares which attribute name(s) on
 *that* tag are URL-bearing; the module then intercepts `#set_attribute` for
 just that name and runs it through `SafeURL.parse!` before delegating to the
@@ -725,9 +731,12 @@ as designed: extending coverage to a new element is a two-line, purely
 additive declaration, not a new backstop.
 
 Pulled out of the general URL-attribute-tail residual (§3.2/§8(d)) and
-closed on its own because of this severity gap — `formaction`/`cite`/
-`ping`/SVG `href`/`xlink:href` remain residual (§7), `data` on `Object`
-does not. Specs:
+closed on its own because of this severity gap — `cite`/`ping`/SVG
+`href`/`xlink:href` remain residual (§7), `data` on `Object` does not
+(`formaction` on `Button`/`Input` was pulled out and closed the same day
+too — see §3.10, immediately below — though for a different reason: not a
+severity miscategorization, just a trivial known fix applying this same
+pattern to the two elements that were missed). Specs:
 `spec/web/components/safe/url_attribute_validation_spec.cr`'s
 `Components::Elements::Object` block (adversarial `javascript:`/`data:`
 rejection at both paths, case-varied name, legitimate `https`/relative
@@ -735,6 +744,69 @@ rejection at both paths, case-varied name, legitimate `https`/relative
 `spec/web/components/safe/render_time_attribute_authority_spec.cr` (a
 case-varied `DATA` key written directly through the public `attributes`
 getter, neutralized at render).
+
+### 3.10 `Button`/`Input#formaction` — closed as the render-time authority's last URL-attribute residual (2026-07-08)
+
+```crystal
+Components::Elements::Button.new(type: "submit", formaction: "javascript:alert(document.cookie)")
+# => ArgumentError: SafeHTML ban: "formaction"="javascript:alert(document.cookie)" rejected — SafeURL: scheme "javascript" is not allowed...
+```
+
+`formaction` (on a `type="submit"`/`type="image"` `Button` or `Input`)
+overrides the owning `<form>`'s `action` for that one submitter — a
+`javascript:` `formaction`, once that button/input submits its form, is
+evaluated as a classic script by the navigation algorithm, exactly the same
+sink `Form#action` (§3.2) already closes, and exactly the "requires
+submitter activation" severity tier §3.9/§8(d) already reasoned about (not
+the on-parse, no-click tier `data` on `Object` occupies). Unlike `data` on
+`Object`, this was not a severity miscategorization found by an adversarial
+pass — it was simply the one item on the render-time authority's (§3.7)
+declared-URL-attribute list that was never widened to include these two
+elements, even though their sibling `A#href`/`Form#action`/`Object#data`
+all went through the identical closure. `Button` and `Input` previously did
+not `include Elements::UrlAttributeValidation` at all, so `formaction`
+reached them entirely unvalidated through the constructor-kwarg path, the
+`#set_attribute` path, *and* the render-time/direct-mutation path alike.
+
+The fix is the exact two-line pattern `Object#data` (§3.9) used:
+
+```crystal
+class Button < ContainerElement
+  include UrlAttributeValidation
+
+  protected def url_bearing_attribute?(name : String) : Bool
+    name == "formaction"
+  end
+  # ...
+end
+```
+
+(`Input` gets the identical two lines — it is a `VoidElement`, not a
+`ContainerElement`, but `UrlAttributeValidation` is agnostic to that
+distinction.) Because the render-time authority (§3.7) enforces `SafeURL`
+on **whatever** an element declares via `url_bearing_attribute?`, these two
+declarations close `formaction` on the call-time path
+(`UrlAttributeValidation#set_attribute`) and the render-time/direct-mutation
+path simultaneously, with zero changes to `HTMLElement` itself or to the
+render chokepoint — the same "extending coverage is purely additive"
+property §3.9 demonstrated.
+
+This closes the render-time authority's URL-attribute tail down to `cite`
+(`Blockquote`/`Ins`/`Del`, not independently script-executing — browsers
+never fetch or render `cite`'s value) and `ping` (`A`, confirmed not
+script-executing — a non-HTTP(S) `ping` URL is dropped before fetch) and
+SVG `href`/`xlink:href` (no `href`/`xlink:href`-bearing SVG element class
+exists in this shard yet, per §3.2). Specs:
+`spec/web/components/safe/url_attribute_validation_spec.cr`'s
+`Components::Elements::Button` and `Components::Elements::Input` blocks
+(adversarial `javascript:`/`data:`/`vbscript:` rejection via both the
+constructor-kwarg and `#set_attribute` paths, legitimate `https`/relative
+`formaction` unaffected) and
+`spec/web/components/safe/regate_direct_mutation_spec.cr` (every
+case/whitespace-varied `formaction`/`FORMACTION`/`" formaction"` key
+written directly through the public `attributes` getter, on both elements,
+neutralized at render; a legitimate direct-mutation `formaction` still
+renders).
 
 ---
 
@@ -915,7 +987,7 @@ aren't actually true):**
 | Attribute-*name* grammar (§3.1b, §3.7) | **Yes, at TWO points.** `HTMLElement#set_attribute` calls `validate_attribute_name!` first (fail-fast, call-time), for every element, both construction paths. `HTMLElement#render_attributes`/`#validate_rendered_attribute!` (§3.7) calls it AGAIN, on the raw name, for every attribute currently in `@attributes` — including one written directly through the public `attributes` getter, bypassing `#set_attribute` entirely. | Genuinely unconditional at the render-time point (the one that actually can't be bypassed), and the one check every other row in this table implicitly depends on: `on*`/`SafeURL`/`srcdoc`/etc. all reason about "the attribute named X," an assumption a malformed name (`/href`, `/onclick`, an embedded space/`=`/`>`/quote) could otherwise falsify. |
 | `on*` inline handlers | **Yes, at TWO points.** `HTMLElement#validate_attribute` runs at call-time for every `#set_attribute` call. `#validate_rendered_attribute!` (§3.7) re-runs the same `event_handler_attribute_name?` predicate at render, keyed by `name.strip.downcase`, against whatever is currently in `@attributes`. | Genuinely unconditional at render — no element class, no attribute-setting path, and no direct `attributes[...] = ...` mutation skips it. |
 | `<script>` body content | **Yes, for `Elements::Script` specifically.** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children` that re-checks `@children` regardless of how a value entered it (closes the public, mutable `children` getter as a bypass). | Unconditional *for the one element type this sink exists on* — there is no other element with executable-JS-context children (other than `<style>`'s body — a distinct sink, see below). |
-| URL-bearing attributes | **No — conditional on element type; but where covered, checked at TWO points.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, `Object`#`data`) declare `url_bearing_attribute?`. That predicate now gates BOTH `UrlAttributeValidation#set_attribute` (call-time) AND `HTMLElement#render_attributes`/`#validate_rendered_attribute!` (render-time, §3.7) — so a `javascript:` URL written directly into `@attributes` (bypassing `#set_attribute` altogether, any casing) is caught at render even though it never touched the call-time check. Every other element, and every other URL-shaped attribute name (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global — but exhaustive across name casing/whitespace *and* entry path (constructor, `#set_attribute`, or direct Hash mutation) *within* that scope. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims (except `Object`#`data`, which was elevated and closed — §3.9 — because it was the one item in that "future work" bucket that was actually unconditionally script-executing). |
+| URL-bearing attributes | **No — conditional on element type; but where covered, checked at TWO points.** Only the elements listed in §3.2's table (`A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, `Object`#`data`, `Button`/`Input`#`formaction`) declare `url_bearing_attribute?`. That predicate now gates BOTH `UrlAttributeValidation#set_attribute` (call-time) AND `HTMLElement#render_attributes`/`#validate_rendered_attribute!` (render-time, §3.7) — so a `javascript:` URL written directly into `@attributes` (bypassing `#set_attribute` altogether, any casing) is caught at render even though it never touched the call-time check. Every other element, and every other URL-shaped attribute name (`cite`, `ping`, SVG `href`/`xlink:href`, or a non-standard `data-href`-style attribute on any element), is **not** validated by anything except the fully opt-in `set_safe_url_attribute` typed setter. | Element-and-attribute-name-scoped, not global — but exhaustive across name casing/whitespace *and* entry path (constructor, `#set_attribute`, or direct Hash mutation) *within* that scope. `Div.new.set_attribute("href", "javascript:...")` is a no-op attribute (browsers ignore `href` on `<div>`), and is intentionally left unvalidated — extending the covered-element list is future work, not a hole in what v1 claims (except `Object`#`data`, elevated and closed — §3.9 — because it was the one item in that "future work" bucket that was actually unconditionally script-executing, and `Button`/`Input`#`formaction`, closed — §3.10 — as a trivial known fix applying the same declared-URL-attribute mechanism to the two elements that had been missed). |
 | `style` attribute | **No — this is the one sink still fully open on the legacy path.** `set_safe_style` (typed, `SafeStyleValue`-only) enforces; `add_style(String)`/`set_attribute("style", "...")` (used ~180x by `web_renderer.cr`) accept and render a raw string completely unchecked, on every element, unconditionally. `url_bearing_attribute?`/`document_sink_attribute?` are both `false` for `"style"` on every element, so the §3.7 render-time authority intentionally does not touch it either — this sink is genuinely out of scope for this gate, not an oversight. | This is the genuinely-unclosed half of the "two-tier" story — not a documentation gap, an actual scope boundary. CSS-context severity, not script execution. |
 | `<style>` element body | **Yes, for `Elements::Style` specifically (2026-07-08, §3.8 — reclassified from a documented residual to CLOSED).** A plain `String` child is rejected via `<<`, `add_child`/`add_children`, *and* a render-time backstop in `render_children`, matching `<script>`'s three-path closure exactly. | Unconditional *for the one element type this sink exists on* — corrected from a prior claim that this was merely a CSS-context sink: `</style>` is a real tokenizer close tag, so this is full script execution, the same severity as `<script>`/`srcdoc`, not the `style`-attribute tier above. |
 | `<iframe srcdoc>` | **Yes, at TWO points.** `Iframe#set_attribute` rejects a bare `String` unconditionally at both construction paths (call-time, fail-fast). `HTMLElement#render_attributes`'s single authority (§3.7), via `Iframe#document_sink_attribute?`, re-checks EVERY live attribute by normalized name at render — closing not just the exact-key `"srcdoc"` direct-mutation bypass §3.5 originally closed, but also a case/whitespace-varied key (`"SRCDOC"`, `" srcdoc"`) written as a *different* Hash entry, which the original per-element `render_attributes` override (checking only the exact key) would have missed. | Genuinely unconditional at render, added 2026-07-08 (§3.5), generalized the same day (§3.7) — closed, not residual, because a `srcdoc` sink yields full script execution, same severity tier as `<script>`/`<style>` body content. |
@@ -952,6 +1024,15 @@ Per the source proposal:
   than deferred. See §3.9 for the full writeup. Left in this list,
   struck through, so the "found via Codex, closed same-session" trail is
   visible rather than silently edited out.
+- ~~`formaction` (`Button`/`Input`)~~ — **CLOSED, 2026-07-08, same day.**
+  Not a severity miscategorization like `Object#data` above — `formaction`
+  was always correctly reasoned as "script-executing but requires submitter
+  activation," the same tier as `href`/`action`. It was simply the one
+  declared-URL-attribute gap the render-time authority's own element list
+  hadn't been widened to cover yet. Closed via the identical two-line
+  `include UrlAttributeValidation` + `url_bearing_attribute?` pattern. See
+  §3.10 for the full writeup. Left in this list, struck through, for the
+  same reason as `Object#data` above.
 - **Front B — the Amber v2 ECR compiler.** `<%= expr %>` currently emits
   `expr.to_s` unescaped (stdlib ECR has no escaping switch). v2 replaces
   this with an ECR-syntax-compatible translator: `<%= expr %>` auto-escapes
@@ -968,15 +1049,17 @@ Per the source proposal:
   keyword/color/length grammar, or per-element enforcement the way
   `Elements::UrlAttributeValidation` closed the URL sink.
 - **Widening `Elements::UrlAttributeValidation` coverage for the rest of
-  the tail** — `formaction` (`Button`/`Input`, script-executing but
-  requires submitter activation) and SVG `href`/`xlink:href` (once this
-  shard has an `href`/`xlink:href`-bearing SVG sub-element class, e.g.
-  `Use`/`Image`) are still only reachable through the fully-generic,
-  unvalidated `set_attribute`, or the opt-in `set_safe_url_attribute` typed
-  setter. (`data` on `Object` — formerly the highest-severity item in this
-  list — was closed the same session it was found; see §3.9. `cite` and
-  `ping` are confirmed NOT script-executing — see §8 row (d) — so widening
-  those two is a data-integrity nicety, not a security fix.)
+  the tail** — `cite` (`Blockquote`/`Ins`/`Del`), `ping` (`A`), and SVG
+  `href`/`xlink:href` (once this shard has an `href`/`xlink:href`-bearing
+  SVG sub-element class, e.g. `Use`/`Image`) are still only reachable
+  through the fully-generic, unvalidated `set_attribute`, or the opt-in
+  `set_safe_url_attribute` typed setter. (`data` on `Object` — formerly
+  the highest-severity item in this list — was closed the same session it
+  was found; see §3.9. `formaction` on `Button`/`Input` was closed the
+  same day too, as a trivial known fix, not a severity finding; see
+  §3.10. `cite` and `ping` are confirmed NOT script-executing — see §8 row
+  (d) — so widening those two is a data-integrity nicety, not a security
+  fix.)
 - **Migrating the remaining ~18 example components** onto
   `render_safe_content`, retiring `String.build` from this shard's own
   component library entirely (not just the one exemplar).
@@ -1012,7 +1095,7 @@ another single point-fix.
 | (a) | HTML text context (element children) | **CLOSED**, shard-wide, with two now-fixed exceptions | `ContainerElement#render_children` HTML-escapes every `String` child by construction, for all ~94 element classes, with zero opt-out short of the documented `RawHTML`/`add_raw_html` raw door (§4/(i) below). Two elements previously carved themselves an *unescaped*-`String`-child exception outside that raw-door mechanism: `Elements::Script` (closed pre-existing, §3.4) and `Elements::Svg` (closed this session, §3.6). Grep proof: `grep -rn 'def render_children' src/components/elements/` returns exactly 4 overrides (`Script`, `Style`, `Svg`, `Pre`) plus the base `ContainerElement`/base `HTMLElement` definitions — `Style` is the one documented CSS-severity residual (§6), `Pre` still calls `escape_html` (only whitespace handling differs, not escaping — not a sink). |
 | (b) | Attribute VALUE | **CLOSED**, unconditionally, shard-wide | `HTMLElement#render_attributes` runs every attribute value through `escape_attribute` (`&`/`"`/`'`/`<`/`>`), for every element, no opt-out — this is pre-v1 behavior, unchanged and re-verified this sweep. `srcdoc` (§3.5) is the one attribute where value-escaping alone is provably insufficient (because the *decoded* value is re-parsed as a nested document, not consumed as inert data) — that's a distinct sink class (g), not a hole in this one. |
 | (c) | Attribute NAME | **CLOSED**, unconditionally, shard-wide (§3.1b) | `HTMLElement#set_attribute` calls `validate_attribute_name!` as the first thing it does, before any other check, for every element and both construction paths — re-verified this sweep: `grep -rn 'def set_attribute' src/components/elements/` returns exactly 2 definitions (`HTMLElement`, `UrlAttributeValidation`), and `UrlAttributeValidation#set_attribute` calls `super`, landing in the same chokepoint. No element overrides `set_attribute` in a way that skips it. |
-| (d) | URL attributes (`href`/`src`/`action`/etc.) | **Element-scoped CLOSED + DOCUMENTED RESIDUAL for the (now genuinely lower-severity) rest, severity corrected AND `Object#data` additionally closed by the render-time-authority re-gate's Codex xhigh pass** (§3.2/§6/§3.9, unchanged this sweep except documentation accuracy) | Closed, unconditionally within scope, for `A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, and — **closed 2026-07-08, §3.9** — `Object`#`data` — verified via `grep -rn 'include UrlAttributeValidation' src/components/elements/`. Residual, documented, **NOT uniformly the same severity** (corrected — a prior revision of this row claimed none of the remaining tail is "silently full-script on every browser," which is true for what's left but was NOT true of `data`, which is why `data` no longer belongs in this row): `ping` (`A`) — confirmed NOT script-executing: compliant browsers only fetch an HTTP(S) ping URL, a non-HTTP(S) scheme (including `javascript:`) is dropped before fetch, never executed. `formaction` (`Button`/`Input`) — genuinely script-executing (a `javascript:` `formaction`, once that button submits its form, is evaluated as a classic script by the navigation algorithm), but **requires submitter activation** (a real form submission), the same user-interaction gate `href`/`action` already have. `cite` (`Blockquote`/`Ins`/`Del`) — not independently script-executing; browsers do not fetch or render `cite`'s value at all, it is metadata only. **`data` on `Object` was the one item in this row that was genuinely, unconditionally script-executing with NO user interaction required** — `<object data="data:text/html;base64,...">` loads the `data:` URI into a child navigable and renders it as an HTML document, executing any `<script>` inside, same severity tier as `srcdoc`/`<svg>`/`<style>` body — and is **no longer in this residual row**: it was pulled out and closed the same session it was found (§3.9), via the exact two-line `include UrlAttributeValidation` + `url_bearing_attribute?` pattern every other closed item in this row already uses. What remains in this row (`formaction`, `cite`, `ping`, SVG `href`/`xlink:href`) is genuinely narrow, low-traffic, no live call site (verified via `grep -rn` for each name across `src/`), and — now that `data` is out of the mix — none of it is unconditional/on-parse script execution. |
+| (d) | URL attributes (`href`/`src`/`action`/etc.) | **Element-scoped CLOSED + DOCUMENTED RESIDUAL for the (now genuinely lower-severity) rest, severity corrected, `Object#data` closed by the render-time-authority re-gate's Codex xhigh pass, AND `Button`/`Input#formaction` closed as a same-day trivial known fix** (§3.2/§6/§3.9/§3.10) | Closed, unconditionally within scope, for `A`/`Link`#`href`, `Img`/`Script`/`Iframe`/`Source`/`Track`/`Embed`/`Audio`#`src`, `Video`#`src`+`poster`, `Area`/`Base`#`href`, `Form`#`action`, — **closed 2026-07-08, §3.9** — `Object`#`data`, and — **closed 2026-07-08, §3.10** — `Button`/`Input`#`formaction` — verified via `grep -rn 'include UrlAttributeValidation' src/components/elements/`. Residual, documented, **NOT uniformly the same severity** (corrected — a prior revision of this row claimed none of the remaining tail is "silently full-script on every browser," which is true for what's left but was NOT true of `data`, which is why `data` no longer belongs in this row): `ping` (`A`) — confirmed NOT script-executing: compliant browsers only fetch an HTTP(S) ping URL, a non-HTTP(S) scheme (including `javascript:`) is dropped before fetch, never executed. `formaction` (`Button`/`Input`) was genuinely script-executing (a `javascript:` `formaction`, once that button submits its form, is evaluated as a classic script by the navigation algorithm) but **required submitter activation** (a real form submission), the same user-interaction gate `href`/`action` already have — that lower-than-`data` severity is exactly why it sat in this residual row as long as it did, but it was still a live gap in the render-time authority's own declared-element list, so it was closed anyway (§3.10) rather than left open on a severity technicality. `cite` (`Blockquote`/`Ins`/`Del`) — not independently script-executing; browsers do not fetch or render `cite`'s value at all, it is metadata only. **`data` on `Object` was the one item in this row that was genuinely, unconditionally script-executing with NO user interaction required** — `<object data="data:text/html;base64,...">` loads the `data:` URI into a child navigable and renders it as an HTML document, executing any `<script>` inside, same severity tier as `srcdoc`/`<svg>`/`<style>` body — and is **no longer in this residual row**: it was pulled out and closed the same session it was found (§3.9), via the exact two-line `include UrlAttributeValidation` + `url_bearing_attribute?` pattern every other closed item in this row already uses. `formaction` is **no longer in this residual row either** (§3.10), via the identical two-line pattern. What remains in this row (`cite`, `ping`, SVG `href`/`xlink:href`) is genuinely narrow, low-traffic, no live call site (verified via `grep -rn` for each name across `src/`), and none of it is unconditional/on-parse script execution. |
 | (e) | CSS/style context | **DOCUMENTED RESIDUAL** (§6/§7, extended this sweep) | Two sub-sinks, same severity tier (CSS-context breakout, not script execution): the `style` **attribute** (`add_style`/`set_attribute("style", ...)`, ~180 call sites in `web_renderer.cr`, all framework-computed, pre-existing documented residual) and the `<style>` **element body** (`Elements::Style`, newly documented this sweep, exactly 2 call sites, both verified-static constants — see §6). Neither yields script execution; both are accepted, bounded risk, tracked as v1.x/v2 follow-up in §7. |
 | (f) | JS / `<script>` body | **CLOSED**, unconditionally, three-path closure (§3.4, pre-existing, re-verified) | `Elements::Script` rejects a bare `String` at `<<`, `add_child`/`add_children`, and a render-time backstop in `render_children` that closes the public-mutable-`children`-getter bypass. Two typed doors (`Script.static`/`Script.json_data`) remain. Re-verified green this sweep: `spec/web/components/safe/script_element_safety_spec.cr`. |
 | (g) | HTML-document-valued attributes (`srcdoc` and siblings) | **CLOSED this session** (§3.5) | `srcdoc` was the only HTML-document-valued attribute found on any of the ~94 element classes in this shard (the compound-but-URL-based `<meta refresh>` `content` attribute is a different, already-closed shape, §3.2). Swept every element file for a second HTML-valued (as opposed to URL-valued) attribute — none found. `Elements::Iframe#set_attribute`/`#render_attributes` now reject a bare `String` unconditionally, three-path closure matching (f); typed doors `Iframe.srcdoc`/`#set_srcdoc`. Spec: `spec/web/components/safe/iframe_srcdoc_safety_spec.cr`, plus the fixed `web_renderer.cr:2106` call site covered end-to-end in `spec/web/ui/renderers/web_renderer_spec.cr`. |
@@ -1020,6 +1103,7 @@ another single point-fix.
 | (i) | Raw doors (`RawHTML`/`add_raw_html`/`raw`/`unsafe`) | **DOCUMENTED RESIDUAL by design** (§4, unchanged, re-counted this sweep) | These are deliberately the escape hatch, not a bug. Two are gated with a mandatory, non-blank `reason:` (`SafeHTML.unsafe`/`raw`, `SafeURL.unsafe`) and are loud/greppable. Two are not reason-gated (`Elements::RawHTML.new`, `ContainerElement#add_raw_html`) — re-counted this sweep via `grep -rn 'RawHTML.new\|add_raw_html' src/` (excluding the base-class definitions themselves): 9 call sites (`components.cr`, `web_renderer.cr` ×2, `integration.cr`, `reactive_component.cr`, and four `src/components/examples/*.cr` files), consistent with §4's "roughly a dozen" — all pre-existing, none touched by this session, all already covered by §4's policy note that unifying these onto a mandatory-`reason:` API is bounded v1.x follow-up work, not a v1 gap. |
 | (j) | Public-mutable-`getter` bypass of every check above (§3.7, found and CLOSED in the re-gate that superseded this table) | **CLOSED, unconditionally, shard-wide** | The GENERAL root cause underneath (c), (d), (g): `attributes` is a public, mutable `Hash(String, String)` `getter`, so a direct `element.attributes["SRCDOC"] = "..."` (or `"/href"`, `" onclick"`, any case/whitespace-varied key) bypasses `#set_attribute` — and therefore every check that lived only there — entirely. `HTMLElement#render_attributes`/`#validate_rendered_attribute!` (§3.7) now re-runs the full suite ((a)/(c)/(g) from this table, plus the `on*` ban) by normalized name against whatever is *currently* in `@attributes`, closing this for every element and every one of those checks in one place, not per-sink. Also folded into this same re-gate: `<style>` element body (part of (e) below) was found to be full-script-execution severity, not CSS-context, and closed to match (f)/(g)/(h) — see the row-(e) correction note and §3.8. Specs: `spec/web/components/safe/render_time_attribute_authority_spec.cr`, `spec/web/components/safe/style_element_safety_spec.cr`. |
 | (k) | `Object#data` (§3.9, found by the re-gate's Codex xhigh pass and CLOSED the same session) | **CLOSED, unconditionally** | Was misclassified as part of row (d)'s "requires a click, low severity" residual tail; a Codex xhigh adversarial pass found `<object data="data:text/html,...">` is actually unconditional, on-parse script execution (same tier as (f)/(g)/(h)/`<style>` body), not click-gated like `href`/`action`/`formaction`. Closed via `Object.include Elements::UrlAttributeValidation` + `url_bearing_attribute?` returning `name == "data"` — the render-time authority (j) picks up the declaration automatically, so this one two-line change closes both the call-time and render-time/direct-mutation paths at once. Spec: `spec/web/components/safe/url_attribute_validation_spec.cr`'s `Object` block, plus a direct-mutation case in `render_time_attribute_authority_spec.cr`. |
+| (l) | `Button`/`Input#formaction` (§3.10, the render-time authority's last live URL-attribute gap, CLOSED the same day as (k)) | **CLOSED, unconditionally** | Unlike (k), not a severity miscategorization — `formaction`'s "requires submitter activation" tier in row (d)'s text was and remains accurate. It was simply the one item in the render-time authority's own declared-element list (§3.7/§3.2) that `Button`/`Input` had never been widened to cover, even though the sibling `A#href`/`Form#action`/`Object#data` closures used the identical mechanism. Closed via `Button.include Elements::UrlAttributeValidation` + `Input.include Elements::UrlAttributeValidation`, each declaring `url_bearing_attribute?` returning `name == "formaction"` — the render-time authority (j) picks up both declarations automatically, closing the call-time and render-time/direct-mutation paths on both elements at once. Spec: `spec/web/components/safe/url_attribute_validation_spec.cr`'s `Button` and `Input` blocks, plus case/whitespace-varied direct-mutation cases in `regate_direct_mutation_spec.cr`. |
 
 **Correction to row (a):** `Style` is no longer the CSS-severity residual
 that row's "4 overrides" note describes — `Elements::Style#render_children`
@@ -1074,12 +1158,24 @@ are covered, with the one deliberate exception immediately below): the two
 NOT-reason-gated raw doors from row (i) (`RawHTML.new`/`add_raw_html` —
 accepted, unreasoned-by-design escape hatches per §4, not touched by this
 gate), and what's left of the narrow-and-currently-unused URL-attribute
-tail from row (d) (`formaction`/`cite`/`ping`/SVG `href`/`xlink:href` —
-not covered by ANY check, call-time or render-time, because the elements
-that carry them never declared `url_bearing_attribute?` in the first
-place; widening that declared set further is future work per §7, not this
-gate's mandate — none of what's left in this tail is unconditional/
-on-parse script execution, see row (d)'s corrected text).
+tail from row (d) (`cite`/`ping`/SVG `href`/`xlink:href` — not covered by
+ANY check, call-time or render-time, because the elements that carry them
+never declared `url_bearing_attribute?` in the first place; widening that
+declared set further is future work per §7, not this gate's mandate —
+none of what's left in this tail is unconditional/on-parse script
+execution, see row (d)'s corrected text).
+
+**Update, same day, following gate — `formaction` (`Button`/`Input`)
+closed, §3.10/row (l):** the paragraph above (and the two before it) is
+left as this gate's own contemporaneous record and originally listed
+`formaction` alongside `cite`/`ping`/SVG `href`/`xlink:href` in the
+narrow, out-of-scope URL-attribute tail. A follow-up gate the same day
+found that `formaction` was the one item in that tail that was actually a
+trivial, in-scope, known fix — `Button`/`Input` simply hadn't been
+widened onto the exact `include UrlAttributeValidation` mechanism this
+same re-gate had just generalized — and closed it via §3.10's two-line
+pattern. `cite`/`ping`/SVG `href`/`xlink:href` remain the residual tail;
+`formaction` no longer does.
 
 **Correction from the Codex xhigh adversarial pass this same re-gate
 commissioned — and the one deliberate scope exception above:** an earlier
