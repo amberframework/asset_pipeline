@@ -1,14 +1,23 @@
 require "../base/container_element"
 require "../base/void_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
     # Represents the <video> element - video content
     class Video < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): both `src` (the video
+      # resource) and `poster` (the preview-frame image) are URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("video", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src" || name == "poster"
+      end
+
       # Validate video-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -32,10 +41,17 @@ module Components
     
     # Represents the <audio> element - audio content
     class Audio < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("audio", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate audio-specific attributes (similar to video)
       protected def validate_attribute(name : String, value : String?)
         super
@@ -59,11 +75,17 @@ module Components
     
     # Represents the <source> element - media resource
     class Source < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("source", **attrs)
       end
-      
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate source-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -82,10 +104,18 @@ module Components
     
     # Represents the <track> element - text track for media
     class Track < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` (the WebVTT file
+      # URL) is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("track", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate track-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -104,21 +134,133 @@ module Components
     
     # Represents the <iframe> element - nested browsing context
     class Iframe < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` loads an entire
+      # nested browsing context — a `javascript:`/`data:` value here is one
+      # of the highest-value URL sinks in the whole element set.
+      include UrlAttributeValidation
+
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5, §3.7): `srcdoc` is an
+      # HTML-DOCUMENT-VALUED attribute, not a plain string one. The browser
+      # HTML-entity-decodes the (correctly-escaped-for-the-*outer*-document)
+      # attribute value and then feeds the decoded result to a *fresh HTML
+      # parser* as the entire source document for the iframe's nested
+      # browsing context. `HTMLElement#escape_attribute` protects the
+      # *outer* document's parse (so the attribute stays well-formed) but
+      # does nothing to stop a `<script>` inside that re-parsed nested
+      # document from executing — value-escaping is the wrong tool for this
+      # sink, exactly as it is for `javascript:` URLs, just one layer
+      # removed. This makes `srcdoc` exactly as dangerous as `<script>`
+      # body content (see `Elements::Script`), just carried in an attribute
+      # instead of element children — so it gets the identical treatment:
+      # a bare `String` is banned unconditionally, with a loud, reasoned,
+      # typed door as the only way through.
+      #
+      # `document_sink_attribute?`/`vouch_document_attribute` (declared on
+      # `HTMLElement`, §3.7) are the GENERAL mechanism this used to
+      # implement locally with its own `@vouched_srcdoc` ivar and a
+      # one-off `render_attributes` override. That override only ever
+      # re-checked the exact key `"srcdoc"` — a case/whitespace-varied
+      # direct mutation (`iframe.attributes["SRCDOC"] = "..."`) landed in a
+      # *different* Hash entry and sailed past it unchecked. Declaring
+      # `document_sink_attribute?` here instead means `HTMLElement`
+      # `render_attributes`' single authority checks EVERY live attribute by
+      # normalized name, closing that gap without `Iframe` needing its own
+      # render-time backstop at all.
       def initialize(**attrs)
         super("iframe", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
+      protected def document_sink_attribute?(name : String) : Bool
+        name == "srcdoc"
+      end
+
+      # The typed, reasoned door for `srcdoc` — mirrors `Script.static(js,
+      # reason:)` / `SafeURL.unsafe(url, reason:)`. Builds a fresh `Iframe`
+      # with `srcdoc` set from the vouched HTML. Any other constructor kwarg
+      # (`src`, `title`, `sandbox`, `loading`, ...) is still accepted and
+      # still validated normally.
+      def self.srcdoc(html : String, reason : String, **attrs) : Iframe
+        raise ArgumentError.new("Iframe.srcdoc requires a non-empty `reason:` explaining why this HTML is trusted") if reason.strip.empty?
+        instance = new(**attrs)
+        instance.set_vouched_srcdoc(html)
+        instance
+      end
+
+      # The typed, reasoned door for setting `srcdoc` on an already-built
+      # `Iframe` — the shape most call sites need (an `Iframe` constructed
+      # first via ordinary kwargs, `srcdoc` attached after), mirroring the
+      # already-existing instance-level typed setters
+      # `#set_safe_url_attribute` / `#set_safe_style`. `reason:` is
+      # mandatory, matching every other vouching door in this shard.
+      def set_srcdoc(html : String, reason : String) : self
+        raise ArgumentError.new("Iframe#set_srcdoc requires a non-empty `reason:` explaining why this HTML is trusted") if reason.strip.empty?
+        set_vouched_srcdoc(html)
+        self
+      end
+
+      # :nodoc: the one place that is allowed to write `srcdoc` into
+      # `@attributes` directly (bypassing the `#set_attribute` ban below) —
+      # only reachable via the two reasoned doors above. Delegates to
+      # `HTMLElement#vouch_document_attribute` (§3.7), which records the
+      # vouched value under the *normalized* key and writes `@attributes`.
+      protected def set_vouched_srcdoc(html : String) : Nil
+        vouch_document_attribute("srcdoc", html)
+      end
+
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5): reject a bare-`String`
+      # `srcdoc` here — this is the chokepoint both the constructor-kwarg
+      # path (`HTMLElement#initialize` calls `#set_attribute` once per
+      # kwarg) and the direct `#set_attribute` path funnel through, so one
+      # check closes both, matching how `UrlAttributeValidation` closes
+      # `src`/`href` for the very same two paths. Name comparison is
+      # normalized (`strip.downcase`) so `SRCDOC`, `Srcdoc`, and
+      # `" srcdoc"` are all caught too — real HTML attribute names are
+      # ASCII-case-insensitive and tolerant of incidental whitespace from
+      # hand-built call sites, exactly like `UrlAttributeValidation`'s own
+      # normalization. This is fail-FAST, call-time defense-in-depth — the
+      # render-time authority (`document_sink_attribute?` + `HTMLElement
+      # #validate_rendered_attribute!`, §3.7) is what's actually unbypassable.
+      def set_attribute(name : String, value : String?) : self
+        if value && name.strip.downcase == "srcdoc"
+          raise srcdoc_string_ban_error(name, value)
+        end
+        super
+      end
+
+      private def srcdoc_string_ban_error(name : String, value : String) : ArgumentError
+        ArgumentError.new(
+          "SafeHTML ban: #{name.inspect}=... rejected. <iframe srcdoc> is an " \
+          "HTML-DOCUMENT-valued attribute -- the browser re-parses the " \
+          "decoded value as the iframe's entire nested document, so a bare " \
+          "String is banned exactly like <script> body content. Use " \
+          "Iframe.srcdoc(html, reason: \"...\") or " \
+          "iframe.set_srcdoc(html, reason: \"...\") instead."
+        )
+      end
+
+      # `HTMLElement#validate_rendered_attribute!` (§3.7) calls this instead
+      # of its generic document-sink message when the current `srcdoc`
+      # value doesn't match what was vouched — reuses the exact,
+      # door-naming wording above instead of the base class's generic text.
+      protected def document_sink_ban_error(name : String, value : String) : ArgumentError
+        srcdoc_string_ban_error(name, value)
+      end
+
       # Validate iframe-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
-        
+
         case name
         when "sandbox"
           # Can be empty or space-separated list of allowed features
-          valid_tokens = ["allow-downloads", "allow-forms", "allow-modals", 
-                         "allow-orientation-lock", "allow-pointer-lock", 
+          valid_tokens = ["allow-downloads", "allow-forms", "allow-modals",
+                         "allow-orientation-lock", "allow-pointer-lock",
                          "allow-popups", "allow-popups-to-escape-sandbox",
-                         "allow-presentation", "allow-same-origin", 
+                         "allow-presentation", "allow-same-origin",
                          "allow-scripts", "allow-top-navigation"]
           # Validate tokens if needed
         when "loading"
@@ -128,14 +270,35 @@ module Components
           end
         end
       end
+
+      # RENDER-TIME invariant enforcement — the actual backstop, matching
+      # `Script#render_children` (docs/SAFE_HTML_V1.md §3.4/§3.5). `#set_attribute`
+      # above rejects a bare-String `srcdoc` at call time, but `@attributes`
+      # is reachable directly through the public, mutable `attributes`
+      # getter (`HTMLElement#attributes`), completely bypassing
+      # `#set_attribute` — and a case/whitespace-varied key
+      # (`attributes["SRCDOC"] = ...`) would even bypass a same-key-only
+      # recheck. This element no longer needs its own `render_attributes`
+      # override to close that: declaring `document_sink_attribute?` above
+      # is enough — `HTMLElement#render_attributes`'s single authority
+      # (§3.7) iterates every live attribute by *normalized* name and
+      # enforces this invariant generically, for `srcdoc` and any future
+      # HTML-document-valued attribute alike.
     end
     
     # Represents the <embed> element - external content
     class Embed < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `src` is URL-bearing.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("embed", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "src"
+      end
+
       # Validate embed-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -152,10 +315,36 @@ module Components
     
     # Represents the <object> element - external resource
     class Object < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2/§8(d), closed 2026-07-08):
+      # `data` loads a resource into a CHILD NAVIGABLE — unlike `href`/
+      # `action`/`formaction`, which merely link/submit and need a user
+      # click/submit to fire, `<object data="data:text/html;base64,...">`
+      # renders that resource as an embedded HTML document and executes
+      # any `<script>` inside it UNCONDITIONALLY, the moment the browser
+      # parses this element — no user interaction required. That is the
+      # same on-parse severity as `srcdoc`/`<svg>`/`<style>` body, not the
+      # "requires a click" tier the rest of the URL-attribute residual
+      # tail occupies (confirmed via a Codex xhigh adversarial pass during
+      # the render-time-authority re-gate — see docs/SAFE_HTML_V1.md §8
+      # row (d)). `Object` previously did not `include
+      # UrlAttributeValidation` at all, so `data` was reachable, entirely
+      # unvalidated, through both the constructor-kwarg and `#set_attribute`
+      # paths. Declaring it here is the whole fix: the render-time
+      # authority (`HTMLElement#render_attributes`, §3.7) picks up any
+      # element's `url_bearing_attribute?` declaration automatically, so
+      # this closes the call-time path (`UrlAttributeValidation#set_attribute`)
+      # and the render-time/direct-mutation path in one declaration, with
+      # no further changes needed anywhere else.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("object", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "data"
+      end
+
       # Validate object-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
@@ -199,23 +388,29 @@ module Components
     
     # Represents the <svg> element - scalable vector graphics
     class Svg < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.6): `<svg>` is HTML5
+      # foreign-content -- the tokenizer switches into the SVG namespace for
+      # everything inside it, but a `<script>` element inside that
+      # namespace is still recognized and STILL EXECUTES
+      # (`<svg><script>alert(1)</script></svg>` is a well-known,
+      # browser-verified XSS payload class, inline in an ordinary HTML
+      # document, not just a standalone `.svg` file). A previous version of
+      # this class overrode `render_children` to pass `String` children
+      # through completely unescaped ("SVG content is not escaped like
+      # HTML") -- that is exactly as dangerous as `<script>` accepting a
+      # plain-String child, just reached through a different element. There
+      # is no legitimate reason a String *child* of `Svg` needs to bypass
+      # escaping: real hand-authored SVG markup (`<path d="...">` and
+      # friends) is built the same way any other raw/vouched markup is in
+      # this shard -- `RawHTML.new(...)` / `add_raw_html(...)` (already a
+      # documented, greppable raw door, see docs/SAFE_HTML_V1.md §4) -- not
+      # by relying on `Svg` silently treating every `String` as markup.
+      # Removing the override restores the inherited, safe
+      # `ContainerElement#render_children` behavior: `HTMLElement`/`RawHTML`
+      # children render as before, and a `String` child is HTML-escaped
+      # like a text node on every other element.
       def initialize(**attrs)
         super("svg", **attrs)
-      end
-      
-      # SVG content is not escaped like HTML
-      protected def render_children : String
-        @children.map do |child|
-          case child
-          when HTMLElement
-            child.render
-          when String
-            # Don't escape SVG content
-            child
-          else
-            child.to_s
-          end
-        end.join
       end
     end
     

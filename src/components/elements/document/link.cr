@@ -1,13 +1,23 @@
 require "../base/void_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
     # Represents the <link> element - specifies relationships between current document and external resource
     class Link < VoidElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `href` on `<link>` loads a
+      # stylesheet/manifest/icon — a script-executing scheme here is just as
+      # much a sink as `<a href>`.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("link", **attrs)
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "href"
+      end
+
       # Convenience constructors for common link types
       def self.stylesheet(href : String)
         new(rel: "stylesheet", href: href)

@@ -1,14 +1,23 @@
 require "../base/container_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
     # Represents the <form> element - interactive form
     class Form < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2): `action` is URL-bearing —
+      # a `javascript:` action submits the form to an inline script instead
+      # of a server endpoint.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("form", **attrs)
       end
-      
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "action"
+      end
+
       # Validate form-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super

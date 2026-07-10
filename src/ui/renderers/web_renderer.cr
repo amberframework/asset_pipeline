@@ -1795,12 +1795,16 @@ module UI
 
         unless @context_menu_css_emitted
           @context_menu_css_emitted = true
-          style_block = Components::Elements::Style.new
-          style_block << CONTEXT_MENU_FALLBACK_CSS
+          style_block = Components::Elements::Style.css(
+            CONTEXT_MENU_FALLBACK_CSS,
+            reason: "static framework-authored context-menu fallback CSS constant — no interpolated data"
+          )
           host.add_child(style_block)
 
-          script_block = Components::Elements::Script.new
-          script_block << CONTEXT_MENU_FALLBACK_JS
+          script_block = Components::Elements::Script.static(
+            CONTEXT_MENU_FALLBACK_JS,
+            reason: "static framework-authored context-menu fallback JS constant — no interpolated data"
+          )
           host.add_child(script_block)
         end
 
@@ -2101,7 +2105,14 @@ module UI
         el.set_attribute("loading", "lazy")
         el.set_attribute("src", view.url) unless view.url.empty?
         if html = view.html
-          el.set_attribute("srcdoc", html)
+          # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.5): `srcdoc` is an
+          # HTML-document-valued attribute -- `Iframe` bans a bare-String
+          # value at #set_attribute. `view.html` is app-author-supplied
+          # local web content handed to the platform view (the same trust
+          # tier as `UI::WebViewComponent#url`, not interpolated
+          # end-user/request data flowing through this renderer), so it is
+          # routed through the typed, reasoned door instead.
+          el.set_srcdoc(html, reason: "UI::WebViewComponent#html is app-author-supplied embedded web content, forwarded verbatim by the platform-visitor bridge")
         end
         if t = view.title
           el.set_attribute("title", t)
@@ -2858,12 +2869,16 @@ module UI
         # registers exactly once at runtime.
         unless @action_sheet_css_emitted
           @action_sheet_css_emitted = true
-          style_block = Components::Elements::Style.new
-          style_block << ACTION_SHEET_FALLBACK_CSS
+          style_block = Components::Elements::Style.css(
+            ACTION_SHEET_FALLBACK_CSS,
+            reason: "static framework-authored action-sheet fallback CSS constant — no interpolated data"
+          )
           root.add_child(style_block)
 
-          script_block = Components::Elements::Script.new
-          script_block << ACTION_SHEET_FALLBACK_JS
+          script_block = Components::Elements::Script.static(
+            ACTION_SHEET_FALLBACK_JS,
+            reason: "static framework-authored action-sheet fallback JS constant — no interpolated data"
+          )
           root.add_child(script_block)
         end
 

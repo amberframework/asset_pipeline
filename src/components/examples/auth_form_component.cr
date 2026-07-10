@@ -49,7 +49,7 @@ module Components
         component = Components::DesignSystem::Fieldset.new(legend: legend)
         component["described_by"] = described_by if described_by
         component << Components::Elements::RawHTML.new(body)
-        component.render
+        component.render.to_s
       end
     end
   end

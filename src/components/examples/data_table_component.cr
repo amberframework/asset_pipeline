@@ -1,5 +1,9 @@
 require "../base/stateless_component"
 require "../elements/base/raw_html"
+require "../elements/grouping/div"
+require "../elements/grouping/span"
+require "../elements/text/text_semantics"
+require "../elements/tables/table_elements"
 
 module Components
   module Examples
@@ -195,48 +199,123 @@ module Components
         ]
       end
 
-      def render_content : String
+      # SafeHTML v1 exemplar migration (docs/SAFE_HTML_V1.md) — this used to
+      # be a `String.build` + nine hand-placed `escape_html(...)` calls (one
+      # per interpolated sink: id, caption, each row's id/title/owner/status/
+      # amount, and the aria-label). Every one of those was a place a future
+      # edit could add a tenth field and forget the wrap — the exact failure
+      # class the hardening proposal documents (Stage-5 stored XSS: a single
+      # missed sink). Built via the `Elements` DSL instead: every text child
+      # and attribute value below is escaped by construction
+      # (`ContainerElement#render_children` / `HTMLElement#render_attributes`),
+      # not by author discipline — there is no sink left to miss.
+      def render_safe_content : SafeHTML
         caption = @attributes["caption"]? || "Amber invoices with clear status styling"
         return empty_state(caption) if @rows.empty?
 
-        String.build do |io|
-          id_attr = @attributes["id"]? ? %( id="#{escape_html(@attributes["id"])}") : ""
-          io << %(<div#{id_attr} class="am-table-wrap" data-component="table">)
-          io << %(<table class="am-table">)
-          io << %(<caption>#{escape_html(caption)}</caption>)
-          io << "<thead><tr>"
-          %w[Record Work Owner Status Amount].each do |heading|
-            io << %(<th scope="col">#{heading}</th>)
-          end
-          io << "</tr></thead><tbody>"
-          @rows.each do |row|
-            state = normalize_state(row.state)
-            label = "#{row.title}: #{row.status}"
-            selected_attr = state == "selected" ? %( aria-selected="true") : ""
-            invalid_attr = state == "danger" ? %( aria-invalid="true") : ""
-            io << %(<tr data-state="#{state}" data-motion="row"#{selected_attr}#{invalid_attr} aria-label="#{escape_html(label)}">)
-            io << %(<td><strong>#{escape_html(row.id)}</strong></td>)
-            io << %(<td>#{escape_html(row.title)}</td>)
-            io << %(<td>#{escape_html(row.owner)}</td>)
-            io << %(<td><span class="am-table__status">#{escape_html(row.status)}</span></td>)
-            io << %(<td>#{escape_html(row.amount)}</td>)
-            io << "</tr>"
-          end
-          io << "</tbody></table></div>"
+        wrap = Elements::Div.new
+        wrap.set_attribute("id", @attributes["id"]?) if @attributes["id"]?
+        wrap.add_class("am-table-wrap")
+        wrap.set_attribute("data-component", "table")
+
+        table = Elements::Table.new(class: "am-table")
+
+        table_caption = Elements::Caption.new
+        table_caption << caption
+        table << table_caption
+
+        thead = Elements::Thead.new
+        header_row = Elements::Tr.new
+        {"Record", "Work", "Owner", "Status", "Amount"}.each do |heading|
+          th = Elements::Th.new(scope: "col")
+          th << heading
+          header_row << th
         end
+        thead << header_row
+        table << thead
+
+        tbody = Elements::Tbody.new
+        @rows.each { |row| tbody << render_row(row) }
+        table << tbody
+
+        wrap << table
+
+        SafeHTML.unsafe(
+          wrap.render,
+          reason: "built entirely via the Elements DSL (Div/Table/Caption/Thead/Tr/Th/Tbody/Td/Strong/Span) — text children and attribute values are escaped by construction, not hand-interpolated"
+        )
       end
 
-      private def empty_state(caption : String) : String
-        <<-HTML
-        <div class="am-empty-state" data-state="empty" role="status">
-          <strong>#{escape_html(caption)}</strong>
-          <span>No matching records. Adjust filters or create the first item.</span>
-        </div>
-        HTML
+      private def render_row(row : Row) : Elements::Tr
+        state = normalize_state(row.state)
+        label = "#{row.title}: #{row.status}"
+
+        tr = Elements::Tr.new(
+          "data-state": state,
+          "data-motion": "row"
+        )
+        tr.set_attribute("aria-selected", "true") if state == "selected"
+        tr.set_attribute("aria-invalid", "true") if state == "danger"
+        tr.set_attribute("aria-label", label)
+
+        id_cell = Elements::Td.new
+        id_strong = Elements::Strong.new
+        id_strong << row.id
+        id_cell << id_strong
+        tr << id_cell
+
+        title_cell = Elements::Td.new
+        title_cell << row.title
+        tr << title_cell
+
+        owner_cell = Elements::Td.new
+        owner_cell << row.owner
+        tr << owner_cell
+
+        status_cell = Elements::Td.new
+        status_span = Elements::Span.new(class: "am-table__status")
+        status_span << row.status
+        status_cell << status_span
+        tr << status_cell
+
+        amount_cell = Elements::Td.new
+        amount_cell << row.amount
+        tr << amount_cell
+
+        tr
+      end
+
+      private def empty_state(caption : String) : SafeHTML
+        empty = Elements::Div.new(
+          class: "am-empty-state",
+          "data-state": "empty",
+          role: "status"
+        )
+
+        caption_strong = Elements::Strong.new
+        caption_strong << caption
+        empty << caption_strong
+
+        note = Elements::Span.new
+        note << "No matching records. Adjust filters or create the first item."
+        empty << note
+
+        SafeHTML.unsafe(
+          empty.render,
+          reason: "built entirely via the Elements DSL — text children escaped by construction"
+        )
       end
 
       private def normalize_state(value : String) : String
         value == "error" ? "danger" : value
+      end
+
+      # Legacy abstract-contract satisfier (docs/SAFE_HTML_V1.md): the real
+      # implementation lives in `render_safe_content` above. Kept as a thin
+      # delegation so `Component#render_content : String` (still required by
+      # the base class for un-migrated components) stays satisfied.
+      def render_content : String
+        render_safe_content.to_s
       end
     end
   end

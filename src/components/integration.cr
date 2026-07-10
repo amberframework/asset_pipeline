@@ -37,18 +37,24 @@ module Components
       minified : Bool = true
     ) : String
       script_path = minified ? "/js/amber-reactive.min.js" : "/js/amber-reactive.js"
-      
-      Elements::Script.new(src: script_path, defer: "true").build do |script|
-        if auto_init
-          script << <<-JS
-          document.addEventListener('DOMContentLoaded', function() {
-            var reactive = new AmberReactive({debug: #{debug}});
-            reactive.init();
-            window.amberReactive = reactive;
-          });
-          JS
-        end
-      end.render
+
+      script = Elements::Script.new(src: script_path, defer: "true")
+
+      if auto_init
+        # `debug` is a framework-side Bool flag, not interpolated untrusted
+        # data — this is the loud, explicit "static author-written JS" door
+        # (docs/SAFE_HTML_V1.md), not a bare String append (which is banned).
+        init_js = <<-JS
+        document.addEventListener('DOMContentLoaded', function() {
+          var reactive = new AmberReactive({debug: #{debug}});
+          reactive.init();
+          window.amberReactive = reactive;
+        });
+        JS
+        script << Elements::RawHTML.new(init_js)
+      end
+
+      script.render
     end
     
     # Configure CSS system
@@ -91,8 +97,9 @@ module Components
         component.register
       end
       
-      # Render with reactive wrapper
-      component.render
+      # Render with reactive wrapper — unwrap SafeHTML to String at this
+      # framework/response-sink boundary (docs/SAFE_HTML_V1.md).
+      component.render.to_s
     end
     
     # Macro for Amber controllers to easily render components
@@ -104,8 +111,9 @@ module Components
         component.register
       end
       
-      # Render the component
-      render html: component.render
+      # Render the component — unwrap SafeHTML to String at this Amber
+      # `render html:` sink boundary (docs/SAFE_HTML_V1.md).
+      render html: component.render.to_s
     end
     
     # Macro for defining reactive actions in controllers

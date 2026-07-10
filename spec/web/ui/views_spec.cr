@@ -3276,7 +3276,12 @@ describe UI::Theme do
     css.should contain("rgba(")
   end
 
-  it "web renderer inject_theme_css uses the design-system default with no theme" do
+  it "web renderer inject_theme_css falls back to the design-system default with no theme set" do
+    # Pre-existing staleness (unrelated to SafeHTML v1): `inject_theme_css`
+    # falls back to `UI::Theme.design_system_default` when no theme is
+    # explicitly set (`web_renderer.cr`'s `t = @theme || UI::Theme.design_system_default`),
+    # matching this shard's "beauty-by-default" philosophy (CLAUDE.md) — a
+    # renderer with zero configuration still emits a real theme, not silence.
     renderer = UI::Web::Renderer.new
     css = renderer.inject_theme_css
     css.should contain("<style>")

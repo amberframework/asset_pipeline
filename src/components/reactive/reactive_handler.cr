@@ -269,7 +269,7 @@ module Components
           component.reset_changed
         end
         
-        {html: component.render, state: state}
+        {html: component.render.to_s, state: state}
       end
       
       private def cleanup_session(session : ReactiveSession) : Nil

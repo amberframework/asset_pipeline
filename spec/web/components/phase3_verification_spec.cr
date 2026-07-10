@@ -52,7 +52,7 @@ class CachedProductList < Components::StatelessComponent
     cache do
       Components::Elements::Div.new(class: "product-list").build do |div|
         @products.each do |product|
-          div << product.render
+          div << product.render.to_s
         end
       end.render
     end

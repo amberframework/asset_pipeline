@@ -127,7 +127,7 @@ describe "Phase 6 Final Verification - Complete System Integration" do
       
       # Add dashboard component
       dashboard = DashboardComponent.new
-      body << dashboard.render
+      body << dashboard.render.to_s
       
       # Add reactive script
       body << Components::Integration.reactive_script_tag(debug: false)

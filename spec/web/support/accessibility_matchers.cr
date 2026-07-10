@@ -1,4 +1,10 @@
+require "../../../src/components/safe/safe_html"
+
 module SpecSupport
+  # These matchers scan already-rendered markup with regexes, so they
+  # accept both `String` and `Components::SafeHTML` (`Component#render`'s
+  # output contract as of docs/SAFE_HTML_V1.md) at every public entry point
+  # and normalize to `String` immediately.
   module AccessibilityMatchers
     FORBIDDEN_BOOTSTRAP_SHAPED_CLASSES = %w[
       alert alert-danger alert-info alert-success alert-warning
@@ -8,7 +14,8 @@ module SpecSupport
       list-group placeholder progress progress-bar row spinner-border toast
     ]
 
-    def expect_no_bootstrap_shaped_classes(html : String)
+    def expect_no_bootstrap_shaped_classes(html : String | Components::SafeHTML)
+      html = html.to_s
       html.scan(/class="([^"]*)"/).each do |match|
         match[1].split(/\s+/).each do |klass|
           FORBIDDEN_BOOTSTRAP_SHAPED_CLASSES.includes?(klass).should eq(false)
@@ -16,14 +23,16 @@ module SpecSupport
       end
     end
 
-    def expect_no_duplicate_ids(html : String)
+    def expect_no_duplicate_ids(html : String | Components::SafeHTML)
+      html = html.to_s
       ids = html.scan(/\sid="([^"]+)"/).map { |match| match[1] }
       duplicates = ids.select { |id| ids.count(id) > 1 }.uniq
 
       duplicates.should eq([] of String)
     end
 
-    def expect_accessible_control(html : String, id : String)
+    def expect_accessible_control(html : String | Components::SafeHTML, id : String)
+      html = html.to_s
       element = find_start_tag_by_id(html, id)
       element.nil?.should eq(false)
       return unless element
@@ -37,7 +46,8 @@ module SpecSupport
       (has_label || has_wrapping_label || has_aria_name || has_visible_text).should eq(true)
     end
 
-    def expect_error_wiring(html : String, control_id : String, error_id : String)
+    def expect_error_wiring(html : String | Components::SafeHTML, control_id : String, error_id : String)
+      html = html.to_s
       element = find_start_tag_by_id(html, control_id)
       element.nil?.should eq(false)
       return unless element
@@ -53,7 +63,8 @@ module SpecSupport
       element_text_by_id(html, error_id).empty?.should eq(false)
     end
 
-    def expect_live_region(html : String, id : String? = nil, politeness : String? = nil)
+    def expect_live_region(html : String | Components::SafeHTML, id : String? = nil, politeness : String? = nil)
+      html = html.to_s
       if id
         element = find_start_tag_by_id(html, id)
         element.nil?.should eq(false)
@@ -69,7 +80,8 @@ module SpecSupport
       end
     end
 
-    def expect_relationship_targets_exist(html : String, attrs = %w[aria-describedby aria-labelledby aria-controls])
+    def expect_relationship_targets_exist(html : String | Components::SafeHTML, attrs = %w[aria-describedby aria-labelledby aria-controls])
+      html = html.to_s
       missing = [] of String
       empty = [] of String
 
@@ -91,11 +103,12 @@ module SpecSupport
       empty.uniq.should eq([] of String)
     end
 
-    def expect_describedby_targets_exist(html : String)
-      expect_relationship_targets_exist(html, %w[aria-describedby])
+    def expect_describedby_targets_exist(html : String | Components::SafeHTML)
+      expect_relationship_targets_exist(html.to_s, %w[aria-describedby])
     end
 
-    def expect_behavior_hook_pair(html : String, neutral : String, legacy : String, value : String? = nil)
+    def expect_behavior_hook_pair(html : String | Components::SafeHTML, neutral : String, legacy : String, value : String? = nil)
+      html = html.to_s
       neutral_values = attr_values(html, neutral)
       legacy_values = attr_values(html, legacy)
 
@@ -108,12 +121,14 @@ module SpecSupport
       end
     end
 
-    def expect_fieldset_legend(html : String, text : String, hidden : Bool = true)
+    def expect_fieldset_legend(html : String | Components::SafeHTML, text : String, hidden : Bool = true)
+      html = html.to_s
       class_check = hidden ? %( class="am-visually-hidden") : ""
       html.should contain(%(<legend#{class_check}>#{text}</legend>))
     end
 
-    def expect_source_data_table(html : String, caption_id : String, headers : Array(String))
+    def expect_source_data_table(html : String | Components::SafeHTML, caption_id : String, headers : Array(String))
+      html = html.to_s
       html.should contain("<table")
       html.should contain(%(<caption id="#{caption_id}"))
       headers.each do |header|
@@ -121,11 +136,12 @@ module SpecSupport
       end
     end
 
-    def expect_no_inline_event_handlers(html : String)
-      html.match(/\son[a-zA-Z]+\s*=/).nil?.should eq(true)
+    def expect_no_inline_event_handlers(html : String | Components::SafeHTML)
+      html.to_s.match(/\son[a-zA-Z]+\s*=/).nil?.should eq(true)
     end
 
-    def expect_no_positive_tabindex(html : String)
+    def expect_no_positive_tabindex(html : String | Components::SafeHTML)
+      html = html.to_s
       invalid = [] of String
       positive = [] of String
 
