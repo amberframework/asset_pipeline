@@ -83,8 +83,8 @@ describe "Phase 2 Verification - Core Component System" do
     rendered.should contain("<main>")
     rendered.should contain("<h1>Welcome to Components</h1>")
     rendered.should contain("Feature Card")
-    rendered.should contain("btn btn-primary")
-    rendered.should contain("btn btn-secondary")
+    rendered.should contain("am-button am-button--brand am-button--solid am-button--md")
+    rendered.should contain("am-button am-button--neutral am-button--solid am-button--md")
   end
   
   it "shows stateless components are pure functions" do
@@ -123,7 +123,7 @@ describe "Phase 2 Verification - Core Component System" do
     rendered.should contain("dashboard-card")
     rendered.should contain("Sales Report")
     rendered.should contain("View Details")
-    rendered.should contain("btn btn-info btn-small")
+    rendered.should contain("am-button am-button--info am-button--solid am-button--sm")
   end
   
   it "achieves the component system goals" do
@@ -140,7 +140,7 @@ describe "Phase 2 Verification - Core Component System" do
     # 3. Components use elements, not string templates
     counter = Components::Examples::CounterComponent.new
     # The render method builds HTML using element classes
-    counter.render.should contain("<div class=\"counter-component\">")
+    counter.render.should contain("<div class=\"am-counter\">")
     
     # 4. Ready for Phase 3: Caching
     Components::Examples::ButtonComponent.new(label: "test").responds_to?(:cache_key).should be_true
