@@ -1,0 +1,52 @@
+{
+  "check_id": "focus.context-menu-outside-click-closes",
+  "page": "samples/cross_platform/web/dist/phase04_context_menu_demo.html",
+  "selectors": [
+    "[data-testid=ctx-trigger-center]",
+    ".ap-ctx-menu"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (open via dispatchEvent)",
+    "Runtime.evaluate (rect capture)",
+    "Input.dispatchMouseEvent (outside click)"
+  ],
+  "trusted_input_trace": [
+    "trigger.focus + dispatchEvent('contextmenu')",
+    "mouseDown@(900.0,400.0)",
+    "mouseUp@(900.0,400.0)"
+  ],
+  "expected_state": {
+    "data_presented": "false",
+    "focus_on_trigger": true
+  },
+  "observed_state": {
+    "pre_data_presented": "true",
+    "menu_rect": {
+      "x": 640,
+      "y": 400,
+      "width": 210,
+      "height": 147,
+      "top": 400,
+      "right": 850,
+      "bottom": 547,
+      "left": 640
+    },
+    "click_point": {
+      "x": 900.0,
+      "y": 400.0
+    },
+    "data_presented": "false",
+    "dismiss_log": [
+      {
+        "reason": "outside",
+        "host_testid": "ctx-trigger-center"
+      }
+    ],
+    "focus_on_trigger": true,
+    "active_testid": "ctx-trigger-center"
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/focus.context-menu-outside-click-closes.json"
+  ]
+}

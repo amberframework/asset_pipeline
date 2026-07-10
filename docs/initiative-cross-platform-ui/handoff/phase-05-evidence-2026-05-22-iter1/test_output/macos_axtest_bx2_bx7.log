@@ -1,0 +1,27 @@
+RECT_PX 528 104 2400 1864
+FRECT_PX 528 104 2400 1864
+F
+
+Failures:
+
+  1) Phase 3 BX2 — action tap probe (macOS) renders the probe scene and accepts AXPress on tap-probe-button
+     Failure/Error: {% if flag?(:macos) %}
+
+       Expected: nil not to be nil
+
+     # spec/ui/hig_validation/macos_action_tap_probe_spec.cr:1
+
+  2) Phase 3 BX7 — form layout (macOS) renders three form rows at non-zero size without overlap
+     Failure/Error: {% if flag?(:macos) %}
+
+       Expected: nil not to be nil
+
+     # spec/ui/hig_validation/macos_form_layout_spec.cr:1
+
+Finished in 3.42 seconds
+2 examples, 2 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr:1 # Phase 3 BX2 — action tap probe (macOS) renders the probe scene and accepts AXPress on tap-probe-button
+crystal spec spec/ui/hig_validation/macos_form_layout_spec.cr:1 # Phase 3 BX7 — form layout (macOS) renders three form rows at non-zero size without overlap

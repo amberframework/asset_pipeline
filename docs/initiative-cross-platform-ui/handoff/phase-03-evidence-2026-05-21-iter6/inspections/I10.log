@@ -1,0 +1,13 @@
+=== ios_host/hig_bridge.cr ===
+=== macos_host/hig_showcase.cr ===
+=== renderer-internal ensure_swiftkit_runtime ===
+src/ui/renderers/appkit_renderer.cr:139:      # trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`. The
+src/ui/renderers/appkit_renderer.cr:142:      @swiftkit_action_trampoline_installed : Bool = false
+src/ui/renderers/appkit_renderer.cr:249:        #    APSKRuntime invokes `ap_swiftkit_invoke_action(token, 0.0)` on
+src/ui/renderers/appkit_renderer.cr:4568:      private def ensure_swiftkit_runtime! : Nil
+src/ui/renderers/appkit_renderer.cr:4569:        unless @swiftkit_action_trampoline_installed
+src/ui/renderers/appkit_renderer.cr:4571:          @swiftkit_action_trampoline_installed = true
+src/ui/renderers/uikit_renderer.cr:159:      # action trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`.
+src/ui/renderers/uikit_renderer.cr:162:      @swiftkit_action_trampoline_installed : Bool = false
+src/ui/renderers/uikit_renderer.cr:4607:      private def ensure_swiftkit_runtime! : Nil
+src/ui/renderers/uikit_renderer.cr:4608:        unless @swiftkit_action_trampoline_installed

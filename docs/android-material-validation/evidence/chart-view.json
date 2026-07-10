@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T14:43:15Z",
+  "slug": "chart-view",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/chart-view.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/chart-view-android-phone-light.png",
+      "tablet": "../screenshots/chart-view-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/chart-view-android-phone-dark.png",
+      "tablet": "../screenshots/chart-view-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Light, dark, phone, and tablet captures are current.",
+    "The study is still built from shared Android view primitives rather than a dedicated chart surface.",
+    "The captures are useful for layout review, but renderer fidelity is still below promotion grade."
+  ],
+  "errors": [
+
+  ]
+}

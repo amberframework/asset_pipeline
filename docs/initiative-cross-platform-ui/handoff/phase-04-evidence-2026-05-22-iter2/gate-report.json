@@ -1,0 +1,219 @@
+{
+  "phase": "phase-04-platform-tier-gating",
+  "iteration": 2,
+  "date": "2026-05-22",
+  "validator": "phase-04 validator (iter 2)",
+  "head": "6180a14",
+  "base": "cda36b2",
+  "verdict": "PASS",
+  "summary": "All 31 required checks PASS. R1 closed the 12 CDP-driven web-fallback blocks from iter 1 by adding (a) three web demo pages under samples/cross_platform/web/, (b) a CDP harness at scripts/phase04_cdp_harness.cr that drives headless Chrome with trusted Input.dispatchKeyEvent / dispatchMouseEvent, axe-core 4.10.2 injection and IBM Equal Access 4.0.17 injection, focus-trap traces, escape/backdrop dismiss probes, positioning measurements across 1280×800 / 375×667 / 320×568, and touch-target rect assertions. R1 also fixed the Tier 2 heading off-by-one (54 → 55). R1's first harness run surfaced two latent renderer-source bugs: (1) color contrast 1.92:1 for action-sheet action buttons (failing WCAG-AA 4.5:1) and (2) `role=\"group\"` on the action list `<ul>` orphaning its `<li>` children (axe listitem violation). R2 fixed both: web_renderer.cr:2721 swapped `--ap-color-brand-accent` → `--ap-color-brand-primary` (post-R2 contrast ≥ 5.05:1 on light/sunken, ≥ 8.72:1 on dark), and web_renderer.cr:2589 removed the role=group attribute. This iteration's harness re-run reports any_failed=false: all 18 CDP probes (12 routed + 6 supplementary path-control) return pass=true; axe-clean and IBM Equal Access return 0 serious/critical / 0 violation-level findings across all 4 viewport×scheme combos. Cross-target build matrix: web / iOS / macOS PASS; Android fails on Crystal stdlib epoll require (precedent B9, pre-existing host-environment, carried forward per architect adjudication). Crystal spec: 1347 examples, 4 failures = the 4 pre-existing baseline failures (1 UI::Theme inject_theme_css + 3 phase2_verification component-system specs) — zero new failures from Phase 4. Swift test 53/53 PASS. iOS XCUITest Phase03BehaviorTests 10/10 PASS. macOS AXTest 2/2 PASS (the iter-1 TCC flake did not reproduce — even cleaner). Ready to merge.",
+  "checks": [
+    {
+      "id": "tier.matrix-exists",
+      "required": true,
+      "passed": true,
+      "evidence": "docs/initiative-cross-platform-ui/tier-matrix.md exists, contains '## Tier 1', '## Tier 2', '## Tier 3' headers (line 24, 50, 114)."
+    },
+    {
+      "id": "tier.matrix-classifies-every-widget",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/tier-matrix-reconciliation.txt — 78 widgets in src/ui/views/. Every widget appears in tier-matrix.md. Zero missing, zero zombies. Distribution: 17 Tier 1 / 55 Tier 2 / 3 Tier 3 gated + 3 *WithWebFallback companions. Tier 2 heading reads '55 widgets' (R1 fix `5895189`); table contains 56 rows — header row + 55 widget rows. Consistent."
+    },
+    {
+      "id": "tier.tier3-set-correct",
+      "required": true,
+      "passed": true,
+      "evidence": "Tier 3 section in tier-matrix.md lists ActionSheet (iOS), ContextMenu (Apple-family), PathControl (macOS) with required flags. Toolbar, Popover, MenuButton each classified in Tier 2 with one-line justifications. Every other widget classified."
+    },
+    {
+      "id": "gate.action-sheet-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.action-sheet-compile-error.log — exit 1. Contains 'UI::ActionSheet is iOS-only', '-Dios', 'UI::ActionSheetWithWebFallback', '{% if flag?(:ios) %}'."
+    },
+    {
+      "id": "gate.action-sheet-compiles-with-flag",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.action-sheet-compiles-with-flag.log — exit 0."
+    },
+    {
+      "id": "gate.context-menu-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.context-menu-compile-error.log — exit 1. Contains 'UI::ContextMenu is Apple-family only', '-Dmacos or -Dios', 'UI::ContextMenuWithWebFallback', '{% if flag?(:macos) || flag?(:ios) %}'. Deviation #1 from iter 1 carried forward (project uses flag?(:macos)||flag?(:ios) not :darwin per codebase convention)."
+    },
+    {
+      "id": "gate.context-menu-compiles-with-flag",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.context-menu-compiles-with-ios.log + gate.context-menu-compiles-with-macos.log both exit 0."
+    },
+    {
+      "id": "gate.path-control-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.path-control-compile-error.log — exit 1. Contains 'UI::PathControl is macOS-only', '-Dmacos', 'UI::PathControlWithWebFallback', '{% if flag?(:macos) %}'."
+    },
+    {
+      "id": "gate.menu-bar-still-compiles-everywhere",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/cross_target_{web,ios,macos}.log all exit 0. Android exit 1 — Crystal stdlib epoll require failure, pre-existing host limitation reproduced on baseline cda36b2 (precedent B9 from Phase 1 #17). Carried forward per architect adjudication; not a Phase 4 regression."
+    },
+    {
+      "id": "fallback.with-web-fallback-classes-cross-compile",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/fallback.wwf-cross-{default,ios,macos}.log all exit 0 (snippet constructs all three *WithWebFallback classes + calls accept). Android exit 1 with the same pre-existing epoll issue (precedent B9). 9 of 12 builds clean; 3 Android builds blocked by host limitation, carried forward."
+    },
+    {
+      "id": "fallback.web-html-action-sheet-structure",
+      "required": true,
+      "passed": true,
+      "evidence": "test_output/spec.action_sheet_with_web_fallback.log — 7 examples PASS. Asserts role=dialog, aria-modal, aria-labelledby/describedby, data-presented, data-ap-as-action, data-ap-as-dismiss=cancel, destructive style class."
+    },
+    {
+      "id": "fallback.web-html-context-menu-structure",
+      "required": true,
+      "passed": true,
+      "evidence": "test_output/spec.context_menu_with_web_fallback.log — 6 examples PASS. Asserts role=menu, role=menuitem, role=separator, aria-disabled, data-ap-ctx-host."
+    },
+    {
+      "id": "fallback.js-is-self-contained",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/fallback.js-self-contained.txt — action_sheet_fallback.js 140 lines, context_menu_fallback.js 188 lines. Zero import/require/CDN references in either file."
+    },
+    {
+      "id": "fallback.css-uses-ap-prefix",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/fallback.css-amber-grep.txt — empty (zero --amber-* references in any Phase 4 file). --ap-* prefix in use throughout web_renderer.cr action-sheet/context-menu/path-control sections."
+    },
+    {
+      "id": "fallback.action-sheet-axe-clean",
+      "required": true,
+      "passed": true,
+      "evidence": "audits/fallback.action-sheet-axe-clean.json (also cdp_probes/) — pass=true across all 4 viewport×scheme combos (1280-light, 1280-dark, 375-light, 375-dark). Zero serious/critical violations, zero total violations. R2 contrast fix (web_renderer.cr:2721) verified: pre-R2 baseline showed 2 serious violations per light viewport (contrast 1.92:1) + 1 serious listitem violation; post-R2 (this run) shows 0. Screenshots captured at screenshots/phase04_action_sheet_demo-{viewport}-{scheme}.png."
+    },
+    {
+      "id": "fallback.action-sheet-ibm-equal-access-clean",
+      "required": true,
+      "passed": true,
+      "evidence": "audits/fallback.action-sheet-ibm-equal-access-clean.json — pass=true. Zero violation-level findings across all 4 viewport×scheme combos."
+    },
+    {
+      "id": "fallback.context-menu-axe-clean",
+      "required": true,
+      "passed": true,
+      "evidence": "audits/fallback.context-menu-axe-clean.json — pass=true. Zero serious/critical violations across all 4 viewport×scheme combos. Screenshots at screenshots/phase04_context_menu_demo-{viewport}-{scheme}.png."
+    },
+    {
+      "id": "fallback.context-menu-ibm-equal-access-clean",
+      "required": true,
+      "passed": true,
+      "evidence": "audits/fallback.context-menu-ibm-equal-access-clean.json — pass=true. Zero violation-level findings."
+    },
+    {
+      "id": "focus.action-sheet-focus-trap",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/focus.action-sheet-focus-trap.json (also cdp_probes/) — pass=true. CDP-driven Tab cycle via Input.dispatchKeyEvent (trusted by default). Every entry in __focusTrace has inside===true; cycling behavior verified; distinct testids visited equal focusable descendants of the panel."
+    },
+    {
+      "id": "focus.action-sheet-escape-closes",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/focus.action-sheet-escape-closes.json — pass=true. dismiss_log has one entry {reason: 'escape'}; data_presented='false'; panel removed from AX tree; focus restored to trigger."
+    },
+    {
+      "id": "focus.action-sheet-backdrop-click-closes",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/focus.action-sheet-backdrop-click-closes.json — pass=true. dismiss_log has one entry {reason: 'backdrop'}; data_presented='false'; panel removed from AX tree; focus restored to trigger."
+    },
+    {
+      "id": "conformance.action-sheet-positioning",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/conformance.action-sheet-positioning-{1280,375,320}.json — all pass=true. 1280: panel centered ±2 px. 375: panel docked to bottom (rect.bottom == innerHeight, left=0, right=innerWidth). 320: no horizontal overflow, title ≤ 3 lines."
+    },
+    {
+      "id": "conformance.action-sheet-touch-targets",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/conformance.action-sheet-touch-targets.json — pass=true. Every [data-ap-as-action] and [data-ap-as-dismiss=cancel] button measures ≥ 44×44 px at the 375×667 viewport."
+    },
+    {
+      "id": "focus.context-menu-keyboard-nav",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/focus.context-menu-keyboard-nav.json — pass=true. ArrowDown/Up/Home/End each transitions to an enabled menuitem; disabled items skipped both directions; Escape closes menu and returns focus to trigger; data-presented='false' after Escape."
+    },
+    {
+      "id": "conformance.context-menu-positioning",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/conformance.context-menu-positioning-{top-left,center,bottom-right}.json — all pass=true. Menu's rect fully inside viewport at each trigger position; anchored edge within tolerance of trigger; bottom-right trigger correctly repositions the menu to stay on-screen."
+    },
+    {
+      "id": "focus.context-menu-outside-click-closes",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/focus.context-menu-outside-click-closes.json — pass=true. After outside-click, data-presented='false' and document.activeElement equals the original trigger."
+    },
+    {
+      "id": "spec.suite-green",
+      "required": true,
+      "passed": true,
+      "evidence": "test_output/spec.suite-green.log — 1347 examples, 4 failures, 0 errors, 0 pending. The 4 failures are the pre-existing baseline: 1 UI::Theme inject_theme_css web renderer empty-string spec + 3 Phase 2 Verification component composition specs (am-card / am-button / am-counter class-name expectations vs current output). Zero new failures introduced by Phase 4. Carried forward per architect adjudication."
+    },
+    {
+      "id": "spec.compile-error-tests",
+      "required": true,
+      "passed": true,
+      "evidence": "test_output/spec.{action_sheet,context_menu,path_control}_compile_error.log — 2+3+3=8 examples PASS across the three files. Each file exits zero."
+    },
+    {
+      "id": "docs.claude-md-updated",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/docs.claude-md-updated.txt — CLAUDE.md L109 '## Tier model for cross-platform widgets'; L113 + L138 point to docs/initiative-cross-platform-ui/tier-matrix.md; L140 + L142 mention AssetPipeline::Platform.requires(:ios)."
+    },
+    {
+      "id": "docs.tier-matrix-complete",
+      "required": true,
+      "passed": true,
+      "evidence": "Single grep match at line 16 is documentation prose ('Unclassified widgets are a build-time TODO') describing the policy, not a classification entry. No actual TBD/?/Unclassified table rows. All 78 widgets concretely classified."
+    },
+    {
+      "id": "macro.platform-requires-works",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/macro.platform-requires-no-flag.log — exit 1 with 'AssetPipeline::Platform.requires(:ios) - this code path needs -Dios'. build_logs/macro.platform-requires-with-flag.log — exit 0."
+    }
+  ],
+  "carried_forward_adjudications": [
+    "B9 — Android cross-compile on darwin host fails on Crystal stdlib epoll require. Pre-existing host-environment limitation reproduced on baseline cda36b2. Precedent: Phase 1 #17 architect adjudication. Carry forward.",
+    "4 pre-existing Crystal spec failures — 1 UI::Theme inject_theme_css web renderer + 3 Phase 2 Verification component composition specs. Phase 3 baseline. Carry forward.",
+    "macOS AXTest TCC flake — iter 1 reproduced these failures on baseline cda36b2, confirming pre-existing not Phase 4 regression. This iter 2 run shows macOS AXTest now passing 2/2 (the flake did not reproduce). Even cleaner outcome.",
+    "R1 deviation: macro stub-file split — verified architecturally sound, spec coverage exercises gates and passes.",
+    "R1 deviation: ContextMenu trigger : View? property on the *WithWebFallback — verified architecturally sound, structural spec PASSes.",
+    "R1 deviation: MenuBar/StatusBar Apple-gating cascade — verified architecturally sound, cross-target build matrix passes for web/iOS/macOS."
+  ],
+  "phase3_regression_check": {
+    "ios_xcuitest_phase03_behavior": "10 of 10 PASS — test_output/ios_xcuitest.log",
+    "macos_axtest": "2 of 2 PASS — test_output/macos_axtest.log (iter 1 TCC flake did not reproduce this iteration)",
+    "swift_test": "53 of 53 PASS — test_output/swift_test.log",
+    "crystal_spec": "1347 examples, 4 baseline failures, 0 new — test_output/spec.suite-green.log"
+  },
+  "evidence_directory": "docs/initiative-cross-platform-ui/handoff/phase-04-evidence-2026-05-22-iter2",
+  "counts": {
+    "required_total": 31,
+    "required_passed": 31,
+    "required_failed": 0,
+    "required_blocked": 0
+  }
+}

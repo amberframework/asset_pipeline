@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Android Material Validation Dashboard</title>
+<style>
+body{font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:32px;background:#f4f0f7;color:#1f1b24}
+main{max-width:920px;margin:0 auto;background:#fff;border-radius:24px;padding:28px 32px;box-shadow:0 16px 40px rgba(33,0,93,.08)}
+h1{font-size:30px;margin:0 0 8px}
+h2{font-size:16px;margin:28px 0 10px;text-transform:uppercase;letter-spacing:.06em;color:#65558f}
+p,li{line-height:1.5}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f3edf7;padding:2px 6px;border-radius:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}
+.card{background:#faf7ff;border:1px solid #e7def8;border-radius:18px;padding:16px}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#65558f}
+.value{font-size:24px;font-weight:700;margin-top:6px}
+a{color:#6750a4;text-decoration:none}
+a:hover{text-decoration:underline}
+ul{padding-left:18px}
+</style>
+<main>
+  <h1>Android Material Validation</h1>
+  <p>The Android ledger has moved past scaffold: the Android host now has current phone and tablet captures in both light and dark appearance for 12 studies. Promotion is still intentionally strict, with only one study accepted so far and the rest blocked by concrete renderer or behavior gaps.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Phase</div><div class="value">Expanded Review</div></div>
+    <div class="card"><div class="label">Tracked studies</div><div class="value">12</div></div>
+    <div class="card"><div class="label">Light captures</div><div class="value">12</div></div>
+    <div class="card"><div class="label">Dark captures</div><div class="value">12</div></div>
+    <div class="card"><div class="label">Tablet studies</div><div class="value">12</div></div>
+    <div class="card"><div class="label">Promoted studies</div><div class="value">1</div></div>
+    <div class="card"><div class="label">Verified AVDs</div><div class="value">4</div></div>
+    <div class="card"><div class="label">Canonical SDK root</div><div class="value" style="font-size:15px">/opt/homebrew/share/android-commandlinetools</div></div>
+  </div>
+
+  <h2>Acceptance Bar</h2>
+  <ul>
+    <li>Study captures must come from the Android host, not ad hoc screens.</li>
+    <li>Every promoted study needs current light and dark evidence.</li>
+    <li>Phone and tablet coverage must be explicit for adaptive surfaces.</li>
+    <li>Ledger state stays <code>captured_pending_review</code> until renderer fidelity and evidence coverage are both complete.</li>
+  </ul>
+
+  <h2>Current Truth</h2>
+  <ul>
+    <li><code>cards</code> is still the first accepted Android Material study after clearing the current light, dark, phone, and tablet validation bar with <code>MaterialCardView</code>.</li>
+    <li><code>selection-controls</code> now has a full matrix across phone, tablet, light, and dark, backed by real spinner, radio-group, search, and stepper renderer paths. Promotion is still blocked until explicit interaction proof is refreshed.</li>
+    <li><code>transient-surfaces</code> now has current matrix captures for sheet, popover, and snackbar renderer paths, but the phone composition still needs another layering pass before it should graduate.</li>
+    <li><code>share-color</code> now has current matrix captures for the renderer-backed color palette and share preview. It remains pending while share-target and quick-action callbacks get explicit verification beyond static screenshots.</li>
+    <li><code>buttons</code>, <code>app-bars</code>, and <code>text-fields</code> remain visually stronger than the earlier scaffold, but each still needs more state and behavior review before promotion.</li>
+    <li><code>webview</code> mounts a real <code>android.webkit.WebView</code>; the capture runner now gives it enough settle time to record real HTML content instead of blank placeholders.</li>
+    <li><code>dialogs</code> look materially better, but they are still inline study surfaces rather than true platform dialog presentation.</li>
+    <li><code>map-view</code>, <code>video-player</code>, and <code>chart-view</code> all have current matrix captures, yet each still has an honest blocker: preview composition, missing media, or no dedicated chart surface.</li>
+  </ul>
+
+  <h2>Artifacts</h2>
+  <ul>
+    <li><a href="./manifest.json">Study manifest</a></li>
+    <li><a href="./evidence/README.md">Evidence contract</a></li>
+    <li><a href="./reports/README.md">Report contract</a></li>
+    <li><a href="./screenshots/README.md">Screenshot naming</a></li>
+  </ul>
+</main>

@@ -1,0 +1,12 @@
+=== line 1182 ===
+1045       def visit(view : UI::Alert)
+=== line 2824 ===
+2794       def visit(view : UI::MenuButton)
+=== line 3936 ===
+3805       def visit(view : UI::ActivityView)
+=== line 4000 ===
+3805       def visit(view : UI::ActivityView)
+=== line 4041 ===
+3805       def visit(view : UI::ActivityView)
+=== line 4180 ===
+4165       def visit(view : UI::DisclosureGroup)

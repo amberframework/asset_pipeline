@@ -1,0 +1,8 @@
+# I10 — APSKRuntime trampoline installed inside the renderer (architect-PASS literal-vs-equivalent — renderer-internal install supersedes per-sample install)
+src/ui/native/swiftkit_bridge.m:65:// Install the Crystal-side action trampoline pointer onto APSKRuntime.
+src/ui/native/swiftkit_bridge.m:68:    Class cls = objc_getClass("APSKRuntime");
+src/ui/native/swiftkit_bridge.m:101:    Class cls = objc_getClass("APSKRuntime");
+src/ui/native/swiftkit_bridge.m:112:    Class cls = objc_getClass("APSKRuntime");
+src/ui/renderers/appkit_renderer.cr:139:      # trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`. The
+src/ui/renderers/appkit_renderer.cr:249:        #    APSKRuntime invokes `ap_swiftkit_invoke_action(token, 0.0)` on
+src/ui/renderers/uikit_renderer.cr:159:      # action trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`.

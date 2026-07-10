@@ -1,0 +1,64 @@
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.12s)
+Test Suite 'Selected tests' started at 2026-05-21 05:32:49.917.
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' started at 2026-05-21 05:32:49.918.
+Test Suite 'OverridesPropagationTests' started at 2026-05-21 05:32:49.918.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testAccessibilityIdentifierRoundTrips]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testAccessibilityIdentifierRoundTrips]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testApskAccessibilityLabelRoundTrips]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testApskAccessibilityLabelRoundTrips]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDestructiveRoleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDestructiveRoleRenders]' passed (0.035 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDisabledRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDisabledRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeProminentStyleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeProminentStyleRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeWithSymbolNameRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeWithSymbolNameRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeCornerRadiusOverrideAppliesViaCommonModifiers]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeCornerRadiusOverrideAppliesViaCommonModifiers]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeOutlinedRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeOutlinedRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithMaterialOverrideRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithMaterialOverrideRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithTitleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithTitleRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithThinMaterialRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithThinMaterialRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithUltraThinMaterialRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithUltraThinMaterialRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeEmbedsChildViaHostedChild]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeEmbedsChildViaHostedChild]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithEmptyChildren]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithEmptyChildren]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithTitle]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithTitle]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeSecureEntryRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeSecureEntryRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeWithInitialTextRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeWithInitialTextRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeDisabledRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeDisabledRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeSwitchStyleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeSwitchStyleRenders]' passed (0.000 seconds).
+Test Suite 'OverridesPropagationTests' passed at 2026-05-21 05:32:49.960.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.040 (0.042) seconds
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' passed at 2026-05-21 05:32:49.961.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.040 (0.042) seconds
+Test Suite 'Selected tests' passed at 2026-05-21 05:32:49.961.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.040 (0.043) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

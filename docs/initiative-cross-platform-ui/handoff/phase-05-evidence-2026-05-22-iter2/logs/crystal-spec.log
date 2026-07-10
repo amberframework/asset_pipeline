@@ -1,0 +1,40 @@
+       "  .ap-glass--thick { background: color-mix(in oklch, var(--ap-color-surface-panel) calc(var(--ap-material-opacity-thick) * 100%), transparent); }\n" +
+       "  .ap-glass--chrome { background: color-mix(in oklch, var(--ap-color-surface-panel) calc(var(--ap-material-opacity-chrome) * 100%), transparent); }\n" +
+       "}\n" +
+       "</style>\n"
+
+     # spec/ui/views_spec.cr:3275
+
+  2) Phase 2 Verification - Core Component System demonstrates component composition
+     Failure/Error: rendered.should contain("btn btn-primary")
+
+       Expected:   "<main><h1>Welcome to Components</h1>&lt;div class=&quot;am-card&quot; data-component=&quot;card&quot; data-state=&quot;default&quot;&gt;&lt;div class=&quot;am-card__body&quot;&gt;&lt;h3 class=&quot;am-card__title&quot;&gt;Feature Card&lt;/h3&gt;&lt;p class=&quot;am-card__subtitle&quot;&gt;Reusable component&lt;/p&gt;&lt;div class=&quot;am-card__content&quot;&gt;This card is a reusable component built from elements.&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;am-button am-button--brand am-button--solid am-button--md&quot; data-state=&quot;default&quot; data-tone=&quot;brand&quot; data-emphasis=&quot;solid&quot;&gt;Primary Action&lt;/button&gt; &lt;button type=&quot;button&quot; class=&quot;am-button am-button--neutral am-button--solid am-button--md&quot; data-state=&quot;default&quot; data-tone=&quot;neutral&quot; data-emphasis=&quot;solid&quot;&gt;Secondary Action&lt;/button&gt;</main>"
+       to include: "btn btn-primary"
+
+     # spec/components/phase2_verification_spec.cr:86
+
+  3) Phase 2 Verification - Core Component System components can be nested within components
+     Failure/Error: rendered.should contain("btn btn-info btn-small")
+
+       Expected:   "<div class=\"dashboard-card\">&lt;div class=&quot;am-card&quot; data-component=&quot;card&quot; data-state=&quot;default&quot;&gt;&lt;div class=&quot;am-card__body&quot;&gt;&lt;h3 class=&quot;am-card__title&quot;&gt;Sales Report&lt;/h3&gt;&lt;p class=&quot;am-card__subtitle&quot;&gt;Q4 2025&lt;/p&gt;&lt;div class=&quot;am-card__content&quot;&gt;&amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;am-button am-button--info am-button--solid am-button--sm&amp;quot; data-state=&amp;quot;default&amp;quot; data-tone=&amp;quot;info&amp;quot; data-emphasis=&amp;quot;solid&amp;quot;&amp;gt;View Details&amp;lt;/button&amp;gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</div>"
+       to include: "btn btn-info btn-small"
+
+     # spec/components/phase2_verification_spec.cr:126
+
+  4) Phase 2 Verification - Core Component System achieves the component system goals
+     Failure/Error: counter.render.should contain("<div class=\"counter-component\">")
+
+       Expected:   "<div class=\"am-counter\"><div class=\"am-counter__display\"><span class=\"am-counter__label\">Count: </span><span class=\"counter-value am-counter__value\">0</span></div><div class=\"am-counter__controls\"><button type=\"button\" class=\"am-button am-button--neutral am-button--outline am-button--sm\" data-action=\"click-&gt;decrement\">-</button> <button type=\"button\" class=\"am-button am-button--brand am-button--solid am-button--sm\" data-action=\"click-&gt;increment\">+</button> <button type=\"button\" class=\"am-button am-button--warning am-button--soft am-button--sm\" data-action=\"click-&gt;reset\">Reset</button></div></div>"
+       to include: "<div class=\"counter-component\">"
+
+     # spec/components/phase2_verification_spec.cr:143
+
+Finished in 9.91 seconds
+1447 examples, 4 failures, 0 errors, 80 pending
+
+Failed examples:
+
+crystal spec spec/ui/views_spec.cr:3273 # UI::Theme web renderer inject_theme_css returns empty string with no theme
+crystal spec spec/components/phase2_verification_spec.cr:52 # Phase 2 Verification - Core Component System demonstrates component composition
+crystal spec spec/components/phase2_verification_spec.cr:116 # Phase 2 Verification - Core Component System components can be nested within components
+crystal spec spec/components/phase2_verification_spec.cr:129 # Phase 2 Verification - Core Component System achieves the component system goals

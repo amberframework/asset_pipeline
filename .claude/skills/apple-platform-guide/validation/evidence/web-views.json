@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.232494+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T11:39:45.740852+00:00",
+    "path": "reports/web-views.md",
+    "sha256": "5c1e63e92b8802115dc98712b3068753e2736f80f75542d7c3226e5927506900",
+    "size_bytes": 3650
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T11:35:51.541404+00:00",
+      "path": "screenshots/web-views-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "455f7fe1a6e7c1e61a87021ca9f8a3dd5e570d0e5bb0feb86d7076ec701165c6",
+      "size_bytes": 794625
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T11:35:15.744613+00:00",
+      "path": "screenshots/web-views-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "6b413ff60fddef73a42f1e3f79320302f15fe977aabb5653ef420168dea42cc0",
+      "size_bytes": 607013
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T11:38:26.370559+00:00",
+      "path": "screenshots/web-views-macos-dark.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "21eea9fa990d4099acd0248f351c8a228a9ecb925da2397deb9a8d17ca771e26",
+      "size_bytes": 82381
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T11:38:26.323207+00:00",
+      "path": "screenshots/web-views-macos-light.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "1c2159511345fb10d473c2d7bdec1d87974e0073872788afbbfec332dc5eaa58",
+      "size_bytes": 81384
+    }
+  },
+  "slug": "web-views",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

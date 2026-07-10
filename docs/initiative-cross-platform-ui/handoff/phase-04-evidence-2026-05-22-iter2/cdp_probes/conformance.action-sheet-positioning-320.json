@@ -1,0 +1,49 @@
+{
+  "check_id": "conformance.action-sheet-positioning-320",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet__panel"
+  ],
+  "cdp_methods": [
+    "Emulation.setDeviceMetricsOverride",
+    "Runtime.evaluate (__phase4.open)",
+    "Runtime.evaluate (getBoundingClientRect)"
+  ],
+  "trusted_input_trace": [
+    "setDeviceMetricsOverride 320x568",
+    "click trigger (__phase4.open)"
+  ],
+  "expected_state": {
+    "panel_does_not_overflow_horizontally": true,
+    "title_at_most_3_lines": true,
+    "panel_bottom_equals_viewport": true,
+    "panel_left_equals_0": true,
+    "panel_right_equals_viewport_width": true
+  },
+  "observed_state": {
+    "viewport": {
+      "w": 320,
+      "h": 568
+    },
+    "panel_rect": {
+      "left": 0,
+      "top": 329,
+      "right": 320,
+      "bottom": 568,
+      "width": 320,
+      "height": 239
+    },
+    "predicates": {
+      "panel_does_not_overflow_horizontally": true,
+      "title_at_most_3_lines": true,
+      "panel_bottom_equals_viewport": true,
+      "panel_left_equals_0": true,
+      "panel_right_equals_viewport_width": true
+    },
+    "title_lines": 1
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/conformance.action-sheet-positioning-320.json"
+  ]
+}

@@ -1,0 +1,22 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX4_sliderValueCallback]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:40.959
+    t =     0.03s Set Up
+    t =     0.04s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Terminate com.assetpipeline.hig.CrystalHIGHost:83287
+2026-05-21 13:41:42.008 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:42.008 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.27s         Setting up automation session
+    t =     2.13s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     2.23s Unable to monitor event loop
+    t =     3.25s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.32s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.32s         Checking existence of `"hig-component-root" Other`
+    t =     4.32s         Capturing element debug description
+    t =     5.28s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     5.28s         Checking existence of `"hig-component-root" Other`
+    t =     5.28s         Capturing element debug description
+<unknown>:0: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX4_sliderValueCallback] : com.assetpipeline.hig.CrystalHIGHost crashed in <external symbol>
+    t =     5.82s Tear Down
+    t =     5.83s     Checking for crash reports corresponding to unexpected termination of com.assetpipeline.hig.CrystalHIGHost
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX4_sliderValueCallback]' failed (5.834 seconds).

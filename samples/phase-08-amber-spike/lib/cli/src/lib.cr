@@ -1,0 +1,5 @@
+require "optarg"
+require "./cli/version"
+require "./lib/macros"
+require "./lib/command_base"
+require "./lib/*"

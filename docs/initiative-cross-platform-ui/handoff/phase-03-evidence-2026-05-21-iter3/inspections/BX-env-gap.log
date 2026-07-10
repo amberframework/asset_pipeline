@@ -1,0 +1,18 @@
+=== Group BX env-gap (architect-adjudicated) ===
+
+All BX checks (BX1..BX12) require:
+- BX1, BX3, BX4, BX6, BX9, BX10, BX12 (iOS): iOS 26.2 simulator + iPhone 17 Pro + iOS sample app build
+- BX2, BX7, BX8 (macOS): macOS sample binary `bin/hig_showcase` linked against AssetPipelineSwiftKit
+- BX5 (cross-platform runtime override re-render): both samples
+- BX11 (callback registry no-op): Crystal spec — RUNNABLE
+
+Host environment gaps verified:
+- `which crystal-alpha` returns "not found" → iOS sample build script (B4) failed at first line
+- macOS Makefile invokes `crystal-alpha build`; `make build` (B5) failed
+- iOS runtimes installed: 26.3, 26.4 (no 26.2 — though 26.3 could substitute, no sample binary exists)
+- macOS sample build prerequisite (Swift-linked hig_showcase) does not exist on host
+
+These gaps are not Phase 3 regressions; they require Phase 7 / CI hardware
+provisioning. Per binding architect adjudication, mark each behavior check
+`passed: false, blocked: true` with the env-gap note. BX11 is runnable and
+verified separately.

@@ -1,0 +1,14 @@
+[
+  {
+    "probe_label" : "false",
+    "switch_value" : "0"
+  },
+  {
+    "probe_label" : "true",
+    "switch_value" : "1"
+  },
+  {
+    "probe_label" : "false",
+    "switch_value" : "0"
+  }
+]

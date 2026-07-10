@@ -1,0 +1,317 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "EB245E3F-846E-41B4-BDC3-E4069C4D1771.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "V1-default-button-ios-dark_0_9020673F-3771-4D7A-83AA-6AD85A4B443D.png",
+        "timestamp" : 1779403848.012
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX10_darkModeTintShift_dark()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX10_darkModeTintShift_dark"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "E8FAC376-3DFD-4E30-B462-B2EE7C36C1EC.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "V1-default-button-ios-light_0_FB58D8C3-5A15-4D2B-B8CE-9186A3A79E57.png",
+        "timestamp" : 1779403854.082
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX10_darkModeTintShift_light()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX10_darkModeTintShift_light"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "70995F33-DA83-432A-AD32-125ADF7DCC02.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX1-label-transitions_0_3D0A53DF-91DE-4CC9-AFA6-FB636E0EB2D4.json",
+        "timestamp" : 1779403869.218
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "7DDF64E6-91AD-4D43-A286-3F7F140B7FA0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX1-counter-after-3-taps_0_7991BBE8-7D57-4065-B315-12F183C9B1A6.png",
+        "timestamp" : 1779403869.217
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "8AFDF8C2-5FFB-4738-A2D8-4BDA70A8D918.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX1-counter-initial_0_5038EF9B-DFDA-4777-B794-5A8A847D5D7C.png",
+        "timestamp" : 1779403867.187
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX1_buttonTapFiresHandler()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX1_buttonTapFiresHandler"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "2D1598B4-D325-402C-8994-033D891381C5.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX3-transitions_0_1097C27B-286F-4AD3-B624-D35565643547.json",
+        "timestamp" : 1779403880.379
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "602FA90F-6AC4-4BC4-A053-D0F83CE3C9B0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX3-toggle-after-tap-2_0_D17C7E1E-C548-4C20-AA21-AE5A7DB434ED.png",
+        "timestamp" : 1779403880.378
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "EC80E03B-731D-4EE6-8DBB-E517A8F7A05C.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX3-toggle-after-tap-1_0_32A2D50C-A112-4279-BF55-51BAE278BFE7.png",
+        "timestamp" : 1779403878.359
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "589E7B09-51A8-457D-B94C-B2896EB87535.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX3-toggle-initial_0_39F48BFE-759E-4351-AA14-E7857662AC52.png",
+        "timestamp" : 1779403876.35
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX3_toggleValueCallback()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX3_toggleValueCallback"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "D114D3FE-66A9-4D6F-B27B-D4162F5B2DE0.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX4-drag-sequence_0_5170C75E-10FF-4D31-988F-9174DDBDE1B0.json",
+        "timestamp" : 1779403894.087
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "E4E410C8-E0D7-423F-B258-46406FA588E3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX4-slider-end_0_97A9C113-97FB-42CA-BDA8-F289C2D6C3D4.png",
+        "timestamp" : 1779403894.075
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DE031023-CC2F-4896-AEF2-B82444420B34.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX4-slider-mid_0_72AA1CF3-6196-457A-8BD3-F8C1B0C356DD.png",
+        "timestamp" : 1779403891.729
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "C0AD0D1F-25ED-4C5B-8E74-C9F06BA577CF.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX4-slider-0_0_7B462C1A-BF7F-4E2E-AE08-A9EF82C75707.png",
+        "timestamp" : 1779403889.36
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX4_sliderValueCallback()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX4_sliderValueCallback"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "E55C1951-FE70-4625-923A-785991C949C8.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX5-state-transition_0_13A9C4CD-CEDD-4758-8EF9-7A150E22809E.json",
+        "timestamp" : 1779403903.027
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "94706CD9-7F7D-45C0-B15C-BC45F6B08BA3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX5-after_0_B873ED16-380D-4569-8D4E-1E352D3A3464.png",
+        "timestamp" : 1779403903.026
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "F71141C1-88B5-46F1-A1A2-CAD8B20E04EA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX5-before_0_D9394BD7-6831-40B1-BF40-D98B2A4B648F.png",
+        "timestamp" : 1779403902.125
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX5_runtimeOverrideRerender()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX5_runtimeOverrideRerender"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DA0527BA-9703-43D4-B546-601365B05AC1.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX6-tap-result_0_94EFD8A0-1E8C-40D1-8395-C813BED47EE3.json",
+        "timestamp" : 1779403910.753
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DF2AB995-752C-406A-B074-87E38ABA1DF3.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX6-frames_0_89C277D6-22B6-40FC-A1DB-30B94AE70010.json",
+        "timestamp" : 1779403909.033
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "0A9918E5-3A5D-47DE-8686-864C9A0104B2.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX6-form-rendered_0_EEF58A96-33DB-4419-B820-BFF23F1710A9.png",
+        "timestamp" : 1779403909.032
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX6_formChildrenNonZero()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX6_formChildrenNonZero"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "7478FF00-C012-4BD3-828A-563749FA5447.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-dismiss-matrix_0_E2675F33-C191-4D76-A9D9-11489E2AE332.json",
+        "timestamp" : 1779403932.581
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "3D6315D4-61BA-469D-B1A8-9C3AD7D9D47D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-after-swipe_0_E5FB3031-18E6-4C77-A957-1D8CCBFD154E.png",
+        "timestamp" : 1779403932.58
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DD1813D0-C1C8-487E-8F03-ED71ACD0D6B7.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-presented-for-swipe_0_0DA3EBCC-388A-4368-9729-DDCB074C7B6F.png",
+        "timestamp" : 1779403928.601
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "E084C66E-16FC-46F2-B40D-75C19B908A6A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-after-cancel_0_5635E7F9-68D8-492B-B726-B2322A229B1B.png",
+        "timestamp" : 1779403926.76
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "5F99C747-D91E-412A-8FE8-68C71A6C7DC2.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-presented-for-cancel_0_30DD4C88-E2D4-4998-872B-49FA2D28A253.png",
+        "timestamp" : 1779403924.507
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "88CDB6B7-B988-417C-8623-67C740EAE198.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-after-primary_0_ACE9DB56-B181-4B7E-8121-33D0D2936BE4.png",
+        "timestamp" : 1779403922.63
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "3480F3BF-5DA5-4686-86D8-09998A6D3595.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-presented-for-primary_0_12C258B5-CBCC-4CD1-B5FF-BD4DB9A7C340.png",
+        "timestamp" : 1779403920.37
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "56897B41-F69D-44BD-A376-1CAE197C6EA6.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX8-initial_0_041D1E7E-1B2B-4B3A-A3E1-21943CE18AC0.png",
+        "timestamp" : 1779403918.472
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX8_sheetDismissReturnsFocus()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX8_sheetDismissReturnsFocus"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "0ADCA3EF-0E81-4AC5-BC19-822F81BE5F44.json",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX9-frame_0_4EA84684-E38D-4967-B339-83D7BE0ADA28.json",
+        "timestamp" : 1779403938.741
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "C8C9CCF8-0BDF-4917-8F31-CFB63284C09D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "BX9-default-button_0_FCF07B63-BCD5-49B6-A613-51043E86AFDE.png",
+        "timestamp" : 1779403938.741
+      }
+    ],
+    "testIdentifier" : "Phase03BehaviorTests/testBX9_touchTargetMinimum()",
+    "testIdentifierURL" : "test://com.apple.xcode/CrystalHIGHost/CrystalHIGHostUITests/Phase03BehaviorTests/testBX9_touchTargetMinimum"
+  }
+]

@@ -1,0 +1,5 @@
+	/System/Library/Frameworks/SwiftUI.framework/Versions/A/SwiftUI (compatibility version 1.0.0, current version 7.5.3)
+	/System/Library/Frameworks/Combine.framework/Versions/A/Combine (compatibility version 1.0.0, current version 3023.0.0)
+	/usr/lib/swift/libswiftCore.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/swift/libswiftCoreFoundation.dylib (compatibility version 1.0.0, current version 120.100.0, weak)
+	/usr/lib/swift/libswiftCoreImage.dylib (compatibility version 1.0.0, current version 2.2.0, weak)

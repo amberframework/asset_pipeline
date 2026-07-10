@@ -1,0 +1,8 @@
+require "./validation_scenes/dashboard_scene"
+require "./validation_scenes/document_scene"
+require "./validation_scenes/dock_scene"
+require "./validation_scenes/inbox_scene"
+require "./validation_scenes/settings_scene"
+require "./validation_scenes/gallery_scene"
+require "./validation_scenes/chart_scene"
+require "./validation_scenes/ambient_scene"

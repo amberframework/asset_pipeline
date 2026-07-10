@@ -1,0 +1,38 @@
+=== Contract decision verifications ===
+--- D1: Material tokens render-time resolved (no def *= on Material) ---
+(empty above means PASS)
+
+--- D2: SwiftUI Material quantization table in Material#apple_step ---
+      def apple_step(declared : Symbol) : Symbol
+        return declared unless declared == :regular
+        i = intensity
+        return :ultra_thin if i <= 0.3
+        return :thin if i <= 0.7
+        return :regular if i <= 1.3
+        return :chrome if i >= 1.8
+        :thick
+      end
+
+      # Render-time resolution for web / Android. Renderers consume this.
+
+--- D3: Android renderer RenderEffect emission code ---
+src/ui/renderers/android_renderer.cr:204:    # fallbackArgb). Helper internally chooses RenderEffect.createBlurEffect
+src/ui/renderers/android_renderer.cr:208:    fun android_view_apply_glass(env : Void*, view : Void*, blur_radius : Float32, fallback_argb : Int32) : Int32
+src/ui/renderers/android_renderer.cr:272:    # `visit(UI::GlassBackground)` to drive both the API 31+ RenderEffect
+src/ui/renderers/android_renderer.cr:2170:    # Visit: GlassBackground -> android.widget.FrameLayout + RenderEffect
+src/ui/renderers/android_renderer.cr:2174:    # helper applies `RenderEffect.createBlurEffect(radius, radius,
+src/ui/renderers/android_renderer.cr:2181:    # Empirical verification (real RenderEffect render on a real device)
+src/ui/renderers/android_renderer.cr:2195:      applied_real_blur = LibAndroidBridge.android_view_apply_glass(
+src/ui/native/android_bridge.c:1475:// Phase 5 — Glass material RenderEffect bridge.
+src/ui/native/android_bridge.c:1480:// real RenderEffect blur was applied, 0 if the fallback alpha was used or
+src/ui/native/android_bridge.c:1483:int32_t android_view_apply_glass(void *env_ptr, void *view, float blur_radius, int32_t fallback_argb) {
+
+--- D4: SwiftUI Material spike compiles ---
+iOS spike OK
+macOS spike OK
+
+--- D5: No new ObservableObjects/C-export mutators/state handles on Swift side ---
+POST count of files containing ObservableObject in Facades/:
+       4
+PRE (2285fa1) count of files containing ObservableObject in Facades/:
+       4

@@ -1,0 +1,52 @@
+{
+  "errors": [
+    "missing report: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/skills/apple-platform-guide/validation/reports/complications.md"
+  ],
+  "generated_at": "2026-04-17T13:39:40.818089+00:00",
+  "report": {
+    "exists": false,
+    "path": "reports/complications.md"
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:43:23.776207+00:00",
+      "path": "screenshots/complications-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "9d79e505769d7286dfbf07e076f5aaf9f3c9c33a5a0542bd51c571e4fc7b335e",
+      "size_bytes": 719841
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:42:52.909664+00:00",
+      "path": "screenshots/complications-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "32d6b54bf438c2ce77f1756089f4cc5faf7cbc8e8da512d5980d4fb688272fff",
+      "size_bytes": 1742250
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:03.356032+00:00",
+      "path": "screenshots/complications-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "b1f92b86e5019c150bf960259fb7856103bfca05ae162e5a3a0968250b5401a7",
+      "size_bytes": 113175
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:02.424870+00:00",
+      "path": "screenshots/complications-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "9233d7dbeb24ff53179691f6a03192b097a397ad0a9d90220457189ddd67c5e8",
+      "size_bytes": 84713
+    }
+  },
+  "slug": "complications",
+  "valid": false,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

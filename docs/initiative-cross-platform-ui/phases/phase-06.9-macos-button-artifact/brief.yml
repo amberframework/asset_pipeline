@@ -1,0 +1,224 @@
+phase:
+  number: "6.9"
+  name: "macOS Button Inner-Rectangle Artifact"
+  branch: "phase-06.9-macos-button-artifact"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "4cc2f45"
+  authored_at: "2026-05-23"
+
+# Phase 6.9 closes one residual cosmetic artifact from Phase 6.8 Fix 1
+# (Capsule.fill bypass of .borderedProminent). On macOS, SwiftUI's
+# default Button label rendering shows a smaller darker rectangle
+# inside the larger brand-teal Capsule. Fix: append `.buttonStyle(.plain)`
+# to suppress SwiftUI's default button chrome on the prominent case
+# in ButtonFacade.swift. This is the canonical SwiftUI pattern for
+# fully-custom button chrome.
+#
+# 1. SCOPE: 1 single-line fix in ButtonFacade.swift's `case "prominent":`
+#    block. Append `.buttonStyle(.plain)` to the modifier chain.
+#
+# 2. NOT IN SCOPE: anything else. iOS Sign-in must not regress (Fix 1
+#    Capsule fill rendered cleanly on iOS — `.plain` should not affect
+#    iOS rendering since iOS doesn't have the default chrome that
+#    macOS adds). All 3 Phase 6.8 fixes must remain working.
+#
+# 3. INVARIANT TOUCH PATTERN: Phase 6.9 is pure cosmetic polish; most
+#    invariants are `preserves`. I-1 (render) is `extends` (new macOS
+#    baseline). I-11 (build) is `extends` (ButtonFacade rebuild).
+#
+# 4. CODEX CHECK MANDATORY: after the fix, Codex compares macOS sign-in
+#    baseline pre-vs-post. Verdict must be PROGRESS (artifact gone) AND
+#    iOS sign-in must still show brand-teal pill (no regression).
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: extends
+    rationale: "Phase 6.9 ships a single ButtonFacade.swift edit that suppresses SwiftUI's default Button label chrome on the prominent case via `.buttonStyle(.plain)`. macOS sign-in baseline re-captured; iOS sign-in baseline should not change (iOS doesn't have the artifact). Other baselines (dashboard, detail, settings, tier-three) untouched."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-1 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-1 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-1 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: preserves
+    rationale: "ButtonStyle.plain doesn't change reactive bindings. Button tap handler dispatch is unchanged."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-2 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-2 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-2 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: preserves
+    rationale: "ButtonStyle.plain preserves the Button's onTap dispatch — it only removes the default chrome, not the interactive behavior."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-3 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-3 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-3 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: preserves
+    rationale: "Focus contract unchanged. .plain Button is still focusable."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-4 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-4 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-4 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: preserves
+    rationale: "No new view types; just a modifier change."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-5 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-5 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-5 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: preserves
+    rationale: "ButtonStyle.plain preserves AX semantics — the Button still appears as a button in the AX tree with its label as accessibilityLabel."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-6 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-6 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-6 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: preserves
+    rationale: "No new mutators or class vars."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "spec/asset_pipeline_spec.cr"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: preserves
+    rationale: "Capsule.fill uses concrete brand-teal Color; renders consistently across light + dark."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-8 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-8 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-8 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "No new Crystal class vars."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-9 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-9 macos demo-sign-in"
+      web:
+        skip: true
+        reason: "No embedding on web"
+        owner_approved: "2026-05-23"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: preserves
+    rationale: "No public API change. UI::Button still accepts the same role/style symbols."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-10 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-10 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-10 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "ButtonFacade.swift edit must still compile cleanly. SwiftKit static archive rebuild needed. macOS host + iOS Crystal-lib + web semantic builds must still link."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-11 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-11 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-11 web"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS"
+        owner_approved: "2026-05-23"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "Crystal toolchain available"
+    falsifier: "Neither crystal-alpha nor crystal in PATH"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A2
+    claim: "Phase 6.8 PASS tag exists (Phase 6.9 depends on Phase 6.8's Capsule.fill bypass)"
+    falsifier: "Tag missing"
+    verification: "git tag --list 'phase-06.8-pass-2026-05-23' | head -1 | grep -q phase-06.8"
+
+  - id: A3
+    claim: "ButtonFacade.swift contains the Phase 6.8 Fix 1 Capsule.fill block (precondition — Phase 6.9 adds .buttonStyle(.plain) to this block)"
+    falsifier: "Capsule().fill not present in ButtonFacade.swift"
+    verification: "grep -q 'Capsule().fill' swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ButtonFacade.swift"
+
+  - id: A4
+    claim: "SwiftKit static archive builds at HEAD (precondition)"
+    falsifier: "swift build -c release exits non-zero"
+    verification: "swift build -c release --package-path swift/AssetPipelineSwiftKit > /dev/null 2>&1"
+
+  - id: A5
+    claim: "ImageMagick + compare installed"
+    falsifier: "Either missing"
+    verification: "test -x /opt/homebrew/bin/magick && test -x /opt/homebrew/bin/compare"
+
+repo_derived_facts:
+  - fact: "ButtonFacade.swift line count (post-Phase-6.9; +1 line from .buttonStyle(.plain))"
+    query: "wc -l < swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ButtonFacade.swift | tr -d ' '"
+    expected: "318"
+    captured_at_sha: "b4ba884"
+
+  - fact: "Capsule().fill appearance count in ButtonFacade.swift (Phase 6.8 Fix 1's marker)"
+    query: "grep -c 'Capsule().fill' swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ButtonFacade.swift | tr -d ' '"
+    expected: "2"
+    captured_at_sha: "4cc2f45"
+
+  - fact: "Phase 6.8 PASS tag"
+    query: "git tag --list 'phase-06.8-pass-2026-05-23' | head -1"
+    expected: "phase-06.8-pass-2026-05-23"
+    captured_at_sha: "4cc2f45"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

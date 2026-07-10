@@ -1,0 +1,145 @@
+{
+  "check_id": "focus.action-sheet-focus-trap",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet__panel",
+    ".ap-action-sheet__action",
+    "[data-testid=action-sheet-trigger]"
+  ],
+  "cdp_methods": [
+    "Page.navigate",
+    "Runtime.evaluate (__phase4.open)",
+    "Input.dispatchKeyEvent (Tab x N)",
+    "Input.dispatchKeyEvent (Shift+Tab x N)",
+    "Runtime.evaluate (window.__focusTrace)"
+  ],
+  "trusted_input_trace": [
+    "click trigger (__phase4.open)",
+    "Tab",
+    "Tab",
+    "Tab",
+    "Tab",
+    "Tab",
+    "Shift+Tab",
+    "Shift+Tab",
+    "Shift+Tab",
+    "Shift+Tab",
+    "Shift+Tab"
+  ],
+  "expected_state": {
+    "focusable_count_at_least": 3,
+    "every_trace_entry_inside_panel": true,
+    "tab_cycle_returns_to_first_after_N_tabs": true,
+    "shift_tab_cycle_returns_to_first_after_N": true
+  },
+  "observed_state": {
+    "focusable_count": 3,
+    "trace_length": 11,
+    "distinct_labels_visited": [
+      "Save",
+      "Delete",
+      "Cancel"
+    ],
+    "all_entries_inside_panel": true,
+    "tab_cycle_detected": true,
+    "shift_tab_cycle_detected": true,
+    "tab_phase_labels": [
+      "Delete",
+      "Cancel",
+      "Save",
+      "Delete",
+      "Cancel"
+    ],
+    "shift_tab_phase_labels": [
+      "Delete",
+      "Save",
+      "Cancel",
+      "Delete",
+      "Save"
+    ],
+    "full_focus_trace": [
+      {
+        "n": 0,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Save",
+        "inside": true
+      },
+      {
+        "n": 1,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Delete",
+        "inside": true
+      },
+      {
+        "n": 2,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Cancel",
+        "inside": true
+      },
+      {
+        "n": 3,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Save",
+        "inside": true
+      },
+      {
+        "n": 4,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Delete",
+        "inside": true
+      },
+      {
+        "n": 5,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Cancel",
+        "inside": true
+      },
+      {
+        "n": 6,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Delete",
+        "inside": true
+      },
+      {
+        "n": 7,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Save",
+        "inside": true
+      },
+      {
+        "n": 8,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Cancel",
+        "inside": true
+      },
+      {
+        "n": 9,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Delete",
+        "inside": true
+      },
+      {
+        "n": 10,
+        "tag": "BUTTON",
+        "testid": null,
+        "label": "Save",
+        "inside": true
+      }
+    ],
+    "testid_note": "renderer does not emit data-testid on inner action buttons; identity established via unique label text (Save / Delete / Cancel)"
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/focus.action-sheet-focus-trap.json"
+  ]
+}

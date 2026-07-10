@@ -1,3 +1,6 @@
+# Dependency analyzer for the asset pipeline JS / CSS graph.
+# Part of the asset_pipeline shard.
+
 module AssetPipeline
   # The `DependencyAnalyzer` analyzes JavaScript code to detect dependencies that should be imported.
   # It can identify references to external libraries, local modules, and common JavaScript patterns

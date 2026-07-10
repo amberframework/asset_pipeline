@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.AssetPipeline.AndroidHost" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/host_primary</item>
+        <item name="colorOnPrimary">@color/host_on_primary</item>
+        <item name="colorPrimaryContainer">@color/host_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/host_on_primary_container</item>
+        <item name="colorSurface">@color/host_surface</item>
+        <item name="colorSurfaceVariant">@color/host_surface_variant</item>
+        <item name="colorOnSurface">@color/host_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/host_on_surface_variant</item>
+        <item name="colorOutline">@color/host_outline</item>
+        <item name="colorOutlineVariant">@color/host_outline_variant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@color/host_surface</item>
+    </style>
+
+    <style name="Theme.AssetPipeline.AndroidHost.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+    </style>
+</resources>
+

@@ -1,0 +1,33 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX3_toggleValueCallback]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:33.137
+    t =     0.03s Set Up
+    t =     0.03s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s         Terminate com.assetpipeline.hig.CrystalHIGHost:83078
+2026-05-21 13:41:34.275 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:34.275 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.35s         Setting up automation session
+    t =     2.16s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.41s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.49s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.50s         Checking existence of `"hig-component-root" Other`
+    t =     4.56s Waiting 5.0s for "toggle-probe-toggle" Switch to exist
+    t =     5.63s     Checking `Expect predicate `existsNoRetry == 1` for object "toggle-probe-toggle" Switch`
+    t =     5.63s         Checking existence of `"toggle-probe-toggle" Switch`
+    t =     5.65s Waiting 3.0s for "toggle-probe-value" StaticText to exist
+    t =     6.73s     Checking `Expect predicate `existsNoRetry == 1` for object "toggle-probe-value" StaticText`
+    t =     6.73s         Checking existence of `"toggle-probe-value" StaticText`
+    t =     6.76s Find the "toggle-probe-toggle" Switch
+    t =     6.77s Find the "toggle-probe-value" StaticText
+    t =     6.94s Added attachment named 'BX3-toggle-initial.png'
+    t =     6.94s Tap "toggle-probe-toggle" Switch
+    t =     6.94s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     6.95s     Find the "toggle-probe-toggle" Switch
+    t =     6.96s     Check for interrupting elements affecting "toggle-probe-toggle" Switch
+    t =     6.97s     Synthesize event
+    t =     7.27s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     7.53s Find the "toggle-probe-toggle" Switch
+    t =     7.55s Find the "toggle-probe-value" StaticText
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:154: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX3_toggleValueCallback] : XCTAssertEqual failed: ("Optional("0")") is not equal to ("Optional("1")") - BX3: after tap 1 switch must read "1"
+    t =     7.57s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX3_toggleValueCallback]' failed (7.820 seconds).

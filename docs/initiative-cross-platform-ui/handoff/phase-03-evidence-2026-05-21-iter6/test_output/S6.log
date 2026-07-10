@@ -1,0 +1,26 @@
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.13s)
+Test Suite 'Selected tests' started at 2026-05-21 13:39:55.911.
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' started at 2026-05-21 13:39:55.912.
+Test Suite 'SnapshotTests' started at 2026-05-21 13:39:55.912.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' passed (0.058 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' passed (0.004 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' passed (0.003 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' passed (0.004 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' passed (0.005 seconds).
+Test Suite 'SnapshotTests' passed at 2026-05-21 13:39:55.987.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.074 (0.075) seconds
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' passed at 2026-05-21 13:39:55.987.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.074 (0.075) seconds
+Test Suite 'Selected tests' passed at 2026-05-21 13:39:55.987.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.074 (0.076) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

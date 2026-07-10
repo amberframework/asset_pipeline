@@ -1,0 +1,8 @@
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:154: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX3_toggleValueCallback] : XCTAssertEqual failed: ("Optional("0")") is not equal to ("Optional("1")") - BX3: after tap 1 switch must read "1"
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX3_toggleValueCallback]' failed (7.820 seconds).
+<unknown>:0: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX4_sliderValueCallback] : com.assetpipeline.hig.CrystalHIGHost crashed in <external symbol>
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:301: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX6_formChildrenNonZero] : XCTAssertTrue failed - BX6: row 1 must be ≥44pt tall — got (148.2375, 228.4625, 55.693749999999966, 25.125)
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX6_formChildrenNonZero]' failed (6.030 seconds).
+<unknown>:0: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX8_sheetDismissReturnsFocus] : com.assetpipeline.hig.CrystalHIGHost crashed in <external symbol>
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:394: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum] : XCTAssertTrue failed - BX9: height must be ≥44pt — got 25.125
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum]' failed (4.743 seconds).

@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.186442+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-17T16:13:35.426361+00:00",
+    "path": "reports/lists-and-tables.md",
+    "sha256": "3123034aef0a8c18960d95000aba043e3b558bf66b6f1b05977d0041e13c0ece",
+    "size_bytes": 3048
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:56:19.364649+00:00",
+      "path": "screenshots/lists-and-tables-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "971d1763ca37a5a2631ccfc892a2030d7f11ebb859611ff269fb9313895de226",
+      "size_bytes": 776251
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:55:49.233715+00:00",
+      "path": "screenshots/lists-and-tables-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "a193b3e04fcf4415adf0384c4ec5b78a0d0322cd3ac832a532fd7c9406e03d69",
+      "size_bytes": 539637
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:24.427157+00:00",
+      "path": "screenshots/lists-and-tables-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "090987460cc1d564ca6aa574e3971c4776f07a5b3818e9998c268d0a03937041",
+      "size_bytes": 1386734
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:23.482751+00:00",
+      "path": "screenshots/lists-and-tables-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "1c0fd8da606e3a68c47bca7d3a0d8eb30ebc9e37e4499317f2252e9021d98c2d",
+      "size_bytes": 1019728
+    }
+  },
+  "slug": "lists-and-tables",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

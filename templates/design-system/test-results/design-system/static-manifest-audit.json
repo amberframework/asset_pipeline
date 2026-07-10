@@ -1,0 +1,57 @@
+{
+  "manifest": "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/design-system.routes.yml",
+  "root": "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/output",
+  "artifacts": "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/test-results/design-system",
+  "runtime_files": [
+    "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/public/js/design-system.js"
+  ],
+  "pages": [
+    {
+      "name": "home",
+      "path": "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/output/index.html",
+      "required_components": [
+        "theme-switcher",
+        "button",
+        "card"
+      ],
+      "required_hooks": [
+        "data-ap-theme-toggle"
+      ]
+    },
+    {
+      "name": "form",
+      "path": "/Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/output/form.html",
+      "required_components": [
+        "field",
+        "button"
+      ],
+      "required_hooks": [
+        "data-ap-validate"
+      ]
+    }
+  ],
+  "checks": {
+    "static": true,
+    "forbidden_classes": [
+      "btn",
+      "btn-primary",
+      "card-body",
+      "form-control",
+      "list-group"
+    ],
+    "forbidden_runtime_terms": [
+      "@hotwired/stimulus",
+      "Chart.js",
+      "node --",
+      "node ",
+      "playwright"
+    ],
+    "inline_handlers": true
+  },
+  "failures": [
+    "runtime file exists at /Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/public/js/design-system.js",
+    "home page exists at /Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/output/index.html",
+    "form page exists at /Users/crimsonknight/open_source_coding_projects/asset_pipeline/templates/design-system/output/form.html"
+  ],
+  "passed": false
+}

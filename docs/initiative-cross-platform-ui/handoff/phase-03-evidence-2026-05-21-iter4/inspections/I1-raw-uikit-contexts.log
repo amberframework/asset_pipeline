@@ -1,0 +1,17 @@
+=== Raw UI* class lookups with enclosing visit method ===
+--- line 1125 ---
+  enclosing def @ line 988:       def visit(view : UI::Alert)
+--- line 2755 ---
+  enclosing def @ line 2725:       def visit(view : UI::MenuButton)
+--- line 2758 ---
+  enclosing def @ line 2725:       def visit(view : UI::MenuButton)
+--- line 2816 ---
+  enclosing def @ line 2725:       def visit(view : UI::MenuButton)
+--- line 3867 ---
+  enclosing def @ line 3736:       def visit(view : UI::ActivityView)
+--- line 3931 ---
+  enclosing def @ line 3736:       def visit(view : UI::ActivityView)
+--- line 3972 ---
+  enclosing def @ line 3736:       def visit(view : UI::ActivityView)
+--- line 4111 ---
+  enclosing def @ line 4096:       def visit(view : UI::DisclosureGroup)

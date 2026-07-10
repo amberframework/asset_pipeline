@@ -1,0 +1,25 @@
+=== I-7: ObservableObject in Swift Facades ===
+-- POST Phase 5 --
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/TextFieldFacade.swift:54:final class TextStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift:1:// ReactiveState — ObservableObject containers that back Phase 3 Remediation 4
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift:48:public final class APSKLabelState: NSObject, ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift:60:public final class APSKButtonState: NSObject, ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift:83:// The Toggle and Slider facades already own an `ObservableObject` storage
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift:97:public final class APSKSheetState: NSObject, ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift:9:final class BoolStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift:40:final class DoubleStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift:65:final class IntStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift:83:final class DateStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift:101:final class ColorStorage: ObservableObject {
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/SheetFacade.swift:11:// which retains an `APSKSheetState : ObservableObject` and writes the
+-- POST count --
+       4
+-- PRE (at parent_sha 2285fa1) count --
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/SheetFacade.swift
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/TextFieldFacade.swift
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ReactiveState.swift: 5
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/SheetFacade.swift: 1
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/TextFieldFacade.swift: 1
+swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ValueStorage.swift: 5

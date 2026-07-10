@@ -1,0 +1,18 @@
+RECT_PX 528 104 2400 1864
+F
+
+Failures:
+
+  1) Phase 3 BX7 — form layout (macOS) renders three form rows at non-zero size without overlap
+     Failure/Error: {% if flag?(:macos) %}
+
+       Expected: nil not to be nil
+
+     # spec/ui/hig_validation/macos_form_layout_spec.cr:1
+
+Finished in 1.56 seconds
+1 examples, 1 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/hig_validation/macos_form_layout_spec.cr:1 # Phase 3 BX7 — form layout (macOS) renders three form rows at non-zero size without overlap

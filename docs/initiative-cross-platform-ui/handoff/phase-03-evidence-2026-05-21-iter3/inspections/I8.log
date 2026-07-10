@@ -1,0 +1,2 @@
+All 39 facades inspected. GlassBackgroundFacade had a code-comment reference to host at line 15 (false positive). Actual call sites apply@65 < host@66 — correct order.
+PASS: 39 facades, all have apply preceding host.

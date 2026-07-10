@@ -1,0 +1,49 @@
+{
+  "check_id": "focus.action-sheet-escape-closes",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet",
+    ".ap-action-sheet__panel",
+    "[data-testid=action-sheet-trigger]"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (__phase4.open)",
+    "Input.dispatchKeyEvent (Escape)",
+    "Runtime.evaluate (4-boolean snapshot)"
+  ],
+  "trusted_input_trace": [
+    "click trigger (__phase4.open)",
+    "Escape"
+  ],
+  "expected_state": {
+    "dismiss_log_single_escape": true,
+    "data_presented": "false",
+    "panel_ax_visible": false,
+    "focus_restored": true
+  },
+  "observed_state": {
+    "pre_snapshot": {
+      "data_presented": "true",
+      "dismiss_log_length": 0,
+      "panel_ax_visible": true,
+      "active_in_panel": true,
+      "active_tag": "BUTTON"
+    },
+    "post_snapshot": {
+      "dismiss_log": [
+        {
+          "reason": "escape"
+        }
+      ],
+      "data_presented": "false",
+      "panel_ax_visible": false,
+      "focus_restored": true,
+      "active_testid": "action-sheet-trigger",
+      "trigger_testid": "action-sheet-trigger"
+    }
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/focus.action-sheet-escape-closes.json"
+  ]
+}

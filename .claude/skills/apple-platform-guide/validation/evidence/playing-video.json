@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.201365+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T14:55:00.691925+00:00",
+    "path": "reports/playing-video.md",
+    "sha256": "2b8c61964e2bb19144651cddffc021024b5825fbf43c1415db96936be6c0bdd8",
+    "size_bytes": 3857
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T14:44:00.892579+00:00",
+      "path": "screenshots/playing-video-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "fa3183f04d40869051fa66d6c84205afeb4ceb66a939b3b86d3c3fe17118a8f9",
+      "size_bytes": 923837
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T14:43:26.937821+00:00",
+      "path": "screenshots/playing-video-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "f10fa9e75c1390059e932a5433cf2587531cde0a489d912f5991c6f9d13f6e5e",
+      "size_bytes": 854468
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T14:52:06.846462+00:00",
+      "path": "screenshots/playing-video-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "cf8b00626d6279c10a7f3265c8f831b5985d002f0fab9afa1c0590657aa48117",
+      "size_bytes": 1255149
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T14:52:08.307194+00:00",
+      "path": "screenshots/playing-video-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "988675e41fb0ae3154d83803c8f3d0e1a78b601392e68d2daebf6c73e2487fe1",
+      "size_bytes": 1031539
+    }
+  },
+  "slug": "playing-video",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

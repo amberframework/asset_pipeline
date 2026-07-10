@@ -1,0 +1,101 @@
+# R10 Part 1 proposed fix — Toggle / Slider iOS facade migration
+
+## Goal
+
+Replace the SwiftUI Toggle/Slider hosted in UIViewRepresentable with a
+direct UIViewRepresentable wrapping UIKit UISwitch / UISlider, so
+XCUIElement.tap() (Toggle) and the existing .adjust(...) (Slider) both
+route through documented Apple control internals that fire
+UIControlEventValueChanged.
+
+## Scope
+
+iOS only (`#if canImport(UIKit)`). macOS Toggle/Slider facades untouched.
+ToggleOverrides / SliderOverrides / BoolStorage / DoubleStorage / Crystal
+populators unchanged.
+
+## Files touched (no API breakage)
+
+1. swift/.../ToggleFacade.swift
+   - Add `APSKToggleRepresentable: UIViewRepresentable` wrapping `UISwitch`.
+   - Replace the body of `ToggleHost.body` on iOS to use that representable
+     (instead of `SwiftUI.Toggle`). Keep the macOS branch unchanged.
+   - Coordinator stores BoolStorage + actionToken; fires
+     CallbackBridge.fire on UIControlEventValueChanged.
+   - applyOverrides(to:) helper called from both makeUIView and
+     updateUIView (covers reactive Crystal-side property updates AND
+     initial state).
+   - Programmatic state mirror: in updateUIView, if `sw.isOn !=
+     storage.value`, call `sw.setOn(storage.value, animated: false)` —
+     UIKit setters do not re-fire valueChanged, so no callback loop.
+   - Crystal-side `apsk_toggle_set_value` path is unchanged (still writes
+     `storage.value = X`; storage's @Published machinery re-invokes
+     updateUIView; the equality check makes the mirror idempotent).
+
+2. swift/.../SliderFacade.swift
+   - Add `APSKSliderRepresentable: UIViewRepresentable` wrapping
+     `UISlider`.
+   - Replace the body of `SliderDoubleHost.body` on iOS to use that
+     representable. Continuous (no step) and stepped variants supported.
+   - Coordinator: on valueChanged, if step is set, quantize before
+     writing to DoubleStorage; reassign sender.value to the snapped value
+     so the thumb visually snaps; always fire CallbackBridge.fire.
+   - In updateUIView: apply min/max/value/step/isEnabled from overrides
+     every update. Mirror Crystal-side programmatic state via
+     `sender.setValue(value, animated: false)` when not equal.
+
+3. Note: The current iOS Slider visit in uikit_renderer.cr builds an
+   ELABORATE synthetic-track structure for screenshot stability (a
+   container UIView with track/fill/thumb subviews PLUS the real UISlider
+   at alpha 0.0 on top). That path is OUTSIDE the SwiftKit facade — it
+   happens in Crystal. R10 leaves that path UNTOUCHED. The migration here
+   only affects code paths that take the SwiftKit
+   `apsk_make_slider_reactive` entry — namely the SliderFacade Swift
+   side. Since R10's Slider migration is parity/robustness (BX4 already
+   PASSES via XCUIElement.adjust on the synthetic-track UISlider), this
+   is fine.
+
+## Memory / lifecycle
+
+- `BoolStorage` / `DoubleStorage` retains unchanged; Crystal still owns
+  the +1 retain acquired in the @make_reactive trampoline.
+- `Coordinator` is held by the UIViewRepresentable's Context — standard
+  SwiftUI pattern. No new retain cycles.
+
+## Regression risk
+
+- macOS: UNCHANGED (skip the iOS branch).
+- iOS BX1 (Button): untouched — Button is a discrete-action control on
+  its own facade.
+- iOS BX4 (Slider): currently PASSES. Risk: SliderHost's iOS body now
+  produces a UIViewRepresentable wrapper instead of SwiftUI.Slider — but
+  the iOS path uses the synthetic-track in uikit_renderer that paints
+  over the Swift facade's UISlider. Need to verify the synthetic-track
+  still finds the UISlider under the new representable. The
+  representable's UISlider IS the makeUIView return value, so a top-down
+  subview walk still finds it.
+- iOS reactive setter (UI::Toggle#is_on=, UI::Slider#value=): unchanged
+  end-to-end. The Crystal-side calls `apsk_toggle_set_value(state,
+  value)` which mutates `storage.value`; storage triggers SwiftUI
+  re-evaluation; the new representable's `updateUIView` mirrors the new
+  value onto the UISwitch / UISlider.
+- iOS Toggle visual styling: brief explicitly says "Do NOT apply glass /
+  visual treatment to UISwitch / UISlider in R10. Default UIKit
+  appearance is fine." So we use bare UISwitch / UISlider here.
+
+## Suppression / suppressNextFire
+
+The existing `suppressNextFire` flag in BoolStorage / DoubleStorage was
+designed for SwiftUI Toggle's `.onChange` consumer. In the UIKit-wrapper
+path, programmatic state updates flow through `updateUIView` (NOT through
+the coordinator's @objc valueChanged), so the suppression flag is not
+needed for the new path. We leave it in place (the macOS facade still
+uses it).
+
+## Test expectation
+
+testBX3_toggleValueCallback should now PASS — XCUIElement.tap() on the
+UISwitch routes through UIControl's tap-handling, which fires
+valueChanged, which fires CallbackBridge.fire and updates storage.value.
+
+testBX4_sliderValueCallback should remain PASSING (parity migration).

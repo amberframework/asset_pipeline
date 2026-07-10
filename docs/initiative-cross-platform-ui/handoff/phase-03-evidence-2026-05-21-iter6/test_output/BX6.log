@@ -1,0 +1,24 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX6_formChildrenNonZero]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:54.732
+    t =     0.03s Set Up
+    t =     0.03s     Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s             Terminate com.assetpipeline.hig.CrystalHIGHost:83458
+2026-05-21 13:41:55.868 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:55.868 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.35s             Setting up automation session
+    t =     2.20s             Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.45s     Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.52s         Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.52s             Checking existence of `"hig-component-root" Other`
+    t =     4.59s     Waiting 5.0s for "form-row-1" Button to exist
+    t =     5.66s         Checking `Expect predicate `existsNoRetry == 1` for object "form-row-1" Button`
+    t =     5.66s             Checking existence of `"form-row-1" Button`
+    t =     5.68s     Checking existence of `"form-row-2" Button`
+    t =     5.69s     Checking existence of `"form-row-3" Button`
+    t =     5.71s     Find the "form-row-1" Button
+    t =     5.72s     Find the "form-row-2" Button
+    t =     5.73s     Find the "form-row-3" Button
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:301: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX6_formChildrenNonZero] : XCTAssertTrue failed - BX6: row 1 must be ≥44pt tall — got (148.2375, 228.4625, 55.693749999999966, 25.125)
+    t =     5.75s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX6_formChildrenNonZero]' failed (6.030 seconds).

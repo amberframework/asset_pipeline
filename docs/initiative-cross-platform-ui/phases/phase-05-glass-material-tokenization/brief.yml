@@ -1,0 +1,344 @@
+phase:
+  number: 5
+  name: "Glass Material Tokenization (v2)"
+  branch: "phase-05-glass-material-tokenization"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "2285fa1"
+  authored_at: "2026-05-22"
+
+# Phase 5 v2 contract decisions baked into this brief. Authored after Validator
+# iter 2 FAIL and the v2 architecture doc at
+# `docs/initiative-cross-platform-ui/handoff/phase-05-v2-architecture-2026-05-22.md`.
+# The architecture doc is owner-signed-off; this brief is its
+# validator-enforced contract.
+#
+# 1. Material is a TWO-AXIS value: AppleSemantic + ThicknessStep + intensity.
+#    AppleSemantic is the role-based identity used on Apple platforms
+#    (NSVisualEffectMaterial on macOS; UIBlurEffectStyle approximation on
+#    iOS). ThicknessStep + intensity drive the web backdrop-filter blur radius
+#    cascade and the Android RenderEffect blur radius cascade. Brand intensity
+#    is meaningful on web + Android; advisory on Apple (the semantic identity
+#    determines Apple chrome regardless of intensity).
+#
+# 2. Of the 8 widgets that historically had hardcoded NSVisualEffectMaterial
+#    integers, 6 (TabView / Alert / NavigationSplitView / Toolbar / Sheet /
+#    Popover) route their active visit path through SwiftKit facades. Their
+#    Phase 5 v2 tokenization happens by adding a `materialSemantic` field to
+#    each *Overrides Swift class + an AppleSemantic resolver in the facade
+#    body. The 2 remaining widgets (ContextMenu + ActivityView) use direct
+#    NSVisualEffectView / UIVisualEffectView and tokenize at the Crystal
+#    renderer dispatch site via the renamed
+#    `appkit_visual_effect_material_for_semantic` helper plus a new sibling
+#    `uikit_blur_effect_style_for_semantic` helper.
+#
+# 3. The 6 `_legacy_*` methods in appkit_renderer.cr are dead code on the
+#    active dispatch path. Phase 5 v2 explicitly defers their cleanup to
+#    Phase 5.5; the v2 brief documents their presence so 5.5 has a
+#    handoff anchor.
+#
+# 4. Material tokens remain render-time-resolved. I-2 (forward reactive)
+#    stays `preserves`. Material changes require re-render; runtime
+#    intensity mutation is not in scope.
+#
+# 5. SwiftUI Material API verification (A1) covers the pre-26 modifier
+#    surface Phase 5 v2 emits per the per-widget defaults table:
+#    .background(Material), .presentationBackground(Material), and
+#    .toolbarBackground(Material, for: .automatic). The .navigationBar /
+#    .tabBar placements are iOS-only; cross-platform default placement is
+#    .automatic. Spike at spikes/swiftui_material_spike.swift exercises
+#    every pre-26 modifier on both iOS Simulator and macOS SDKs.
+#
+#    The iOS 26+ / macOS 26+ Liquid Glass `.glassEffect()` modifier is
+#    explicitly OUT OF A1 SCOPE — it is an advisory path where the system
+#    decides material strength regardless of declared AppleSemantic or
+#    intensity. Phase 5 v2 ships the .glassEffect() availability guard
+#    inside the Swift facade but does NOT require a compile spike for it
+#    (the system-resolved semantics make the compile-test redundant). If
+#    the public API contract changes to require .glassEffect() verification,
+#    a separate A10 spike must be added before re-dispatch.
+#
+# 6. If Phase 5 v2 implementer discovers material reactivity is genuinely
+#    needed, scope expansion surfaces to architect before extending. No new
+#    ObservableObjects, no new C-export mutators on the iOS/macOS bridge
+#    beyond what already shipped, no new Crystal class vars with
+#    initializers.
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: extends
+    rationale: "Phase 5 v2 ships the two-axis Material model. AppleSemantic enum (Menu/Popover/Sidebar/Sheet/HeaderView/WindowBackground/HUDWindow/Titlebar/SystemResolved) maps 1:1 to an NSVisualEffectMaterial integer on macOS EXCEPT for SystemResolved which is a NO-CALL SENTINEL — it suppresses the direct `setMaterial:` invocation and lets Apple defaults apply (used for TabView/Alert/Toolbar where SwiftUI bar chrome / system alert chrome handles the visual). iOS uses a UIBlurEffectStyle approximation table per the v2 architecture doc; SystemResolved suppresses `setEffect:` on the direct-UIVisualEffectView path. SystemResolved does NOT suppress TabView/Toolbar `.toolbarBackground(.bar, for: .automatic)` — that's the canonical SwiftUI bar chrome, separate from the setMaterial: surface. ThicknessStep enum + intensity Float64 drives web backdrop-filter blur scaling and Android RenderEffect blur scaling via the architecture's `thickness_for_brand` QUANTIZER (intensity * baseline → effective ThicknessStep → step's predefined blur radius). Per-widget defaults table in the v2 architecture doc names HIG-canonical defaults for each of the 8 affected widgets (TabView/Alert/Toolbar = SystemResolved; NavigationSplitView = Sidebar; Popover = Popover; Sheet/ActivityView = Sheet; ContextMenu = Menu). Implementer authors per-step + per-semantic visual baseline probes for the controllable paths. On iOS 26+ / macOS 26+, SwiftUI .glassEffect() remains the Liquid Glass system-resolved path; semantic + intensity are advisory there. Probes on Apple platforms remain pending Phase 6.5 audit harness."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5 v2 implementer authors spec/ui/glass_material/ios_glass_default_spec.cr covering per-AppleSemantic mapping. Probe harness path is Phase 6.5 work; validator architect-adjudicates pending Phase 6.5 ship."
+        owner_approved: "2026-05-22"
+      macos:
+        skip: true
+        reason: "Phase 5 v2 implementer authors spec/ui/glass_material/macos_glass_default_spec.cr covering per-AppleSemantic mapping; harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Phase 5 v2 ships Android-side RenderEffect emission code; Android empirical verification is Phase 6.5's audit harness deliverable per Phase 1 #17 precedent"
+        owner_approved: "2026-05-22"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: preserves
+    rationale: "Material tokens are RENDER-TIME RESOLVED VALUES. Phase 5 v2 does NOT add a runtime mutator path for material.intensity or material.semantic or material.step. Consumers re-render the view tree to see changes; the existing Phase 3 reactive bridge (Label/Button/Toggle/Slider/Sheet) is unchanged. No new ObservableObjects on Swift side, no new C-export reactive mutators. The 6 Category B widget facades pass material via the existing populator path (set_string), which is a one-shot render-time call, NOT a reactive subscription."
+    probes:
+      ios: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5 work per audit-first principle"
+        owner_approved: "2026-05-22"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: preserves
+    rationale: "Glass material is a pure render-side concern; no new event paths, no new callback registration, no new main-thread/run-loop semantics introduced. Existing Phase 3 R4 + R10 event paths remain authoritative. The Category C renderer-helper additions (uikit_blur_effect_style_for_semantic) emit values; they do not register callbacks."
+    probes:
+      ios: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: preserves
+    rationale: "Material tokenization does not change focus order, keyboard nav, or focus-visible behavior. Glass surfaces remain transparent to focus traversal; child controls retain their focus contract. The SwiftKit facade Material modifiers (.background / .presentationBackground / .toolbarBackground) are visual-only — they do not introduce a new focusable view."
+    probes:
+      ios: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: preserves
+    rationale: "GlassBackground widget API unchanged; no new mount/unmount/teardown paths. Material resolution happens during the existing render pass. The 6 SwiftKit-facade widgets see a new materialSemantic field on their Overrides class but the Overrides lifecycle is unchanged — it tracks the same view-lifetime semantics."
+    probes:
+      ios: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: extends
+    rationale: "Glass surfaces sit behind text. WCAG-AA contrast must hold for text-on-blurred-background at every AppleSemantic role on Apple platforms AND at every effective ThicknessStep on web/Android (the quantizer's output enumerates exactly 5 effective steps — verifying these covers the full intensity-input space since intensity in [0.0, 2.0] maps to one of them). Dynamic-type response on glass surfaces remains in scope. Phase 5 v2 implementer authors the contrast audit probes; harness is Phase 6.5."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5 v2 implementer authors spec/ui/glass_material/ios_glass_contrast_spec.cr covering all 9 AppleSemantic roles' text-on-material AA contrast verification; harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos:
+        skip: true
+        reason: "Phase 5 v2 implementer authors spec/ui/glass_material/macos_glass_contrast_spec.cr covering all 9 AppleSemantic roles; harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android contrast audit harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: extends
+    rationale: "Phase 5 added one new native mutator on the Android JNI bridge: `android_view_apply_glass`. This is a render-side application (apply blur/effect to a view) — NOT a state-store like Phase 3's APSKLabelState. It does not retain Crystal-side state. By I-7's primary-ownership clause (any value crossing the language boundary needs a contract), this is `extends`. Ownership contract: caller (Crystal-side android_renderer.cr visit method) owns the view reference; android_view_apply_glass borrows for the duration of the JNI call and does not retain. Phase 5 v2 adds NO further C-export mutators; the 6 Category B widgets reuse the existing populator's set_string path, the 2 Category C widgets reuse the existing direct-Crystal ObjC msg_send path. No new ObservableObjects on Swift side."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "spec/asset_pipeline_spec.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: preserves
+    rationale: "Phase 5 v2 DELEGATES env-response on Apple platforms — SwiftUI Material + .glassEffect() automatically respect Reduce Motion, Increase Contrast, dark mode appearance. Phase 5 v2 ships no production code for cross-platform forced-colors / prefers-reduced-motion handling on web; that remains Phase 6.5's audit harness work. Probe placeholder specs (spec/ui/glass_material/*_env_response_spec.cr) declare the slug names Phase 6.5 will hook. I-8 is `preserves` on Apple (system handles it; Phase 5 v2 doesn't intercept) and cross-platform delivery is explicitly deferred to Phase 6.5."
+    probes:
+      ios: "spec/ui/glass_material/ios_glass_env_response_spec.cr"
+      macos: "spec/ui/glass_material/macos_glass_env_response_spec.cr"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android env-response probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "Phase 5 v2 introduces NO new Crystal class vars with initializers AND NO new Crystal::once-protected lazy lookups. AppleSemantic and ThicknessStep are Crystal enums (compile-time constants, no class-var initialization). The 6 widget Crystal classes already exist; v2 adds a `material_semantic : Symbol?` property — a struct field, not a class var. If implementer discovers a new class-var is required (e.g., for a Material singleton or lookup table), they MUST stop and surface to architect — the new class-var requires either (a) explicit .reset in hig_bridge.cr#initialize_runtime, OR (b) lazy-instance pattern with nil default and method-side initialization."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web:
+        skip: true
+        reason: "No embedding on web; the web target is the host language's natural runtime"
+        owner_approved: "2026-05-22"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: extends
+    rationale: "Phase 5 v2 ships the two-axis Material API: tokens.material.semantic (AppleSemantic enum), tokens.material.step (ThicknessStep enum), tokens.material.intensity (Float64 scalar in [0.0, 2.0]). Phase 5 v2 commits to: (1) material is RENDER-TIME ONLY — runtime mutation requires a re-render; (2) brand intensity is MEANINGFUL on web (selects effective ThicknessStep via quantizer; step's blur radius then applies) and Android (same quantizer model on RenderEffect path; alpha cascade on < API 31), ADVISORY on Apple (NSVisualEffectMaterial / UIBlurEffectStyle are role-based, not intensity-scaled); (3) per-widget AppleSemantic defaults documented in the v2 architecture doc's per-widget defaults table (TabView/Alert/Toolbar = SystemResolved meaning no setMaterial: override; NavigationSplitView/Popover/ContextMenu/Sheet/ActivityView declared per HIG); (4) per-widget SwiftUI modifier dispatch per the v2 architecture doc's per-widget defaults table (NOT a generic `.background()` everywhere): TabView/Toolbar → `.toolbarBackground(.bar, for: .automatic)`; Sheet/Popover → `.presentationBackground(Material)`; NavigationSplitView → `.background(Material)` on sidebar pane only; Alert → no modifier (system-drawn); (5) web @supports fallback for backdrop-filter unavailability uses per-step opacity; (6) Android API < 31 alpha-fallback uses per-step opacity. Three adapter_cardinality rows document the cross-platform contract."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android API-contract probe is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 5 v2 modifies all 4 renderers (uikit/appkit/web/android) AND the SwiftKit facade for 6 Category B widgets. The Swift-side facades add a `materialSemantic : String?` field on their Overrides classes + an internal resolver. iOS 16.4+ / macOS 13.3+ are the floors for .presentationBackground (verified by spike A1). The Crystal-side renderer renames the R3 helper `appkit_visual_effect_material(step : Symbol)` to `appkit_visual_effect_material_for_semantic(semantic : AppleSemantic)` and adds a sibling `uikit_blur_effect_style_for_semantic(semantic : AppleSemantic)`. Link closure must still resolve on all 4 targets."
+    probes:
+      ios: "bash samples/cross_platform/ios_host/build_crystal_lib.sh simulator"
+      macos: "make -C samples/cross_platform/macos_host build"
+      web: "crystal-alpha build --no-codegen src/asset_pipeline.cr"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17 (Crystal stdlib c/sys/epoll gap on darwin); Phase 5 v2 ships Android renderer source but cannot verify cross-build until that gap is resolved separately"
+        owner_approved: "2026-05-22"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "SwiftUI on iOS 16.4+ and macOS 13.3+ exposes the PRE-26 Material modifier surface Phase 5 v2 emits per the per-widget defaults table: the 5 thickness Materials (.ultraThinMaterial, .thinMaterial, .regularMaterial, .thickMaterial, .ultraThickMaterial), the chrome-tinted .bar Material, the .background(Material) modifier, the .presentationBackground(Material) modifier, and the .toolbarBackground(Material, for: .automatic) modifier. The .navigationBar and .tabBar ToolbarPlacement cases are iOS-only; the cross-platform-safe placement is .automatic (verified by spike compile on macOS). NOTE: the iOS 26+ / macOS 26+ .glassEffect() Liquid Glass modifier is intentionally OUT OF A1's compile-spike scope, but it IS load-bearing in production Swift (GlassBackgroundFacade.swift line 69, gated by #available(iOS 26.0, macOS 26.0)). Its build/link closure verification is covered transitively by I-11's macOS host build probe (make -C samples/cross_platform/macos_host build) and iOS build probe (samples/cross_platform/ios_host/build_crystal_lib.sh simulator) — both compile the SwiftKit module end-to-end, which would fail if the iOS 26 / macOS 26 SDK did not expose .glassEffect()."
+    falsifier: "Compiling spikes/swiftui_material_spike.swift returns non-zero exit on either iOS Simulator (arm64-apple-ios16.4-simulator) or macOS (arm64-apple-macos13.3)"
+    verification: "test -f spikes/swiftui_material_spike.swift && xcrun --sdk iphonesimulator swiftc -emit-library -target arm64-apple-ios16.4-simulator -o /tmp/spike-ios.dylib spikes/swiftui_material_spike.swift && xcrun --sdk macosx swiftc -emit-library -target arm64-apple-macos13.3 -o /tmp/spike-macos.dylib spikes/swiftui_material_spike.swift"
+
+  - id: A2
+    claim: "Crystal toolchain is available as either crystal-alpha or crystal at expected paths"
+    falsifier: "which returns non-zero for both"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A3
+    claim: "GlassBackground references in src/ + samples/ post-Phase-5 v2 number exactly 42 (binary files excluded) — v2 implementer's quantizer-model refactor removed some iter1 comment/code references that referenced the proportional-scaling model."
+    falsifier: "grep count differs from 42"
+    verification: "test \"$(grep -rEnI 'GlassBackground|glass_background' src/ samples/ | wc -l | tr -d ' ')\" = \"42\""
+
+  - id: A4
+    claim: "Web renderer post-Phase-5 has exactly 4 backdrop-filter occurrences (the standard + -webkit- prefix variants on each of the 2 touched call sites)"
+    falsifier: "grep count differs from 4"
+    verification: "test \"$(grep -c 'backdrop-filter' src/ui/renderers/web_renderer.cr | tr -d ' ')\" = \"4\""
+
+  - id: A5
+    claim: "Android renderer's existing GlassBackground visit method uses semi-transparent FrameLayout placeholder (no real blur) — Phase 5 v2 keeps the alpha-fallback for API < 31 and the RenderEffect path for API 31+"
+    falsifier: "grep does not find FrameLayout in android_renderer.cr's GlassBackground visit"
+    verification: "grep -A 30 'visit(view : UI::GlassBackground)' src/ui/renderers/android_renderer.cr | grep -q FrameLayout"
+
+  - id: A6
+    claim: "iOS renderer's existing GlassBackground path uses UIVisualEffectView + UIBlurEffect"
+    falsifier: "neither UIVisualEffectView nor UIBlurEffect appears in uikit_renderer.cr"
+    verification: "grep -qE 'UIVisualEffectView|UIBlurEffect' src/ui/renderers/uikit_renderer.cr"
+
+  - id: A7
+    claim: "All 6 Category B widget facades exist on BOTH AppKit and UIKit active visit paths. AppKit uses apsk_make_tab_view, apsk_make_alert, apsk_make_navigation_split_view, apsk_make_toolbar, apsk_make_sheet, apsk_make_popover. UIKit's Sheet path differs — it uses apsk_make_sheet_reactive instead of apsk_make_sheet (the other 5 widget names match). Total Category B facade call sites: 12 (6 per renderer). Phase 5 v2's Category B work attaches the materialSemantic param to all 12 entry points."
+    falsifier: "AppKit Category B facade count != 6, OR UIKit Category B facade count != 6, OR UIKit lacks apsk_make_sheet_reactive"
+    verification: "test \"$(grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' ')\" = \"6\" && test \"$(grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet_reactive|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' ')\" = \"6\" && grep -q 'apsk_make_sheet_reactive' src/ui/renderers/uikit_renderer.cr"
+
+  - id: A8
+    claim: "The R3 helper `appkit_visual_effect_material` exists in appkit_renderer.cr — Phase 5 v2 renames it to `appkit_visual_effect_material_for_semantic` and switches its parameter type from Symbol to AppleSemantic enum"
+    falsifier: "grep does not find the existing helper name"
+    verification: "grep -q 'appkit_visual_effect_material' src/ui/renderers/appkit_renderer.cr"
+
+  - id: A9
+    claim: "Exactly 6 `_legacy_*` methods exist in appkit_renderer.cr (`_legacy_tab_view`, `_legacy_alert`, `_legacy_navigation_split_view`, `_legacy_toolbar`, `_legacy_sheet`, `_legacy_popover`) — Phase 5 v2 explicitly DEFERS their cleanup to Phase 5.5; this assumption anchors the deferral so 5.5 has a measurable handoff target"
+    falsifier: "grep count differs from 6"
+    verification: "test \"$(grep -cE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' ')\" = \"6\""
+
+repo_derived_facts:
+  - fact: "GlassBackground usage count in src/ and samples/ (binary files excluded) — Phase 5 v2 implementer-updated"
+    query: "grep -rEnI 'GlassBackground|glass_background' src/ samples/ | wc -l | tr -d ' '"
+    expected: "42"
+    captured_at_sha: "c871e31"
+
+  - fact: "backdrop-filter emission count in web_renderer.cr"
+    query: "grep -c 'backdrop-filter' src/ui/renderers/web_renderer.cr | tr -d ' '"
+    expected: "4"
+    captured_at_sha: "f081205"
+
+  - fact: "Existing design_tokens.cr file size in bytes (sanity: editing the right file)"
+    query: "wc -c < src/ui/design_tokens.cr | tr -d ' '"
+    expected: "37252"
+    captured_at_sha: "f081205"
+
+  - fact: "Android renderer alpha-step hex literals (post-Phase-5 token-driven; should be 1 — the white mask)"
+    query: "grep -cE '0x[0-9A-F]{2}FFFFFF' src/ui/renderers/android_renderer.cr | tr -d ' '"
+    expected: "1"
+    captured_at_sha: "f081205"
+
+  - fact: "iOS renderer UIVisualEffectView/UIBlurEffect references that Phase 5 v2 may touch (includes comments + code) — Phase 5 v2 added the uikit_blur_effect_style_for_semantic helper + Category C tokenization, which added documentation comments referencing UIBlurEffectStyle types"
+    query: "grep -cE 'UIVisualEffectView|UIBlurEffect' src/ui/renderers/uikit_renderer.cr | tr -d ' '"
+    expected: "78"
+    captured_at_sha: "e2a4dab"
+
+  - fact: "macOS renderer NSVisualEffectView references that Phase 5 v2 may touch (includes comments + code)"
+    query: "grep -c 'NSVisualEffectView' src/ui/renderers/appkit_renderer.cr | tr -d ' '"
+    expected: "37"
+    captured_at_sha: "f081205"
+
+  - fact: "Count of Category B SwiftKit-facade widget entry points in appkit_renderer.cr (apsk_make_tab_view / alert / navigation_split_view / toolbar / sheet / popover)"
+    query: "grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "f081205"
+
+  - fact: "Count of Category B SwiftKit-facade widget entry points in uikit_renderer.cr (apsk_make_tab_view / alert / navigation_split_view / toolbar / sheet_reactive / popover — note UIKit uses sheet_reactive instead of sheet)"
+    query: "grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet_reactive|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "f081205"
+
+  - fact: "Count of `_legacy_*` Category B methods in appkit_renderer.cr (Phase 5.5 cleanup target)"
+    query: "grep -cE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "f081205"
+
+adapter_cardinality:
+  - public_api: "UI::DesignTokens::Material#semantic (AppleSemantic enum: Menu/Popover/Sidebar/Sheet/HeaderView/WindowBackground/HUDWindow/Titlebar/SystemResolved)"
+    adapter: "NSVisualEffectMaterial (macOS) + UIBlurEffectStyle approximation (iOS) + SwiftUI Material (cross-platform fallback)"
+    adapter_input_space: "8 NSVisualEffectMaterial integers on macOS; 5 UIBlurEffectStyle integers on iOS; 5 thickness Materials + .bar on SwiftUI"
+    api_input_space: "9 AppleSemantic enum values"
+    match_status: "MISMATCH"
+    documented_degradation: "macOS maps every AppleSemantic value 1:1 to an NSVisualEffectMaterial integer EXCEPT SystemResolved which emits NO setMaterial: call (lets Apple defaults apply). iOS has no semantic NSVisualEffectMaterial equivalent — UIBlurEffectStyle is thickness-like. Phase 5 v2 ships an approximation table on iOS: Menu→systemUltraThinMaterial, Popover→systemMaterial, Sidebar→systemThinMaterial, Sheet→systemThickMaterial, HeaderView/HUDWindow→systemChromeMaterial, WindowBackground/Titlebar→systemMaterial, SystemResolved→no setEffect: call. The approximation is documented in the v2 architecture doc's per-widget table; consumers wanting per-platform fidelity beyond the approximation must override per-widget. Brand intensity is ADVISORY on Apple because NSVisualEffectMaterial / UIBlurEffectStyle are role-based, not intensity-scaled — Apple decides material strength."
+    owner_approved: "2026-05-22"
+
+  - public_api: "UI::DesignTokens::Material#thickness_for_brand (ThicknessStep enum + intensity Float64 scalar in [0.0, 2.0])"
+    adapter: "CSS backdrop-filter: blur() on web — quantized effective ThicknessStep selects which step's predefined blur radius applies"
+    adapter_input_space: "5 discrete ThicknessStep values, each with a predefined blur_radius constant; Float64 px on modern browsers; absent in older browsers"
+    api_input_space: "5 ThicknessStep enum values + Float64 intensity in [0.0, 2.0]"
+    match_status: "MISMATCH"
+    documented_degradation: "QUANTIZER MODEL: brand intensity * declared-step baseline → effective ThicknessStep (per the architecture's thickness_for_brand quantizer); the effective step's predefined blur_radius then applies. This is a behavior change from iter1's proportional-scaling code path — iter1 multiplied step.blur_radius by intensity directly; v2 quantizes step selection instead. Browsers without backdrop-filter (detected via @supports not (backdrop-filter: blur(1px))) fall back to background-color: color-mix(in oklch, var(--ap-color-surface-panel) Z%, transparent) where Z is the effective step's predefined opacity (ultra_thin=20%, thin=40%, regular=60%, thick=73%, chrome=87%). No blur radius in the fallback path; opacity is also chosen from the effective step (not proportionally scaled). WCAG-AA contrast verified for text-on-fallback as well as text-on-blurred at every effective step. NOTE TO IMPLEMENTER: if migrating from proportional to quantizer breaks the existing samples/cross_platform/web/brand_glass_intensity_demo.cr behavior in a consumer-visible way, surface to architect before shipping — the demo may need re-authoring to demonstrate quantizer-driven step transitions rather than continuous blur scaling."
+    owner_approved: "2026-05-22"
+
+  - public_api: "UI::DesignTokens::Material#thickness_for_brand (ThicknessStep enum + intensity Float64 scalar in [0.0, 2.0])"
+    adapter: "Android RenderEffect.createBlurEffect (API 31+) — quantized effective ThicknessStep selects which step's predefined blur radius applies; alpha FrameLayout fallback (< API 31) selects the step's predefined opacity"
+    adapter_input_space: "5 discrete ThicknessStep values, each with predefined blur_radius + opacity constants; Float64 px on API 31+; null on < API 31"
+    api_input_space: "5 ThicknessStep enum values + Float64 intensity in [0.0, 2.0]"
+    match_status: "MISMATCH"
+    documented_degradation: "QUANTIZER MODEL: same as web. brand intensity * declared-step baseline → effective ThicknessStep; effective step's predefined blur_radius applies on API 31+ RenderEffect, effective step's predefined opacity applies on < API 31 alpha FrameLayout. This is a behavior change from iter1's proportional radius/alpha scaling. WCAG-AA contrast verified at every effective step on both API floors. The existing Phase 4-era FrameLayout fallback structure is preserved; only the alpha-selection mechanism changes (quantized step instead of proportional intensity)."
+    owner_approved: "2026-05-22"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

@@ -1,0 +1,83 @@
+{
+  "image_size": [
+    1206,
+    2622
+  ],
+  "sampling_y_px": 524,
+  "sampling_y_fraction": 0.2,
+  "samples_across_x": [
+    {
+      "x_frac": 0.3,
+      "light_rgb": [
+        237,
+        234,
+        227
+      ],
+      "dark_rgb": [
+        33,
+        30,
+        45
+      ],
+      "delta_e": 81.8
+    },
+    {
+      "x_frac": 0.4,
+      "light_rgb": [
+        229,
+        225,
+        221
+      ],
+      "dark_rgb": [
+        40,
+        38,
+        52
+      ],
+      "delta_e": 74.75
+    },
+    {
+      "x_frac": 0.5,
+      "light_rgb": [
+        221,
+        217,
+        215
+      ],
+      "dark_rgb": [
+        49,
+        46,
+        60
+      ],
+      "delta_e": 68.0
+    },
+    {
+      "x_frac": 0.6,
+      "light_rgb": [
+        213,
+        209,
+        207
+      ],
+      "dark_rgb": [
+        56,
+        54,
+        67
+      ],
+      "delta_e": 61.58
+    },
+    {
+      "x_frac": 0.7,
+      "light_rgb": [
+        205,
+        201,
+        200
+      ],
+      "dark_rgb": [
+        65,
+        61,
+        74
+      ],
+      "delta_e": 55.38
+    }
+  ],
+  "median_delta_e_light_to_dark": 68.0,
+  "threshold_min": 8.0,
+  "passed": true
+}

@@ -1,0 +1,8 @@
+require "callback"
+require "./optarg/version"
+require "./lib/exceptions"
+require "./lib/value"
+require "./lib/value_hash"
+require "./lib/value_types"
+require "./lib/value_validation"
+require "./lib/*"

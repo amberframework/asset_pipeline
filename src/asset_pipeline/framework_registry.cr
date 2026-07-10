@@ -1,3 +1,6 @@
+# Registry of integration adapters for host frameworks (Amber, Lucky, etc.).
+# Part of the asset_pipeline shard.
+
 module AssetPipeline
   # The `FrameworkRegistry` provides an extensible architecture for adding support
   # for different JavaScript frameworks. This allows the AssetPipeline to support

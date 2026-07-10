@@ -1,0 +1,8 @@
+[0/1] Planning build
+Building for production...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+[2/4] Compiling AssetPipelineSwiftKit AssetPipelineSwiftKit.swift
+[2/3] Archiving libAssetPipelineSwiftKit.a
+Build complete! (3.17s)
+ls: .build/arm64-apple-ios16.0-simulator/release/libAssetPipelineSwiftKit.a: No such file or directory
+-rw-r--r--  1 crimsonknight  staff  4774936 May 21 13:34 /Users/crimsonknight/open_source_coding_projects/asset_pipeline/swift/AssetPipelineSwiftKit/.build/arm64-apple-ios-simulator/release/libAssetPipelineSwiftKit.a

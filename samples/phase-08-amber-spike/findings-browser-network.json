@@ -1,0 +1,30 @@
+[
+  {
+    "method": "Network.requestWillBeSent",
+    "request_method": "GET",
+    "url": "http://localhost:3000/",
+    "post_data": null,
+    "status": null
+  },
+  {
+    "method": "Network.responseReceived",
+    "request_method": null,
+    "url": "http://localhost:3000/",
+    "post_data": null,
+    "status": 200
+  },
+  {
+    "method": "Network.requestWillBeSent",
+    "request_method": "POST",
+    "url": "http://localhost:3000/sign_in/submit",
+    "post_data": "_csrf=lyyaiw37y-iUHI7bVHsXz_IkYGV9SgTDQXwmOpypHvrx9EXIbfWZxG_kKVStWrmAUoHAkp-oFJ_KIMbAfXphOQ%3D%3D&email=seth%40example.com&password=password123",
+    "status": null
+  },
+  {
+    "method": "Network.responseReceived",
+    "request_method": null,
+    "url": "http://localhost:3000/sign_in/submit",
+    "post_data": null,
+    "status": 200
+  }
+]

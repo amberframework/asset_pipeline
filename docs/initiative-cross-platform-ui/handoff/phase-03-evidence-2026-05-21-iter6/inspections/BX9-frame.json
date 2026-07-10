@@ -1,0 +1,11 @@
+{
+  "measured_button_frame": {
+    "width": "not_logged_at_assertion_site",
+    "height": 25.125,
+    "test_log_line": "Phase03BehaviorTests.swift:394: XCTAssertTrue failed - BX9: height must be ≥44pt — got 25.125"
+  },
+  "required_minimum": {"width": 44.0, "height": 44.0},
+  "passed": false,
+  "root_cause_class": "integration_bug__swiftui_hosting_frame_layout",
+  "notes": "Default UI::Button rendered through APSKButtonFacade reports an XCUIElement.frame.size.height of 25.125pt — well below the 44pt HIG touch-target minimum. SwiftUI's default Button heights respect platform conventions, so this almost certainly indicates the Crystal-side UIHostingController is being framed by the parent stack with a non-adaptive height constraint that overrides SwiftUI's intrinsic content size. Same hosting-frame layout class as BX6."
+}

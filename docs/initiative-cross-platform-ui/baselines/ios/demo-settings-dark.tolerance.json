@@ -1,0 +1,9 @@
+{
+  "pixel_diff_max": 5000,
+  "channel_diff_max": 12,
+  "surface": "ios",
+  "slug": "demo-settings",
+  "appearance": "dark",
+  "created_phase": "phase-06",
+  "notes": "Phase 6 quad-comparison baseline. Tolerance budget covers font-hinting / rasterizer drift across cache states."
+}

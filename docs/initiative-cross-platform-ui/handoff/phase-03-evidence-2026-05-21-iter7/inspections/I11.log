@@ -1,0 +1,2 @@
+54:    /// `objc_setAssociatedObject` so it lives as long as the view does.
+106:        objc_setAssociatedObject(

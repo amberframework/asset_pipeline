@@ -1,0 +1,12 @@
+name: inflector
+version: 0.1.8
+
+crystal: 1.0.0
+
+authors:
+  - Paul Hoffer <git@paulhoffer.com>
+
+description: |
+  String inflectors for Crystal, ported from ActiveSupport (Rails) Inflector functionality.
+
+license: MIT

@@ -1,0 +1,14 @@
+[
+  {
+    "path" : "primary",
+    "reason" : "primary"
+  },
+  {
+    "reason" : "cancel",
+    "path" : "cancel"
+  },
+  {
+    "path" : "swipe",
+    "reason" : "swipe"
+  }
+]

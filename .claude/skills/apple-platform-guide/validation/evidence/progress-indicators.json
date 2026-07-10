@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.205390+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T20:41:51.743421+00:00",
+    "path": "reports/progress-indicators.md",
+    "sha256": "762ea54bc632c23f99e468534de4866e52c18cdcbd30b26790cff516b42e73a5",
+    "size_bytes": 1747
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T20:37:40.825611+00:00",
+      "path": "screenshots/progress-indicators-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "c163a07aadce1ef2f4efd12c00f47f9a4ffeea82d818abdcda8ef9d0d99f3bd0",
+      "size_bytes": 234348
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T20:37:05.842594+00:00",
+      "path": "screenshots/progress-indicators-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "0c307f4d4dfc750670fbd92571626a951922d4e78d75eb1819fd1be677ecf0a7",
+      "size_bytes": 210944
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T19:46:21.155511+00:00",
+      "path": "screenshots/progress-indicators-macos-dark.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "89687a6669c92c9dbf29d35c59a2d8e777b81905efaa62c2fc9ef5c9d2349547",
+      "size_bytes": 459495
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T19:46:20.276652+00:00",
+      "path": "screenshots/progress-indicators-macos-light.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "5b506ed480369b607389826e3440dd436e83ef7e98cee307471b3e05ec11f32d",
+      "size_bytes": 399854
+    }
+  },
+  "slug": "progress-indicators",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

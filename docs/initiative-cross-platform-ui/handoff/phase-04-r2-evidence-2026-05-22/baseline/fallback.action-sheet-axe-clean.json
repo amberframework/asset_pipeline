@@ -1,0 +1,231 @@
+{
+  "check_id": "fallback.action-sheet-axe-clean",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet[data-presented=true]"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (axe-core 4.10.2)",
+    "Runtime.evaluate (axe.run)",
+    "Page.captureScreenshot"
+  ],
+  "trusted_input_trace": [
+    "click trigger (__phase4.open)",
+    "axe.run(document)"
+  ],
+  "expected_state": {
+    "serious_or_critical_violation_count_total": 0
+  },
+  "observed_state": {
+    "results": [
+      {
+        "viewport": "1280-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "nodes": [
+              {
+                "target": [
+                  ".ap-action-sheet__action--default"
+                ],
+                "html": "<button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.92 (foreground color: #00c4bc, background color: #f4efe8, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".ap-action-sheet__action--cancel"
+                ],
+                "html": "<button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" data-ap-as-action=\"2\" data-ap-as-dismiss=\"cancel\" style=\"min-width: 44.0px; min-height: 44.0px",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.2 (foreground color: #00c4bc, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "listitem",
+            "impact": "serious",
+            "description": "Ensure <li> elements are used semantically",
+            "help": "<li> elements must be contained in a <ul> or <ol>",
+            "nodes": [
+              {
+                "target": [
+                  "li:nth-child(1)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button></li>",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              },
+              {
+                "target": [
+                  "li:nth-child(2)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" data-ap-as-action=\"1\" style=\"min-width: 44.0px; min-height: 44.0px\">Delete</button></",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              }
+            ]
+          }
+        ],
+        "incomplete": [],
+        "serious_or_critical_count": 2
+      },
+      {
+        "viewport": "1280-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [
+          {
+            "id": "listitem",
+            "impact": "serious",
+            "description": "Ensure <li> elements are used semantically",
+            "help": "<li> elements must be contained in a <ul> or <ol>",
+            "nodes": [
+              {
+                "target": [
+                  "li:nth-child(1)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button></li>",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              },
+              {
+                "target": [
+                  "li:nth-child(2)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" data-ap-as-action=\"1\" style=\"min-width: 44.0px; min-height: 44.0px\">Delete</button></",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              }
+            ]
+          }
+        ],
+        "incomplete": [],
+        "serious_or_critical_count": 1
+      },
+      {
+        "viewport": "375-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "nodes": [
+              {
+                "target": [
+                  ".ap-action-sheet__action--default"
+                ],
+                "html": "<button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button>",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.92 (foreground color: #00c4bc, background color: #f4efe8, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              },
+              {
+                "target": [
+                  ".ap-action-sheet__action--cancel"
+                ],
+                "html": "<button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" data-ap-as-action=\"2\" data-ap-as-dismiss=\"cancel\" style=\"min-width: 44.0px; min-height: 44.0px",
+                "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.2 (foreground color: #00c4bc, background color: #ffffff, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ]
+          },
+          {
+            "id": "listitem",
+            "impact": "serious",
+            "description": "Ensure <li> elements are used semantically",
+            "help": "<li> elements must be contained in a <ul> or <ol>",
+            "nodes": [
+              {
+                "target": [
+                  "li:nth-child(1)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button></li>",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              },
+              {
+                "target": [
+                  "li:nth-child(2)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" data-ap-as-action=\"1\" style=\"min-width: 44.0px; min-height: 44.0px\">Delete</button></",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              }
+            ]
+          }
+        ],
+        "incomplete": [],
+        "serious_or_critical_count": 2
+      },
+      {
+        "viewport": "375-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [
+          {
+            "id": "listitem",
+            "impact": "serious",
+            "description": "Ensure <li> elements are used semantically",
+            "help": "<li> elements must be contained in a <ul> or <ol>",
+            "nodes": [
+              {
+                "target": [
+                  "li:nth-child(1)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" data-ap-as-action=\"0\" style=\"min-width: 44.0px; min-height: 44.0px\">Save</button></li>",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              },
+              {
+                "target": [
+                  "li:nth-child(2)"
+                ],
+                "html": "<li><button type=\"button\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" data-ap-as-action=\"1\" style=\"min-width: 44.0px; min-height: 44.0px\">Delete</button></",
+                "failureSummary": "Fix any of the following:\n  List item parent element has a role that is not role=\"list\""
+              }
+            ]
+          }
+        ],
+        "incomplete": [],
+        "serious_or_critical_count": 1
+      }
+    ],
+    "failures": [
+      "1280-light serious/color-contrast: Elements must meet minimum color contrast ratio thresholds",
+      "1280-light serious/listitem: <li> elements must be contained in a <ul> or <ol>",
+      "1280-dark serious/listitem: <li> elements must be contained in a <ul> or <ol>",
+      "375-light serious/color-contrast: Elements must meet minimum color contrast ratio thresholds",
+      "375-light serious/listitem: <li> elements must be contained in a <ul> or <ol>",
+      "375-dark serious/listitem: <li> elements must be contained in a <ul> or <ol>"
+    ]
+  },
+  "pass": false,
+  "artifacts": [
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-1280-light.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-1280-dark.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-375-light.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-375-dark.png",
+    "audits/fallback.action-sheet-axe-clean.json"
+  ]
+}

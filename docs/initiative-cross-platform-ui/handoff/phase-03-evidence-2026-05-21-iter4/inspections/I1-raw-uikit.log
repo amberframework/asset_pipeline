@@ -1,0 +1,9 @@
+=== UIKit raw class refs in migrated widget ranges ===
+1125:          uibutton_cls = LibObjCBridge.objc_getClass("UIButton")
+2755:        uibutton_cls = LibObjCBridge.objc_getClass("UIButton")
+2758:          config_cls = LibObjCBridge.objc_getClass("UIButtonConfiguration")
+2816:          config_cls = LibObjCBridge.objc_getClass("UIButtonConfiguration")
+3867:          uibtn_cls = LibObjCBridge.objc_getClass("UIButton")
+3931:              LibObjCBridge.objc_getClass("UIButton"), sel("buttonWithType:"), 1_i64)
+3972:          LibObjCBridge.objc_getClass("UIButton"), sel("buttonWithType:"), 1_i64)
+4111:        uibtn_cls = LibObjCBridge.objc_getClass("UIButton")

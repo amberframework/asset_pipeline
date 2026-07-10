@@ -1,0 +1,4 @@
+=== I11 HostingHelpers ARC ===
+54:    /// `objc_setAssociatedObject` so it lives as long as the view does.
+106:        objc_setAssociatedObject(
+110:            .OBJC_ASSOCIATION_RETAIN_NONATOMIC

@@ -1,0 +1,35 @@
+In scripts/validate_phase_brief.cr:374:15
+
+ 374 | unless File.executable?(resolved)
+                   ^----------
+Warning: Deprecated File.executable?. Use `File::Info.executable?` instead
+
+In scripts/validate_phase_brief.cr:378:59
+
+ 378 | unless %w[.cr .sh .rb .py .js].includes?(ext) || File.executable?(resolved)
+                                                             ^----------
+Warning: Deprecated File.executable?. Use `File::Info.executable?` instead
+
+A total of 2 warnings were found.
+Validating phase brief: docs/initiative-cross-platform-ui/phases/phase-05-glass-material-tokenization/brief.yml
+OK: top-level keys all recognized
+OK: phase section structure valid
+OK: invariant_matrix structure valid (11 rows, all platforms cells present, no placeholders)
+Re-running query for fact 'GlassBackground usage count in src/ and samples/ (binary files excluded)': ok (46)
+Re-running query for fact 'backdrop-filter emission count in web_renderer.cr': ok (4)
+Re-running query for fact 'Existing design_tokens.cr file size in bytes (sanity: editing the right file)': ok (37252)
+Re-running query for fact 'Android renderer alpha-step hex literals (5 material steps + 1 default fallback = 6)': ok (1)
+Re-running query for fact 'iOS renderer UIVisualEffectView/UIBlurEffect references that Phase 5 may touch (includes comments + code)': ok (60)
+Re-running query for fact 'macOS renderer NSVisualEffectView references that Phase 5 may touch (includes comments + code)': ok (37)
+OK: repo_derived_facts all match captured values (6 facts)
+Running verification for A1: ok
+Running verification for A2: ok
+Running verification for A3: ok
+Running verification for A4: ok
+Running verification for A5: ok
+Running verification for A6: ok
+OK: lower_layer_assumptions all verified (6 assumptions)
+OK: adapter_cardinality valid (3 rows; all required fields present; MISMATCH rows have degradation + approval)
+OK: pre_dispatch_validation script_path IS this validator — recursive self-run skipped intentionally; we've already verified the brief if we got here.
+
+PASS: phase brief is dispatchable.

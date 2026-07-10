@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T14:43:15Z",
+  "slug": "text-fields",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/text-fields.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/text-fields-android-phone-light.png",
+      "tablet": "../screenshots/text-fields-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/text-fields-android-phone-dark.png",
+      "tablet": "../screenshots/text-fields-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Light, dark, phone, and tablet captures are current.",
+    "Filled-field label spacing still needs another Material 3 fidelity pass.",
+    "Combo-box options are not yet backed by a live adapter-driven dropdown."
+  ],
+  "errors": [
+
+  ]
+}

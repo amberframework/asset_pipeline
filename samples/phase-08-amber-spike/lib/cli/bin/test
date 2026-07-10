@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+find spec -type f -name "*_spec.cr" -print0 | while IFS= read -r -d $'\0' line; do
+  crystal spec "$line" 
+done
+
+crystal spec

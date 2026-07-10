@@ -1,0 +1,5 @@
+=== I5 ===
+50:fun ap_swiftkit_invoke_action(token : UInt64, value : Float64) : Void
+326:    def self.register_action(&block : -> Nil) : UInt64
+332:    def self.register_action_with_value(&block : Float64 -> Nil) : UInt64
+346:    def self.invoke_swiftkit(token : UInt64, value : Float64) : Nil

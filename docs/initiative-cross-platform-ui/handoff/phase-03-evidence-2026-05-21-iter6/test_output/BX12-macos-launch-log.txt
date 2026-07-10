@@ -1,0 +1,7 @@
+BX12 macOS
+==========
+Source: BX2 spec output (spec/ui/hig_validation/macos_action_tap_probe_spec.cr)
+The macos host bin/hig_showcase launches with HIG_SLUG=phase-03-action-tap-probe,
+attaches via UI::AXTest::App.connect, and successfully drives 3 AXPress invocations
+through the SwiftKit bridge without crash. This proves the trampoline-install-then-render
+order is correct on macOS.

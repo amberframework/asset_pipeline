@@ -1,0 +1,10 @@
+xcrun --sdk iphonesimulator clang /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/bridge.o -o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/bridge  -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -target aarch64-apple-ios-simulator -L/opt/homebrew/Cellar/agent-crystal/1.20.0-dev-incremental-3/libexec/../../../../lib -lobjc -framework Foundation -L/opt/homebrew/Cellar/bdw-gc/8.2.12/lib -lgc -liconv
+[0;32m[ok][0m    Crystal cross-compilation complete
+[0;34m[build][0m Fixing _main symbol conflict...
+[0;32m[ok][0m    _main symbol hidden
+[0;34m[build][0m Creating static library...
+[0;32m[ok][0m    Static library created: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/libhighost.a
+[0;34m[build][0m Done! Link with: -L/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build -lhighost
+[0;34m[build][0m Also link: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/swiftkit_simulator.a (AssetPipelineSwiftKit Swift facade)
+[0;34m[build][0m Frameworks: -framework SwiftUI -framework Combine -framework Foundation -framework UIKit
+[0;34m[build][0m Swift runtime rpath: add /usr/lib/swift to the consuming target's runpath search paths

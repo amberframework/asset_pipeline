@@ -1,0 +1,47 @@
+=== I12 default-nil guard in populate_view_common ===
+      def self.populate_view_common(target : String, view : UI::View, sender : Sender)
+        sender.set_color(target, :setBackgroundColor, view.background)
+
+        cr = view.corner_radius
+        sender.set_number(target, :setCornerRadius, cr == 0.0 ? nil : cr)
+
+        pad = view.padding
+        sender.set_number(target, :setPaddingTop, pad.top == 0.0 ? nil : pad.top)
+        sender.set_number(target, :setPaddingLeading, pad.leading == 0.0 ? nil : pad.leading)
+        sender.set_number(target, :setPaddingBottom, pad.bottom == 0.0 ? nil : pad.bottom)
+        sender.set_number(target, :setPaddingTrailing, pad.trailing == 0.0 ? nil : pad.trailing)
+
+        op = view.opacity
+        sender.set_number(target, :setOpacity, op == 1.0 ? nil : op)
+
+        sender.set_bool(target, :setHidden, view.hidden ? true : nil)
+
+        bw = view.border_width
+        sender.set_number(target, :setBorderWidth, bw == 0.0 ? nil : bw)
+        sender.set_color(target, :setBorderColor, view.border_color)
+
+        sr = view.shadow_radius
+        sender.set_number(target, :setShadowRadius, sr == 0.0 ? nil : sr)
+        sender.set_color(target, :setShadowColor, view.shadow_color)
+        ox = view.shadow_offset_x
+        oy = view.shadow_offset_y
+        sender.set_number(target, :setShadowOffsetX, ox == 0.0 ? nil : ox)
+        sender.set_number(target, :setShadowOffsetY, oy == 0.0 ? nil : oy)
+
+        sender.set_number(target, :setMinWidth, view.minimum_width)
+        sender.set_number(target, :setMinHeight, view.minimum_height)
+        sender.set_number(target, :setMaxWidth, view.maximum_width)
+        sender.set_number(target, :setMaxHeight, view.maximum_height)
+
+        sender.set_string(target, :setAccessibilityIdentifier, view.test_id)
+        # Renamed selector — see ViewOverrides.swift. The accessor remains
+        # `apskAccessibilityLabel`; the setter is `setApskAccessibilityLabel:`.
+        # Avoids the iOS UIAccessibility.accessibilityLabel selector clash.
+        sender.set_string(target, :setApskAccessibilityLabel, view.accessibility_label)
+      end
+
+      # Populate an `APSKButtonOverrides` instance from a `UI::Button`.
+      #
+      # The `target` parameter is the Crystal-side identifier for the
+      # overrides object (in production it's a stringified pointer; in
+      # specs it's the sentinel from `FakeLibObjCBridge.next_sentinel_pointer`).

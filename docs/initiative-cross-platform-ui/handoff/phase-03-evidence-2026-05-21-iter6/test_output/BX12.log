@@ -1,0 +1,18 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX12_runtimeInitOrder]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:18.155
+    t =     0.03s Set Up
+    t =     0.03s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Terminate com.assetpipeline.hig.CrystalHIGHost:82908
+2026-05-21 13:41:19.199 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:19.199 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.26s         Setting up automation session
+    t =     2.10s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.35s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.42s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.42s         Checking existence of `"hig-component-root" Other`
+    t =     4.48s Waiting 5.0s for "save" Button to exist
+    t =     5.55s     Checking `Expect predicate `existsNoRetry == 1` for object "save" Button`
+    t =     5.55s         Checking existence of `"save" Button`
+    t =     5.57s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX12_runtimeInitOrder]' passed (5.872 seconds).

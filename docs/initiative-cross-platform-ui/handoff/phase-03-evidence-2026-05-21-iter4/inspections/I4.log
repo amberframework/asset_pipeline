@@ -1,0 +1,6 @@
+=== I4 ===
+--- objc_bridge.m ---
+--- uikit_renderer.cr ---
+39
+--- appkit_renderer.cr ---
+39

@@ -1,0 +1,20 @@
+
+     # spec/components/phase2_verification_spec.cr:126
+
+  4) Phase 2 Verification - Core Component System achieves the component system goals
+     Failure/Error: counter.render.should contain("<div class=\"counter-component\">")
+
+       Expected:   "<div class=\"am-counter\"><div class=\"am-counter__display\"><span class=\"am-counter__label\">Count: </span><span class=\"counter-value am-counter__value\">0</span></div><div class=\"am-counter__controls\"><button type=\"button\" class=\"am-button am-button--neutral am-button--outline am-button--sm\" data-action=\"click-&gt;decrement\">-</button> <button type=\"button\" class=\"am-button am-button--brand am-button--solid am-button--sm\" data-action=\"click-&gt;increment\">+</button> <button type=\"button\" class=\"am-button am-button--warning am-button--soft am-button--sm\" data-action=\"click-&gt;reset\">Reset</button></div></div>"
+       to include: "<div class=\"counter-component\">"
+
+     # spec/components/phase2_verification_spec.cr:143
+
+Finished in 9.55 seconds
+1347 examples, 4 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/views_spec.cr:3273 # UI::Theme web renderer inject_theme_css returns empty string with no theme
+crystal spec spec/components/phase2_verification_spec.cr:52 # Phase 2 Verification - Core Component System demonstrates component composition
+crystal spec spec/components/phase2_verification_spec.cr:116 # Phase 2 Verification - Core Component System components can be nested within components
+crystal spec spec/components/phase2_verification_spec.cr:129 # Phase 2 Verification - Core Component System achieves the component system goals

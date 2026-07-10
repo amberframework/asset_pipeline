@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://asset-pipeline.local/schemas/phase_brief.schema.json",
+  "title": "Phase Brief",
+  "description": "Required structure for any cross-platform UI initiative phase brief. Enforced by scripts/validate_phase_brief.cr. A brief that does not satisfy this schema is not dispatchable.",
+  "type": "object",
+  "required": ["phase", "invariant_matrix", "lower_layer_assumptions", "repo_derived_facts", "pre_dispatch_validation"],
+  "additionalProperties": false,
+  "properties": {
+    "phase": {
+      "type": "object",
+      "required": ["number", "name", "branch", "parent_branch", "parent_sha", "authored_at"],
+      "additionalProperties": false,
+      "properties": {
+        "number": { "type": ["number", "string"], "description": "Phase number (1, 2, ... or 6.5 for interstitials)" },
+        "name": { "type": "string", "minLength": 3 },
+        "branch": { "type": "string", "pattern": "^phase-[0-9.]+-[a-z0-9-]+$" },
+        "parent_branch": { "type": "string", "minLength": 3 },
+        "parent_sha": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+        "authored_at": { "type": "string", "format": "date" }
+      }
+    },
+    "invariant_matrix": {
+      "type": "array",
+      "description": "REQUIRED. One row per UI-library invariant (I-1 through I-11). All 11 must be present. See handoff/planning-retrospective-2026-05-22.md for the canonical definitions.",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": { "$ref": "#/$defs/invariant_row" }
+    },
+    "lower_layer_assumptions": {
+      "type": "array",
+      "description": "Every 'we assume X' the brief depends on. Each has a one-line verification command that exits 0 iff X holds.",
+      "items": { "$ref": "#/$defs/assumption_row" }
+    },
+    "repo_derived_facts": {
+      "type": "array",
+      "description": "Every numeric count, symbol name, flag convention, file path, or version pin in the brief. Captured by a query at brief-authoring time.",
+      "items": { "$ref": "#/$defs/fact_row" }
+    },
+    "adapter_cardinality": {
+      "type": "array",
+      "description": "OPTIONAL. Required ONLY if the phase binds a public API to an existing native component. Documents cardinality match between API input space and adapter input space. MISMATCH rows require documented_degradation + owner_approved.",
+      "items": { "$ref": "#/$defs/cardinality_row" }
+    },
+    "pre_dispatch_validation": {
+      "type": "object",
+      "description": "Path to a runnable script that validates this brief end-to-end (re-runs queries, runs verifications, asserts schema completeness). Architect runs before dispatch; exit 0 means dispatchable.",
+      "required": ["script_path", "expected_exit_code"],
+      "additionalProperties": false,
+      "properties": {
+        "script_path": { "type": "string" },
+        "expected_exit_code": { "type": "integer", "const": 0 }
+      }
+    }
+  },
+  "$defs": {
+    "invariant_row": {
+      "type": "object",
+      "required": ["id", "name", "touch", "rationale", "probes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": ["I-1", "I-2", "I-3", "I-4", "I-5", "I-6", "I-7", "I-8", "I-9", "I-10", "I-11"]
+        },
+        "name": { "type": "string", "minLength": 3 },
+        "touch": {
+          "type": "string",
+          "enum": ["preserves", "extends", "replaces", "skips"],
+          "description": "preserves = phase doesn't change invariant; cite existing probe. extends = phase adds new surface; new probe required. replaces = phase changes satisfaction mechanism; new probe + old deprecation. skips = phase explicitly does not touch; brief states why."
+        },
+        "rationale": { "type": "string", "minLength": 8, "description": "Why this touch level. Must explain what the phase does to/for this invariant." },
+        "probes": {
+          "type": "object",
+          "description": "Per-platform proof commands. For 'preserves', each platform cell may reference an existing probe by path. For 'extends'/'replaces', each cell must be either (a) an executable command string OR (b) a skip object with reason + owner_approved.",
+          "required": ["ios", "macos", "web", "android"],
+          "additionalProperties": false,
+          "properties": {
+            "ios":     { "$ref": "#/$defs/probe_cell" },
+            "macos":   { "$ref": "#/$defs/probe_cell" },
+            "web":     { "$ref": "#/$defs/probe_cell" },
+            "android": { "$ref": "#/$defs/probe_cell" }
+          }
+        }
+      }
+    },
+    "probe_cell": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 5,
+          "not": { "$ref": "#/$defs/placeholder" },
+          "description": "A runnable shell command OR path to a spec/script (e.g., 'spec/ui/foo_spec.cr' or 'crystal-alpha spec spec/ui/foo_spec.cr -Dmacos --link-flags=...')."
+        },
+        { "$ref": "#/$defs/skip_record" }
+      ]
+    },
+    "skip_record": {
+      "type": "object",
+      "required": ["skip", "reason", "owner_approved"],
+      "additionalProperties": false,
+      "properties": {
+        "skip": { "type": "boolean", "const": true },
+        "reason": { "type": "string", "minLength": 12, "description": "Why this platform/invariant cell is skipped. Must NOT include placeholder strings." },
+        "owner_approved": { "type": "string", "format": "date" }
+      }
+    },
+    "placeholder": {
+      "description": "Reject strings that are placeholders rather than real commands.",
+      "anyOf": [
+        { "pattern": "<[^>]+>" },
+        { "pattern": "\\.\\.\\." },
+        { "enum": ["same", "equivalent", "OR deferred", "TBD", "TODO", "FIXME"] }
+      ]
+    },
+    "assumption_row": {
+      "type": "object",
+      "required": ["id", "claim", "falsifier", "verification"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^A[0-9]+$" },
+        "claim": { "type": "string", "minLength": 10, "description": "The assumption made. Concrete, not vague." },
+        "falsifier": { "type": "string", "minLength": 10, "description": "What observable would prove the claim wrong." },
+        "verification": {
+          "type": "string",
+          "minLength": 5,
+          "not": { "$ref": "#/$defs/placeholder" },
+          "description": "One-line shell command that exits 0 iff the assumption holds. Must be deterministic."
+        }
+      }
+    },
+    "fact_row": {
+      "type": "object",
+      "required": ["fact", "query", "expected", "captured_at_sha"],
+      "additionalProperties": false,
+      "properties": {
+        "fact": { "type": "string", "minLength": 3 },
+        "query": {
+          "type": "string",
+          "minLength": 3,
+          "not": { "$ref": "#/$defs/placeholder" },
+          "description": "Shell command that produces the fact's value."
+        },
+        "expected": { "type": ["string", "number", "boolean"] },
+        "captured_at_sha": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }
+      }
+    },
+    "cardinality_row": {
+      "type": "object",
+      "required": ["public_api", "adapter", "adapter_input_space", "api_input_space", "match_status"],
+      "additionalProperties": false,
+      "properties": {
+        "public_api": { "type": "string", "minLength": 3 },
+        "adapter": { "type": "string", "minLength": 3 },
+        "adapter_input_space": { "type": "string", "minLength": 3 },
+        "api_input_space": { "type": "string", "minLength": 3 },
+        "match_status": { "type": "string", "enum": ["MATCH", "MISMATCH"] },
+        "documented_degradation": { "type": "string", "minLength": 10 },
+        "owner_approved": { "type": "string", "format": "date" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "match_status": { "const": "MISMATCH" } } },
+          "then": { "required": ["public_api", "adapter", "adapter_input_space", "api_input_space", "match_status", "documented_degradation", "owner_approved"] }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex HIG external review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "slug",
+    "row_verdict",
+    "confidence",
+    "evidence_gate",
+    "recipe_gate",
+    "default_taste_gate",
+    "verdict_per_appearance",
+    "findings",
+    "builder_next_steps",
+    "worklist_update_hint",
+    "public_summary"
+  ],
+  "properties": {
+    "slug": {
+      "type": "string"
+    },
+    "row_verdict": {
+      "type": "string",
+      "enum": ["PASS", "PASS_WITH_NOTES", "NEEDS_WORK", "INSUFFICIENT_EVIDENCE", "PLATFORM_N_A"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_gate": {
+      "$ref": "#/$defs/gate"
+    },
+    "recipe_gate": {
+      "$ref": "#/$defs/gate"
+    },
+    "default_taste_gate": {
+      "$ref": "#/$defs/gate"
+    },
+    "verdict_per_appearance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["macos_light", "macos_dark", "ios_light", "ios_dark"],
+      "properties": {
+        "macos_light": { "$ref": "#/$defs/appearanceVerdict" },
+        "macos_dark": { "$ref": "#/$defs/appearanceVerdict" },
+        "ios_light": { "$ref": "#/$defs/appearanceVerdict" },
+        "ios_dark": { "$ref": "#/$defs/appearanceVerdict" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["priority", "rule", "title", "evidence", "fix"],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3"]
+          },
+          "rule": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "fix": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "builder_next_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "worklist_update_hint": {
+      "type": "string"
+    },
+    "public_summary": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "notes"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "N_A"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "appearanceVerdict": {
+      "type": "string",
+      "enum": ["PASS", "PASS_WITH_NOTES", "NEEDS_WORK", "INSUFFICIENT_EVIDENCE", "PLATFORM_N_A"]
+    }
+  }
+}

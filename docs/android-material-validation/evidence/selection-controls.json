@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T16:28:51Z",
+  "slug": "selection-controls",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/selection-controls.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/selection-controls-android-phone-light.png",
+      "tablet": "../screenshots/selection-controls-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/selection-controls-android-phone-dark.png",
+      "tablet": "../screenshots/selection-controls-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Current phone, tablet, light, and dark captures were refreshed on April 18, 2026.",
+    "The study now mounts spinner, segmented, inline radio, search, and stepper paths through the shared Android renderer.",
+    "Promotion is still blocked until explicit callback verification is refreshed for spinner selection, search submission, and stepper changes."
+  ],
+  "errors": [
+
+  ]
+}

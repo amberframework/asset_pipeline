@@ -1,0 +1,34 @@
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.13s)
+Test Suite 'Selected tests' started at 2026-05-21 18:54:17.091.
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' started at 2026-05-21 18:54:17.092.
+Test Suite 'RuntimeBridgeTests' started at 2026-05-21 18:54:17.092.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testBrandTintStartsUnset]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testBrandTintStartsUnset]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireInvokesInstalledTrampoline]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireInvokesInstalledTrampoline]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireMultipleInvocations]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireMultipleInvocations]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireTokenZeroIsNoOp]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireTokenZeroIsNoOp]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testClearBrandTintResetsToNil]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testClearBrandTintResetsToNil]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testInstallTestTrampolineSetsInstalled]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testInstallTestTrampolineSetsInstalled]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testModuleIsLoaded]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testModuleIsLoaded]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintFlipsHasBrandTint]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintFlipsHasBrandTint]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintIsReCallable]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintIsReCallable]' passed (0.000 seconds).
+Test Suite 'RuntimeBridgeTests' passed at 2026-05-21 18:54:17.094.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' passed at 2026-05-21 18:54:17.094.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'Selected tests' passed at 2026-05-21 18:54:17.094.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.175252+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-17T16:13:35.421418+00:00",
+    "path": "reports/dock-menus.md",
+    "sha256": "d08eda89d242fe4d6a827cecfae3777829b6545e4a96ccefe350bbc5bfbd5a8b",
+    "size_bytes": 3310
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:48:37.300757+00:00",
+      "path": "screenshots/dock-menus-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "aba714984cd78ad25eb34b203862fa03053de0617fccbc470090512a1bc8d17a",
+      "size_bytes": 33885
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:48:05.371882+00:00",
+      "path": "screenshots/dock-menus-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "c7e5e7ad694ff026754a1270e49fb2dcb36a629b266c9d52052d76f8f0c19cad",
+      "size_bytes": 35964
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:12.073072+00:00",
+      "path": "screenshots/dock-menus-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "13e7aa2cc6983a9e09ec0ff6478447dc766052df9f98f5059bf4869deaf79962",
+      "size_bytes": 182095
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:25:11.197986+00:00",
+      "path": "screenshots/dock-menus-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "6d4d703729610b4e5e99992998a3a73607d4aa38de7820b095a54b9072a7804f",
+      "size_bytes": 179325
+    }
+  },
+  "slug": "dock-menus",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

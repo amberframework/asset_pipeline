@@ -1,0 +1,13 @@
+=== context for line 1161 ===
+  enclosing def at line 1024:       def visit(view : UI::Alert)
+=== context for line 2791 ===
+  enclosing def at line 2761:       def visit(view : UI::MenuButton)
+=== context for line 3903 ===
+  enclosing def at line 3772:       def visit(view : UI::ActivityView)
+=== context for line 3967 ===
+  enclosing def at line 3772:       def visit(view : UI::ActivityView)
+=== context for line 4008 ===
+  enclosing def at line 3772:       def visit(view : UI::ActivityView)
+=== context for line 4147 ===
+      def visit(view : UI::DisclosureGroup)
+  enclosing def at line 4132:       def visit(view : UI::DisclosureGroup)

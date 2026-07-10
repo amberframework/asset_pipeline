@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T14:43:15Z",
+  "slug": "app-bars",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/app-bars.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/app-bars-android-phone-light.png",
+      "tablet": "../screenshots/app-bars-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/app-bars-android-phone-dark.png",
+      "tablet": "../screenshots/app-bars-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Light, dark, phone, and tablet captures are current.",
+    "The renderer now mounts MaterialToolbar, but menu actions are not yet wired through the Android callback bridge.",
+    "The study still needs explicit overflow and scroll-behavior coverage before promotion."
+  ],
+  "errors": [
+
+  ]
+}

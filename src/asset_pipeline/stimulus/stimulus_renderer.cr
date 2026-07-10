@@ -1,3 +1,6 @@
+# Renders Stimulus controller setup JavaScript by auto-detecting controller
+# imports from the import map and emitting registration boilerplate.
+
 require "../script_renderer"
 
 module AssetPipeline::Stimulus

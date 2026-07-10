@@ -1,0 +1,14 @@
+name: optarg
+version: 0.9.5
+
+authors:
+  - mosop
+
+license: MIT
+
+crystal: ">= 0.26.0, < 2.0"
+
+dependencies:
+  callback:
+    github: amberframework/callback
+    version: ~> 0.9.2

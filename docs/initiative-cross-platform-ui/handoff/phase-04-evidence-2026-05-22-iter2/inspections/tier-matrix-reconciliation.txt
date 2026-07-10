@@ -1,0 +1,8 @@
+=== src/ui/views/ widgets (78 total) ===
+      78
+
+=== Widgets NOT mentioned in tier-matrix.md ===
+(none if clean)
+
+=== tier-matrix files referencing nonexistent src ===
+(none if clean)

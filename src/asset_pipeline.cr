@@ -1,3 +1,6 @@
+# Top-level entry point of the asset_pipeline shard: FrontLoader + namespace setup.
+# Part of the asset_pipeline shard.
+
 require "digest/sha256"
 require "file_utils"
 require "./import_map/import_map"
@@ -5,8 +8,9 @@ require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
 require "./asset_pipeline/framework_registry"
 require "./asset_pipeline/stimulus/stimulus_renderer"
+require "./asset_pipeline/platform"
 
-# TODO: Write documentation for `AssetPipeline`
+# Top-level shard namespace housing FrontLoader, import maps, framework registry, and the cross-platform UI surface.
 module AssetPipeline
   VERSION = "0.36.0"
 

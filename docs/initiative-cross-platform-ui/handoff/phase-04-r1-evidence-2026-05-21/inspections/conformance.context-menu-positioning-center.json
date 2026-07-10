@@ -1,0 +1,59 @@
+{
+  "check_id": "conformance.context-menu-positioning-center",
+  "page": "samples/cross_platform/web/dist/phase04_context_menu_demo.html",
+  "selectors": [
+    "[data-testid=ctx-trigger-center]",
+    ".ap-ctx-menu"
+  ],
+  "cdp_methods": [
+    "Emulation.setDeviceMetricsOverride (1280x800)",
+    "Runtime.evaluate (rect capture)",
+    "Input.dispatchMouseEvent (right press/release at trigger center)",
+    "Runtime.evaluate (post-open rect capture)"
+  ],
+  "trusted_input_trace": [
+    "read trigger rect",
+    "right-mouseDown@(640.0,400.0)",
+    "right-mouseUp@(640.0,400.0)"
+  ],
+  "expected_state": {
+    "trigger_in_quadrant": true,
+    "menu_on_screen": true,
+    "menu_anchored_within_tolerance_or_repositioned": true
+  },
+  "observed_state": {
+    "click_point": {
+      "x": 640.0,
+      "y": 400.0
+    },
+    "trigger_rect": {
+      "left": 591.25,
+      "top": 378,
+      "right": 688.75,
+      "bottom": 422,
+      "width": 97.5,
+      "height": 44
+    },
+    "menu_rect": {
+      "left": 640,
+      "top": 400,
+      "right": 850,
+      "bottom": 547,
+      "width": 210,
+      "height": 147
+    },
+    "viewport": {
+      "w": 1280,
+      "h": 800
+    },
+    "trigger_in_quadrant": true,
+    "on_screen": true,
+    "anchored_within_tolerance": true,
+    "anchor_tolerance_px": 16.0,
+    "flipped_edge_predicates": {}
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/conformance.context-menu-positioning-center.json"
+  ]
+}

@@ -1,0 +1,18 @@
+RECT_PX 528 104 2400 1864
+F
+
+Failures:
+
+  1) Phase 3 BX2 — action tap probe (macOS) renders the probe scene and accepts AXPress on tap-probe-button
+     Failure/Error: {% if flag?(:macos) %}
+
+       Expected: nil not to be nil
+
+     # spec/ui/hig_validation/macos_action_tap_probe_spec.cr:1
+
+Finished in 1.55 seconds
+1 examples, 1 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr:1 # Phase 3 BX2 — action tap probe (macOS) renders the probe scene and accepts AXPress on tap-probe-button

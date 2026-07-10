@@ -1,0 +1,19 @@
+=== Tier references in CLAUDE.md ===
+109:## Tier model for cross-platform widgets
+111:Every widget in `src/ui/views/` falls into one of three tiers, documented
+113:[`docs/initiative-cross-platform-ui/tier-matrix.md`](docs/initiative-cross-platform-ui/tier-matrix.md):
+115:* **Tier 1 (Brand-universal)** — visual primitives and layout helpers
+119:* **Tier 2 (Platform default)** — universal API surface that platform
+123:* **Tier 3 (Platform-only)** — widgets with no honest cross-platform
+128:  guard. Every Tier 3 widget ships a `*WithWebFallback` sibling that
+132:When adding a Tier 3 widget, follow `src/ui/views/action_sheet.cr` as the
+138:`docs/initiative-cross-platform-ui/tier-matrix.md` in the same commit.
+148:The canonical Tier 1 brand contract lives in `src/ui/design_tokens.cr`
+
+=== Platform.requires references ===
+140:Use `AssetPipeline::Platform.requires(:ios) do ... end` in application
+142:library code under `src/ui/`. The `Platform.requires` macro produces the
+
+=== Pointer to tier-matrix.md ===
+113:[`docs/initiative-cross-platform-ui/tier-matrix.md`](docs/initiative-cross-platform-ui/tier-matrix.md):
+138:`docs/initiative-cross-platform-ui/tier-matrix.md` in the same commit.

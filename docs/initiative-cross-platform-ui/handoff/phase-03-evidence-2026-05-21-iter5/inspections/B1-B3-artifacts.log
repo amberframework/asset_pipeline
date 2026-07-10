@@ -1,0 +1,6 @@
+.build/arm64-apple-macosx/release/libAssetPipelineSwiftKit.a
+.build/arm64-apple-macosx/debug/libAssetPipelineSwiftKit.a
+.build/arm64-apple-ios-simulator/release/libAssetPipelineSwiftKit.a
+.build/arm64-apple-ios/release/libAssetPipelineSwiftKit.a
+-rw-r--r--  1 crimsonknight  staff  4774936 May 21 12:30 .build/arm64-apple-ios-simulator/release/libAssetPipelineSwiftKit.a
+-rw-r--r--  1 crimsonknight  staff  4761400 May 21 12:30 .build/arm64-apple-ios/release/libAssetPipelineSwiftKit.a

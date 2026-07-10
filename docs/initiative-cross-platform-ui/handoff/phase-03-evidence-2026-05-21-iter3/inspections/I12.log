@@ -1,0 +1,17 @@
+289:        unless view.orientation == :horizontal
+307:        unless view.style == UI::ToggleStyle::Switch
+338:        unless view.style == UI::PickerStyle::Menu
+345:        unless view.mode == UI::DatePickerMode::Date
+393:        unless view.bar_position == :bottom
+407:        unless view.surface_style == :auto
+412:        unless view.detents == default_detents
+422:        unless view.arrow_edge == :bottom
+448:        unless view.confirm_label == "Confirm"
+451:        unless view.cancel_label == "Cancel"
+454:        unless view.confirm_style == :default
+497:        unless view.alignment == UI::Alignment::Leading
+514:        unless view.material == :secondary
+525:        unless view.shape == :rectangle
+534:        unless view.button_style == :default
+569:        unless view.style == UI::ListStyle::Plain
+616:        unless view.material == :regular

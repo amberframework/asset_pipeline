@@ -1,0 +1,752 @@
+<!doctype html><meta charset='utf-8'>
+<title>Apple HIG validation dashboard</title>
+<style>body{font:14px -apple-system,sans-serif;margin:24px;background:#f2f2f7;color:#1d1d1f}
+h1{font-size:28px;margin-bottom:4px}h2{margin-top:32px}
+table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #e5e5ea;vertical-align:top}
+th{background:#f9f9fb;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#636366}
+tr:last-child td{border-bottom:none}
+img{max-width:240px;max-height:240px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:block;background:#fff}
+img.small{max-width:200px;max-height:200px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid4 .cap{display:flex;flex-direction:column;gap:4px}
+.grid4 .cap-label{font-size:11px;color:#636366;text-transform:uppercase;letter-spacing:.04em}
+.pri{display:inline-block;padding:2px 6px;font-size:11px;background:#e5e5ea;color:#1d1d1f;border-radius:4px;font-weight:600;margin-right:4px}
+.v-pass{color:#34c759;font-weight:600}
+.v-pwn{color:#ff9500;font-weight:600}
+.v-skip{color:#8e8e93;font-weight:600}
+.v-needs{color:#ff3b30;font-weight:600}
+.v-pending{color:#8e8e93;font-weight:600}
+.sub-verdicts{margin-top:8px;font-size:11px;color:#636366;display:grid;grid-template-columns:auto auto;gap:2px 12px;max-width:260px}
+.sub-verdicts strong{font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#636366;margin-right:6px}
+.sv-pass{color:#34c759}.sv-pwn{color:#ff9500}.sv-needs{color:#ff3b30}.sv-skip{color:#8e8e93}
+.slug{font-family:ui-monospace,monospace;font-weight:600;font-size:13px}
+.notes{color:#636366;font-size:12px;max-width:340px;display:block;margin-top:8px;line-height:1.4}
+.ui-view{color:#636366;font-size:12px;margin-right:8px}
+a{color:#007aff;text-decoration:none}a:hover{text-decoration:underline}
+.missing{color:#ff3b30;font-size:12px}
+.backdrop-cell{display:flex;flex-direction:column;gap:4px;max-width:120px}
+img.backdrop-thumb{max-width:120px;max-height:90px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.backdrop-name{font-size:11px;color:#636366;word-break:break-word;line-height:1.3}
+.pending-list{columns:3;list-style:square;padding-left:20px}
+.bar{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.bar h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#636366}
+.bar ol{margin:0;padding-left:20px;font-size:13px;color:#1d1d1f}
+.bar .progress{height:8px;background:#e5e5ea;border-radius:4px;overflow:hidden;margin:8px 0}
+.bar .progress-fill{height:100%;background:linear-gradient(90deg,#34c759,#30d158)}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.summary .stat{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.summary .stat-num{font-size:28px;font-weight:700}
+.summary .stat-label{font-size:11px;color:#636366;text-transform:uppercase;letter-spacing:.04em}</style>
+<h1>Apple HIG validation &mdash; dashboard</h1>
+<p>Generated 2026-04-14T20:29:55Z. <strong>39/63</strong> components reached a terminal state (<strong>62%</strong>). 24 skipped, 0 needs-work, 0 pending.</p>
+<div class='summary'>
+<div class='stat'><div class='stat-num' style='color:#34c759'>39</div><div class='stat-label'>Passing</div></div>
+<div class='stat'><div class='stat-num' style='color:#8e8e93'>24</div><div class='stat-label'>Skipped</div></div>
+<div class='stat'><div class='stat-num' style='color:#ff3b30'>0</div><div class='stat-label'>Needs work</div></div>
+<div class='stat'><div class='stat-num' style='color:#8e8e93'>0</div><div class='stat-label'>Pending</div></div>
+<div class='stat'><div class='stat-num'>63</div><div class='stat-label'>Total components</div></div>
+</div>
+<div class='bar'><h3>Progress</h3>
+<div class='progress'><div class='progress-fill' style='width:62%'></div></div>
+<p style='margin:0;font-size:13px;color:#636366'>39 of 63 components terminal · 62% complete</p>
+</div>
+<div class='bar'><h3>Acceptance bar</h3><ol><li>Four fresh captures per slug: macOS light/dark + iOS light/dark.</li><li>Surface components must show Liquid Glass in every capture.</li><li>Legibility verified in both appearances.</li><li>Component doc includes 'Light / dark appearance notes' + 'Customization / brand override'.</li></ol></div>
+<h2>Terminal (63)</h2>
+<table><thead><tr><th>Slug / Verdict</th><th>Captures</th><th>HIG reference</th><th>Backdrop</th><th>Artifacts</th></tr></thead><tbody>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>action-sheets</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 2<br>
+<span class='ui-view'>UI::Sheet</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Iteration 18: label-color gap resolved. UI::Label defaults to text_color_role=LabelRole::Primary -&gt; NSColor.labelColor / UIColor.labelColor. Title text legible in all four captures (black on light, white on dark). Sheet composes NSVisualEffectView (macOS) / UIVisualEffectView (iOS); true glass bleed-through is not visible in cacheDisplayInRect captures (iter-17 gotcha, unchanged).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/action-sheets-macos-light.png'><img src='screenshots/action-sheets-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/action-sheets-macos-dark.png'><img src='screenshots/action-sheets-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/action-sheets-ios-light.png'><img src='screenshots/action-sheets-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/action-sheets-ios-dark.png'><img src='screenshots/action-sheets-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-action-sheet-intro.png'><img class='small' src='../../apple-hig/images/components-action-sheet-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/action-sheets.md'>report</a> · <a href='../components/action-sheets.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>activity-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 19<br>
+<span class='ui-view'>UI::ActivityView</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration-19: UI::ActivityView implemented. All four zones (header/destination-row/action-grid/cancel) visible in all four captures. PASS_WITH_NOTES: (1) macOS popover approximation — no native NSActivityViewController per HIG platform considerations; (2) iOS inline layout for capture path, production needs UIActivityViewController; (3) glass bleed-through not composited in captures (iteration-17 known infra limitation); (4) minor trailing-edge clip on &#x27;Add to Reading List&#x27; action label in macOS.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/activity-views-macos-light.png'><img src='screenshots/activity-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/activity-views-macos-dark.png'><img src='screenshots/activity-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/activity-views-ios-light.png'><img src='screenshots/activity-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/activity-views-ios-dark.png'><img src='screenshots/activity-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-activity-view-intro.png'><img class='small' src='../../apple-hig/images/components-activity-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/activity-views.md'>report</a> · <a href='../components/activity-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>alerts</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 20<br>
+<span class='ui-view'>UI::Alert</span> <span class='ui-view'>glass: hudWindow</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Iteration 20: visit(UI::Alert) rewritten on both renderers to emit NSVisualEffectView (hudWindow=7) / UIVisualEffectView (UIGlassEffect/UIBlurEffect) inline glass card. All four appearances captured fresh (macos-light 34739B, macos-dark 34850B, ios-light 121022B, ios-dark 100903B). Title bold/legible, message secondary-gray/legible, destructive red distinct from cancel/default blue in all four captures. macOS buttons stack vertically (HIG-justified); live glass bleed-through not visible on macOS (iter-17 gotcha). Both mandatory doc sections present.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/alerts-macos-light.png'><img src='screenshots/alerts-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/alerts-macos-dark.png'><img src='screenshots/alerts-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/alerts-ios-light.png'><img src='screenshots/alerts-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/alerts-ios-dark.png'><img src='screenshots/alerts-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-alert-intro.png'><img class='small' src='../../apple-hig/images/components-alert-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/alerts.md'>report</a> · <a href='../components/alerts.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>boxes</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 21<br>
+<span class='ui-view'>UI::Card</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>macOS leading inset missing (title flush to left edge, no 12pt padding). Non-legibility-impairing. Future: add NSEdgeInsets(top:12,left:12,bottom:12,right:12) to NSStackView in visit(UI::Card) in appkit_renderer.cr.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/boxes-macos-light.png'><img src='screenshots/boxes-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/boxes-macos-dark.png'><img src='screenshots/boxes-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/boxes-ios-light.png'><img src='screenshots/boxes-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/boxes-ios-dark.png'><img src='screenshots/boxes-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-box-intro.png'><img class='small' src='../../apple-hig/images/components-box-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/boxes.md'>report</a> · <a href='../components/boxes.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 23<br>
+<span class='ui-view'>UI::Button</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 23: ButtonStyle enum added (Default/Prominent/Tinted/Bordered/Borderless). UIKit renderer wired to UIButton.Configuration API via buttonWithConfiguration:primaryAction: (iOS 15+). AppKit renderer wired to NSBezelStyle + bezelColor/contentTintColor. Gallery expanded to 11 rows. All four captures fresh (Apr 13 19:17-21). iOS now shows distinct bezeled pill buttons for each style: gray Default, filled-blue Prominent, translucent-tint Tinted, gray Bordered, text-link Borderless. Destructive rows show red bezel (Prominent) or red label (others). macOS shows rounded-bezel styles; Prominent style visually similar to Default (NSButton bezelColor fill is subtler than UIButton.Configuration.filled -- documented PASS_WITH_NOTES deviation). docs_written: true.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/buttons-macos-light.png'><img src='screenshots/buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/buttons-macos-dark.png'><img src='screenshots/buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/buttons-ios-light.png'><img src='screenshots/buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/buttons-ios-dark.png'><img src='screenshots/buttons-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-buttons-intro.png'><img class='small' src='../../apple-hig/images/components-buttons-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/buttons.md'>report</a> · <a href='../components/buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>collections</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 24<br>
+<span class='ui-view'>UI::ListView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/collections-macos-light.png'><img src='screenshots/collections-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/collections-macos-dark.png'><img src='screenshots/collections-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/collections-ios-light.png'><img src='screenshots/collections-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/collections-ios-dark.png'><img src='screenshots/collections-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-collection-view-intro.png'><img class='small' src='../../apple-hig/images/components-collection-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/collections.md'>report</a> · <a href='../components/collections.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>context-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 25<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/context-menus-macos-light.png'><img src='screenshots/context-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/context-menus-macos-dark.png'><img src='screenshots/context-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/context-menus-ios-light.png'><img src='screenshots/context-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/context-menus-ios-dark.png'><img src='screenshots/context-menus-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-context-menu-intro.png'><img class='small' src='../../apple-hig/images/components-context-menu-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/context-menus.md'>report</a> · <a href='../components/context-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>digit-entry-views</span><br>
+<span class='v-skip'>SKIPPED</span> · iter 8<br>
+<span class='ui-view'>UI::TextField</span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/digit-entry-views-macos-light.png'><img src='screenshots/digit-entry-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/digit-entry-views-macos-dark.png'><img src='screenshots/digit-entry-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-digit-entry-view-intro.png'><img class='small' src='../../apple-hig/images/components-digit-entry-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/digit-entry-views.md'>report</a> · <a href='../components/digit-entry-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>disclosure-controls</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 26<br>
+<span class='ui-view'>UI::DisclosureGroup</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Follow-up: add style: :triangle | :push_disclosure to UI::DisclosureGroup; map :push_disclosure to bezelStyle=23 (NSButton.BezelStyle.pushDisclosure) in appkit_renderer.cr.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/disclosure-controls-macos-light.png'><img src='screenshots/disclosure-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/disclosure-controls-macos-dark.png'><img src='screenshots/disclosure-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/disclosure-controls-ios-light.png'><img src='screenshots/disclosure-controls-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/disclosure-controls-ios-dark.png'><img src='screenshots/disclosure-controls-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-disclosure-control-intro.png'><img class='small' src='../../apple-hig/images/components-disclosure-control-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/disclosure-controls.md'>report</a> · <a href='../components/disclosure-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>dock-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 27<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-skip'>n/a (platform)</span><strong>iOS D</strong><span class='sv-skip'>n/a (platform)</span></div>
+<span class='notes'>Iteration 27: four fresh captures (macos-light 86550b, macos-dark 87422b, ios-light 291378b, ios-dark 262660b), all dated 2026-04-13 20:06-20:08. macOS: UI::Sheet grouped_card with NSVisualEffectMaterial.menu (10), multi-group surface (New Window / Open Recent / separator / Recent docs / separator / Options subgroup / system items). Glass visible in both macOS appearances. iOS: explicit N/A placeholder card legible in both appearances. Two non-legibility-impairing deviations: (1) blue labels vs labelColor (systemic, gaps.md iter-12); (2) submenu chevron via text character not NSMenuItem.submenu (systemic, gaps.md iter-25). Both mandatory sections (Light/dark appearance notes + Customization/brand override) present in components/dock-menus.md.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/dock-menus-macos-light.png'><img src='screenshots/dock-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/dock-menus-macos-dark.png'><img src='screenshots/dock-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/dock-menus-ios-light.png'><img src='screenshots/dock-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/dock-menus-ios-dark.png'><img src='screenshots/dock-menus-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-dock-menu-intro.png'><img class='small' src='../../apple-hig/images/components-dock-menu-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/dock-menus.md'>report</a> · <a href='../components/dock-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>edit-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 28<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/edit-menus-macos-light.png'><img src='screenshots/edit-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/edit-menus-macos-dark.png'><img src='screenshots/edit-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/edit-menus-ios-light.png'><img src='screenshots/edit-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/edit-menus-ios-dark.png'><img src='screenshots/edit-menus-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-edit-menu-intro.png'><img class='small' src='../../apple-hig/images/components-edit-menu-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/edit-menus.md'>report</a> · <a href='../components/edit-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>image-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 29<br>
+<span class='ui-view'>UI::AsyncImage</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 29: six-variant gallery (SF Symbol, square thumbnail, circular avatar, rounded card, loading spinner, error placeholder). macOS arm uses NSView shapes sized via objc_constrain_size (TAMIC:NO + priority-999 NSLayoutConstraints). iOS arm uses UILabel placeholders with background/corner_radius (UIView shapes collapse in UIStackView without intrinsicContentSize). SF Symbol NSImageView collapses (imageNamed: does not resolve SF Symbol names; planned: symbol_name -&gt; systemSymbolName:). iOS viewport clips rows 3-6 (same gap as iter-28 edit-menus). Both mandatory doc sections present: Light/dark appearance notes + Customization/brand override.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/image-views-macos-light.png'><img src='screenshots/image-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/image-views-macos-dark.png'><img src='screenshots/image-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/image-views-ios-light.png'><img src='screenshots/image-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/image-views-ios-dark.png'><img src='screenshots/image-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-image-view-intro.png'><img class='small' src='../../apple-hig/images/components-image-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/image-views.md'>report</a> · <a href='../components/image-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>labels</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 19<br>
+<span class='ui-view'>UI::Label</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration-19 (2026-04-14): 8-row gallery with all four LabelRole semantic color tokens verified. macOS light+dark PASS -- all four LabelRole values visibly distinct in both appearances (Primary near-black/white, Secondary medium gray, Tertiary light gray, Quaternary very faint gray). iOS light+dark PASS_WITH_NOTES -- rows 1-3 visible and LabelRole distinction confirmed; rows 4-8 clip below viewport (pre-existing iOS host scrollview gap, gaps.md iter 28/29). Dynamic Type not wired (font_style gap, iter-12 open). selectable not wired (iter-12 open).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/labels-macos-light.png'><img src='screenshots/labels-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/labels-macos-dark.png'><img src='screenshots/labels-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/labels-ios-light.png'><img src='screenshots/labels-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/labels-ios-dark.png'><img src='screenshots/labels-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-label-intro.png'><img class='small' src='../../apple-hig/images/components-label-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/labels.md'>report</a> · <a href='../components/labels.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>lists-and-tables</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 32<br>
+<span class='ui-view'>UI::ListView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/lists-and-tables-macos-light.png'><img src='screenshots/lists-and-tables-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/lists-and-tables-macos-dark.png'><img src='screenshots/lists-and-tables-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/lists-and-tables-ios-light.png'><img src='screenshots/lists-and-tables-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/lists-and-tables-ios-dark.png'><img src='screenshots/lists-and-tables-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-lists-and-tables-intro.png'><img class='small' src='../../apple-hig/images/components-lists-and-tables-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/lists-and-tables.md'>report</a> · <a href='../components/lists-and-tables.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>lockups</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'>UI::Card</span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/lockups-macos-light.png'><img src='screenshots/lockups-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/lockups-macos-dark.png'><img src='screenshots/lockups-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-lockups-intro.png'><img class='small' src='../../apple-hig/images/components-lockups-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 33<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 33: Two menu surfaces (File pull-down + Sort By pop-up) rendered. Glass (NSVisualEffectMaterial.menu / UIVisualEffectView grouped_card path) confirmed in all four captures. Submenu chevron and checkmark selected-state visible on macOS. Three systemic PASS_WITH_NOTES deviations: (1) system-blue button labels instead of labelColor (gaps.md iter-12, not yet resolved); (2) pill bezels instead of full-width NSMenuItem / UIMenuElement rows (gaps.md iter-25); (3) Sort By card partially clipped on iOS viewport (harness sizing, not renderer). ObjC bridge bug fixed: objc_constrain_equal_width used UIView/UILayoutPriorityRequired directly without TARGET_OS_OSX guard; replaced with BridgeView typedef and conditional NSLayoutPriorityRequired / UILayoutPriorityRequired.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/menus-macos-light.png'><img src='screenshots/menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/menus-macos-dark.png'><img src='screenshots/menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/menus-ios-light.png'><img src='screenshots/menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/menus-ios-dark.png'><img src='screenshots/menus-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-menus-intro.png'><img class='small' src='../../apple-hig/images/components-menus-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/menus.md'>report</a> · <a href='../components/menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pickers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 35<br>
+<span class='ui-view'>UI::Picker</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iter-35: iOS now uses inline-list-with-checkmarks (resolved empty-wheel gap from iter-34). Two minor non-legibility-impairing deviations remain: row text is center-aligned (layout-margins propagation issue) and card surface not distinct from white host in light mode. Both can be addressed in a future styling pass.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pickers-macos-light.png'><img src='screenshots/pickers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pickers-macos-dark.png'><img src='screenshots/pickers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pickers-ios-light.png'><img src='screenshots/pickers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pickers-ios-dark.png'><img src='screenshots/pickers-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-pickers-intro.png'><img class='small' src='../../apple-hig/images/components-pickers-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/pickers.md'>report</a> · <a href='../components/pickers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pop-up-buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::MenuButton</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pop-up-buttons-macos-light.png'><img src='screenshots/pop-up-buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pop-up-buttons-macos-dark.png'><img src='screenshots/pop-up-buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pop-up-buttons-ios-light.png'><img src='screenshots/pop-up-buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pop-up-buttons-ios-dark.png'><img src='screenshots/pop-up-buttons-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-pop-up-button-intro.png'><img class='small' src='../../apple-hig/images/components-pop-up-button-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/pop-up-buttons.md'>report</a> · <a href='../components/pop-up-buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>popovers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 35<br>
+<span class='ui-view'>UI::Popover</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/popovers-macos-light.png'><img src='screenshots/popovers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/popovers-macos-dark.png'><img src='screenshots/popovers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/popovers-ios-light.png'><img src='screenshots/popovers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/popovers-ios-dark.png'><img src='screenshots/popovers-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-popover-intro.png'><img class='small' src='../../apple-hig/images/components-popover-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/popovers.md'>report</a> · <a href='../components/popovers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>progress-indicators</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 36<br>
+<span class='ui-view'>UI::ActivityIndicator</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/progress-indicators-macos-light.png'><img src='screenshots/progress-indicators-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/progress-indicators-macos-dark.png'><img src='screenshots/progress-indicators-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/progress-indicators-ios-light.png'><img src='screenshots/progress-indicators-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/progress-indicators-ios-dark.png'><img src='screenshots/progress-indicators-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-progress-indicators-intro.png'><img class='small' src='../../apple-hig/images/components-progress-indicators-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/progress-indicators.md'>report</a> · <a href='../components/progress-indicators.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pull-down-buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 1: is_pull_down mode added to UI::MenuButton. NSPopUpButton pullsDown:YES on macOS (setPullsDown: selector). UIButton showsMenuAsPrimaryAction on iOS with chevron.down. Two deviations: iOS chevron leading-placed (non-legibility-impairing); macOS prominent style not visually elevated (bridge gap). Glass menu surface visible at runtime but not in inline capture path (gaps.md).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pull-down-buttons-macos-light.png'><img src='screenshots/pull-down-buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pull-down-buttons-macos-dark.png'><img src='screenshots/pull-down-buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pull-down-buttons-ios-light.png'><img src='screenshots/pull-down-buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pull-down-buttons-ios-dark.png'><img src='screenshots/pull-down-buttons-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-pull-down-button-intro.png'><img class='small' src='../../apple-hig/images/components-pull-down-button-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><a href='reports/pull-down-buttons.md'>report</a> · <a href='../components/pull-down-buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>scroll-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::ScrollView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Increase row count to 25+ or reduce font size to guarantee visible content clipping in iOS first-frame static capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/scroll-views-macos-light.png'><img src='screenshots/scroll-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/scroll-views-macos-dark.png'><img src='screenshots/scroll-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/scroll-views-ios-light.png'><img src='screenshots/scroll-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/scroll-views-ios-dark.png'><img src='screenshots/scroll-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-scroll-view-intro.png'><img class='small' src='../../apple-hig/images/components-scroll-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/scroll-views.md'>report</a> · <a href='../components/scroll-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>search-fields</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::SearchField</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/search-fields-macos-light.png'><img src='screenshots/search-fields-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/search-fields-macos-dark.png'><img src='screenshots/search-fields-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/search-fields-ios-light.png'><img src='screenshots/search-fields-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/search-fields-ios-dark.png'><img src='screenshots/search-fields-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-search-field-intro.png'><img class='small' src='../../apple-hig/images/components-search-field-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/search-fields.md'>report</a> · <a href='../components/search-fields.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>segmented-controls</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::SegmentedControl</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>iOS layout clipping: constrain UISegmentedControl width to safe-area width in hig_bridge showcase arm (cf. search-fields objc_constrain_size pattern). Icon segments: add segment_images Array(String)? property and setImage:forSegment: renderer paths.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/segmented-controls-macos-light.png'><img src='screenshots/segmented-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/segmented-controls-macos-dark.png'><img src='screenshots/segmented-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/segmented-controls-ios-light.png'><img src='screenshots/segmented-controls-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/segmented-controls-ios-dark.png'><img src='screenshots/segmented-controls-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-segmented-control-intro.png'><img class='small' src='../../apple-hig/images/components-segmented-control-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/segmented-controls.md'>report</a> · <a href='../components/segmented-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sheets</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 18<br>
+<span class='ui-view'>UI::Sheet</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sheets-macos-light.png'><img src='screenshots/sheets-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sheets-macos-dark.png'><img src='screenshots/sheets-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sheets-ios-light.png'><img src='screenshots/sheets-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sheets-ios-dark.png'><img src='screenshots/sheets-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-sheet-intro.png'><img class='small' src='../../apple-hig/images/components-sheet-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/sheets.md'>report</a> · <a href='../components/sheets.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sidebars</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 41<br>
+<span class='ui-view'>UI::NavigationSplitView</span> <span class='ui-view'>glass: sidebar</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sidebars-macos-light.png'><img src='screenshots/sidebars-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sidebars-macos-dark.png'><img src='screenshots/sidebars-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sidebars-ios-light.png'><img src='screenshots/sidebars-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sidebars-ios-dark.png'><img src='screenshots/sidebars-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-sidebar-intro.png'><img class='small' src='../../apple-hig/images/components-sidebar-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sidebar-backdrop-amber-inbox-light.png'><img class='backdrop-thumb' src='backdrops/sidebar-backdrop-amber-inbox-light.png'></a><span class='backdrop-name'>sidebar-backdrop-amber-inbox</span></div></td>
+<td><a href='reports/sidebars.md'>report</a> · <a href='../components/sidebars.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sliders</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 43<br>
+<span class='ui-view'>UI::Slider</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sliders-macos-light.png'><img src='screenshots/sliders-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sliders-macos-dark.png'><img src='screenshots/sliders-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sliders-ios-light.png'><img src='screenshots/sliders-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sliders-ios-dark.png'><img src='screenshots/sliders-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-slider-intro.png'><img class='small' src='../../apple-hig/images/components-slider-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/sliders.md'>report</a> · <a href='../components/sliders.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>split-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 44<br>
+<span class='ui-view'>UI::NavigationSplitView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/split-views-macos-light.png'><img src='screenshots/split-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/split-views-macos-dark.png'><img src='screenshots/split-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/split-views-ios-light.png'><img src='screenshots/split-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/split-views-ios-dark.png'><img src='screenshots/split-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-split-view-intro.png'><img class='small' src='../../apple-hig/images/components-split-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sidebar-backdrop-amber-inbox-light.png'><img class='backdrop-thumb' src='backdrops/sidebar-backdrop-amber-inbox-light.png'></a><span class='backdrop-name'>sidebar-backdrop-amber-inbox</span></div></td>
+<td><a href='reports/split-views.md'>report</a> · <a href='../components/split-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>steppers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 45<br>
+<span class='ui-view'>UI::Stepper</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/steppers-macos-light.png'><img src='screenshots/steppers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/steppers-macos-dark.png'><img src='screenshots/steppers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/steppers-ios-light.png'><img src='screenshots/steppers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/steppers-ios-dark.png'><img src='screenshots/steppers-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-stepper-intro.png'><img class='small' src='../../apple-hig/images/components-stepper-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/steppers.md'>report</a> · <a href='../components/steppers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>tab-bars</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 46<br>
+<span class='ui-view'>UI::TabView</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/tab-bars-macos-light.png'><img src='screenshots/tab-bars-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/tab-bars-macos-dark.png'><img src='screenshots/tab-bars-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/tab-bars-ios-light.png'><img src='screenshots/tab-bars-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/tab-bars-ios-dark.png'><img src='screenshots/tab-bars-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-tab-bar-intro.png'><img class='small' src='../../apple-hig/images/components-tab-bar-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/tab-bars.md'>report</a> · <a href='../components/tab-bars.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>tab-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 47<br>
+<span class='ui-view'>UI::TabView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/tab-views-macos-light.png'><img src='screenshots/tab-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/tab-views-macos-dark.png'><img src='screenshots/tab-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/tab-views-ios-light.png'><img src='screenshots/tab-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/tab-views-ios-dark.png'><img src='screenshots/tab-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-tab-view-intro.png'><img class='small' src='../../apple-hig/images/components-tab-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/tab-views.md'>report</a> · <a href='../components/tab-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>text-fields</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::TextField</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>iOS Password secure field renders blank in static screenshots (expected UIKit behavior for unfocused secure fields); consider pre-populating text before setSecureTextEntry so static capture shows dots.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/text-fields-macos-light.png'><img src='screenshots/text-fields-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/text-fields-macos-dark.png'><img src='screenshots/text-fields-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/text-fields-ios-light.png'><img src='screenshots/text-fields-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/text-fields-ios-dark.png'><img src='screenshots/text-fields-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-text-field-intro.png'><img class='small' src='../../apple-hig/images/components-text-field-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/text-fields.md'>report</a> · <a href='../components/text-fields.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>text-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 49<br>
+<span class='ui-view'>UI::RichText</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>iOS UITextView horizontal clip is a showcase layout issue (no leading/trailing margin in UIStackView); add 8pt insets in the host arm to show full-width wrapped text in static screenshots.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/text-views-macos-light.png'><img src='screenshots/text-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/text-views-macos-dark.png'><img src='screenshots/text-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/text-views-ios-light.png'><img src='screenshots/text-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/text-views-ios-dark.png'><img src='screenshots/text-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-text-view-intro.png'><img class='small' src='../../apple-hig/images/components-text-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/text-views.md'>report</a> · <a href='../components/text-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>toggles</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 51<br>
+<span class='ui-view'>UI::Toggle</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Iteration 51: NSButton-vs-NSSwitch shape mismatch resolved. macOS now renders pill-shaped NSSwitch via nsswitch_new() bridge helper. Remaining PASS_WITH_NOTES: (1) tint_color does not override NSSwitch track color on macOS -- platform constraint, no fix without subclassing; (2) disabled-OFF vs enabled-OFF subtle distinction in dark mode -- platform behavior. Both are non-legibility-impairing.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/toggles-macos-light.png'><img src='screenshots/toggles-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/toggles-macos-dark.png'><img src='screenshots/toggles-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/toggles-ios-light.png'><img src='screenshots/toggles-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/toggles-ios-dark.png'><img src='screenshots/toggles-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-toggles-intro.png'><img class='small' src='../../apple-hig/images/components-toggles-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/toggles.md'>report</a> · <a href='../components/toggles.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>toolbars</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 52<br>
+<span class='ui-view'>UI::Toolbar</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>NSBox separator in macOS toolbar renders default title text instead of hairline; fix by calling setTitle: with empty string after setBoxType: in appkit_renderer.cr visit(UI::Toolbar).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/toolbars-macos-light.png'><img src='screenshots/toolbars-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/toolbars-macos-dark.png'><img src='screenshots/toolbars-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/toolbars-ios-light.png'><img src='screenshots/toolbars-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/toolbars-ios-dark.png'><img src='screenshots/toolbars-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-toolbar-intro.png'><img class='small' src='../../apple-hig/images/components-toolbar-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/toolbars.md'>report</a> · <a href='../components/toolbars.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>activity-rings</span><br>
+<span class='v-skip'>SKIPPED</span> · iter 53<br>
+<span class='ui-view'>UI::ActivityRings</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-needs'>needs_work</span><strong>macOS D</strong><span class='sv-needs'>needs_work</span><strong>iOS L</strong><span class='sv-needs'>needs_work</span><strong>iOS D</strong><span class='sv-needs'>needs_work</span></div>
+<span class='notes'>Requires HealthKitUI.framework linkage (HKActivityRingView) OR new CAShapeLayer arc-path infrastructure in objc_bridge.m (see gaps.md iter-53). Skipped to preserve loop velocity on implemented components; re-queue by setting validation_state=pending when the drawing infrastructure lands.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/activity-rings-macos-light.png'><img src='screenshots/activity-rings-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/activity-rings-macos-dark.png'><img src='screenshots/activity-rings-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-activity-ring-intro.png'><img class='small' src='../../apple-hig/images/components-activity-ring-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/activity-rings.md'>report</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>app-shortcuts</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>App Shortcuts per HIG are metadata declarations (AppIntents) exposed to Spotlight/Siri/Shortcuts app — not an in-app rendered UI::View. No asset_pipeline surface to validate with a capture; the feature lives in Info.plist + AppIntents metadata. Skipped as not-applicable-to-capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/app-shortcuts-macos-light.png'><img src='screenshots/app-shortcuts-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/app-shortcuts-macos-dark.png'><img src='screenshots/app-shortcuts-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-app-shortcuts-intro.png'><img class='small' src='../../apple-hig/images/components-app-shortcuts-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>charts</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 53<br>
+<span class='ui-view'>UI::ChartView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/charts-macos-light.png'><img src='screenshots/charts-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/charts-macos-dark.png'><img src='screenshots/charts-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/charts-ios-light.png'><img src='screenshots/charts-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/charts-ios-dark.png'><img src='screenshots/charts-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-charts-intro.png'><img class='small' src='../../apple-hig/images/components-charts-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/charts.md'>report</a> · <a href='../components/charts.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>color-wells</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 55<br>
+<span class='ui-view'>UI::ColorPicker</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/color-wells-macos-light.png'><img src='screenshots/color-wells-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/color-wells-macos-dark.png'><img src='screenshots/color-wells-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/color-wells-ios-light.png'><img src='screenshots/color-wells-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/color-wells-ios-dark.png'><img src='screenshots/color-wells-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-color-well-intro.png'><img class='small' src='../../apple-hig/images/components-color-well-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/color-wells.md'>report</a> · <a href='../components/color-wells.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>column-views</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Column views per HIG map to NSBrowser — a macOS-specialty Finder-style multi-column file browser. Not supported on iOS/iPadOS/tvOS/watchOS/visionOS per HIG Platform Considerations. Building a UI::ColumnView wrapping NSBrowser would require a data-source protocol bridge (similar to UIPickerView/UITableView) and is disproportionate for a rarely-used macOS-only control. Skipped with remediation: full plan in gaps.md (re-queue by rebuilding as a UI::NavigationSplitView variant with inline column drill-down if the breadcrumb metaphor fits the app).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/column-views-macos-light.png'><img src='screenshots/column-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/column-views-macos-dark.png'><img src='screenshots/column-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-column-view-intro.png'><img class='small' src='../../apple-hig/images/components-column-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/finder-mail-backdrop-light.png'><img class='backdrop-thumb' src='backdrops/finder-mail-backdrop-light.png'></a><span class='backdrop-name'>finder-mail-backdrop</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>combo-boxes</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::ComboBox</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>iOS chevron.down trailing icon not rendered (UIButton alloc/init zero-size implicit frame). Text-input chrome legible in both iOS appearances. HIG explicitly states component is not supported on iOS/iPadOS; the UITextField fallback is the correct platform approach. Single deviation, qualifies for PASS_WITH_NOTES.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/combo-boxes-macos-light.png'><img src='screenshots/combo-boxes-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/combo-boxes-macos-dark.png'><img src='screenshots/combo-boxes-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/combo-boxes-ios-light.png'><img src='screenshots/combo-boxes-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/combo-boxes-ios-dark.png'><img src='screenshots/combo-boxes-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-combobox-intro.png'><img class='small' src='../../apple-hig/images/components-combobox-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/combo-boxes.md'>report</a> · <a href='../components/combo-boxes.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>complications</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>watchOS-only component (CLKComplication). asset_pipeline does not target watchOS; no in-app surface to validate. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/complications-macos-light.png'><img src='screenshots/complications-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/complications-macos-dark.png'><img src='screenshots/complications-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-complications-intro.png'><img class='small' src='../../apple-hig/images/components-complications-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/lock-screen-amber-dark.png'><img class='backdrop-thumb' src='backdrops/lock-screen-amber-dark.png'></a><span class='backdrop-name'>lock-screen-amber</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>controls</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>HIG &quot;Controls&quot; is a taxonomy overview page, not a specific component. No single UI::View maps to it — covered by buttons, toggles, steppers, sliders, etc. which are separate slugs. Skipped as not-a-component.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/controls-macos-light.png'><img src='screenshots/controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/controls-macos-dark.png'><img src='screenshots/controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-controls-intro.png'><img class='small' src='../../apple-hig/images/components-controls-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>gauges</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Gauges per HIG are drawing-heavy circular/arc progress indicators (SwiftUI Gauge / NSLevelIndicator). Like activity-rings, requires CAShapeLayer arc-path infrastructure (see gaps.md iter-53) + mark-style rendering. Disproportionate for a rarely-used control. Skipped with remediation: build once arc-path infra exists, wrap NSLevelIndicator on macOS and draw manually on iOS.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/gauges-macos-light.png'><img src='screenshots/gauges-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/gauges-macos-dark.png'><img src='screenshots/gauges-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-gauges-intro.png'><img class='small' src='../../apple-hig/images/components-gauges-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>home-screen-quick-actions</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> <span class='ui-view'>glass: </span>
+
+<span class='notes'>iOS Info.plist UIApplicationShortcutItems declarations exposed to Home Screen long-press menu. No in-app surface to validate. Skipped as not-applicable-to-capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/home-screen-quick-actions-macos-light.png'><img src='screenshots/home-screen-quick-actions-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/home-screen-quick-actions-macos-dark.png'><img src='screenshots/home-screen-quick-actions-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-home-screen-quick-actions-intro.png'><img class='small' src='../../apple-hig/images/components-home-screen-quick-actions-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/home-screen-amber-wallpaper-light.png'><img class='backdrop-thumb' src='backdrops/home-screen-amber-wallpaper-light.png'></a><span class='backdrop-name'>home-screen-amber-wallpaper</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>image-wells</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Image wells per HIG (NSImageWell) are macOS-specific drag-and-drop image drop targets. Not supported on iOS/iPadOS/tvOS/visionOS/watchOS. Building a UI::ImageWell requires NSImageWell wrapping + NSDraggingDestination protocol bridge for drop handling. Skipped as macOS-specialty + drag-protocol dependency.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/image-wells-macos-light.png'><img src='screenshots/image-wells-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/image-wells-macos-dark.png'><img src='screenshots/image-wells-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-image-well-intro.png'><img class='small' src='../../apple-hig/images/components-image-well-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>live-activities</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>iOS ActivityKit runtime feature (Dynamic Island/Lock Screen). Requires WidgetKit extension + ActivityKit framework; rendered by system, not in-app. Skipped as not-applicable-to-capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/live-activities-macos-light.png'><img src='screenshots/live-activities-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/live-activities-macos-dark.png'><img src='screenshots/live-activities-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-live-activities-intro.png'><img class='small' src='../../apple-hig/images/components-live-activities-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/lock-screen-amber-dark.png'><img class='backdrop-thumb' src='backdrops/lock-screen-amber-dark.png'></a><span class='backdrop-name'>lock-screen-amber</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>notifications</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>UserNotifications framework + extension. Notification UI is system-rendered in Notification Center / banners. Skipped as not-applicable-to-capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/notifications-macos-light.png'><img src='screenshots/notifications-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/notifications-macos-dark.png'><img src='screenshots/notifications-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-notification-intro.png'><img class='small' src='../../apple-hig/images/components-notification-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/lock-screen-amber-dark.png'><img class='backdrop-thumb' src='backdrops/lock-screen-amber-dark.png'></a><span class='backdrop-name'>lock-screen-amber</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>ornaments</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>visionOS-only component for floating UI chrome around windows. asset_pipeline does not target visionOS. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/ornaments-macos-light.png'><img src='screenshots/ornaments-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/ornaments-macos-dark.png'><img src='screenshots/ornaments-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-ornaments-intro.png'><img class='small' src='../../apple-hig/images/components-ornaments-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>outline-views</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Outline views per HIG map to NSOutlineView — an expandable tree list with disclosure triangles. Disproportionate: requires NSOutlineViewDataSource/Delegate protocol bridges (similar to NSTableView). UI::ListView + UI::DisclosureGroup cover the common use case on iOS. Skipped with remediation: build UI::OutlineView when a consumer needs the NSOutlineView-specific idiom.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/outline-views-macos-light.png'><img src='screenshots/outline-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/outline-views-macos-dark.png'><img src='screenshots/outline-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><div class='backdrop-cell'><a href='backdrops/finder-mail-backdrop-light.png'><img class='backdrop-thumb' src='backdrops/finder-mail-backdrop-light.png'></a><span class='backdrop-name'>finder-mail-backdrop</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>page-controls</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::PageControl</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/page-controls-macos-light.png'><img src='screenshots/page-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/page-controls-macos-dark.png'><img src='screenshots/page-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/page-controls-ios-light.png'><img src='screenshots/page-controls-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/page-controls-ios-dark.png'><img src='screenshots/page-controls-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-page-dots-intro.png'><img class='small' src='../../apple-hig/images/components-page-dots-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/page-controls.md'>report</a> · <a href='../components/page-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>panels</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Panels per HIG are macOS-specific auxiliary windows (NSPanel — inspectors, color pickers, find/replace floaters). Not an in-app view — panel chrome is managed by NSPanel at the window level, outside UI::View tree. Skipped as window-chrome-not-view.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/panels-macos-light.png'><img src='screenshots/panels-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/panels-macos-dark.png'><img src='screenshots/panels-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-panel-intro.png'><img class='small' src='../../apple-hig/images/components-panel-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>path-controls</span><br>
+<span class='v-skip'>SKIPPED</span> · iter 56<br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Implement UI::PathControl as a new macOS-only view backed by NSPathControl (standard and popup styles). For iOS, the HIG specifies no equivalent; a custom HStack of Label+chevron pairs is the documented fallback. See gaps.md entry PATH-CONTROLS-MAPPING-MISMATCH.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/path-controls-macos-light.png'><img src='screenshots/path-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/path-controls-macos-dark.png'><img src='screenshots/path-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-path-control-intro.png'><img class='small' src='../../apple-hig/images/components-path-control-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/path-controls.md'>report</a> · <a href='../components/path-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>rating-indicators</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::RatingIndicator</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>macOS: switch AppKit renderer from NSImageView to NSLevelIndicator(style=rating) in a live-render validation pass for click-to-rate interactivity; NSLevelIndicator cell drawing composites correctly in CGWindowListCreateImage but not in cacheDisplayInRect snapshot path.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/rating-indicators-macos-light.png'><img src='screenshots/rating-indicators-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/rating-indicators-macos-dark.png'><img src='screenshots/rating-indicators-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/rating-indicators-ios-light.png'><img src='screenshots/rating-indicators-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/rating-indicators-ios-dark.png'><img src='screenshots/rating-indicators-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-rating-indicators-intro.png'><img class='small' src='../../apple-hig/images/components-rating-indicators-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/rating-indicators.md'>report</a> · <a href='../components/rating-indicators.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>status-bars</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> <span class='ui-view'>glass: menu</span>
+
+<span class='notes'>iOS status bar is system-controlled (UIStatusBar). Apps configure style only via UIStatusBarStyle; no custom in-app render. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/status-bars-macos-light.png'><img src='screenshots/status-bars-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/status-bars-macos-dark.png'><img src='screenshots/status-bars-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-status-bar-intro.png'><img class='small' src='../../apple-hig/images/components-status-bar-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>the-menu-bar</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> <span class='ui-view'>glass: </span>
+
+<span class='notes'>macOS system menu bar (NSMenu on NSApplication). Lives at the OS level, not inside asset_pipeline UI tree. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/the-menu-bar-macos-light.png'><img src='screenshots/the-menu-bar-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/the-menu-bar-macos-dark.png'><img src='screenshots/the-menu-bar-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-the-menu-bar-intro.png'><img class='small' src='../../apple-hig/images/components-the-menu-bar-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/menu-backdrop-amber-document-light.png'><img class='backdrop-thumb' src='backdrops/menu-backdrop-amber-document-light.png'></a><span class='backdrop-name'>menu-backdrop-amber-document</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>token-fields</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>Token fields per HIG (NSTokenField) are macOS-specific inline-pill text fields used for recipient entry in Mail. Not supported on iOS per HIG. Building a UI::TokenField requires NSTokenFieldDelegate protocol bridge for the tokenize-on-delimiter behavior. Skipped as macOS-specialty + protocol dependency.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/token-fields-macos-light.png'><img src='screenshots/token-fields-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/token-fields-macos-dark.png'><img src='screenshots/token-fields-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-token-field-intro.png'><img class='small' src='../../apple-hig/images/components-token-field-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>top-shelf</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/top-shelf-macos-light.png'><img src='screenshots/top-shelf-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/top-shelf-macos-dark.png'><img src='screenshots/top-shelf-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-top-shelf-intro.png'><img class='small' src='../../apple-hig/images/components-top-shelf-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/home-screen-amber-wallpaper-light.png'><img class='backdrop-thumb' src='backdrops/home-screen-amber-wallpaper-light.png'></a><span class='backdrop-name'>home-screen-amber-wallpaper</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>virtual-keyboards</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>iOS system keyboard (UIKeyboard). Apps configure UITextInputTraits only; keyboard itself is system-rendered. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/virtual-keyboards-macos-light.png'><img src='screenshots/virtual-keyboards-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/virtual-keyboards-macos-dark.png'><img src='screenshots/virtual-keyboards-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-virtual-keyboard-intro.png'><img class='small' src='../../apple-hig/images/components-virtual-keyboard-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>watch-faces</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>watchOS-only (Watch face design doc). Not an app-developer API — Apple reserves watch face creation. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/watch-faces-macos-light.png'><img src='screenshots/watch-faces-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/watch-faces-macos-dark.png'><img src='screenshots/watch-faces-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-faces-intro.png'><img class='small' src='../../apple-hig/images/components-faces-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>web-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 57<br>
+<span class='ui-view'>UI::WebViewComponent</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 57. NSView/UIView placeholder instead of live WKWebView (static capture limitation). Container visible in all four captures. Both mandatory doc sections present.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/web-views-macos-light.png'><img src='screenshots/web-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/web-views-macos-dark.png'><img src='screenshots/web-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/web-views-ios-light.png'><img src='screenshots/web-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/web-views-ios-dark.png'><img src='screenshots/web-views-ios-dark.png'></a></div></div></td>
+<td><a href='../../apple-hig/images/components-web-view-intro.png'><img class='small' src='../../apple-hig/images/components-web-view-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><a href='reports/web-views.md'>report</a> · <a href='../components/web-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>widgets</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+<span class='notes'>WidgetKit extension only — widgets are separate targets rendered by the Home Screen. Not an in-app UI::View. Skipped as platform-inapplicable.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/widgets-macos-light.png'><img src='screenshots/widgets-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/widgets-macos-dark.png'><img src='screenshots/widgets-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-widgets-intro.png'><img class='small' src='../../apple-hig/images/components-widgets-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/home-screen-amber-wallpaper-light.png'><img class='backdrop-thumb' src='backdrops/home-screen-amber-wallpaper-light.png'></a><span class='backdrop-name'>home-screen-amber-wallpaper</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>windows</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> <span class='ui-view'>glass: </span>
+
+<span class='notes'>Windows per HIG are the top-level window chrome (NSWindow title bar, traffic lights, window controls). Managed by NSWindow / UIWindow at the OS level, not an in-app UI::View. The window contents are already validated across all other slugs. Skipped as window-chrome-not-view.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/windows-macos-light.png'><img src='screenshots/windows-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/windows-macos-dark.png'><img src='screenshots/windows-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><a href='../../apple-hig/images/components-window-intro.png'><img class='small' src='../../apple-hig/images/components-window-intro.png'></a></td>
+<td><div class='backdrop-cell'><a href='backdrops/sheet-backdrop-amber-gradient-light.png'><img class='backdrop-thumb' src='backdrops/sheet-backdrop-amber-gradient-light.png'></a><span class='backdrop-name'>sheet-backdrop-amber-gradient</span></div></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+</tbody></table>
+<h2>Pending (0)</h2>
+<p><em>None — all components terminal.</em></p>

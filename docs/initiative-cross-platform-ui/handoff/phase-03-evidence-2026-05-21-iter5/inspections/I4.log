@@ -1,0 +1,6 @@
+# I4 — objc_send_ulong is the typed-fun primitive (literal-vs-equivalent PASS per architect)
+src/ui/native/objc_bridge.m:96:void *objc_send_ulong(void *obj, void *sel, unsigned long long val) {
+src/ui/renderers/appkit_renderer.cr:37:      fun objc_send_ulong(obj : Void*, sel : Void*, val : UInt64) : Void*
+src/ui/renderers/uikit_renderer.cr:37:      fun objc_send_ulong(obj : Void*, sel : Void*, val : UInt64) : Void*
+src/ui/renderers/uikit_renderer.cr:2167:            LibObjCBridge.objc_send_ulong(layer, sel("setMaskedCorners:"), 15_u64)
+src/ui/renderers/uikit_renderer.cr:3803:          LibObjCBridge.objc_send_ulong(eff_layer, sel("setMaskedCorners:"), 15_u64)

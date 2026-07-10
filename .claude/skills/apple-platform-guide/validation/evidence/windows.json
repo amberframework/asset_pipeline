@@ -1,0 +1,8 @@
+{
+  "slug": "windows",
+  "validation_state": "skipped",
+  "evidence_state": "not_applicable",
+  "evidence_errors": [],
+  "screenshots": [],
+  "notes": "Window chrome is OS-managed rather than an in-app view. The shard now exposes a practical UI::Windows configuration service for top-level shell intent, but screenshot validation remains not applicable until host bridge integration exists."
+}

@@ -1,0 +1,2278 @@
+{
+  "generated_at": "2026-04-12T21:34:06+00:00",
+  "count": 166,
+  "pages": [
+    {
+      "slug": "_root",
+      "title": "Human Interface Guidelines",
+      "role": "collection",
+      "abstract": "The HIG contains guidance and best practices that can help you design a great experience for any Apple platform.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/_root.md"
+    },
+    {
+      "slug": "accessibility",
+      "title": "Accessibility",
+      "role": "article",
+      "abstract": "Accessible user interfaces empower everyone to have a great experience with your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "accessibility"
+      ],
+      "path": "pages/accessibility.md"
+    },
+    {
+      "slug": "action-button",
+      "title": "Action button",
+      "role": "article",
+      "abstract": "The Action button gives people quick access to their favorite features on supported iPhone and Apple Watch models.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button"
+      ],
+      "path": "pages/action-button.md"
+    },
+    {
+      "slug": "action-sheets",
+      "title": "Action sheets",
+      "role": "article",
+      "abstract": "An action sheet is a modal view that presents choices related to an action people initiate.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "sheet"
+      ],
+      "path": "pages/action-sheets.md"
+    },
+    {
+      "slug": "activity-rings",
+      "title": "Activity rings",
+      "role": "article",
+      "abstract": "Activity rings show an individual\u2019s daily progress toward Move, Exercise, and Stand goals.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/activity-rings.md"
+    },
+    {
+      "slug": "activity-views",
+      "title": "Activity views",
+      "role": "article",
+      "abstract": "An activity view \u2014 often called a *share sheet* \u2014 presents a range of tasks that people can perform in the current context.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "sheet"
+      ],
+      "path": "pages/activity-views.md"
+    },
+    {
+      "slug": "airplay",
+      "title": "AirPlay",
+      "role": "article",
+      "abstract": "AirPlay lets people stream media content wirelessly from iOS, iPadOS, macOS, and tvOS devices to Apple TV, HomePod, and TVs and speakers that support AirPlay.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/airplay.md"
+    },
+    {
+      "slug": "alerts",
+      "title": "Alerts",
+      "role": "article",
+      "abstract": "An alert gives people critical information they need right away.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "alert"
+      ],
+      "path": "pages/alerts.md"
+    },
+    {
+      "slug": "always-on",
+      "title": "Always On",
+      "role": "article",
+      "abstract": "On devices that include the Always On display, the system can continue to display an app\u2019s interface when people suspend their interactions with the device.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/always-on.md"
+    },
+    {
+      "slug": "app-clips",
+      "title": "App Clips",
+      "role": "article",
+      "abstract": "An App Clip is a lightweight version of your app or game that provides an on-the-go or demo experience that\u2019s instantly available.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/app-clips.md"
+    },
+    {
+      "slug": "app-icons",
+      "title": "App icons",
+      "role": "article",
+      "abstract": "A unique, memorable icon expresses your app\u2019s or game\u2019s purpose and personality and helps people recognize it at a glance.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "icon"
+      ],
+      "path": "pages/app-icons.md"
+    },
+    {
+      "slug": "app-shortcuts",
+      "title": "App Shortcuts",
+      "role": "article",
+      "abstract": "An App Shortcut gives people access to your app\u2019s key functions or content throughout the system.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/app-shortcuts.md"
+    },
+    {
+      "slug": "apple-pay",
+      "title": "Apple Pay",
+      "role": "article",
+      "abstract": "Apple Pay is a secure, easy way to make payments for physical goods and services \u2014 as well as donations and subscriptions \u2014 in apps running on iPhone, iPad, Mac, Apple Vision Pro, Apple Watch, on websites, and on any browser.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/apple-pay.md"
+    },
+    {
+      "slug": "apple-pencil-and-scribble",
+      "title": "Apple Pencil and Scribble",
+      "role": "article",
+      "abstract": "Apple Pencil helps make drawing, handwriting, and marking effortless and natural, in addition to performing well as a pointer and UI interaction tool.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/apple-pencil-and-scribble.md"
+    },
+    {
+      "slug": "augmented-reality",
+      "title": "Augmented reality",
+      "role": "article",
+      "abstract": "Augmented reality (or AR) lets you deliver immersive, engaging experiences that seamlessly blend virtual objects with the real world.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/augmented-reality.md"
+    },
+    {
+      "slug": "boxes",
+      "title": "Boxes",
+      "role": "article",
+      "abstract": "A box creates a visually distinct group of logically related information and components.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/boxes.md"
+    },
+    {
+      "slug": "branding",
+      "title": "Branding",
+      "role": "article",
+      "abstract": "Apps and games express their unique brand identity in ways that make them instantly recognizable while feeling at home on the platform and giving people a consistent experience.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/branding.md"
+    },
+    {
+      "slug": "buttons",
+      "title": "Buttons",
+      "role": "article",
+      "abstract": "A button initiates an instantaneous action.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button"
+      ],
+      "path": "pages/buttons.md"
+    },
+    {
+      "slug": "camera-control",
+      "title": "Camera Control",
+      "role": "article",
+      "abstract": "The Camera Control provides direct access to your app\u2019s camera experience.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/camera-control.md"
+    },
+    {
+      "slug": "carekit",
+      "title": "CareKit",
+      "role": "article",
+      "abstract": "People can use CareKit apps to manage care plans related to a chronic illness like diabetes, recover from an injury or surgery, or achieve health and wellness goals.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/carekit.md"
+    },
+    {
+      "slug": "charting-data",
+      "title": "Charting data",
+      "role": "article",
+      "abstract": "Presenting data in a chart can help you communicate information with clarity and appeal.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "chart"
+      ],
+      "path": "pages/charting-data.md"
+    },
+    {
+      "slug": "charts",
+      "title": "Charts",
+      "role": "article",
+      "abstract": "Organize data in a chart to communicate information with clarity and visual appeal.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "chart"
+      ],
+      "path": "pages/charts.md"
+    },
+    {
+      "slug": "collaboration-and-sharing",
+      "title": "Collaboration and sharing",
+      "role": "article",
+      "abstract": "Great collaboration and sharing experiences are simple and responsive, letting people engage with the content while communicating effectively with others.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/collaboration-and-sharing.md"
+    },
+    {
+      "slug": "collections",
+      "title": "Collections",
+      "role": "article",
+      "abstract": "A collection manages an ordered set of content and presents it in a customizable and highly visual layout.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "layout"
+      ],
+      "path": "pages/collections.md"
+    },
+    {
+      "slug": "color",
+      "title": "Color",
+      "role": "article",
+      "abstract": "Judicious use of color can enhance communication, evoke your brand, provide visual continuity, communicate status and feedback, and help people understand information.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "color",
+        "feedback"
+      ],
+      "path": "pages/color.md"
+    },
+    {
+      "slug": "color-wells",
+      "title": "Color wells",
+      "role": "article",
+      "abstract": "A color well lets people adjust the color of text, shapes, guides, and other onscreen elements.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "color",
+        "text"
+      ],
+      "path": "pages/color-wells.md"
+    },
+    {
+      "slug": "column-views",
+      "title": "Column views",
+      "role": "article",
+      "abstract": "A column view \u2014 also called a *browser* \u2014 lets people view and navigate a data hierarchy using a series of vertical columns.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [],
+      "path": "pages/column-views.md"
+    },
+    {
+      "slug": "combo-boxes",
+      "title": "Combo boxes",
+      "role": "article",
+      "abstract": "A combo box combines a text field with a pull-down button in a single control.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "text",
+        "input",
+        "button"
+      ],
+      "path": "pages/combo-boxes.md"
+    },
+    {
+      "slug": "complications",
+      "title": "Complications",
+      "role": "article",
+      "abstract": "A complication displays timely, relevant information on the watch face, where people can view it each time they raise their wrist.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/complications.md"
+    },
+    {
+      "slug": "components",
+      "title": "Components",
+      "role": "collectionGroup",
+      "abstract": "Learn how to use and customize system-defined components to give people a familiar and consistent experience.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/components.md"
+    },
+    {
+      "slug": "content",
+      "title": "Content",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/content.md"
+    },
+    {
+      "slug": "context-menus",
+      "title": "Context menus",
+      "role": "article",
+      "abstract": "A context menu provides access to functionality that\u2019s directly related to an item, without cluttering the interface.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "menu"
+      ],
+      "path": "pages/context-menus.md"
+    },
+    {
+      "slug": "controls",
+      "title": "Controls",
+      "role": "article",
+      "abstract": "A control provides quick access to a feature of your app from Control Center, the Lock Screen, or the Action button.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button"
+      ],
+      "path": "pages/controls.md"
+    },
+    {
+      "slug": "dark-mode",
+      "title": "Dark Mode",
+      "role": "article",
+      "abstract": "Dark Mode is a systemwide appearance setting that uses a dark color palette to provide a comfortable viewing experience tailored for low-light environments.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "appearance",
+        "color"
+      ],
+      "path": "pages/dark-mode.md"
+    },
+    {
+      "slug": "designing-for-games",
+      "title": "Designing for games",
+      "role": "article",
+      "abstract": "When people play your game on an Apple device, they dive into the world you designed while relying on the platform features they love.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/designing-for-games.md"
+    },
+    {
+      "slug": "designing-for-ios",
+      "title": "Designing for iOS",
+      "role": "article",
+      "abstract": "People depend on their iPhone to help them stay connected, play games, view media, accomplish tasks, and track personal data in any location and while on the go.",
+      "platforms": [
+        "iOS"
+      ],
+      "tags": [],
+      "path": "pages/designing-for-ios.md"
+    },
+    {
+      "slug": "designing-for-ipados",
+      "title": "Designing for iPadOS",
+      "role": "article",
+      "abstract": "People value the power, mobility, and flexibility of iPad as they enjoy media, play games, perform detailed productivity tasks, and bring their creations to life.",
+      "platforms": [
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/designing-for-ipados.md"
+    },
+    {
+      "slug": "designing-for-macos",
+      "title": "Designing for macOS",
+      "role": "article",
+      "abstract": "People rely on the power, spaciousness, and flexibility of a Mac as they perform in-depth productivity tasks, view media or content, and play games, often using several apps at once.",
+      "platforms": [
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/designing-for-macos.md"
+    },
+    {
+      "slug": "digit-entry-views",
+      "title": "Digit entry views",
+      "role": "article",
+      "abstract": "A digit entry view fills the entire screen and prompts people to enter a series of digits, like a PIN, using a digit-specific keyboard.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/digit-entry-views.md"
+    },
+    {
+      "slug": "digital-crown",
+      "title": "Digital Crown",
+      "role": "article",
+      "abstract": "The Digital Crown is an important hardware input for Apple Vision Pro and Apple Watch.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "input"
+      ],
+      "path": "pages/digital-crown.md"
+    },
+    {
+      "slug": "disclosure-controls",
+      "title": "Disclosure controls",
+      "role": "article",
+      "abstract": "Disclosure controls reveal and hide information and functionality related to specific controls or views.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/disclosure-controls.md"
+    },
+    {
+      "slug": "dock-menus",
+      "title": "Dock menus",
+      "role": "article",
+      "abstract": "On a Mac, people can secondary click an app\u2019s or game\u2019s icon in the Dock to reveal a Dock menu, which presents both system-provided and custom items.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "menu",
+        "icon"
+      ],
+      "path": "pages/dock-menus.md"
+    },
+    {
+      "slug": "drag-and-drop",
+      "title": "Drag and drop",
+      "role": "article",
+      "abstract": "Using drag and drop, people can move or duplicate selected photos, text, and other content by dragging the selection from one location to another.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "text"
+      ],
+      "path": "pages/drag-and-drop.md"
+    },
+    {
+      "slug": "edit-menus",
+      "title": "Edit menus",
+      "role": "article",
+      "abstract": "An edit menu lets people make changes to selected content in the current view, in addition to offering related commands like Copy, Select, Translate, and Look Up.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "menu"
+      ],
+      "path": "pages/edit-menus.md"
+    },
+    {
+      "slug": "entering-data",
+      "title": "Entering data",
+      "role": "article",
+      "abstract": "When you need information from people, design ways that make it easy for them to provide it without making mistakes.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/entering-data.md"
+    },
+    {
+      "slug": "eyes",
+      "title": "Eyes",
+      "role": "article",
+      "abstract": "In visionOS, people look at a virtual object to identify it as a target they can interact with.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/eyes.md"
+    },
+    {
+      "slug": "feedback",
+      "title": "Feedback",
+      "role": "article",
+      "abstract": "Feedback helps people know what\u2019s happening, discover what they can do next, understand the results of actions, and avoid mistakes.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "feedback"
+      ],
+      "path": "pages/feedback.md"
+    },
+    {
+      "slug": "file-management",
+      "title": "File management",
+      "role": "article",
+      "abstract": "Some apps can support documents and files that people expect to manage throughout the system.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/file-management.md"
+    },
+    {
+      "slug": "focus-and-selection",
+      "title": "Focus and selection",
+      "role": "article",
+      "abstract": "Focus helps people visually confirm the object that their interaction targets.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/focus-and-selection.md"
+    },
+    {
+      "slug": "foundations",
+      "title": "Foundations",
+      "role": "collectionGroup",
+      "abstract": "Understand how fundamental design elements help you create rich experiences.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/foundations.md"
+    },
+    {
+      "slug": "game-center",
+      "title": "Game Center",
+      "role": "article",
+      "abstract": "Game Center is Apple\u2019s social gaming network, which lets players track their progress and connect with friends across Apple platforms, and boosts the discovery of your game across players\u2019 devices.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/game-center.md"
+    },
+    {
+      "slug": "game-controls",
+      "title": "Game controls",
+      "role": "article",
+      "abstract": "Precise, intuitive game controls enhance gameplay and can increase a player\u2019s immersion in the game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/game-controls.md"
+    },
+    {
+      "slug": "gauges",
+      "title": "Gauges",
+      "role": "article",
+      "abstract": "A gauge displays a specific numerical value within a range of values.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/gauges.md"
+    },
+    {
+      "slug": "generative-ai",
+      "title": "Generative AI",
+      "role": "article",
+      "abstract": "Generative AI empowers you to enhance your app or game with dynamic content and offer intelligent features that unlock new levels of creativity, connection, and productivity.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/generative-ai.md"
+    },
+    {
+      "slug": "gestures",
+      "title": "Gestures",
+      "role": "article",
+      "abstract": "A gesture is a physical motion that a person uses to directly affect an object in an app or game on their device.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "gesture",
+        "animation"
+      ],
+      "path": "pages/gestures.md"
+    },
+    {
+      "slug": "getting-started",
+      "title": "Getting started",
+      "role": "collectionGroup",
+      "abstract": "Create an app or game that feels at home on every platform you support.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/getting-started.md"
+    },
+    {
+      "slug": "going-full-screen",
+      "title": "Going full screen",
+      "role": "article",
+      "abstract": "iPhone, iPad, and Mac offer full-screen modes that let people expand a window to fill the screen, hiding system controls and providing a distraction-free environment.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "window"
+      ],
+      "path": "pages/going-full-screen.md"
+    },
+    {
+      "slug": "gyro-and-accelerometer",
+      "title": "Gyroscope and accelerometer",
+      "role": "article",
+      "abstract": "On-device gyroscopes and accelerometers can supply data about a device\u2019s movement in the physical world.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/gyro-and-accelerometer.md"
+    },
+    {
+      "slug": "healthkit",
+      "title": "HealthKit",
+      "role": "article",
+      "abstract": "HealthKit is the central repository for health and fitness data in iOS, iPadOS, and watchOS.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/healthkit.md"
+    },
+    {
+      "slug": "home-screen-quick-actions",
+      "title": "Home Screen quick actions",
+      "role": "article",
+      "abstract": "Home Screen quick actions give people a way to perform app-specific actions from the Home Screen.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/home-screen-quick-actions.md"
+    },
+    {
+      "slug": "homekit",
+      "title": "HomeKit",
+      "role": "article",
+      "abstract": "HomeKit lets people securely control connected accessories in their homes using Siri or the Home app on iPhone, iPad, Apple Watch, and Mac.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/homekit.md"
+    },
+    {
+      "slug": "icloud",
+      "title": "iCloud",
+      "role": "article",
+      "abstract": "iCloud is a service that lets people seamlessly access the content they care about \u2014 photos, videos, documents, and more \u2014 from any device, without performing explicit synchronization.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/icloud.md"
+    },
+    {
+      "slug": "icons",
+      "title": "Icons",
+      "role": "article",
+      "abstract": "An effective icon is a graphic asset that expresses a single concept in ways people instantly understand.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "icon"
+      ],
+      "path": "pages/icons.md"
+    },
+    {
+      "slug": "id-verifier",
+      "title": "ID Verifier",
+      "role": "article",
+      "abstract": "ID Verifier lets your iPhone app read mobile IDs in person without requiring external hardware.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/id-verifier.md"
+    },
+    {
+      "slug": "image-views",
+      "title": "Image views",
+      "role": "article",
+      "abstract": "An image view displays a single image \u2014 or in some cases, an animated sequence of images \u2014 on a transparent or opaque background.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "image"
+      ],
+      "path": "pages/image-views.md"
+    },
+    {
+      "slug": "image-wells",
+      "title": "Image wells",
+      "role": "article",
+      "abstract": "An image well is an editable version of an image view.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "image"
+      ],
+      "path": "pages/image-wells.md"
+    },
+    {
+      "slug": "images",
+      "title": "Images",
+      "role": "article",
+      "abstract": "To make sure your artwork looks great on all devices you support, learn how the system displays content and how to deliver art at the appropriate scale factors.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "image"
+      ],
+      "path": "pages/images.md"
+    },
+    {
+      "slug": "imessage-apps-and-stickers",
+      "title": "iMessage apps and stickers",
+      "role": "article",
+      "abstract": "An iMessage app can help people share content, collaborate, and even play games with others in a conversation; stickers are images that people can use to decorate a conversation.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "image"
+      ],
+      "path": "pages/imessage-apps-and-stickers.md"
+    },
+    {
+      "slug": "immersive-experiences",
+      "title": "Immersive experiences",
+      "role": "article",
+      "abstract": "In visionOS, you can design apps and games that extend beyond windows and volumes, immersing people in your content.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "window"
+      ],
+      "path": "pages/immersive-experiences.md"
+    },
+    {
+      "slug": "in-app-purchase",
+      "title": "In-app purchase",
+      "role": "article",
+      "abstract": "People can use in-app purchase to pay for virtual goods \u2014 like premium content, digital goods, and subscriptions \u2014 securely within your app.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/in-app-purchase.md"
+    },
+    {
+      "slug": "inclusion",
+      "title": "Inclusion",
+      "role": "article",
+      "abstract": "Inclusive apps and games put people first by prioritizing respectful communication and presenting content and functionality in ways that everyone can access and understand.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/inclusion.md"
+    },
+    {
+      "slug": "inputs",
+      "title": "Inputs",
+      "role": "collectionGroup",
+      "abstract": "Learn about the various methods people use to control your app or game and enter data.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/inputs.md"
+    },
+    {
+      "slug": "keyboards",
+      "title": "Keyboards",
+      "role": "article",
+      "abstract": "A physical keyboard can be an essential input device for entering text, playing games, controlling apps, and more.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "input",
+        "text"
+      ],
+      "path": "pages/keyboards.md"
+    },
+    {
+      "slug": "labels",
+      "title": "Labels",
+      "role": "article",
+      "abstract": "A label is a static piece of text that people can read and often copy, but not edit.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "text"
+      ],
+      "path": "pages/labels.md"
+    },
+    {
+      "slug": "launching",
+      "title": "Launching",
+      "role": "article",
+      "abstract": "A streamlined launch experience helps people start using your app or game immediately.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/launching.md"
+    },
+    {
+      "slug": "layout",
+      "title": "Layout",
+      "role": "article",
+      "abstract": "A consistent layout that adapts to various contexts makes your experience more approachable and helps people enjoy their favorite apps and games on all their devices.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "layout"
+      ],
+      "path": "pages/layout.md"
+    },
+    {
+      "slug": "layout-and-organization",
+      "title": "Layout and organization",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [
+        "layout"
+      ],
+      "path": "pages/layout-and-organization.md"
+    },
+    {
+      "slug": "lists-and-tables",
+      "title": "Lists and tables",
+      "role": "article",
+      "abstract": "Lists and tables present data in one or more columns of rows.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "list",
+        "table"
+      ],
+      "path": "pages/lists-and-tables.md"
+    },
+    {
+      "slug": "live-activities",
+      "title": "Live Activities",
+      "role": "article",
+      "abstract": "A Live Activity lets people track the progress of an activity, event, or task at a glance.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/live-activities.md"
+    },
+    {
+      "slug": "live-photos",
+      "title": "Live Photos",
+      "role": "article",
+      "abstract": "Live Photos lets people capture favorite memories in a sound- and motion-rich interactive experience that adds vitality to traditional still photos.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "animation",
+        "interactive"
+      ],
+      "path": "pages/live-photos.md"
+    },
+    {
+      "slug": "live-viewing-apps",
+      "title": "Live-viewing apps",
+      "role": "article",
+      "abstract": "As you design a live-viewing app, prioritize the content and create fun, fluid interactions that encourage immersion in the live-viewing experience.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/live-viewing-apps.md"
+    },
+    {
+      "slug": "loading",
+      "title": "Loading",
+      "role": "article",
+      "abstract": "The best content-loading experience finishes before people become aware of it.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/loading.md"
+    },
+    {
+      "slug": "lockups",
+      "title": "Lockups",
+      "role": "article",
+      "abstract": "Lockups combine multiple separate views into a single, interactive unit.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "interactive"
+      ],
+      "path": "pages/lockups.md"
+    },
+    {
+      "slug": "mac-catalyst",
+      "title": "Mac Catalyst",
+      "role": "article",
+      "abstract": "When you use Mac Catalyst to create a Mac version of your iPad app, you give people the opportunity to enjoy the experience in a new environment.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/mac-catalyst.md"
+    },
+    {
+      "slug": "machine-learning",
+      "title": "Machine learning",
+      "role": "article",
+      "abstract": "Machine learning enables apps and games to learn from data and usage patterns, letting you improve existing experiences and create engaging new ones.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/machine-learning.md"
+    },
+    {
+      "slug": "managing-accounts",
+      "title": "Managing accounts",
+      "role": "article",
+      "abstract": "When it doesn\u2019t create an unnecessary barrier to your experience, an account can be a convenient way for people to access their content and track personal details.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/managing-accounts.md"
+    },
+    {
+      "slug": "managing-notifications",
+      "title": "Managing notifications",
+      "role": "article",
+      "abstract": "Notifications can give people timely and important information, whether the device is locked or in use.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "notification"
+      ],
+      "path": "pages/managing-notifications.md"
+    },
+    {
+      "slug": "maps",
+      "title": "Maps",
+      "role": "article",
+      "abstract": "A map displays outdoor or indoor geographical data in your app or on your website.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "map"
+      ],
+      "path": "pages/maps.md"
+    },
+    {
+      "slug": "materials",
+      "title": "Materials",
+      "role": "article",
+      "abstract": "A material is a visual effect that creates a sense of depth, layering, and hierarchy between foreground and background elements.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "material"
+      ],
+      "path": "pages/materials.md"
+    },
+    {
+      "slug": "menus",
+      "title": "Menus",
+      "role": "article",
+      "abstract": "A menu reveals its options when people interact with it, making it a space-efficient way to present commands in your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "menu"
+      ],
+      "path": "pages/menus.md"
+    },
+    {
+      "slug": "menus-and-actions",
+      "title": "Menus and actions",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [
+        "menu"
+      ],
+      "path": "pages/menus-and-actions.md"
+    },
+    {
+      "slug": "modality",
+      "title": "Modality",
+      "role": "article",
+      "abstract": "Modality is a design technique that presents content in a separate, dedicated mode that prevents interaction with the parent view and requires an explicit action to dismiss.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "appearance"
+      ],
+      "path": "pages/modality.md"
+    },
+    {
+      "slug": "motion",
+      "title": "Motion",
+      "role": "article",
+      "abstract": "Beautiful, fluid motions bring the interface to life, conveying status, providing feedback and instruction, and enriching the visual experience of your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "animation",
+        "feedback"
+      ],
+      "path": "pages/motion.md"
+    },
+    {
+      "slug": "multitasking",
+      "title": "Multitasking",
+      "role": "article",
+      "abstract": "Multitasking lets people switch quickly from one app to another, performing tasks in each.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "toggle"
+      ],
+      "path": "pages/multitasking.md"
+    },
+    {
+      "slug": "navigation-and-search",
+      "title": "Navigation and search",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [
+        "navigation",
+        "search"
+      ],
+      "path": "pages/navigation-and-search.md"
+    },
+    {
+      "slug": "nearby-interactions",
+      "title": "Nearby interactions",
+      "role": "article",
+      "abstract": "Nearby interactions support on-device experiences that integrate the presence of people and objects in the nearby environment.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/nearby-interactions.md"
+    },
+    {
+      "slug": "nfc",
+      "title": "NFC",
+      "role": "article",
+      "abstract": "Near-field communication (NFC) allows devices within a few centimeters of each other to exchange information wirelessly.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "input"
+      ],
+      "path": "pages/nfc.md"
+    },
+    {
+      "slug": "notifications",
+      "title": "Notifications",
+      "role": "article",
+      "abstract": "A notification gives people timely, high-value information they can understand at a glance.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "notification"
+      ],
+      "path": "pages/notifications.md"
+    },
+    {
+      "slug": "offering-help",
+      "title": "Offering help",
+      "role": "article",
+      "abstract": "Although the most effective experiences are approachable and intuitive, you can provide contextual help when necessary.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/offering-help.md"
+    },
+    {
+      "slug": "onboarding",
+      "title": "Onboarding",
+      "role": "article",
+      "abstract": "Onboarding can help people get a quick start using your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "onboarding"
+      ],
+      "path": "pages/onboarding.md"
+    },
+    {
+      "slug": "ornaments",
+      "title": "Ornaments",
+      "role": "article",
+      "abstract": "In visionOS, an ornament presents controls and information related to a window, without crowding or obscuring the window\u2019s contents.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "window"
+      ],
+      "path": "pages/ornaments.md"
+    },
+    {
+      "slug": "outline-views",
+      "title": "Outline views",
+      "role": "article",
+      "abstract": "An outline view presents hierarchical data in a scrolling list of cells that are organized into columns and rows.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "list"
+      ],
+      "path": "pages/outline-views.md"
+    },
+    {
+      "slug": "page-controls",
+      "title": "Page controls",
+      "role": "article",
+      "abstract": "A page control displays a row of indicator images, each of which represents a page in a flat list.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "image",
+        "list"
+      ],
+      "path": "pages/page-controls.md"
+    },
+    {
+      "slug": "panels",
+      "title": "Panels",
+      "role": "article",
+      "abstract": "In a macOS app, a panel typically floats above other open windows providing supplementary controls, options, or information related to the active window or current selection.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "window"
+      ],
+      "path": "pages/panels.md"
+    },
+    {
+      "slug": "path-controls",
+      "title": "Path controls",
+      "role": "article",
+      "abstract": "A path control shows the file system path of a selected file or folder.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [],
+      "path": "pages/path-controls.md"
+    },
+    {
+      "slug": "patterns",
+      "title": "Patterns",
+      "role": "collectionGroup",
+      "abstract": "Get design guidance for supporting common user actions, tasks, and experiences.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/patterns.md"
+    },
+    {
+      "slug": "photo-editing",
+      "title": "Photo editing",
+      "role": "article",
+      "abstract": "Photo-editing extensions let people modify photos and videos within the Photos app by applying filters or making other changes.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/photo-editing.md"
+    },
+    {
+      "slug": "pickers",
+      "title": "Pickers",
+      "role": "article",
+      "abstract": "A picker displays one or more scrollable lists of distinct values that people can choose from.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "picker",
+        "list"
+      ],
+      "path": "pages/pickers.md"
+    },
+    {
+      "slug": "playing-audio",
+      "title": "Playing audio",
+      "role": "article",
+      "abstract": "People expect rich audio experiences that automatically adjust when the context changes on the device.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/playing-audio.md"
+    },
+    {
+      "slug": "playing-haptics",
+      "title": "Playing haptics",
+      "role": "article",
+      "abstract": "Playing haptics can engage people\u2019s sense of touch and bring their familiarity with the physical world into your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/playing-haptics.md"
+    },
+    {
+      "slug": "playing-video",
+      "title": "Playing video",
+      "role": "article",
+      "abstract": "People expect to enjoy rich video experiences on their devices, regardless of the app or game they\u2019re using.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/playing-video.md"
+    },
+    {
+      "slug": "pointing-devices",
+      "title": "Pointing devices",
+      "role": "article",
+      "abstract": "People can use a pointing device like a trackpad or mouse to navigate the interface and initiate actions.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/pointing-devices.md"
+    },
+    {
+      "slug": "pop-up-buttons",
+      "title": "Pop-up buttons",
+      "role": "article",
+      "abstract": "A pop-up button displays a menu of mutually exclusive options.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button",
+        "menu"
+      ],
+      "path": "pages/pop-up-buttons.md"
+    },
+    {
+      "slug": "popovers",
+      "title": "Popovers",
+      "role": "article",
+      "abstract": "A popover is a transient view that appears above other content when people click or tap a control or interactive area.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "interactive"
+      ],
+      "path": "pages/popovers.md"
+    },
+    {
+      "slug": "presentation",
+      "title": "Presentation",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/presentation.md"
+    },
+    {
+      "slug": "printing",
+      "title": "Printing",
+      "role": "article",
+      "abstract": "An iOS, iPadOS, macOS, or visionOS app can integrate system-provided print functionality when it makes sense, presenting custom printer- and document-specific options if necessary.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/printing.md"
+    },
+    {
+      "slug": "privacy",
+      "title": "Privacy",
+      "role": "article",
+      "abstract": "Privacy is paramount: it\u2019s critical to be transparent about the privacy-related data and resources you require and essential to protect the data people allow you to access.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/privacy.md"
+    },
+    {
+      "slug": "progress-indicators",
+      "title": "Progress indicators",
+      "role": "article",
+      "abstract": "Progress indicators let people know that your app isn\u2019t stalled while it loads content or performs lengthy operations.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/progress-indicators.md"
+    },
+    {
+      "slug": "pull-down-buttons",
+      "title": "Pull-down buttons",
+      "role": "article",
+      "abstract": "A pull-down button displays a menu of items or actions that directly relate to the button\u2019s purpose.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button",
+        "menu"
+      ],
+      "path": "pages/pull-down-buttons.md"
+    },
+    {
+      "slug": "rating-indicators",
+      "title": "Rating indicators",
+      "role": "article",
+      "abstract": "A rating indicator uses a series of horizontally arranged graphical symbols \u2014 by default, stars \u2014 to communicate a ranking level.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/rating-indicators.md"
+    },
+    {
+      "slug": "ratings-and-reviews",
+      "title": "Ratings and reviews",
+      "role": "article",
+      "abstract": "People often view the ratings and reviews for an app or game before they download it.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/ratings-and-reviews.md"
+    },
+    {
+      "slug": "remotes",
+      "title": "Remotes",
+      "role": "article",
+      "abstract": "The Siri Remote is the primary input method for Apple TV, helping people feel connected to onscreen content from across the room.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "input"
+      ],
+      "path": "pages/remotes.md"
+    },
+    {
+      "slug": "researchkit",
+      "title": "ResearchKit",
+      "role": "article",
+      "abstract": "A research app lets people everywhere participate in important medical research studies.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/researchkit.md"
+    },
+    {
+      "slug": "right-to-left",
+      "title": "Right to left",
+      "role": "article",
+      "abstract": "Support right-to-left languages like Arabic and Hebrew by reversing your interface as needed to match the reading direction of the related scripts.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/right-to-left.md"
+    },
+    {
+      "slug": "scroll-views",
+      "title": "Scroll views",
+      "role": "article",
+      "abstract": "A scroll view lets people view content that\u2019s larger than the view\u2019s boundaries by moving the content vertically or horizontally.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/scroll-views.md"
+    },
+    {
+      "slug": "search-fields",
+      "title": "Search fields",
+      "role": "article",
+      "abstract": "A search field lets people search a collection of content for specific terms they enter.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "search",
+        "input"
+      ],
+      "path": "pages/search-fields.md"
+    },
+    {
+      "slug": "searching",
+      "title": "Searching",
+      "role": "article",
+      "abstract": "People use various search techniques to find content on their device, within an app, and within a document or file.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "search"
+      ],
+      "path": "pages/searching.md"
+    },
+    {
+      "slug": "segmented-controls",
+      "title": "Segmented controls",
+      "role": "article",
+      "abstract": "A segmented control is a linear set of two or more segments, each of which functions as a button.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "button"
+      ],
+      "path": "pages/segmented-controls.md"
+    },
+    {
+      "slug": "selection-and-input",
+      "title": "Selection and input",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [
+        "input"
+      ],
+      "path": "pages/selection-and-input.md"
+    },
+    {
+      "slug": "settings",
+      "title": "Settings",
+      "role": "article",
+      "abstract": "People expect apps and games to just work, but they also appreciate having ways to customize the experience to fit their needs.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/settings.md"
+    },
+    {
+      "slug": "sf-symbols",
+      "title": "SF Symbols",
+      "role": "article",
+      "abstract": "SF Symbols provides thousands of consistent, highly configurable symbols that integrate seamlessly with the San Francisco system font, automatically aligning with text in all weights and sizes.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "typography",
+        "text"
+      ],
+      "path": "pages/sf-symbols.md"
+    },
+    {
+      "slug": "shareplay",
+      "title": "SharePlay",
+      "role": "article",
+      "abstract": "SharePlay helps multiple people share activities \u2014 like viewing a movie, listening to music, playing a game, or sketching ideas on a whiteboard \u2014 while they\u2019re in a FaceTime call or Messages conversation.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/shareplay.md"
+    },
+    {
+      "slug": "shazamkit",
+      "title": "ShazamKit",
+      "role": "article",
+      "abstract": "ShazamKit supports audio recognition by matching an audio sample against the ShazamKit catalog or a custom audio catalog.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/shazamkit.md"
+    },
+    {
+      "slug": "sheets",
+      "title": "Sheets",
+      "role": "article",
+      "abstract": "A sheet helps people perform a scoped task that\u2019s closely related to their current context.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "sheet"
+      ],
+      "path": "pages/sheets.md"
+    },
+    {
+      "slug": "sidebars",
+      "title": "Sidebars",
+      "role": "article",
+      "abstract": "A sidebar appears on the leading side of a view and lets people navigate between sections in your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "sidebar"
+      ],
+      "path": "pages/sidebars.md"
+    },
+    {
+      "slug": "sign-in-with-apple",
+      "title": "Sign in with Apple",
+      "role": "article",
+      "abstract": "Sign in with Apple provides a fast, private way to sign into apps and websites, giving people a consistent experience they can trust and the convenience of not having to remember multiple accounts and passwords.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/sign-in-with-apple.md"
+    },
+    {
+      "slug": "siri",
+      "title": "Siri",
+      "role": "article",
+      "abstract": "Siri makes it easy for people to accomplish everyday tasks quickly, using voice, touch, or automation.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/siri.md"
+    },
+    {
+      "slug": "sliders",
+      "title": "Sliders",
+      "role": "article",
+      "abstract": "A slider is a horizontal track with a control, called a thumb, that people can adjust between a minimum and maximum value.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "slider"
+      ],
+      "path": "pages/sliders.md"
+    },
+    {
+      "slug": "spatial-layout",
+      "title": "Spatial layout",
+      "role": "article",
+      "abstract": "Spatial layout techniques help you take advantage of the infinite canvas of Apple Vision Pro and present your content in engaging, comfortable ways.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "layout"
+      ],
+      "path": "pages/spatial-layout.md"
+    },
+    {
+      "slug": "split-views",
+      "title": "Split views",
+      "role": "article",
+      "abstract": "A split view manages the presentation of multiple adjacent panes of content, each of which can contain a variety of components, including tables, collections, images, and custom views.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "table",
+        "image"
+      ],
+      "path": "pages/split-views.md"
+    },
+    {
+      "slug": "status",
+      "title": "Status",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/status.md"
+    },
+    {
+      "slug": "status-bars",
+      "title": "Status bars",
+      "role": "article",
+      "abstract": "A status bar appears along the upper edge of the screen and displays information about the device\u2019s current state, like the time, cellular carrier, and battery level.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/status-bars.md"
+    },
+    {
+      "slug": "steppers",
+      "title": "Steppers",
+      "role": "article",
+      "abstract": "A stepper is a two-segment control that people use to increase or decrease an incremental value.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/steppers.md"
+    },
+    {
+      "slug": "system-experiences",
+      "title": "System experiences",
+      "role": "collectionGroup",
+      "abstract": "",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/system-experiences.md"
+    },
+    {
+      "slug": "tab-bars",
+      "title": "Tab bars",
+      "role": "article",
+      "abstract": "A tab bar lets people navigate between top-level sections of your app.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "tab-bar"
+      ],
+      "path": "pages/tab-bars.md"
+    },
+    {
+      "slug": "tab-views",
+      "title": "Tab views",
+      "role": "article",
+      "abstract": "A tab view presents multiple mutually exclusive panes of content in the same area, which people can switch between using a tabbed control.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "tab-bar",
+        "toggle"
+      ],
+      "path": "pages/tab-views.md"
+    },
+    {
+      "slug": "tap-to-pay-on-iphone",
+      "title": "Tap to Pay on iPhone",
+      "role": "article",
+      "abstract": "Tap to Pay on iPhone lets merchants accept contactless payments using an app on their iPhone, without having to connect external hardware.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/tap-to-pay-on-iphone.md"
+    },
+    {
+      "slug": "technologies",
+      "title": "Technologies",
+      "role": "collectionGroup",
+      "abstract": "Discover the Apple technologies, features, and services you can integrate into your app or game.",
+      "platforms": [],
+      "tags": [],
+      "path": "pages/technologies.md"
+    },
+    {
+      "slug": "text-fields",
+      "title": "Text fields",
+      "role": "article",
+      "abstract": "A text field is a rectangular area in which people enter or edit small, specific pieces of text.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "text",
+        "input"
+      ],
+      "path": "pages/text-fields.md"
+    },
+    {
+      "slug": "text-views",
+      "title": "Text views",
+      "role": "article",
+      "abstract": "A text view displays multiline, styled text content, which can optionally be editable.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "text"
+      ],
+      "path": "pages/text-views.md"
+    },
+    {
+      "slug": "the-menu-bar",
+      "title": "The menu bar",
+      "role": "article",
+      "abstract": "On a Mac or an iPad, the menu bar at the top of the screen displays the top-level menus in your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "menu"
+      ],
+      "path": "pages/the-menu-bar.md"
+    },
+    {
+      "slug": "toggles",
+      "title": "Toggles",
+      "role": "article",
+      "abstract": "A toggle lets people choose between a pair of opposing states, like on and off, using a different appearance to indicate each state.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "toggle"
+      ],
+      "path": "pages/toggles.md"
+    },
+    {
+      "slug": "token-fields",
+      "title": "Token fields",
+      "role": "article",
+      "abstract": "A token field is a type of text field that can convert text into *tokens* that are easy to select and manipulate.",
+      "platforms": [
+        "iOS",
+        "iPadOS"
+      ],
+      "tags": [
+        "input",
+        "text"
+      ],
+      "path": "pages/token-fields.md"
+    },
+    {
+      "slug": "toolbars",
+      "title": "Toolbars",
+      "role": "article",
+      "abstract": "A toolbar provides convenient access to frequently used commands, controls, navigation, and search.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "toolbar",
+        "navigation",
+        "search"
+      ],
+      "path": "pages/toolbars.md"
+    },
+    {
+      "slug": "top-shelf",
+      "title": "Top Shelf",
+      "role": "article",
+      "abstract": "The Apple TV Home Screen provides an area called Top Shelf, which showcases your content in a rich, engaging way while also giving people access to their favorite apps in the Dock.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/top-shelf.md"
+    },
+    {
+      "slug": "typography",
+      "title": "Typography",
+      "role": "article",
+      "abstract": "Your typographic choices can help you display legible text, convey an information hierarchy, communicate important content, and express your brand or style.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "typography",
+        "text"
+      ],
+      "path": "pages/typography.md"
+    },
+    {
+      "slug": "undo-and-redo",
+      "title": "Undo and redo",
+      "role": "article",
+      "abstract": "Undo and redo gives people easy ways to reverse many types of actions, which can also help people explore and experiment safely as they learn a new interface or task.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/undo-and-redo.md"
+    },
+    {
+      "slug": "virtual-keyboards",
+      "title": "Virtual keyboards",
+      "role": "article",
+      "abstract": "On devices without physical keyboards, the system offers various types of virtual keyboards people can use to enter data.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/virtual-keyboards.md"
+    },
+    {
+      "slug": "voiceover",
+      "title": "VoiceOver",
+      "role": "article",
+      "abstract": "VoiceOver is a screen reader that lets people experience your app\u2019s interface without needing to see the screen.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "accessibility"
+      ],
+      "path": "pages/voiceover.md"
+    },
+    {
+      "slug": "wallet",
+      "title": "Wallet",
+      "role": "article",
+      "abstract": "Wallet helps people securely store their credit and debit cards, driver\u2019s license or state ID, transit cards, event tickets, keys, and more on iPhone and Apple Watch.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/wallet.md"
+    },
+    {
+      "slug": "watch-faces",
+      "title": "Watch faces",
+      "role": "article",
+      "abstract": "A watch face is a view that people choose as their primary view in watchOS.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/watch-faces.md"
+    },
+    {
+      "slug": "web-views",
+      "title": "Web views",
+      "role": "article",
+      "abstract": "A web view loads and displays rich web content, such as embedded HTML and websites, directly within your app.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/web-views.md"
+    },
+    {
+      "slug": "widgets",
+      "title": "Widgets",
+      "role": "article",
+      "abstract": "A widget provides quick access to essential information and focused interactions from your app or game in additional contexts.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "widget"
+      ],
+      "path": "pages/widgets.md"
+    },
+    {
+      "slug": "windows",
+      "title": "Windows",
+      "role": "article",
+      "abstract": "A window presents UI views and components in your app or game.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [
+        "window"
+      ],
+      "path": "pages/windows.md"
+    },
+    {
+      "slug": "workouts",
+      "title": "Workouts",
+      "role": "article",
+      "abstract": "A great workout or fitness experience encourages people to engage with their current activity and helps them track their progress on their devices.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/workouts.md"
+    },
+    {
+      "slug": "writing",
+      "title": "Writing",
+      "role": "article",
+      "abstract": "The words you choose within your app are an essential part of its user experience.",
+      "platforms": [
+        "iOS",
+        "iPadOS",
+        "macOS"
+      ],
+      "tags": [],
+      "path": "pages/writing.md"
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "phase": 5,
+  "phase_name": "Glass Material Tokenization",
+  "branch": "phase-05-glass-material-tokenization",
+  "head_sha": "9037cc7",
+  "parent_sha": "2285fa1",
+  "iteration": 1,
+  "validated_at": "2026-05-22",
+  "validator": "phase-05-iter1-validator",
+  "verdict": "FAIL",
+  "verdict_reason": "Codex antagonist surfaced architectural concerns; per the validation contract the validator STOPS and surfaces to architect rather than synthesizing PASS. Two contract breaks (Apple Liquid Glass discards material/intensity; .chromeMaterial promised in brief but implementation ships .ultraThickMaterial) and one implementation.md scope-drift gate ignored (8 hard-coded NSVisualEffectMaterial / UIBlurEffectStyle sites left untokenized without explicit team-lead escalation as required at implementation.md:85-89).",
+
+  "headline_numbers": {
+    "invariants_total": 11,
+    "invariants_pass": 7,
+    "invariants_fail": 2,
+    "invariants_blocked": 2,
+    "contract_decisions_total": 5,
+    "contract_decisions_verified": 4,
+    "contract_decisions_broken": 1
+  },
+
+  "brief_validator": {
+    "command": "crystal run scripts/validate_phase_brief.cr -- docs/initiative-cross-platform-ui/phases/phase-05-glass-material-tokenization/brief.yml",
+    "exit_code": 0,
+    "log": "build_logs/brief_validator.log"
+  },
+
+  "invariants": [
+    {
+      "id": "I-1",
+      "touch": "extends",
+      "status": "FAIL",
+      "evidence": [
+        "Web renderer emits tokenized var(--ap-material-*) with calc(intensity) — visible per-step + intensity (PASS).",
+        "Android renderer emits android_view_apply_glass(blur_radius * intensity, fallback_argb) — visible per-step + intensity on API 31+ (PASS).",
+        "Apple renderers compute apple_step but Swift facade DISCARDS material on iOS 26 / macOS 26 path: GlassBackgroundFacade.swift line 64-70 — `_ = material; .glassEffect()`. All five steps render IDENTICALLY on iOS 26 / macOS 26. Intensity has NO visible effect on the target Apple platforms.",
+        "Brief I-1 rationale claims 'Visible glass surface changes when material.intensity shifts at brand-declaration time' — this holds for web + Android, NOT for iOS 26 / macOS 26 (the headline platforms for Phase 5)."
+      ],
+      "fail_reason": "Contract drift on Apple 26+. The brief's I-1 visible-change claim does not hold on iOS 26 / macOS 26 because the facade intentionally renders step-agnostic .glassEffect(). Either the brief must amend I-1 to scope Apple 26+ as 'system-canonical, intentionally uniform' (matching the facade comment), or the implementation must produce per-step + per-intensity differentiation on Apple 26+."
+    },
+    {
+      "id": "I-2",
+      "touch": "preserves",
+      "status": "PASS",
+      "evidence": [
+        "No def *= mutator on Material struct (grep src/ui/design_tokens/material.cr).",
+        "Existing Phase 3 reactive bridge (Label/Button/Toggle/Slider/Sheet) unchanged."
+      ]
+    },
+    {
+      "id": "I-3",
+      "touch": "preserves",
+      "status": "PASS",
+      "evidence": ["Glass material is pure render-side; no new event paths added."]
+    },
+    {
+      "id": "I-4",
+      "touch": "preserves",
+      "status": "PASS",
+      "evidence": ["No focus order changes; glass surfaces remain focus-transparent."]
+    },
+    {
+      "id": "I-5",
+      "touch": "preserves",
+      "status": "PASS",
+      "evidence": ["GlassBackground widget API unchanged; token resolution at render time."]
+    },
+    {
+      "id": "I-6",
+      "touch": "extends",
+      "status": "BLOCKED",
+      "evidence": [
+        "Web @supports not (backdrop-filter) fallback emitted by WebGenerator emit_supports_fallback at src/ui/design_tokens/generators/web_generator.cr:106-112 (PASS).",
+        "iOS/macOS/Android text-on-glass WCAG-AA contrast probes are pending (brief acknowledges harness is Phase 6.5).",
+        "BLOCKED until Codex finding #1 (Apple step/intensity discarded) is adjudicated — contrast audit on Apple cannot proceed if all five steps render identically."
+      ]
+    },
+    {
+      "id": "I-7",
+      "touch": "preserves",
+      "status": "PASS-with-note",
+      "evidence": [
+        "ObservableObject in swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/: PRE=4 files (ReactiveState, SheetFacade, TextFieldFacade, ValueStorage), POST=4 files. No new ones.",
+        "NOTE per Codex finding #4: A new JNI bridge android_view_apply_glass was added in src/ui/native/android_bridge.c:1483. It does not retain a Crystal handle (the FrameLayout is wrapped via existing JNI.wrap_global pattern), but the invariant comment in brief I-7 specifically claims 'no new C-export mutators' and 'no new retained handles on Crystal side'. The android_view_apply_glass IS a new C-export touching native view state. Arguably this is closer to extends than preserves; surfaced for architect."
+      ]
+    },
+    {
+      "id": "I-8",
+      "touch": "extends",
+      "status": "FAIL",
+      "evidence": [
+        "No production code path checks prefers-reduced-motion, forced-colors, or prefers-contrast for material.",
+        "Web: WebGenerator emits @media (prefers-color-scheme: dark) but NOT @media (prefers-reduced-motion) or @media (forced-colors).",
+        "Apple: relies entirely on SwiftUI Material's built-in env tracking (legitimate delegation pattern but invisible to validator).",
+        "Android: no env response code at all.",
+        "Probe specs are placeholder-only; pending env-response cells have empty bodies on macOS (spec/ui/glass_material/macos_glass_env_response_spec.cr lines 13/20/27 are bare pending blocks with no expected-shape comments).",
+        "Brief I-8 rationale: 'NEW env-response audit surface Phase 5 introduces'. The audit surface is not in production code AND not specified in probe bodies — it exists only as prose in brief.yml."
+      ],
+      "fail_reason": "I-8 marked extends but no production code paths for reduced-motion / high-contrast / forced-colors exist. SwiftUI delegation is defensible on Apple but web/Android are silent. The 'extends' touch claim is not earned by either delivered code OR by sufficiently specified probe contracts (env_response probes on macOS are vacuous)."
+    },
+    {
+      "id": "I-9",
+      "touch": "preserves",
+      "status": "PASS",
+      "evidence": ["@@<id>\\s*:.*= grep in src/ui/views/ + src/ui/design_tokens.cr + src/ui/design_tokens/material.cr: 0 PRE, 0 POST."]
+    },
+    {
+      "id": "I-10",
+      "touch": "extends",
+      "status": "FAIL",
+      "evidence": [
+        "Quantization table in Material#apple_step (src/ui/design_tokens/material.cr:92-100) matches brief boundary text.",
+        "Web @supports fallback in WebGenerator emit_supports_fallback (PASS).",
+        "Android API<31 alpha fallback in android_renderer.cr visit(UI::GlassBackground) (PASS).",
+        "BUT: brief adapter_cardinality row 1 promises intensity 1.8+ → .chromeMaterial. Actual chain: Crystal apple_step returns :chrome → Populator maps to 'ultraThick' (swiftkit_overrides.cr:634) → Swift facade maps 'ultraThick' → .ultraThickMaterial (GlassBackgroundFacade.swift:58). The spike at spikes/swiftui_material_spike.swift:43 even acknowledges '.chromeMaterial isn't exposed' and uses .bar. The brief promises an API that does not exist."
+      ],
+      "fail_reason": "Brief adapter_cardinality row 1 documents '.chromeMaterial' but neither the spike nor the production facade emit .chromeMaterial — both use .ultraThickMaterial (or .bar in the spike). The API contract fidelity invariant is broken: the documented degradation table doesn't match what consumers actually see. Brief must amend the quantization table to reflect the actual SwiftUI Material case used."
+    },
+    {
+      "id": "I-11",
+      "touch": "extends",
+      "status": "PASS",
+      "evidence": [
+        "Web no-codegen build: crystal-alpha build --no-codegen src/asset_pipeline.cr EXIT=0.",
+        "iOS Crystal lib: bash samples/cross_platform/ios_host/build_crystal_lib.sh simulator EXIT=0.",
+        "macOS host: make -C samples/cross_platform/macos_host build EXIT=0 (after swift build -c release to re-target macOS).",
+        "Android skip per Phase 1 #17 precedent (Crystal stdlib c/sys/epoll gap on darwin)."
+      ]
+    }
+  ],
+
+  "contract_decisions": [
+    {
+      "id": "D1",
+      "decision": "Material tokens render-time resolved (no def *= on Material)",
+      "verified": true,
+      "evidence": "grep 'def [^=]+=' src/ui/design_tokens/material.cr returns no setter."
+    },
+    {
+      "id": "D2",
+      "decision": "SwiftUI Material enum quantizes the Float64 intensity",
+      "verified": true,
+      "evidence": "Material#apple_step in src/ui/design_tokens/material.cr:92-100 implements the documented boundary table."
+    },
+    {
+      "id": "D3",
+      "decision": "Android renderer code lands in Phase 5",
+      "verified": true,
+      "evidence": "src/ui/renderers/android_renderer.cr:2184 visit(UI::GlassBackground) + src/ui/native/android_bridge.c:1483 android_view_apply_glass."
+    },
+    {
+      "id": "D4",
+      "decision": "SwiftUI Material spike compiles",
+      "verified": "partial",
+      "evidence": "iOS + macOS spike emit-library both EXIT=0. BUT the spike at spikes/swiftui_material_spike.swift:43 uses .bar for chrome, acknowledging .chromeMaterial isn't exposed. The spike actually FALSIFIES the brief's A1 claim that 'SwiftUI Material API accepts the Material enum values Phase 5 emits (.ultraThinMaterial, .thinMaterial, .regularMaterial, .thickMaterial, .chromeMaterial)' — the spike never compiles .chromeMaterial."
+    },
+    {
+      "id": "D5",
+      "decision": "No new ObservableObjects on Swift side",
+      "verified": true,
+      "evidence": "grep -rln ObservableObject swift/.../Facades/: PRE=4 files, POST=4 files."
+    }
+  ],
+
+  "implementation_md_scope_drift": {
+    "claim": "implementation.md lines 85-89 mandate tokenizing ALL hard-coded setMaterial: / UIBlurEffectStyle constants in renderer visit methods (Sheet, Popover, Sidebar, Toolbar, Alert, TabView), with an explicit escalation gate: 'If during implementation you discover this would balloon the diff beyond a reasonable single-phase scope (more than ~12 visit methods to refactor), stop and return to the team lead with what you found rather than picking an arbitrary subset.'",
+    "actual_behavior": "Phase 5 implementation tokenized ONLY visit(UI::GlassBackground) on uikit/appkit/android. The 8+ hard-coded setMaterial: constants in appkit_renderer.cr (lines 861, 1093, 1828, 1990, 2168, 2325, 2813, 3744) remain untouched. No team-lead escalation appears in the commit history.",
+    "consequence": "Brand-cascade for material.intensity does NOT reach Sheet / Popover / Sidebar / Toolbar / Alert / TabView surfaces — only GlassBackground explicit wrappers. This is the exact failure mode implementation.md warned against ('almost certainly the wrong behavior for a brand-cascade phase').",
+    "decision_for_architect": "Either (a) accept narrower scope and amend implementation.md + brief.yml to scope Phase 5 explicitly to GlassBackground only, or (b) Phase 5 returns to remediation to tokenize the remaining 8 setMaterial: sites."
+  },
+
+  "prior_phase_regression_check": {
+    "phase3_ios_xcuitest_phase03behaviortests": {
+      "command": "xcodebuild test -project samples/cross_platform/ios_host/CrystalHIGHost.xcodeproj -scheme CrystalHIGHost -destination 'platform=iOS Simulator,id=92DA97A0-5FEC-46BD-A525-8AFE2A4FDC21' -only-testing:CrystalHIGHostUITests/Phase03BehaviorTests",
+      "result": "PASS 10/10 (96.08s)",
+      "log": "test_output/ios_xcuitest.log"
+    },
+    "phase3_macos_axtest_bx2_bx7": {
+      "command": "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr spec/ui/hig_validation/macos_form_layout_spec.cr -Dmacos --link-flags='-framework ApplicationServices -framework CoreFoundation'",
+      "result": "FAIL 0/2 — ENVIRONMENTAL not regression. Terminal lacks Accessibility TCC permission (sqlite3 /Library/Application Support/com.apple.TCC/TCC.db reports com.apple.Terminal|0 i.e. not granted). Verified non-regression by checking out 2285fa1 (Phase 4 PASS sha) src/ + swift/ + samples/cross_platform/macos_host/ and rebuilding — Phase 4 sources ALSO fail BX2 with identical Expected: nil not to be nil. Restored Phase 5 sources after.",
+      "log": "test_output/macos_axtest_bx2_bx7.log",
+      "remediation": "Architect/operator must run validation from an Accessibility-authorized runner (System Settings > Privacy & Security > Accessibility > grant Terminal). NOT a Phase 5 ship blocker."
+    },
+    "phase4_cdp_harness": {
+      "command": "crystal-alpha run scripts/phase04_cdp_harness.cr",
+      "result": "PASS 14/14 probes; any_failed=false (brief mentions 12 + 2 supplementary)",
+      "log": "test_output/phase04_cdp_harness.log"
+    },
+    "swift_test": {
+      "command": "swift test (in swift/AssetPipelineSwiftKit/)",
+      "result": "PASS 53/53",
+      "log": "test_output/swift_test.log"
+    },
+    "crystal_spec_baseline": {
+      "command": "crystal spec",
+      "result": "1447 examples, 4 failures, 0 errors, 80 pending. The 4 failures match the documented Phase 4 baseline (1 UI::Theme inject_theme_css + 3 Phase 2 Verification component composition specs). The 80 pending are exactly the Phase 5 probe placeholders.",
+      "log": "test_output/crystal_spec.log"
+    },
+    "web_demo_validator": {
+      "command": "crystal-alpha run scripts/validate_web_demo.cr",
+      "result": "PASS",
+      "log": "test_output/validate_web_demo.log"
+    },
+    "brand_glass_intensity_demo": {
+      "command": "crystal-alpha run samples/cross_platform/web/brand_glass_intensity_demo.cr",
+      "result": "PASS — emits --ap-material-intensity: 1.3 cascading through calc() to all 5 step blur radii",
+      "log": "test_output/brand_glass_intensity_demo.log"
+    }
+  },
+
+  "phase5_probe_placeholders": {
+    "directory": "spec/ui/glass_material/",
+    "file_count": 6,
+    "pending_count": 80,
+    "files": {
+      "ios_glass_default_spec.cr": {"pending": 5, "shape": "strong — declares slug, AX identifier convention 'ap.glass.<step>.intensity_<intensity_x100>', expected-shape Crystal pseudocode body in each pending block"},
+      "macos_glass_default_spec.cr": {"pending": 5, "shape": "parallel to iOS — assumed strong"},
+      "ios_glass_contrast_spec.cr": {"pending": 20, "shape": "strong — declares 4 intensities x 5 steps matrix, expected-shape pseudocode"},
+      "macos_glass_contrast_spec.cr": {"pending": 20, "shape": "parallel to iOS"},
+      "ios_glass_env_response_spec.cr": {"pending": 15, "shape": "uneven — reduced_motion cells have expected-shape pseudocode; high_contrast + dark_mode cells have only one-line comments"},
+      "macos_glass_env_response_spec.cr": {"pending": 15, "shape": "WEAK — pending bodies are completely empty (no expected-shape comments). See lines 13/20/27."}
+    }
+  },
+
+  "codex_antagonist": {
+    "command": "codex exec --skip-git-repo-check '...'",
+    "verdict": "Would not sign draft PASS",
+    "concerns_raised": 5,
+    "concerns_summary": [
+      "Apple 26+ contract drift: facade discards material/intensity on .glassEffect() path. Confirmed at GlassBackgroundFacade.swift:64-70.",
+      ".chromeMaterial contract break: brief promises .chromeMaterial; spike uses .bar; facade uses .ultraThickMaterial. Confirmed at swiftkit_overrides.cr:634, GlassBackgroundFacade.swift:53-58, spike:43.",
+      "I-8 should be partial or fail — env-response has no production code paths.",
+      "I-7 should arguably be extends (new JNI C-export android_view_apply_glass).",
+      "implementation.md scope drift: 8+ untokenized setMaterial: sites in appkit_renderer.cr without team-lead escalation."
+    ],
+    "critique_log": "codex/p5-validator-codex-critique.md"
+  },
+
+  "stop_condition_triggered": "FAIL with substance gap — Codex flagged architectural concerns. Per validator working norms ('If Codex flags an architectural concern, STOP — do not finalize verdict, instead surface to architect.'), the validator does not synthesize PASS.",
+
+  "architect_attention": [
+    "BLOCKER 1 (I-1 + I-10 + D4 + A1 all touch): brief promises Apple intensity/step differentiation AND .chromeMaterial. Implementation: facade discards step on Apple 26+ (.glassEffect() is step-uniform) and maps :chrome to .ultraThickMaterial (no .chromeMaterial in SwiftUI). Brief must either amend to scope Apple 26+ as step-agnostic + replace .chromeMaterial promise with .ultraThickMaterial throughout, OR Phase 5 must deliver per-step differentiation on Apple 26+ and a real .chromeMaterial code path.",
+    "BLOCKER 2 (implementation.md scope drift): 8+ hard-coded NSVisualEffectMaterial sites in appkit_renderer.cr remain untokenized; implementation.md:85-89 mandated either tokenizing all of them OR stopping to escalate to team lead. Neither happened. Architect adjudicates: was the implementer's narrower scope authorized?",
+    "ATTENTION 3 (I-8): no production code path responds to env on web/Android; macOS env_response probe bodies are empty. Reclassify I-8 from extends to partial/blocked, or strengthen the probe-spec bodies to make the contract self-evident.",
+    "ATTENTION 4 (I-7): android_view_apply_glass is a new C-export; if I-7's 'no new C-export mutators' wording is strict, this nudges I-7 to extends. Decide whether brief language was intent or absolute.",
+    "ATTENTION 5 (TCC environmental): macOS AXTest BX2/BX7 fail in this runner because Terminal lacks Accessibility permission. Confirmed non-regression by Phase 4 sources also failing. Next iteration must run from an Accessibility-authorized terminal."
+  ],
+
+  "evidence_paths": {
+    "build_logs": "docs/initiative-cross-platform-ui/handoff/phase-05-evidence-2026-05-22-iter1/build_logs/",
+    "test_output": "docs/initiative-cross-platform-ui/handoff/phase-05-evidence-2026-05-22-iter1/test_output/",
+    "inspections": "docs/initiative-cross-platform-ui/handoff/phase-05-evidence-2026-05-22-iter1/inspections/",
+    "codex": "docs/initiative-cross-platform-ui/handoff/phase-05-evidence-2026-05-22-iter1/codex/"
+  }
+}

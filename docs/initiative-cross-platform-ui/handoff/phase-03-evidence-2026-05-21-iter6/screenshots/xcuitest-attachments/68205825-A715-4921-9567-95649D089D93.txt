@@ -1,0 +1,4 @@
+Query chain:
+ →Find: Target Application 'com.assetpipeline.hig.CrystalHIGHost'
+  ↪︎Find: Descendants matching type Other
+    ↪︎Find: Elements matching predicate '"hig-component-root" IN identifiers'

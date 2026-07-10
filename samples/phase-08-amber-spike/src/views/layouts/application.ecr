@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 8 Amber Spike</title>
+  <%= csrf_metatag %>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; margin: 2rem; max-width: 480px; }
+    /* The spike does NOT load the asset_pipeline design-token CSS yet —
+       proving render_screen works against bare HTML first. Phase 8A
+       will bring in the proper token/theme integration. */
+  </style>
+</head>
+<body>
+  <%= content %>
+</body>
+</html>

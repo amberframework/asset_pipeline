@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.159721+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-17T12:17:35.797270+00:00",
+    "path": "reports/activity-rings.md",
+    "sha256": "e39b23899127b516864faedb4f22ba64fa0692acd868791a48d282ab07c5968c",
+    "size_bytes": 3277
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T12:16:08.090670+00:00",
+      "path": "screenshots/activity-rings-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "aff4d7040b8fe4efdc8f708565ff6b57290611c63aeb1f9eda54e46e52ab221a",
+      "size_bytes": 430133
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-17T12:15:31.039927+00:00",
+      "path": "screenshots/activity-rings-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "1fc31fe4758a12c1777552e550be02aca70e1e02d42a8af7b8f2957d02844519",
+      "size_bytes": 352420
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T12:11:02.948400+00:00",
+      "path": "screenshots/activity-rings-macos-dark.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "686683c8079985a6455f73f95e46500e7efc8384e2897aeb7bc05793e565bdab",
+      "size_bytes": 448925
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-17T12:11:02.096693+00:00",
+      "path": "screenshots/activity-rings-macos-light.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "399570de789fdf58052a7efb04e5f210f18eca4c652c5571ef602093f3a551ab",
+      "size_bytes": 391342
+    }
+  },
+  "slug": "activity-rings",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

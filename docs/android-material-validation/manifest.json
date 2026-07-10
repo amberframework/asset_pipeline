@@ -1,0 +1,167 @@
+{
+  "generated_at": "2026-04-18T16:28:51Z",
+  "phase": "expanded_surface_matrix_review",
+  "acceptance_bar_version": "2026-04-18-android-material-phase0",
+  "sdk_root": "/opt/homebrew/share/android-commandlinetools",
+  "captured_light_count": 12,
+  "captured_dark_count": 12,
+  "captured_tablet_count": 12,
+  "promoted_count": 1,
+  "devices": [
+    {
+      "name": "crystal_test",
+      "role": "phone",
+      "api": 35,
+      "status": "verified_boot"
+    },
+    {
+      "name": "test_api35",
+      "role": "phone",
+      "api": 35,
+      "status": "available"
+    },
+    {
+      "name": "Pixel_3a_API_34_extension_level_7_arm64-v8a",
+      "role": "phone",
+      "api": 34,
+      "status": "repaired_and_verified"
+    },
+    {
+      "name": "pixel_tablet_api35",
+      "role": "tablet",
+      "api": 35,
+      "status": "verified_boot"
+    }
+  ],
+  "rubric": [
+    "component_hierarchy",
+    "density_and_spacing",
+    "typography_scale",
+    "elevation_and_surfaces",
+    "state_treatment",
+    "large_screen_adaptation",
+    "light_dark_fidelity"
+  ],
+  "studies": [
+    {
+      "slug": "buttons",
+      "renderer": "UI::Button",
+      "priority": "P0",
+      "lane": "material-defaults",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/buttons.md",
+      "evidence": "./evidence/buttons.json"
+    },
+    {
+      "slug": "text-fields",
+      "renderer": "UI::TextField",
+      "priority": "P0",
+      "lane": "material-defaults",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/text-fields.md",
+      "evidence": "./evidence/text-fields.json"
+    },
+    {
+      "slug": "cards",
+      "renderer": "UI::Card",
+      "priority": "P0",
+      "lane": "material-defaults",
+      "validation_state": "accepted",
+      "evidence_state": "accepted",
+      "report": "./reports/cards.md",
+      "evidence": "./evidence/cards.json"
+    },
+    {
+      "slug": "dialogs",
+      "renderer": "UI::Alert / UI::ConfirmationDialog",
+      "priority": "P0",
+      "lane": "material-defaults",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/dialogs.md",
+      "evidence": "./evidence/dialogs.json"
+    },
+    {
+      "slug": "app-bars",
+      "renderer": "UI::Toolbar",
+      "priority": "P0",
+      "lane": "material-defaults",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/app-bars.md",
+      "evidence": "./evidence/app-bars.json"
+    },
+    {
+      "slug": "selection-controls",
+      "renderer": "UI::Picker / UI::SearchField / UI::Stepper",
+      "priority": "P1",
+      "lane": "material-defaults",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/selection-controls.md",
+      "evidence": "./evidence/selection-controls.json"
+    },
+    {
+      "slug": "transient-surfaces",
+      "renderer": "UI::Sheet / UI::Popover / UI::Snackbar",
+      "priority": "P1",
+      "lane": "android-owned-surfaces",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/transient-surfaces.md",
+      "evidence": "./evidence/transient-surfaces.json"
+    },
+    {
+      "slug": "share-color",
+      "renderer": "UI::ActivityView / UI::ColorPicker",
+      "priority": "P1",
+      "lane": "android-owned-surfaces",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/share-color.md",
+      "evidence": "./evidence/share-color.json"
+    },
+    {
+      "slug": "webview",
+      "renderer": "UI::WebViewComponent",
+      "priority": "P0",
+      "lane": "placeholder-elimination",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/webview.md",
+      "evidence": "./evidence/webview.json"
+    },
+    {
+      "slug": "map-view",
+      "renderer": "UI::MapView",
+      "priority": "P0",
+      "lane": "placeholder-elimination",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/map-view.md",
+      "evidence": "./evidence/map-view.json"
+    },
+    {
+      "slug": "video-player",
+      "renderer": "UI::VideoPlayer",
+      "priority": "P0",
+      "lane": "placeholder-elimination",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/video-player.md",
+      "evidence": "./evidence/video-player.json"
+    },
+    {
+      "slug": "chart-view",
+      "renderer": "UI::ChartView",
+      "priority": "P0",
+      "lane": "placeholder-elimination",
+      "validation_state": "captured_pending_review",
+      "evidence_state": "captured_matrix",
+      "report": "./reports/chart-view.md",
+      "evidence": "./evidence/chart-view.json"
+    }
+  ]
+}

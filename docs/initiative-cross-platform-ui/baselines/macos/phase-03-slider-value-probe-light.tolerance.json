@@ -1,0 +1,5 @@
+{
+  "pixel_diff_max": 250,
+  "channel_diff_max": 8,
+  "notes": "Default tolerance seeded by Phase 3 migration; tighten per-slug as the baseline stabilizes."
+}

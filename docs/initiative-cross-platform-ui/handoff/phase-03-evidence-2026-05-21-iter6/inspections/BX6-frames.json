@@ -1,0 +1,10 @@
+{
+  "rows_measured": [
+    {"id": "form-row-1", "x": 148.2375, "y": 228.4625, "width": 55.6938, "height": 25.125}
+  ],
+  "required_min_height": 44.0,
+  "test_log_line": "Phase03BehaviorTests.swift:301: XCTAssertTrue failed - BX6: row 1 must be ≥44pt tall — got (148.2375, 228.4625, 55.693749999999966, 25.125)",
+  "passed": false,
+  "root_cause_class": "integration_bug__swiftui_hosting_frame_layout",
+  "notes": "UI::Form's Button rows render at 25.125pt height instead of HIG-mandated 44pt. The min_height override does not reach the SwiftUI hosted frame; UIHostingController is sized by the parent UIStackView, not by SwiftUI's intrinsic content. Same hosting-frame layout class as BX9."
+}

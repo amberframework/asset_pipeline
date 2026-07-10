@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T14:43:15Z",
+  "slug": "video-player",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/video-player.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/video-player-android-phone-light.png",
+      "tablet": "../screenshots/video-player-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/video-player-android-phone-dark.png",
+      "tablet": "../screenshots/video-player-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Light, dark, phone, and tablet captures are current.",
+    "VideoView is mounted, but a trustworthy demo-ready media source is still missing.",
+    "Playback controls and poster-frame behavior cannot be promoted until the native player has real media."
+  ],
+  "errors": [
+
+  ]
+}

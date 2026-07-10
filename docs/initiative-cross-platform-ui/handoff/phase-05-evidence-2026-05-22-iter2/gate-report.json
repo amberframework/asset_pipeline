@@ -1,0 +1,179 @@
+{
+  "phase": 5,
+  "phase_name": "Glass Material Tokenization",
+  "branch": "phase-05-glass-material-tokenization",
+  "head_sha": "f081205",
+  "iteration": 2,
+  "validated_at": "2026-05-22",
+  "validator": "phase-05-iter2-validator",
+  "verdict": "FAIL",
+  "verdict_reason": "Codex antagonist surfaced three substantive contract violations the iter 1 amendments did NOT actually resolve. (1) R3's primary claimed fix — tokenizing the active NavigationSplitView visit — is FALSE: the tokenized helper call at appkit_renderer.cr:1836 lives inside `_legacy_navigation_split_view` (begins line 1809), NOT inside the active `visit(UI::NavigationSplitView)` which ends at line 1805 and routes entirely through the SwiftKit facade `apsk_make_navigation_split_view`. The active path's populator (swiftkit_overrides.cr:380) does NOT pass material to the facade; pre-26 macOS NavigationSplitView material is therefore NOT brand-intensity-controllable as I-1's amendment commits for the pre-26 path. (2) R3's tokenization is byte-identical to pre-Phase-5 behavior: the helper maps `:thin → 7`, `:thick → 11`, `:menu → 5` (fixed AppKit constants); `Material#apple_step` returns any non-`:regular` declared step UNCHANGED (material.cr:92-100); the in-file comments at lines 1830 + 3764 explicitly say `byte-identical to the pre-Phase-5 raw integer`. So even the ACTIVE ContextMenu/ActivityView tokenization is centralization-only, not contract delivery: brand `material.intensity = 1.3` does NOT cascade to those surfaces. The brief's I-10 contract — intensity is visible on pre-26 + web + Android — fails on AppKit native pre-26 for sites declaring non-`:regular` steps. (3) Brief A1 amendment is literally false: brief.yml:196 says `spike uses .bar`; spikes/swiftui_material_spike.swift:47 uses `.ultraThickMaterial`. Architect must reconcile.\n\nAdditionally, the architect's known-debt handoff doc fails legitimate-escalation test under implementation.md:85-89: the contract permits 'stop and return' ONLY if the refactor balloons beyond ~12 visit methods; with 5 active sites remaining (TabView/Alert/Toolbar/Sheet/Popover) — all confirmed in `_legacy_*` bodies but their ACTIVE-path counterparts are facade-routed without material populators — the actual scope is well under 12. The handoff itself calls Option C 'a 30-minute mechanical edit' yet defers it. This normalizes scope drift, not escalates it.",
+
+  "stop_condition_triggered": "Codex antagonist STOP: contract claim implementation does not honor",
+
+  "headline_numbers": {
+    "invariants_total": 11,
+    "invariants_pass_per_amended_declarations": 7,
+    "invariants_fail": 2,
+    "invariants_partial_blocked": 2,
+    "contract_decisions_total": 5,
+    "contract_decisions_text_drift": 1,
+    "contract_decisions_semantic_break": 2
+  },
+
+  "brief_validator": {
+    "command": "crystal-alpha run scripts/validate_phase_brief.cr -- docs/initiative-cross-platform-ui/phases/phase-05-glass-material-tokenization/brief.yml",
+    "exit_code": 0,
+    "log": "logs/brief-validator.log",
+    "note": "Brief structurally valid; failure is semantic — code does not honor amended invariants for the active dispatch path."
+  },
+
+  "blocking_findings": [
+    {
+      "id": "B-1",
+      "severity": "BLOCKER",
+      "title": "R3 NavigationSplitView tokenization is in dead-code legacy method, not the active visit path",
+      "evidence": [
+        "appkit_renderer.cr:1773-1805 — active `visit(view : UI::NavigationSplitView)` routes through `apsk_make_navigation_split_view` SwiftKit facade. ZERO setMaterial: calls.",
+        "appkit_renderer.cr:1809 — `_legacy_navigation_split_view` is the legacy NSStackView body 'retained for reference'.",
+        "appkit_renderer.cr:1836 — the R3 helper call `appkit_visual_effect_material(sidebar_step)` lives inside _legacy_navigation_split_view, NOT active visit.",
+        "swiftkit_overrides.cr:380 — `populate_navigation_split_view` does NOT pass material to facade.",
+        "Phase 5 R3 commit message + handoff doc claim NavigationSplitView ACTIVE visit at line 1828 was closed. Actual: line 1828 (now 1836) is inside _legacy_*."
+      ],
+      "impact": "On pre-26 macOS, NavigationSplitView material is NOT brand-intensity-controllable through the active dispatch path. The I-1 amendment's commitment ('Step+intensity ARE enforced on the pre-26 fallback .background(.material) path AND on web AND on Android') is unmet for the AppKit pre-26 NavigationSplitView visit."
+    },
+    {
+      "id": "B-2",
+      "severity": "BLOCKER",
+      "title": "R3 tokenization is byte-identical to pre-Phase-5 behavior; brand intensity does not cascade",
+      "evidence": [
+        "appkit_renderer.cr:4701-4709 — helper maps `:thin → 7`, `:thick → 11`, `:menu → 5` (fixed AppKit constants).",
+        "material.cr:92-100 — `Material#apple_step(declared)` returns `declared unchanged` for any non-`:regular` symbol. Only `:regular` is quantized by intensity.",
+        "appkit_renderer.cr:1830 — comment: 'maps to NSVisualEffectMaterialSidebar (7) via the AppKit translation table — same byte-identical integer the pre-Phase-5 code emitted'.",
+        "appkit_renderer.cr:3764 — comment: 'the translation table maps `:thick` to NSVisualEffectMaterialSheet (11), byte-identical to the pre-Phase-5 raw integer'.",
+        "Conclusion: ContextMenu / ActivityView ACTIVE visits route through helper that returns the same integer pre-Phase-5 used. Brand `material.intensity = 1.3` has NO visible effect on these surfaces."
+      ],
+      "impact": "Even the 2 ACTIVE-path R3 tokenizations (ContextMenu line 2830, ActivityView line 3768) do not deliver Phase 5's brand-cascade contract. They centralize hard-coded integers without routing through brand-resolved token values. This breaks I-10's promise that intensity is observable on pre-26 + web + Android."
+    },
+    {
+      "id": "B-3",
+      "severity": "BLOCKER",
+      "title": "Brief A1 amendment text contradicts shipped spike",
+      "evidence": [
+        "brief.yml:196 — 'The spike at spikes/swiftui_material_spike.swift uses .bar — that's the alternative.'",
+        "spikes/swiftui_material_spike.swift:47 — `Text(\"Material spike\").padding().background(.ultraThickMaterial)` (the .chrome case).",
+        "Spike does NOT use .bar anywhere. A1's amendment text is literally false."
+      ],
+      "impact": "Brief is a contract. A literally false claim in an amendment block undermines the brief's role as the source of truth. Substantive A1 falsifier (compile spike on both targets) still passes, but the prose claim must be reconciled."
+    },
+    {
+      "id": "B-4",
+      "severity": "BLOCKER",
+      "title": "Architect handoff doc normalizes scope drift, does not escalate it",
+      "evidence": [
+        "implementation.md:85-89 — escalation clause permits 'stop and return' ONLY if refactor balloons beyond ~12 visit methods.",
+        "Scope reality: 3 active sites tokenized (R3) + 5 remaining (active visits of TabView/Alert/Toolbar/Sheet/Popover, currently routed through SwiftKit facade WITHOUT material populator) + the legacy bodies for those 5 + the legacy NavigationSplitView body = ~8 named active sites total.",
+        "handoff doc page 3 (option C): 'Lowest blast radius; preserves the dead code without expanding the Symbol space artificially' — describes Option C as a `30-minute mechanical edit`.",
+        "handoff doc page 1 — categorizes the 5 remaining as legacy `_legacy_*` methods. But the active visit paths for TabView/Alert/Toolbar/Sheet/Popover ALL use SwiftKit facades whose populators don't pass material — same gap as NavigationSplitView (B-1)."
+      ],
+      "impact": "The handoff doc papers over the actual contract gap: brand intensity does not cascade to active TabView/Alert/Toolbar/Sheet/Popover/NavigationSplitView visits on AppKit. Calling these 'dead code' is wrong — they're routed through facades that drop the material parameter. implementation.md:85-89's escalation threshold (>12 methods) is not met; per contract these should have been tokenized end-to-end in Phase 5."
+    }
+  ],
+
+  "brief_amendments_verification": {
+    "I-1": {
+      "amended_claim": "iOS 26+/macOS 26+ Liquid Glass step-agnostic; controllable on pre-26 + web + Android",
+      "code_match": "PARTIAL — iOS 26+ glassEffect path verified at GlassBackgroundFacade.swift:64-70. BUT amended claim that step+intensity are enforced on pre-26 fallback fails for NavigationSplitView active path (no material passed to facade per swiftkit_overrides.cr:380) and for ContextMenu/ActivityView (helper returns byte-identical pre-Phase-5 integer; declared non-`:regular` steps bypass intensity entirely per material.cr:92-100).",
+      "status": "FAIL"
+    },
+    "I-7": {
+      "amended_claim": "android_view_apply_glass is borrow-not-retain mutator",
+      "code_match": "TRUE — android_bridge.c:1483-1503 takes view as raw void*, never wraps in NewGlobalRef, only deletes local ref it owns.",
+      "status": "PASS"
+    },
+    "I-8": {
+      "amended_claim": "Phase 5 ships no production cross-platform forced-colors / prefers-reduced-motion code",
+      "code_match": "TRUE — grep across src/ui/ for prefers-reduced-motion|forced-colors|prefers-contrast returns 0 hits.",
+      "status": "PASS"
+    },
+    "I-10": {
+      "amended_claim": "intensity is render-time-only AND visible on pre-26 + web + Android",
+      "code_match": "FAIL on pre-26 AppKit — see B-1, B-2. Web + Android emit tokenized values (web_renderer var(--ap-material-blur-*) and android_renderer.cr:2195 blur_radius * intensity). Apple pre-26 ContextMenu/ActivityView/NavigationSplitView don't cascade intensity.",
+      "status": "FAIL"
+    },
+    "A1": {
+      "amended_claim": "spike uses .ultraThickMaterial for :chrome (per amended prose 'or .bar where chrome-tinted styling is wanted. The spike uses .bar')",
+      "code_match": "FAIL — brief.yml:196 says 'spike uses .bar'; spike line 47 uses .ultraThickMaterial. Amendment prose is literally false. Falsifier (compile spike) passes.",
+      "status": "FAIL (text drift)"
+    }
+  },
+
+  "r3_verification": {
+    "claimed_sites_closed": {
+      "navigation_split_view_1828": {
+        "tokenized": "YES but in `_legacy_navigation_split_view` (dead code)",
+        "active_visit_path": "Routes through apsk_make_navigation_split_view — facade populator does NOT pass material",
+        "status": "FAIL — fixed the wrong code path"
+      },
+      "context_menu_2813": {
+        "tokenized": "YES at line 2830-2832 in active visit",
+        "delivers_intensity_cascade": "NO — helper returns byte-identical pre-Phase-5 integer; apple_step(:menu) returns :menu unchanged",
+        "status": "PARTIAL — centralized but no contract delivery"
+      },
+      "activity_view_3744": {
+        "tokenized": "YES at line 3768-3770 in active visit",
+        "delivers_intensity_cascade": "NO — same pattern; apple_step(:thick) returns :thick unchanged",
+        "status": "PARTIAL — centralized but no contract delivery"
+      }
+    },
+    "helper_exists": "YES at appkit_renderer.cr:4701-4709 with marker comment",
+    "five_legacy_hits_confined": "YES — all 5 in `_legacy_*` methods, but the corresponding ACTIVE visits for TabView/Alert/Toolbar/Sheet/Popover route through SwiftKit facades without material populators, replicating the NavigationSplitView gap"
+  },
+
+  "prior_phase_regression_check": {
+    "crystal_spec": {"status": "PASS", "note": "1447 examples / 4 baseline failures (unchanged) / 80 pending placeholders", "log": "logs/crystal-spec.log"},
+    "swift_test": {"status": "PASS", "note": "53/53", "log": "logs/swift-test.log"},
+    "web_no_codegen": {"status": "PASS", "log": "logs/web-build.log"},
+    "web_validate_demo": {"status": "PASS", "log": "logs/web-validate.log"},
+    "ios_crystal_lib_build": {"status": "PASS", "log": "logs/ios-build.log"},
+    "macos_host_build": {"status": "PASS", "log": "logs/macos-build.log"},
+    "ios_phase03_behaviortests": {"status": "PASS", "note": "10/10", "log": "logs/ios-phase03-behaviortests.log"},
+    "phase04_cdp_harness": {"status": "PASS", "note": "any_failed=false, 12 probes", "log": "logs/phase04-cdp-harness.log"},
+    "macos_bx2_action_tap": {
+      "status": "BLOCKED-ENVIRONMENTAL",
+      "note": "TCC accessibility revoked: sqlite3 /Library/Application\\ Support/com.apple.TCC/TCC.db shows com.apple.Terminal kTCCServiceAccessibility auth_value=0. Showcase launches and runs standalone; AXTest cannot read accessibility tree.",
+      "log": "logs/bx2-action-tap.log"
+    },
+    "macos_bx7_form_layout": {
+      "status": "BLOCKED-ENVIRONMENTAL",
+      "note": "Same TCC root cause as BX2",
+      "log": "logs/bx7-form-layout.log"
+    }
+  },
+
+  "codex_antagonist": {
+    "command": "codex exec --skip-git-repo-check ...",
+    "verdict": "STOP — multiple contract claims implementation does not honor",
+    "key_quotes": [
+      "The first blocker is R3. The cited tokenized setMaterial: is inside _legacy_navigation_split_view, which begins at appkit_renderer.cr:1809.",
+      "R3's tokenization is not semantically correct. It centralizes old integers, but it does not implement the Phase 5 contract to 'look it up in the token tree' and 'pass the resolved parameters'.",
+      "The legacy-debt handoff is not a legitimate escalation under implementation.md:85-89... The handoff instead reclassifies five remaining sites as 'known-debt'... That normalizes scope drift, especially because the same handoff calls Option C a '30-minute mechanical edit'.",
+      "A1 is literally false: the brief says the spike uses .bar; the spike uses .ultraThickMaterial for chrome.",
+      "The PASS verdict should be rejected until the R3/legacy-scope claims are corrected and the implementation either tokenizes the remaining material sites per contract or records a real pre-implementation stop/escalation."
+    ],
+    "full_log": "codex-critique-full.txt"
+  },
+
+  "required_remediation_for_iter3": [
+    "R4-a: Wire material tokenization through the ACTIVE NavigationSplitView dispatch path (SwiftKit facade populator must pass material; AppKit pre-26 fallback must use brand-resolved blur/opacity/saturation/luminance values, NOT byte-identical pre-Phase-5 integers).",
+    "R4-b: Same for active visits of TabView, Alert, Toolbar, Sheet, Popover — all currently route through SwiftKit facades without material populators.",
+    "R4-c: Fix Material#apple_step to apply brand intensity quantization to non-`:regular` declared steps OR document explicitly that declared non-`:regular` steps bypass intensity and amend I-10 accordingly. Current behavior contradicts the brief's brand-cascade contract.",
+    "R4-d: Amend brief.yml:196 — either change spike to use .bar (and update its line 47) OR amend A1 text to reflect that spike uses .ultraThickMaterial. The text must match the code.",
+    "R4-e: Revisit the handoff doc — if R4-a/b are completed, the legacy `_legacy_*` bodies can be deleted (Option A). If team-lead truly accepts the gap as deferred to Phase 6.5, the handoff doc must be re-titled as a scope-renegotiation, not as a 'known-debt acknowledgement', and the brief must be amended to scope I-1 and I-10 accordingly."
+  ],
+
+  "non_blocking_notes": [
+    "TCC accessibility grant for com.apple.Terminal has been revoked since iter 1. Phase 3 macOS AXTest BX2 + BX7 cannot run until granted. This is environmental, not a Phase 5 regression.",
+    "crystal spec's 4 baseline failures are pre-Phase-5; matched iter 1 baseline."
+  ]
+}

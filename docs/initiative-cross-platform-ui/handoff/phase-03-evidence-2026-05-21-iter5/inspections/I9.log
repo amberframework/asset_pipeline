@@ -1,0 +1,5 @@
+4:// `.glassBackgroundEffect()`; on the pre-26 OSes (iOS 16..25 / macOS
+37:        if #available(iOS 26.0, macOS 26.0, *) {
+52:                case "thin":       return .thinMaterial
+53:                case "thick":      return .thickMaterial
+56:                default:           return .regularMaterial

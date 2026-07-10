@@ -1,0 +1,312 @@
+phase:
+  number: "6.10"
+  name: "Navigable CRUD Demo + Navigation Coordinator"
+  branch: "phase-06.10-navigable-crud-demo"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "f6379ee"
+  authored_at: "2026-05-23"
+
+# Phase 6.10 contract decisions baked into this brief. Authored after
+# Phase 7 PASS_WITH_NOTES + post-Phase-7 architect-owner review
+# surfaced the "Cascade is a screenshot catalog, not a navigable app"
+# gap. Codex co-designed the spec + audit of the navigation gap.
+#
+# 1. SCOPE: 4-screen Voyager Todos demo + 3 library primitives.
+#    (a) Voyager demo at samples/initiative-cross-platform-ui-voyager/
+#        — 4 screens (Sign In / Todos / Todo Editor / Settings), 3
+#        build targets (web/macos/ios), navigable end-to-end.
+#    (b) UI::NavigationCoordinator — reactive app-level nav state with
+#        push/pop/replace_root/pop_to_root/on_change.
+#    (c) Route-host re-render hook in 3 renderers (web/uikit/appkit)
+#        — coordinator change triggers visible root swap.
+#    (d) UI::SwipeActionRow widget — iOS Mail-style swipe-to-reveal
+#        on iOS/UIKit; visible trailing buttons on macOS/AppKit;
+#        touch-handler on mobile-web; visible trailing buttons on
+#        desktop-web.
+#    (e) Voyager build configs + per-screen baselines + harness
+#        routing for voyager-* slugs.
+#
+# 2. NOT IN SCOPE (deferred to future phases):
+#    - URL routing / deep links (coordinator uses route IDs).
+#    - SwiftKit APSKNavigationState binding (use approach (a) full
+#      root re-render — simpler, works; the durable binding is a
+#      future phase if edge-swipe back sync becomes a requirement).
+#    - Multi-action native action sheets (UIKit currently maps only
+#      first non-cancel + cancel; Voyager puts Edit/Delete on the
+#      swipe row, NOT in a sheet).
+#    - Cascade demo modifications (Cascade stays as screenshot catalog;
+#      Voyager is its own demo).
+#    - New design tokens / brand changes (Voyager reuses the Cascade
+#      brand override OR ships a distinct brand — Implementer chooses;
+#      either works).
+#
+# 3. ARCHITECTURE CHOICE (per Codex consult): approach (a) full root
+#    re-render on coordinator change. The renderer subscribes to
+#    coordinator#on_change; on each change it rebuilds the platform's
+#    visible root view from the new active route + the shared app
+#    state, replacing the prior root. This is the SMALLEST viable
+#    architecture that gives working navigation. The durable
+#    APSKNavigationState SwiftKit binding (approach b) is deferred.
+#
+# 4. STATE PROPAGATION IS THE MAKE-OR-BREAK TEST. Voyager's Settings
+#    screen has a "Hide completed" toggle. The acceptance ritual:
+#    toggle on → tap back → return to Todos → list filtered AND chart
+#    updated immediately. If this doesn't work, Phase 6.10 fails.
+#    Implementer must verify this explicitly on EACH platform before
+#    reporting done.
+#
+# 5. CODEX CO-PILOT PROTOCOL MANDATORY. Per Phase 6.8/6.9/7 lesson,
+#    after each substantive sub-deliverable lands, run a Codex check
+#    that compares the new state against the pre-fix state. REVERT
+#    AND CONTINUE on regression. Don't stall mid-execution; write a
+#    handoff doc if stuck.
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: extends
+    rationale: "Phase 6.10 ships 4 new screens × 3 surface targets (iOS/macOS/web) × 2 appearances = ~24 new visual baselines registered with Phase 6.5's regenerate_baselines.sh. SwipeActionRow widget renders new chrome (swipe gesture areas on iOS/mobile-web, visible trailing buttons on macOS/desktop-web). NavigationCoordinator-driven root swap means the visible root changes as the user navigates — each route maps to a fresh view tree built from shared state."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-1 ios voyager-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-1 macos voyager-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-1 web voyager-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17 — Voyager demo is iOS/macOS/web only"
+        owner_approved: "2026-05-23"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: extends
+    rationale: "NavigationCoordinator IS a new reactive surface. coordinator.push(route) / coordinator.pop fires on_change callbacks; renderers subscribe and rebuild the visible root. This is the substantive forward-reactive path Phase 6.10 ships — it's how navigation actually works at runtime. The Todo Editor's Save mutating shared state + Settings toggle mutating shared state both depend on the coordinator's on_change firing AFTER state mutation AND BEFORE the user sees the popped screen."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-2 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-2 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-2 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: extends
+    rationale: "Phase 6.10 adds new event paths: navigation events (Sign in button tap → coordinator.push(:todos); back button → coordinator.pop; row tap → coordinator.push(:todo_editor)); swipe-action events (swipe-to-reveal + tap on Edit/Delete); Toggle change events on Settings. All dispatch through the existing Phase 3 callback bridge."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-3 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-3 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-3 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: extends
+    rationale: "Navigation focus contract is part of Phase 6.10. When user pops back from Settings to Todos, focus should restore to the prior focused widget (or the screen's natural starting focus if not previously focused). NavigationCoordinator's on_change hook captures the popped screen's focus state pre-pop so the renderer can restore it on the pushed screen reactivation. This is what 'back button works as expected' means structurally."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-4 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-4 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-4 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: extends
+    rationale: "Screens mount + unmount on coordinator push/pop. Each route's view tree is freshly built on push (so re-entering the same screen reflects current state); the popped view tree is released. NavigationCoordinator does NOT cache view trees across pops — that's intentional, prevents stale view tree bugs. Memory hygiene: pre-pop, the renderer releases native handles for the unmount."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-5 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-5 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-5 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: extends
+    rationale: "SwipeActionRow has its own a11y contract: iOS VoiceOver rotor must surface the swipe actions (UIAccessibilityCustomAction). macOS a11y exposes the visible trailing buttons. Web exposes ARIA labels for the swipe actions; mobile-web needs touch-target minimums (44pt). Navigation events trigger an a11y announcement (VoiceOver: 'pushed Settings', back: 'popped to Todos') — built-in iOS NavigationStack behavior on the SwiftUI path; explicit aria-live region on web."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-6 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-6 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-6 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: extends
+    rationale: "NavigationCoordinator is a Crystal instance held by the app (NOT a class var). It owns Array(Route) + Array(Callback). Each route's view tree is built fresh on push (no retained children); on pop, the renderer releases the native handle for the unmount. SwipeActionRow holds Array(SwipeAction) — each action holds a label string + on_tap callback Proc; Procs registered through Phase 3's CallbackRegistry to prevent GC."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "spec/asset_pipeline_spec.cr"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: preserves
+    rationale: "Voyager respects light/dark appearance + Dynamic Type on iOS (delegates to SwiftUI). NavigationCoordinator + SwipeActionRow don't override platform env response."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-8 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-8 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-8 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "NavigationCoordinator is INSTANCE-level (held by the demo app, not a class var with initializer). No new module-level constants with non-trivial initializers (per the Crystal iOS class-init gap memory). SwipeActionRow same — instance fields."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-9 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-9 macos voyager-todos"
+      web:
+        skip: true
+        reason: "No embedding on web"
+        owner_approved: "2026-05-23"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: extends
+    rationale: "Phase 6.10 ships 2 new public API surfaces: UI::NavigationCoordinator (with push/pop/replace_root/pop_to_root/on_change methods) and UI::SwipeActionRow (with leading_actions/trailing_actions arrays of SwipeAction structs). Documented per-platform fallback: SwipeActionRow on macOS/desktop-web shows trailing buttons inline (not gesture); on iOS/mobile-web shows swipe-to-reveal. This is the consumer-visible contract."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-10 ios voyager-todos"
+      macos: "bash scripts/audit_harness_smoke.sh I-10 macos voyager-todos"
+      web: "bash scripts/audit_harness_smoke.sh I-10 web voyager-todos"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 6.10 ships new Voyager build closures: make web (Crystal compiles + writes single-page HTML with hash-route navigation to output/voyager-demo/), make macos (Crystal builds bin/voyager .app), make ios (Crystal builds libvoyager.a + xcodebuild builds Voyager.app for iPhone 17 Simulator). All 3 must exit 0. SwiftKit ButtonFacade / NavigationStackFacade / new NavigationCoordinatorFacade / new SwipeActionRowFacade all compile cleanly. Existing 4 build closures (cascade web/macos/ios + samples/cross_platform/macos_host bin/hig_showcase + samples/cross_platform/ios_host build_crystal_lib.sh) unchanged + still exit 0."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-11 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-11 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-11 web"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+adapter_cardinality:
+  - public_api: "UI::SwipeActionRow#trailing_actions : Array(SwipeAction)"
+    adapter: "SwiftUI .swipeActions(edge: .trailing) on iOS; visible HStack of buttons on macOS/AppKit; touch-event handler + reveal panel on mobile-web; visible buttons on desktop-web"
+    adapter_input_space: "iOS: SwiftUI accepts arbitrary number of swipe-action buttons. macOS/web desktop: visible HStack accepts arbitrary buttons. Mobile-web: touch-reveal panel accepts arbitrary buttons."
+    api_input_space: "Array(SwipeAction) of arbitrary length"
+    match_status: "MATCH"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "Crystal toolchain available (crystal-alpha or crystal)"
+    falsifier: "Neither in PATH"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A2
+    claim: "Phase 7 PASS tag exists (Phase 6.10 depends on Phase 7's CI gate + Phase 6.5's audit harness routing)"
+    falsifier: "Tag missing"
+    verification: "git tag --list 'phase-07-pass-2026-05-23' | head -1 | grep -q phase-07"
+
+  - id: A3
+    claim: "UI::NavigationStack#push and #pop methods exist (Phase 6.10 reuses the View as the navigated container OR introduces NavigationCoordinator as a sibling; either way push/pop are the canonical API)"
+    falsifier: "push/pop methods missing from navigation_stack.cr"
+    verification: "grep -q 'def push' src/ui/views/navigation_stack.cr && grep -q 'def pop' src/ui/views/navigation_stack.cr"
+
+  - id: A4
+    claim: "UI::ListView + UI::ChartView + UI::TextField + UI::SecureField + UI::Toggle + UI::Button exist (Phase 6.10 builds Voyager from these primitives — no new widgets except SwipeActionRow)"
+    falsifier: "Any of the 6 widget files missing"
+    verification: "test -f src/ui/views/list_view.cr && test -f src/ui/views/chart_view.cr && test -f src/ui/views/text_field.cr && test -f src/ui/views/secure_field.cr && test -f src/ui/views/toggle.cr && test -f src/ui/views/button.cr"
+
+  - id: A5
+    claim: "Phase 6.5 audit harness + audit_harness_smoke.sh exist (Phase 6.10 extends them with voyager-* slug routing)"
+    falsifier: "Either file missing"
+    verification: "test -f scripts/audit_harness.cr && test -x scripts/audit_harness_smoke.sh"
+
+  - id: A6
+    claim: "ImageMagick + compare installed (Phase 6.10 baselines via visual_diff)"
+    falsifier: "Either missing"
+    verification: "test -x /opt/homebrew/bin/magick && test -x /opt/homebrew/bin/compare"
+
+  - id: A7
+    claim: "Voyager demo directory does NOT yet exist (Phase 6.10 creates it)"
+    falsifier: "Directory already exists"
+    verification: "test ! -d samples/initiative-cross-platform-ui-voyager"
+
+  - id: A8
+    claim: "UI::NavigationCoordinator class does NOT yet exist (Phase 6.10 creates it)"
+    falsifier: "Class already defined"
+    verification: "test ! -f src/ui/navigation_coordinator.cr"
+
+  - id: A9
+    claim: "UI::SwipeActionRow widget does NOT yet exist (Phase 6.10 creates it)"
+    falsifier: "Widget already defined"
+    verification: "test ! -f src/ui/views/swipe_action_row.cr"
+
+  - id: A10
+    claim: "Phase 5 v2 Material API two-axis model is present (Voyager may use brand-tinted glass surfaces; not strictly required but the architecture is in place)"
+    falsifier: "AppleSemantic or ThicknessStep enum missing"
+    verification: "grep -q 'enum AppleSemantic' src/ui/design_tokens/material.cr && grep -q 'enum ThicknessStep' src/ui/design_tokens/material.cr"
+
+repo_derived_facts:
+  - fact: "UI::View widget file count excluding _gate_stubs (Phase 6.10 adds SwipeActionRow for total 79)"
+    query: "find src/ui/views -type f -name '*.cr' -not -path '*_gate_stubs*' | wc -l | tr -d ' '"
+    expected: "78"
+    captured_at_sha: "f6379ee"
+
+  - fact: "navigation_stack.cr line count (Phase 6.10 may extend with coordinator-integration methods)"
+    query: "wc -l < src/ui/views/navigation_stack.cr | tr -d ' '"
+    expected: "53"
+    captured_at_sha: "f6379ee"
+
+  - fact: "Voyager demo directory (must NOT exist at brief authoring)"
+    query: "test -d samples/initiative-cross-platform-ui-voyager && echo exists || echo missing"
+    expected: "missing"
+    captured_at_sha: "f6379ee"
+
+  - fact: "NavigationCoordinator class (must NOT exist at brief authoring)"
+    query: "test -f src/ui/navigation_coordinator.cr && echo exists || echo missing"
+    expected: "missing"
+    captured_at_sha: "f6379ee"
+
+  - fact: "SwipeActionRow widget (must NOT exist at brief authoring)"
+    query: "test -f src/ui/views/swipe_action_row.cr && echo exists || echo missing"
+    expected: "missing"
+    captured_at_sha: "f6379ee"
+
+  - fact: "Phase 7 PASS tag exists"
+    query: "git tag --list 'phase-07-pass-2026-05-23' | head -1"
+    expected: "phase-07-pass-2026-05-23"
+    captured_at_sha: "f6379ee"
+
+  - fact: "Cascade demo directory exists (preserved; Voyager is a separate demo)"
+    query: "test -d samples/initiative-cross-platform-ui-demo && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "f6379ee"
+
+  - fact: "Demo baseline count at Cascade (40 PNGs; Phase 6.10 adds ~24 Voyager baselines but Cascade count must stay 40)"
+    query: "find docs/initiative-cross-platform-ui/baselines -type f -name 'demo-*.png' | wc -l | tr -d ' '"
+    expected: "40"
+    captured_at_sha: "f6379ee"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

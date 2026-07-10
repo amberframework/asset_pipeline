@@ -1,0 +1,265 @@
+{
+  "phase": "phase-04-platform-tier-gating",
+  "iteration": 1,
+  "date": "2026-05-21",
+  "validator": "phase-04 validator (iter 1)",
+  "head": "022dc11",
+  "base": "cda36b2",
+  "verdict": "FAIL",
+  "summary": "Structural Phase 4 work is solid. All 12 implementer commits land cleanly: Tier 3 gates produce the exact required compile-error message format, gated widgets compile under their flags, WithWebFallback companions cross-compile on web / iOS / macOS, the Platform.requires macro works, tier-matrix.md classifies every widget, CLAUDE.md additions are scoped, Crystal spec suite shows 4 pre-existing baseline failures + zero new failures, Swift tests 53/53 PASS, iOS XCUITest Phase 3 behavior suite 10/10 PASS. Three deviations the implementer self-disclosed are verified as architecturally sound. FAIL is driven by unverified web-fallback behavior checks (focus trap / Escape / axe-core / IBM Equal Access / positioning / touch targets) — these require a CDP-driven headless-Chrome harness and no pre-built Phase 4 demo test page exists; the JS source inspection confirms the implementation logic is present but the rubric explicitly states these checks 'do NOT pass on source inspection.' macOS AXTest BX2/BX7 also fail, but this is reproduced on the cda36b2 baseline so it is NOT a Phase 4 regression — it is a pre-existing environmental/TCC issue.",
+  "checks": [
+    {
+      "id": "tier.matrix-exists",
+      "required": true,
+      "passed": true,
+      "evidence": "docs/initiative-cross-platform-ui/tier-matrix.md exists, 167 lines, contains '## Tier 1', '## Tier 2', '## Tier 3' headers"
+    },
+    {
+      "id": "tier.matrix-classifies-every-widget",
+      "required": true,
+      "passed": true,
+      "evidence": "All 78 .cr files in src/ui/views/ are referenced in tier-matrix.md (verified by basename diff). No zombies — every matrix file path resolves to a real source file. Distribution: 17 Tier 1 + 55 Tier 2 + 3 Tier 3 gated + 3 WithWebFallback companions = 78. Note: the Tier 2 section heading says '54 widgets' but actually contains 55 rows — minor off-by-one in the heading prose, not a classification gap."
+    },
+    {
+      "id": "tier.tier3-set-correct",
+      "required": true,
+      "passed": true,
+      "evidence": "Tier 3 gated table lists ActionSheet, ContextMenu, PathControl with required flags. Toolbar, Popover, MenuButton are each classified in Tier 2 with one-line justifications (Toolbar: 'Kept as a single cross-platform class; NSToolbar-style customization UI would land as a future Tier 3 PlatformToolbar'; Popover: 'Arrow chrome is Apple polish; structure is universal'; MenuButton: 'Pop-up / pull-down menu')."
+    },
+    {
+      "id": "gate.action-sheet-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.action-sheet-compile-error.log — exit 1, contains 'UI::ActionSheet is iOS-only', '-Dios', 'UI::ActionSheetWithWebFallback', '{% if flag?(:ios) %}'"
+    },
+    {
+      "id": "gate.action-sheet-compiles-with-flag",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.action-sheet-compiles-with-flag.log — exit 0"
+    },
+    {
+      "id": "gate.context-menu-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.context-menu-compile-error.log — exit 1, contains 'UI::ContextMenu is Apple-family only', '-Dmacos or -Dios', 'UI::ContextMenuWithWebFallback', 'flag?(:macos) || flag?(:ios)'. NOTE: implementer-disclosed deviation #1 — uses flag?(:macos) || flag?(:ios) not flag?(:darwin); rationale matches existing codebase convention (project explicitly moved away from :darwin host-leakage). Acceptable per rubric phrasing 'darwin/ios/macos'."
+    },
+    {
+      "id": "gate.context-menu-compiles-with-flag",
+      "required": true,
+      "passed": true,
+      "evidence": "Both build_logs/gate.context-menu-compiles-with-ios.log and gate.context-menu-compiles-with-macos.log exit 0"
+    },
+    {
+      "id": "gate.path-control-compile-error",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/gate.path-control-compile-error.log — exit 1, contains 'UI::PathControl is macOS-only', '-Dmacos', 'UI::PathControlWithWebFallback', '{% if flag?(:macos) %}'"
+    },
+    {
+      "id": "gate.menu-bar-still-compiles-everywhere",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/cross_target_{web,ios,macos}.log all exit 0. Android exit 1 — but root cause is Crystal stdlib epoll require failure ('can't find file c/sys/epoll'), not Phase 4 code. Same failure reproduced on baseline cda36b2. Pre-existing host-environment limitation for cross-compiling -Dandroid on macOS; this is NOT a Phase 4 regression."
+    },
+    {
+      "id": "fallback.with-web-fallback-classes-cross-compile",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/fallback.wwf-cross-{default,ios,macos}.log all exit 0 (snippet constructs ActionSheetWithWebFallback + ContextMenuWithWebFallback + PathControlWithWebFallback together). Android exit 1 with same pre-existing epoll stdlib issue, not Phase 4 regression. 9 of 12 builds clean; the 3 Android builds blocked by host limitation."
+    },
+    {
+      "id": "fallback.web-html-action-sheet-structure",
+      "required": true,
+      "passed": true,
+      "evidence": "spec/ui/views/action_sheet_with_web_fallback_spec.cr — 7 examples PASS. Spec asserts role=dialog, aria-modal=true, aria-labelledby, aria-describedby, data-ap-as-action, data-ap-as-dismiss=cancel, data-ap-as-dismiss=backdrop, destructive style class, data-presented true/false."
+    },
+    {
+      "id": "fallback.web-html-context-menu-structure",
+      "required": true,
+      "passed": true,
+      "evidence": "spec/ui/views/context_menu_with_web_fallback_spec.cr — 6 examples PASS. Spec covers role=menu, role=menuitem, role=separator, aria-disabled, data-ap-ctx-host wrapping."
+    },
+    {
+      "id": "fallback.js-is-self-contained",
+      "required": true,
+      "passed": true,
+      "evidence": "inspections/fallback.js-self-contained.txt — action_sheet_fallback.js 140 lines, context_menu_fallback.js 188 lines. Zero import/require/CDN references in either file."
+    },
+    {
+      "id": "fallback.css-uses-ap-prefix",
+      "required": true,
+      "passed": true,
+      "evidence": "Zero --amber-* references in any Phase 4 file. --ap-* prefix in use throughout src/ui/renderers/web_renderer.cr."
+    },
+    {
+      "id": "fallback.action-sheet-axe-clean",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "No pre-existing Phase 4 demo test page exists for the action sheet. The rubric requires headless-Chrome CDP runs against a real rendered page (axe-core injected via Runtime.evaluate). A test scene was not built by the implementer and was not in scope for the validator to author (would require non-trivial fixture work). JS source inspection confirms the structural requirements (role=dialog, aria-modal, focus management) are emitted by web_renderer.cr — see action_sheet_with_web_fallback_spec assertions — but the rubric explicitly states: 'This check does NOT pass on source inspection.' Marking blocked. RECOMMENDED ACTION: implementer adds samples/web/phase04_action_sheet_test_page.html (or equivalent) in next iteration."
+    },
+    {
+      "id": "fallback.action-sheet-ibm-equal-access-clean",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Same blocker as fallback.action-sheet-axe-clean — no test page."
+    },
+    {
+      "id": "fallback.context-menu-axe-clean",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Same blocker — no Phase 4 web demo page exists."
+    },
+    {
+      "id": "fallback.context-menu-ibm-equal-access-clean",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Same blocker."
+    },
+    {
+      "id": "focus.action-sheet-focus-trap",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Requires CDP-driven Tab key dispatch against a live test page; no page exists. Source inspection: src/ui/web/action_sheet_fallback.js lines 24-49 implement Tab + Shift+Tab focus-trap with wrap-around. Implementation appears correct, but rubric forbids source-only verdict."
+    },
+    {
+      "id": "focus.action-sheet-escape-closes",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Requires CDP-driven Escape dispatch. Source: line 94 of action_sheet_fallback.js fires hide(root, 'escape'); restoration of previouslyFocused at lines 51-69. Implementation appears correct; CDP verification not possible without test page."
+    },
+    {
+      "id": "focus.action-sheet-backdrop-click-closes",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Source: lines 75-91 handle backdrop click via data-ap-as-dismiss attribute; implementation appears correct. CDP verification blocked."
+    },
+    {
+      "id": "conformance.action-sheet-positioning",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Requires headless-Chrome viewport metric overrides + getBoundingClientRect measurements. Blocked."
+    },
+    {
+      "id": "conformance.action-sheet-touch-targets",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Requires headless Chrome at 375x667 viewport with rendered sheet. Blocked."
+    },
+    {
+      "id": "focus.context-menu-keyboard-nav",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Source: src/ui/web/context_menu_fallback.js lines 156-169 implement ArrowDown/Up/Home/End/Escape/Tab/Enter/Space handlers; itemsOf() filters out aria-disabled=true items (lines 26-31). Implementation appears correct; CDP verification blocked."
+    },
+    {
+      "id": "conformance.context-menu-positioning",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Source: position() at lines 33-41 flips when near viewport edge. Requires three-trigger test scene; not built."
+    },
+    {
+      "id": "focus.context-menu-outside-click-closes",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": "Source: lines 171-175 close on document click outside host. Blocked."
+    },
+    {
+      "id": "spec.suite-green",
+      "required": true,
+      "passed": true,
+      "notes": "4 pre-existing baseline failures, no new failures introduced by Phase 4",
+      "evidence": "test_output/spec.suite-green.log — 1347 examples, 4 failures, 0 errors, 0 pending. Failures: UI::Theme inject_theme_css (1) + Phase 2 Verification (3) — all 4 are the documented pre-existing baseline. Zero Phase 4 regressions."
+    },
+    {
+      "id": "spec.compile-error-tests",
+      "required": true,
+      "passed": true,
+      "evidence": "test_output/spec.action_sheet_compile_error.log (2 examples), spec.context_menu_compile_error.log (3 examples), spec.path_control_compile_error.log (3 examples) — all PASS, all exit 0"
+    },
+    {
+      "id": "docs.claude-md-updated",
+      "required": true,
+      "passed": true,
+      "evidence": "CLAUDE.md contains 'Tier model for cross-platform widgets' section, links to docs/initiative-cross-platform-ui/tier-matrix.md, mentions AssetPipeline::Platform.requires(:ios). Commit 9 scope is purely additive on the Tier model — no unrelated edits."
+    },
+    {
+      "id": "docs.tier-matrix-complete",
+      "required": true,
+      "passed": true,
+      "evidence": "No 'TBD', '?', or 'Unclassified' classification entries in tier-matrix.md. The word 'Unclassified' appears only once in the doc's 'How to use' prose describing the build-time TODO rule, not as a tier assignment."
+    },
+    {
+      "id": "macro.platform-requires-works",
+      "required": true,
+      "passed": true,
+      "evidence": "build_logs/macro.platform-requires-no-flag.log — exit 1, contains 'AssetPipeline::Platform.requires(:ios)' and '-Dios'. build_logs/macro.platform-requires-with-flag.log — exit 0."
+    }
+  ],
+  "phase_03_regression_checks": {
+    "ios_xcuitest_phase03_behavior_tests": {
+      "passed": true,
+      "evidence": "test_output/ios_xcuitest.log — 10/10 PASS in 95.795 seconds. BX1, BX3, BX4, BX5, BX6, BX8, BX9, BX10 light, BX10 dark, BX12 all green."
+    },
+    "macos_axtest_bx2_bx7": {
+      "passed": false,
+      "is_phase_04_regression": false,
+      "evidence": "test_output/macos_axtest.log — both fail with 'trigger.should_not be_nil'. macOS host rebuilt against Phase 4 HEAD; still fails. Same spec reproduced against cda36b2 baseline (test_output/macos_axtest_baseline.log): SAME failure mode — proves this is NOT a Phase 4 regression. Likely environmental: TCC trust on freshly-rebuilt ad-hoc-signed binary, or sleep-too-short race between AppKit window mount and AX query. The window does come up (RECT_PX prints) but the accessibility identifier 'tap-probe-button' is not findable in the AX tree."
+    },
+    "swift_test": {
+      "passed": true,
+      "evidence": "test_output/swift_test.log — 53/53 PASS in 2.599 seconds"
+    },
+    "crystal_spec_suite": {
+      "passed": true,
+      "evidence": "1347 examples, 4 pre-existing baseline failures, no new failures (see spec.suite-green check)"
+    }
+  },
+  "implementer_deviations_verified": [
+    {
+      "deviation": "Macro-engine quirk → stub-file split in _gate_stubs/",
+      "verified": true,
+      "evidence": "src/ui/views/_gate_stubs/{action_sheet,context_menu,path_control}.cr exist. src/ui.cr requires './ui/views/*' (single-star glob does NOT recurse into subdir). Phase 4 cross-target builds all succeed on supported platforms — confirms stubs are only loaded via the explicit conditional require in the gated file's else-branch, not via the views glob. Mechanism is sound."
+    },
+    {
+      "deviation": "ContextMenu trigger discovery → trigger : View? property on ContextMenuWithWebFallback",
+      "verified": true,
+      "evidence": "src/ui/views/context_menu_with_web_fallback.cr defines '@trigger : View?' as a constructor parameter. context_menu_fallback.js findTrigger() at lines 85-91 skips STYLE/SCRIPT/TEMPLATE and the menu itself, lands on the first valid child element. Resolves the dead-on-arrival blocker Codex Checkpoint 4 flagged."
+    },
+    {
+      "deviation": "MenuBar + StatusBar gated to Apple-family",
+      "verified": true,
+      "evidence": "src/ui/menu_bar.cr wraps 'class MenuBar' in {% if flag?(:macos) || flag?(:ios) %} and provides a no-op MenuBars module in the else-branch. src/ui/status_bar.cr has the same shape. Non-Apple builds (cross_target_web.log) succeed; Apple builds (cross_target_ios.log, cross_target_macos.log) succeed. Call sites that use UI::MenuBars.install (note: module, not class) remain source-compatible."
+    }
+  ],
+  "architect_attention": [
+    {
+      "item": "Tier 2 section heading off-by-one",
+      "severity": "cosmetic",
+      "detail": "tier-matrix.md '## Tier 2 — Platform default (54 widgets)' actually contains 55 rows. The change log claims 17/54/3+3=77 but the math is 17+55+3+3=78 source files (which is what ls reports). The implementer's narrative count is one short; the matrix itself is complete. Suggest updating the heading to 55 + a note in the change log on the next pass."
+    },
+    {
+      "item": "Web fallback behavior verification deferred — no test page exists",
+      "severity": "major (drives FAIL verdict)",
+      "detail": "The 11 'fallback.*-axe-clean / fallback.*-ibm-* / focus.* / conformance.*' checks all require a CDP-driven headless-Chrome run against a live rendered test page. No samples/web/phase04_*.html test page exists in the repo. The rubric explicitly forbids source-only verdicts on these checks. JS source inspection shows the implementation logic is present and structurally sound (focus trap, Escape handler, ARIA roles, positioning math, touch-target classes), but conformance to the rubric requires a real-page check. RECOMMENDATION: implementer adds 3 web test pages (action sheet presented, context menu trigger trio at TL/center/BR, breadcrumb path control) and a CDP harness script following docs/initiative-cross-platform-ui/rubric/behavior-simulation-toolkit.md, then re-runs validation."
+    },
+    {
+      "item": "macOS AXTest BX2/BX7 fail on both Phase 4 HEAD and cda36b2 baseline",
+      "severity": "informational",
+      "detail": "Not a Phase 4 regression. The hig_showcase binary launches and prints RECT_PX confirming the window mounts, but the AX query for 'tap-probe-button' returns nil on both branches. The same specs were green in phase-03-evidence-2026-05-21-iter5. Likely root cause: ad-hoc re-signing the binary invalidates TCC Accessibility grants (the Makefile comment notes this explicitly: 'TCC permissions persist across rebuilds ONLY if the binary is signed with a stable identity'). Codesign identity 'Developer ID Application: AgentC Consulting LLC (PXDF92M2T4)' is set, so the binary IS being signed with a stable identity — but if the developer manually edited any binary recently the grant could have been invalidated. Re-granting Accessibility in System Settings to the new binary path should restore. This is a pre-existing flakiness in the test environment, not a code regression."
+    }
+  ],
+  "evidence_root": "docs/initiative-cross-platform-ui/handoff/phase-04-evidence-2026-05-21-iter1"
+}

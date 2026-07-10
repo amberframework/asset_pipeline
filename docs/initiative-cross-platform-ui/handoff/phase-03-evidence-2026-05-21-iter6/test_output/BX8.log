@@ -1,0 +1,16 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX8_sheetDismissReturnsFocus]' started.
+    t =     0.00s Start Test at 2026-05-21 13:42:00.763
+    t =     0.03s Set Up
+    t =     0.03s     Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s         Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s             Terminate com.assetpipeline.hig.CrystalHIGHost:83601
+2026-05-21 13:42:01.847 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:42:01.847 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.29s             Setting up automation session
+    t =     2.12s             Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     2.21s Unable to monitor event loop
+    t =     3.22s     Waiting 10.0s for "hig-component-root" Other to exist
+<unknown>:0: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX8_sheetDismissReturnsFocus] : com.assetpipeline.hig.CrystalHIGHost crashed in <external symbol>
+    t =     3.23s Tear Down
+    t =     3.24s         Checking for crash reports corresponding to unexpected termination of com.assetpipeline.hig.CrystalHIGHost
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX8_sheetDismissReturnsFocus]' failed (3.244 seconds).

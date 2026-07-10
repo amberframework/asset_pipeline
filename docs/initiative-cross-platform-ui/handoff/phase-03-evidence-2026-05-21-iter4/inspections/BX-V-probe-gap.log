@@ -1,0 +1,35 @@
+=== Phase 3 BX + V slug authoring gap ===
+
+The Phase 3 validation rubric (validation.md §BX and §V) requires the
+following named slugs to exist in the iOS / macOS sample sources, so the
+validator can launch them and drive synthetic taps / capture pixel
+baselines:
+
+Required slugs (per rubric):
+  - phase-03-action-tap-probe       (BX1, BX2)
+  - phase-03-toggle-value-probe     (BX3)
+  - phase-03-slider-value-probe     (BX4)
+  - phase-03-runtime-override-probe (BX5)
+  - phase-03-form-nested-buttons    (BX6, BX7)
+  - phase-03-sheet-focus-return     (BX8)
+  - phase-03-button-default         (V1, V2, V10)
+  - phase-03-button-background-override (V3)
+  - phase-03-button-square          (V4)
+  - phase-03-toggle-default         (V5)
+  - phase-03-card-default           (V6)
+  - phase-03-form-default           (V8)
+
+Verification (grep across samples/ and src/):
+  (no matches — slugs were never authored by the implementer)
+
+Implication: even with env now provisioned (crystal-alpha installed,
+iOS 26.3 sim booted, macOS sample binary running and producing
+screenshots), BX1-BX12 and V1-V8 cannot run because the host
+binaries do not register the named slugs the rubric drives them with.
+
+Per the orchestrator's directive, the validator does not author code
+under src/, swift/, or samples/, so these probes cannot be added by
+the validator. The proper remediation is an implementer dispatch to
+author the probes — or an architect adjudication that defers the
+probe slugs to Phase 7 (visual-regression automation) per the
+iter3 architect recommendation.

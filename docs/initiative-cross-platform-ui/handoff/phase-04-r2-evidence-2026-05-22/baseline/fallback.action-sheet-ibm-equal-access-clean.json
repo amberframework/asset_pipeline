@@ -1,0 +1,627 @@
+{
+  "check_id": "fallback.action-sheet-ibm-equal-access-clean",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet[data-presented=true]"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (accessibility-checker-engine 4.0.17)",
+    "Runtime.evaluate (ace.Checker.check)"
+  ],
+  "trusted_input_trace": [
+    "click trigger (__phase4.open)",
+    "ace.Checker.check(document, ['IBM_Accessibility'])"
+  ],
+  "expected_state": {
+    "ibm_violation_fail_count_total": 0
+  },
+  "observed_state": {
+    "results": [
+      {
+        "viewport": "1280-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "summary": null,
+        "active": [
+          {
+            "ruleId": "style_color_misuse",
+            "reasonId": "Potential_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Verify color is not used as the only visual means of conveying information",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "style_highcontrast_visible",
+            "reasonId": "Manual_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "MANUAL"
+            ],
+            "message": "Confirm Windows high contrast mode is supported when using CSS to include, position or alter non-decorative content",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_visible",
+            "reasonId": "potential_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm the element should be tabbable and if so, it becomes visible when it has keyboard focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/button[1]",
+              "aria": "/document[1]/main[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-testid=\"action-sheet-trigger\" data-emphasis=\"outline\" data-tone=\"brand\" data-state=\"default\" data-component=\"button\" clas"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[1]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"0\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[2]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"1\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-dismiss=\"cancel\" data-ap-as-action=\"2\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" type=\"button"
+          }
+        ],
+        "violation_fail_count": 0
+      },
+      {
+        "viewport": "1280-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "summary": null,
+        "active": [
+          {
+            "ruleId": "style_color_misuse",
+            "reasonId": "Potential_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Verify color is not used as the only visual means of conveying information",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "style_highcontrast_visible",
+            "reasonId": "Manual_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "MANUAL"
+            ],
+            "message": "Confirm Windows high contrast mode is supported when using CSS to include, position or alter non-decorative content",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_visible",
+            "reasonId": "potential_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm the element should be tabbable and if so, it becomes visible when it has keyboard focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/button[1]",
+              "aria": "/document[1]/main[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-testid=\"action-sheet-trigger\" data-emphasis=\"outline\" data-tone=\"brand\" data-state=\"default\" data-component=\"button\" clas"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[1]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"0\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[2]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"1\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-dismiss=\"cancel\" data-ap-as-action=\"2\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" type=\"button"
+          }
+        ],
+        "violation_fail_count": 0
+      },
+      {
+        "viewport": "375-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "summary": null,
+        "active": [
+          {
+            "ruleId": "style_color_misuse",
+            "reasonId": "Potential_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Verify color is not used as the only visual means of conveying information",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "style_highcontrast_visible",
+            "reasonId": "Manual_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "MANUAL"
+            ],
+            "message": "Confirm Windows high contrast mode is supported when using CSS to include, position or alter non-decorative content",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_visible",
+            "reasonId": "potential_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm the element should be tabbable and if so, it becomes visible when it has keyboard focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/button[1]",
+              "aria": "/document[1]/main[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-testid=\"action-sheet-trigger\" data-emphasis=\"outline\" data-tone=\"brand\" data-state=\"default\" data-component=\"button\" clas"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[1]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"0\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[2]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"1\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-dismiss=\"cancel\" data-ap-as-action=\"2\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" type=\"button"
+          }
+        ],
+        "violation_fail_count": 0
+      },
+      {
+        "viewport": "375-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": true,
+          "context_menu_presented": false,
+          "context_menu_item_count": 0,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "summary": null,
+        "active": [
+          {
+            "ruleId": "style_color_misuse",
+            "reasonId": "Potential_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Verify color is not used as the only visual means of conveying information",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "style_highcontrast_visible",
+            "reasonId": "Manual_1",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "MANUAL"
+            ],
+            "message": "Confirm Windows high contrast mode is supported when using CSS to include, position or alter non-decorative content",
+            "path": {
+              "dom": "/html[1]/head[1]/style[1]",
+              "aria": "/document[1]"
+            },
+            "snippet": "<style>"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_visible",
+            "reasonId": "potential_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm the element should be tabbable and if so, it becomes visible when it has keyboard focus",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/header[1]/a[1]",
+              "aria": "/document[1]/banner[1]/link[1]"
+            },
+            "snippet": "<a class=\"visually-hidden\" href=\"#main\">"
+          },
+          {
+            "ruleId": "element_tabbable_unobscured",
+            "reasonId": "potential_obscured",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Confirm that when the element receives focus, it is not covered or, if covered by user action, can be uncovered without moving focus",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/button[1]",
+              "aria": "/document[1]/main[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-testid=\"action-sheet-trigger\" data-emphasis=\"outline\" data-tone=\"brand\" data-state=\"default\" data-component=\"button\" clas"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[1]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"0\" class=\"ap-action-sheet__action ap-action-sheet__action--default\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/ul[1]/li[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/group[1]/button[2]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-action=\"1\" class=\"ap-action-sheet__action ap-action-sheet__action--destructive\" type=\"button\">"
+          },
+          {
+            "ruleId": "style_focus_visible",
+            "reasonId": "potential_focus_not_visible",
+            "level": "violation",
+            "value": [
+              "VIOLATION",
+              "POTENTIAL"
+            ],
+            "message": "Check the keyboard focus indicator is visible when using CSS declaration for 'border' or 'outline'",
+            "path": {
+              "dom": "/html[1]/body[1]/main[1]/div[1]/div[1]/div[2]/button[1]",
+              "aria": "/document[1]/main[1]/dialog[1]/document[1]/button[1]"
+            },
+            "snippet": "<button style=\"min-width: 44.0px; min-height: 44.0px\" data-ap-as-dismiss=\"cancel\" data-ap-as-action=\"2\" class=\"ap-action-sheet__action ap-action-sheet__action--cancel\" type=\"button"
+          }
+        ],
+        "violation_fail_count": 0
+      }
+    ],
+    "failures": []
+  },
+  "pass": true,
+  "artifacts": [
+    "audits/fallback.action-sheet-ibm-equal-access-clean.json"
+  ]
+}

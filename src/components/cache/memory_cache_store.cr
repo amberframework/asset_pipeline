@@ -94,7 +94,7 @@ module Components
       def stats : Hash(String, Int32 | Int64)
         @mutex.synchronize do
           # Clean up expired entries
-          @cache.delete_if { |_, entry| entry.expired? }
+          @cache.reject! { |_, entry| entry.expired? }
           
           {
             "entries" => @cache.size,
@@ -106,7 +106,7 @@ module Components
       # Clean up expired entries periodically
       def cleanup : Nil
         @mutex.synchronize do
-          @cache.delete_if { |_, entry| entry.expired? }
+          @cache.reject! { |_, entry| entry.expired? }
         end
       end
     end

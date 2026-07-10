@@ -11,7 +11,7 @@ module Components
       
       # Register a component for cache warming
       def register(component : Component) : Nil
-        @components << component if component.responds_to?(:warm_cache)
+        @components << component
       end
       
       # Register multiple components
@@ -56,16 +56,19 @@ module Components
       def stats : Hash(String, Int32 | Int64)
         total_components = @components.size
         by_type = Hash(String, Int32).new(0)
-        
+
         @components.each do |component|
           type_name = component.class.name
           by_type[type_name] = by_type[type_name] + 1
         end
-        
-        {
-          "total_components" => total_components,
-          "types" => by_type.size
-        }.merge(by_type.transform_keys { |k| "type_#{k}" })
+
+        result = {} of String => Int32 | Int64
+        result["total_components"] = total_components
+        result["types"] = by_type.size
+        by_type.each do |k, v|
+          result["type_#{k}"] = v
+        end
+        result
       end
       
       private def warm_component(component : Component, expires_in : Time::Span? = nil) : Nil

@@ -1,0 +1,10 @@
+
+Finished in 9.31 seconds
+1347 examples, 4 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/views_spec.cr:3273 # UI::Theme web renderer inject_theme_css returns empty string with no theme
+crystal spec spec/components/phase2_verification_spec.cr:52 # Phase 2 Verification - Core Component System demonstrates component composition
+crystal spec spec/components/phase2_verification_spec.cr:116 # Phase 2 Verification - Core Component System components can be nested within components
+crystal spec spec/components/phase2_verification_spec.cr:129 # Phase 2 Verification - Core Component System achieves the component system goals

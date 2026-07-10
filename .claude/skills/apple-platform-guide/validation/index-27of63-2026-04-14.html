@@ -1,0 +1,390 @@
+<!doctype html><meta charset='utf-8'>
+<title>Apple HIG validation dashboard</title>
+<style>body{font:14px -apple-system,sans-serif;margin:24px;background:#f2f2f7;color:#1d1d1f}
+h1{font-size:28px;margin-bottom:4px}h2{margin-top:32px}
+table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #e5e5ea;vertical-align:top}
+th{background:#f9f9fb;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#636366}
+tr:last-child td{border-bottom:none}
+img{max-width:240px;max-height:240px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:block;background:#fff}
+img.small{max-width:200px;max-height:200px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid4 .cap{display:flex;flex-direction:column;gap:4px}
+.grid4 .cap-label{font-size:11px;color:#636366;text-transform:uppercase;letter-spacing:.04em}
+.pri{display:inline-block;padding:2px 6px;font-size:11px;background:#e5e5ea;color:#1d1d1f;border-radius:4px;font-weight:600;margin-right:4px}
+.v-pass{color:#34c759;font-weight:600}
+.v-pwn{color:#ff9500;font-weight:600}
+.v-skip{color:#8e8e93;font-weight:600}
+.v-needs{color:#ff3b30;font-weight:600}
+.v-pending{color:#8e8e93;font-weight:600}
+.sub-verdicts{margin-top:8px;font-size:11px;color:#636366;display:grid;grid-template-columns:auto auto;gap:2px 12px;max-width:260px}
+.sub-verdicts strong{font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#636366;margin-right:6px}
+.sv-pass{color:#34c759}.sv-pwn{color:#ff9500}.sv-needs{color:#ff3b30}.sv-skip{color:#8e8e93}
+.slug{font-family:ui-monospace,monospace;font-weight:600;font-size:13px}
+.notes{color:#636366;font-size:12px;max-width:340px;display:block;margin-top:8px;line-height:1.4}
+.ui-view{color:#636366;font-size:12px;margin-right:8px}
+a{color:#007aff;text-decoration:none}a:hover{text-decoration:underline}
+.missing{color:#ff3b30;font-size:12px}
+.pending-list{columns:3;list-style:square;padding-left:20px}
+.bar{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.bar h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#636366}
+.bar ol{margin:0;padding-left:20px;font-size:13px;color:#1d1d1f}
+.bar .progress{height:8px;background:#e5e5ea;border-radius:4px;overflow:hidden;margin:8px 0}
+.bar .progress-fill{height:100%;background:linear-gradient(90deg,#34c759,#30d158)}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.summary .stat{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.summary .stat-num{font-size:28px;font-weight:700}
+.summary .stat-label{font-size:11px;color:#636366;text-transform:uppercase;letter-spacing:.04em}</style>
+<h1>Apple HIG validation &mdash; dashboard</h1>
+<p>Generated 2026-04-14T14:36:02Z. <strong>27/63</strong> components reached a terminal state (<strong>43%</strong>). 3 skipped, 0 needs-work, 33 pending.</p>
+<div class='summary'>
+<div class='stat'><div class='stat-num' style='color:#34c759'>27</div><div class='stat-label'>Passing</div></div>
+<div class='stat'><div class='stat-num' style='color:#8e8e93'>3</div><div class='stat-label'>Skipped</div></div>
+<div class='stat'><div class='stat-num' style='color:#ff3b30'>0</div><div class='stat-label'>Needs work</div></div>
+<div class='stat'><div class='stat-num' style='color:#8e8e93'>33</div><div class='stat-label'>Pending</div></div>
+<div class='stat'><div class='stat-num'>63</div><div class='stat-label'>Total components</div></div>
+</div>
+<div class='bar'><h3>Progress</h3>
+<div class='progress'><div class='progress-fill' style='width:43%'></div></div>
+<p style='margin:0;font-size:13px;color:#636366'>27 of 63 components terminal · 43% complete</p>
+</div>
+<div class='bar'><h3>Acceptance bar</h3><ol><li>Four fresh captures per slug: macOS light/dark + iOS light/dark.</li><li>Surface components must show Liquid Glass in every capture.</li><li>Legibility verified in both appearances.</li><li>Component doc includes 'Light / dark appearance notes' + 'Customization / brand override'.</li></ol></div>
+<h2>Terminal (30)</h2>
+<table><thead><tr><th>Slug / Verdict</th><th>Captures</th><th>HIG reference</th><th>Artifacts</th></tr></thead><tbody>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>action-sheets</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 2<br>
+<span class='ui-view'>UI::Sheet</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Iteration 18: label-color gap resolved. UI::Label defaults to text_color_role=LabelRole::Primary -&gt; NSColor.labelColor / UIColor.labelColor. Title text legible in all four captures (black on light, white on dark). Sheet composes NSVisualEffectView (macOS) / UIVisualEffectView (iOS); true glass bleed-through is not visible in cacheDisplayInRect captures (iter-17 gotcha, unchanged).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/action-sheets-macos-light.png'><img src='screenshots/action-sheets-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/action-sheets-macos-dark.png'><img src='screenshots/action-sheets-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/action-sheets-ios-light.png'><img src='screenshots/action-sheets-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/action-sheets-ios-dark.png'><img src='screenshots/action-sheets-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/action-sheets.md'>report</a> · <a href='../components/action-sheets.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>activity-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 19<br>
+<span class='ui-view'>UI::ActivityView</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration-19: UI::ActivityView implemented. All four zones (header/destination-row/action-grid/cancel) visible in all four captures. PASS_WITH_NOTES: (1) macOS popover approximation — no native NSActivityViewController per HIG platform considerations; (2) iOS inline layout for capture path, production needs UIActivityViewController; (3) glass bleed-through not composited in captures (iteration-17 known infra limitation); (4) minor trailing-edge clip on &#x27;Add to Reading List&#x27; action label in macOS.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/activity-views-macos-light.png'><img src='screenshots/activity-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/activity-views-macos-dark.png'><img src='screenshots/activity-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/activity-views-ios-light.png'><img src='screenshots/activity-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/activity-views-ios-dark.png'><img src='screenshots/activity-views-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/activity-views.md'>report</a> · <a href='../components/activity-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>alerts</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 20<br>
+<span class='ui-view'>UI::Alert</span> <span class='ui-view'>glass: hudWindow</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Iteration 20: visit(UI::Alert) rewritten on both renderers to emit NSVisualEffectView (hudWindow=7) / UIVisualEffectView (UIGlassEffect/UIBlurEffect) inline glass card. All four appearances captured fresh (macos-light 34739B, macos-dark 34850B, ios-light 121022B, ios-dark 100903B). Title bold/legible, message secondary-gray/legible, destructive red distinct from cancel/default blue in all four captures. macOS buttons stack vertically (HIG-justified); live glass bleed-through not visible on macOS (iter-17 gotcha). Both mandatory doc sections present.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/alerts-macos-light.png'><img src='screenshots/alerts-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/alerts-macos-dark.png'><img src='screenshots/alerts-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/alerts-ios-light.png'><img src='screenshots/alerts-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/alerts-ios-dark.png'><img src='screenshots/alerts-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/alerts.md'>report</a> · <a href='../components/alerts.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>boxes</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 21<br>
+<span class='ui-view'>UI::Card</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>macOS leading inset missing (title flush to left edge, no 12pt padding). Non-legibility-impairing. Future: add NSEdgeInsets(top:12,left:12,bottom:12,right:12) to NSStackView in visit(UI::Card) in appkit_renderer.cr.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/boxes-macos-light.png'><img src='screenshots/boxes-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/boxes-macos-dark.png'><img src='screenshots/boxes-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/boxes-ios-light.png'><img src='screenshots/boxes-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/boxes-ios-dark.png'><img src='screenshots/boxes-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/boxes.md'>report</a> · <a href='../components/boxes.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 23<br>
+<span class='ui-view'>UI::Button</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 23: ButtonStyle enum added (Default/Prominent/Tinted/Bordered/Borderless). UIKit renderer wired to UIButton.Configuration API via buttonWithConfiguration:primaryAction: (iOS 15+). AppKit renderer wired to NSBezelStyle + bezelColor/contentTintColor. Gallery expanded to 11 rows. All four captures fresh (Apr 13 19:17-21). iOS now shows distinct bezeled pill buttons for each style: gray Default, filled-blue Prominent, translucent-tint Tinted, gray Bordered, text-link Borderless. Destructive rows show red bezel (Prominent) or red label (others). macOS shows rounded-bezel styles; Prominent style visually similar to Default (NSButton bezelColor fill is subtler than UIButton.Configuration.filled -- documented PASS_WITH_NOTES deviation). docs_written: true.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/buttons-macos-light.png'><img src='screenshots/buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/buttons-macos-dark.png'><img src='screenshots/buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/buttons-ios-light.png'><img src='screenshots/buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/buttons-ios-dark.png'><img src='screenshots/buttons-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/buttons.md'>report</a> · <a href='../components/buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>collections</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 24<br>
+<span class='ui-view'>UI::ListView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/collections-macos-light.png'><img src='screenshots/collections-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/collections-macos-dark.png'><img src='screenshots/collections-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/collections-ios-light.png'><img src='screenshots/collections-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/collections-ios-dark.png'><img src='screenshots/collections-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/collections.md'>report</a> · <a href='../components/collections.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>context-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 25<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/context-menus-macos-light.png'><img src='screenshots/context-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/context-menus-macos-dark.png'><img src='screenshots/context-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/context-menus-ios-light.png'><img src='screenshots/context-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/context-menus-ios-dark.png'><img src='screenshots/context-menus-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/context-menus.md'>report</a> · <a href='../components/context-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>digit-entry-views</span><br>
+<span class='v-skip'>SKIPPED</span> · iter 8<br>
+<span class='ui-view'>UI::TextField</span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>macOS dark</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/digit-entry-views.md'>report</a> · <a href='../components/digit-entry-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>disclosure-controls</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 26<br>
+<span class='ui-view'>UI::DisclosureGroup</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+<span class='notes'>Follow-up: add style: :triangle | :push_disclosure to UI::DisclosureGroup; map :push_disclosure to bezelStyle=23 (NSButton.BezelStyle.pushDisclosure) in appkit_renderer.cr.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/disclosure-controls-macos-light.png'><img src='screenshots/disclosure-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/disclosure-controls-macos-dark.png'><img src='screenshots/disclosure-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/disclosure-controls-ios-light.png'><img src='screenshots/disclosure-controls-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/disclosure-controls-ios-dark.png'><img src='screenshots/disclosure-controls-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/disclosure-controls.md'>report</a> · <a href='../components/disclosure-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>dock-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 27<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-skip'>n/a (platform)</span><strong>iOS D</strong><span class='sv-skip'>n/a (platform)</span></div>
+<span class='notes'>Iteration 27: four fresh captures (macos-light 86550b, macos-dark 87422b, ios-light 291378b, ios-dark 262660b), all dated 2026-04-13 20:06-20:08. macOS: UI::Sheet grouped_card with NSVisualEffectMaterial.menu (10), multi-group surface (New Window / Open Recent / separator / Recent docs / separator / Options subgroup / system items). Glass visible in both macOS appearances. iOS: explicit N/A placeholder card legible in both appearances. Two non-legibility-impairing deviations: (1) blue labels vs labelColor (systemic, gaps.md iter-12); (2) submenu chevron via text character not NSMenuItem.submenu (systemic, gaps.md iter-25). Both mandatory sections (Light/dark appearance notes + Customization/brand override) present in components/dock-menus.md.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/dock-menus-macos-light.png'><img src='screenshots/dock-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/dock-menus-macos-dark.png'><img src='screenshots/dock-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/dock-menus-ios-light.png'><img src='screenshots/dock-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/dock-menus-ios-dark.png'><img src='screenshots/dock-menus-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/dock-menus.md'>report</a> · <a href='../components/dock-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>edit-menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 28<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/edit-menus-macos-light.png'><img src='screenshots/edit-menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/edit-menus-macos-dark.png'><img src='screenshots/edit-menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/edit-menus-ios-light.png'><img src='screenshots/edit-menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/edit-menus-ios-dark.png'><img src='screenshots/edit-menus-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/edit-menus.md'>report</a> · <a href='../components/edit-menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>image-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 29<br>
+<span class='ui-view'>UI::AsyncImage</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 29: six-variant gallery (SF Symbol, square thumbnail, circular avatar, rounded card, loading spinner, error placeholder). macOS arm uses NSView shapes sized via objc_constrain_size (TAMIC:NO + priority-999 NSLayoutConstraints). iOS arm uses UILabel placeholders with background/corner_radius (UIView shapes collapse in UIStackView without intrinsicContentSize). SF Symbol NSImageView collapses (imageNamed: does not resolve SF Symbol names; planned: symbol_name -&gt; systemSymbolName:). iOS viewport clips rows 3-6 (same gap as iter-28 edit-menus). Both mandatory doc sections present: Light/dark appearance notes + Customization/brand override.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/image-views-macos-light.png'><img src='screenshots/image-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/image-views-macos-dark.png'><img src='screenshots/image-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/image-views-ios-light.png'><img src='screenshots/image-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/image-views-ios-dark.png'><img src='screenshots/image-views-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/image-views.md'>report</a> · <a href='../components/image-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>labels</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 19<br>
+<span class='ui-view'>UI::Label</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration-19 (2026-04-14): 8-row gallery with all four LabelRole semantic color tokens verified. macOS light+dark PASS -- all four LabelRole values visibly distinct in both appearances (Primary near-black/white, Secondary medium gray, Tertiary light gray, Quaternary very faint gray). iOS light+dark PASS_WITH_NOTES -- rows 1-3 visible and LabelRole distinction confirmed; rows 4-8 clip below viewport (pre-existing iOS host scrollview gap, gaps.md iter 28/29). Dynamic Type not wired (font_style gap, iter-12 open). selectable not wired (iter-12 open).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/labels-macos-light.png'><img src='screenshots/labels-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/labels-macos-dark.png'><img src='screenshots/labels-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/labels-ios-light.png'><img src='screenshots/labels-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/labels-ios-dark.png'><img src='screenshots/labels-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/labels.md'>report</a> · <a href='../components/labels.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>lists-and-tables</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 32<br>
+<span class='ui-view'>UI::ListView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/lists-and-tables-macos-light.png'><img src='screenshots/lists-and-tables-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/lists-and-tables-macos-dark.png'><img src='screenshots/lists-and-tables-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/lists-and-tables-ios-light.png'><img src='screenshots/lists-and-tables-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/lists-and-tables-ios-dark.png'><img src='screenshots/lists-and-tables-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/lists-and-tables.md'>report</a> · <a href='../components/lists-and-tables.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>lockups</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'>UI::Card</span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>macOS dark</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>menus</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 33<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 33: Two menu surfaces (File pull-down + Sort By pop-up) rendered. Glass (NSVisualEffectMaterial.menu / UIVisualEffectView grouped_card path) confirmed in all four captures. Submenu chevron and checkmark selected-state visible on macOS. Three systemic PASS_WITH_NOTES deviations: (1) system-blue button labels instead of labelColor (gaps.md iter-12, not yet resolved); (2) pill bezels instead of full-width NSMenuItem / UIMenuElement rows (gaps.md iter-25); (3) Sort By card partially clipped on iOS viewport (harness sizing, not renderer). ObjC bridge bug fixed: objc_constrain_equal_width used UIView/UILayoutPriorityRequired directly without TARGET_OS_OSX guard; replaced with BridgeView typedef and conditional NSLayoutPriorityRequired / UILayoutPriorityRequired.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/menus-macos-light.png'><img src='screenshots/menus-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/menus-macos-dark.png'><img src='screenshots/menus-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/menus-ios-light.png'><img src='screenshots/menus-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/menus-ios-dark.png'><img src='screenshots/menus-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/menus.md'>report</a> · <a href='../components/menus.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pickers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 35<br>
+<span class='ui-view'>UI::Picker</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iter-35: iOS now uses inline-list-with-checkmarks (resolved empty-wheel gap from iter-34). Two minor non-legibility-impairing deviations remain: row text is center-aligned (layout-margins propagation issue) and card surface not distinct from white host in light mode. Both can be addressed in a future styling pass.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pickers-macos-light.png'><img src='screenshots/pickers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pickers-macos-dark.png'><img src='screenshots/pickers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pickers-ios-light.png'><img src='screenshots/pickers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pickers-ios-dark.png'><img src='screenshots/pickers-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/pickers.md'>report</a> · <a href='../components/pickers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pop-up-buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::MenuButton</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pop-up-buttons-macos-light.png'><img src='screenshots/pop-up-buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pop-up-buttons-macos-dark.png'><img src='screenshots/pop-up-buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pop-up-buttons-ios-light.png'><img src='screenshots/pop-up-buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pop-up-buttons-ios-dark.png'><img src='screenshots/pop-up-buttons-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/pop-up-buttons.md'>report</a> · <a href='../components/pop-up-buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>popovers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 35<br>
+<span class='ui-view'>UI::Popover</span> <span class='ui-view'>glass: popover</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/popovers-macos-light.png'><img src='screenshots/popovers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/popovers-macos-dark.png'><img src='screenshots/popovers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/popovers-ios-light.png'><img src='screenshots/popovers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/popovers-ios-dark.png'><img src='screenshots/popovers-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/popovers.md'>report</a> · <a href='../components/popovers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>progress-indicators</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 36<br>
+<span class='ui-view'>UI::ActivityIndicator</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/progress-indicators-macos-light.png'><img src='screenshots/progress-indicators-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/progress-indicators-macos-dark.png'><img src='screenshots/progress-indicators-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/progress-indicators-ios-light.png'><img src='screenshots/progress-indicators-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/progress-indicators-ios-dark.png'><img src='screenshots/progress-indicators-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/progress-indicators.md'>report</a> · <a href='../components/progress-indicators.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>pull-down-buttons</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::MenuButton</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Iteration 1: is_pull_down mode added to UI::MenuButton. NSPopUpButton pullsDown:YES on macOS (setPullsDown: selector). UIButton showsMenuAsPrimaryAction on iOS with chevron.down. Two deviations: iOS chevron leading-placed (non-legibility-impairing); macOS prominent style not visually elevated (bridge gap). Glass menu surface visible at runtime but not in inline capture path (gaps.md).</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/pull-down-buttons-macos-light.png'><img src='screenshots/pull-down-buttons-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/pull-down-buttons-macos-dark.png'><img src='screenshots/pull-down-buttons-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/pull-down-buttons-ios-light.png'><img src='screenshots/pull-down-buttons-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/pull-down-buttons-ios-dark.png'><img src='screenshots/pull-down-buttons-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/pull-down-buttons.md'>report</a> · <a href='../components/pull-down-buttons.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>scroll-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::ScrollView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>Increase row count to 25+ or reduce font size to guarantee visible content clipping in iOS first-frame static capture.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/scroll-views-macos-light.png'><img src='screenshots/scroll-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/scroll-views-macos-dark.png'><img src='screenshots/scroll-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/scroll-views-ios-light.png'><img src='screenshots/scroll-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/scroll-views-ios-dark.png'><img src='screenshots/scroll-views-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/scroll-views.md'>report</a> · <a href='../components/scroll-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>search-fields</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::SearchField</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/search-fields-macos-light.png'><img src='screenshots/search-fields-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/search-fields-macos-dark.png'><img src='screenshots/search-fields-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/search-fields-ios-light.png'><img src='screenshots/search-fields-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/search-fields-ios-dark.png'><img src='screenshots/search-fields-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/search-fields.md'>report</a> · <a href='../components/search-fields.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>segmented-controls</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 1<br>
+<span class='ui-view'>UI::SegmentedControl</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+<span class='notes'>iOS layout clipping: constrain UISegmentedControl width to safe-area width in hig_bridge showcase arm (cf. search-fields objc_constrain_size pattern). Icon segments: add segment_images Array(String)? property and setImage:forSegment: renderer paths.</span></td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/segmented-controls-macos-light.png'><img src='screenshots/segmented-controls-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/segmented-controls-macos-dark.png'><img src='screenshots/segmented-controls-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/segmented-controls-ios-light.png'><img src='screenshots/segmented-controls-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/segmented-controls-ios-dark.png'><img src='screenshots/segmented-controls-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/segmented-controls.md'>report</a> · <a href='../components/segmented-controls.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sheets</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 18<br>
+<span class='ui-view'>UI::Sheet</span> <span class='ui-view'>glass: menu</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sheets-macos-light.png'><img src='screenshots/sheets-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sheets-macos-dark.png'><img src='screenshots/sheets-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sheets-ios-light.png'><img src='screenshots/sheets-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sheets-ios-dark.png'><img src='screenshots/sheets-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/sheets.md'>report</a> · <a href='../components/sheets.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sidebars</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 41<br>
+<span class='ui-view'>UI::NavigationSplitView</span> <span class='ui-view'>glass: sidebar</span>
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sidebars-macos-light.png'><img src='screenshots/sidebars-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sidebars-macos-dark.png'><img src='screenshots/sidebars-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sidebars-ios-light.png'><img src='screenshots/sidebars-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sidebars-ios-dark.png'><img src='screenshots/sidebars-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/sidebars.md'>report</a> · <a href='../components/sidebars.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>sliders</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 43<br>
+<span class='ui-view'>UI::Slider</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/sliders-macos-light.png'><img src='screenshots/sliders-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/sliders-macos-dark.png'><img src='screenshots/sliders-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/sliders-ios-light.png'><img src='screenshots/sliders-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/sliders-ios-dark.png'><img src='screenshots/sliders-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/sliders.md'>report</a> · <a href='../components/sliders.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>split-views</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 44<br>
+<span class='ui-view'>UI::NavigationSplitView</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pass'>pass</span><strong>macOS D</strong><span class='sv-pass'>pass</span><strong>iOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS D</strong><span class='sv-pwn'>pass_with_notes</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/split-views-macos-light.png'><img src='screenshots/split-views-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/split-views-macos-dark.png'><img src='screenshots/split-views-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/split-views-ios-light.png'><img src='screenshots/split-views-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/split-views-ios-dark.png'><img src='screenshots/split-views-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/split-views.md'>report</a> · <a href='../components/split-views.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P0</span> <span class='slug'>steppers</span><br>
+<span class='v-pwn'>PASS_WITH_NOTES</span> · iter 45<br>
+<span class='ui-view'>UI::Stepper</span> 
+<div class='sub-verdicts'><strong>macOS L</strong><span class='sv-pwn'>pass_with_notes</span><strong>macOS D</strong><span class='sv-pwn'>pass_with_notes</span><strong>iOS L</strong><span class='sv-pass'>pass</span><strong>iOS D</strong><span class='sv-pass'>pass</span></div>
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><a href='screenshots/steppers-macos-light.png'><img src='screenshots/steppers-macos-light.png'></a></div><div class='cap'><span class='cap-label'>macOS dark</span><a href='screenshots/steppers-macos-dark.png'><img src='screenshots/steppers-macos-dark.png'></a></div><div class='cap'><span class='cap-label'>iOS light</span><a href='screenshots/steppers-ios-light.png'><img src='screenshots/steppers-ios-light.png'></a></div><div class='cap'><span class='cap-label'>iOS dark</span><a href='screenshots/steppers-ios-dark.png'><img src='screenshots/steppers-ios-dark.png'></a></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><a href='reports/steppers.md'>report</a> · <a href='../components/steppers.md'>usage doc</a></td>
+</tr>
+<tr>
+<td><span class='pri'>P2</span> <span class='slug'>top-shelf</span><br>
+<span class='v-skip'>SKIPPED</span><br>
+<span class='ui-view'></span> 
+
+</td>
+<td><div class='grid4'><div class='cap'><span class='cap-label'>macOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>macOS dark</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS light</span><span class='missing'>missing</span></div><div class='cap'><span class='cap-label'>iOS dark</span><span class='missing'>missing</span></div></div></td>
+<td><span class='missing'>no HIG ref</span></td>
+<td><span class='missing'>no docs</span></td>
+</tr>
+</tbody></table>
+<h2>Pending (33)</h2>
+<ul class='pending-list'>
+<li><span class='pri'>P0</span> <span class='slug'>tab-bars</span></li>
+<li><span class='pri'>P0</span> <span class='slug'>tab-views</span></li>
+<li><span class='pri'>P0</span> <span class='slug'>text-fields</span></li>
+<li><span class='pri'>P0</span> <span class='slug'>text-views</span></li>
+<li><span class='pri'>P0</span> <span class='slug'>toggles</span></li>
+<li><span class='pri'>P0</span> <span class='slug'>toolbars</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>activity-rings</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>app-shortcuts</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>charts</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>color-wells</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>column-views</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>combo-boxes</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>complications</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>controls</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>gauges</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>home-screen-quick-actions</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>image-wells</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>live-activities</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>notifications</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>ornaments</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>outline-views</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>page-controls</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>panels</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>path-controls</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>rating-indicators</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>status-bars</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>the-menu-bar</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>token-fields</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>virtual-keyboards</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>watch-faces</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>web-views</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>widgets</span></li>
+<li><span class='pri'>P2</span> <span class='slug'>windows</span></li>
+</ul>

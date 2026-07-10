@@ -1,0 +1,8 @@
+Showing last frame. Use --error-trace for full trace.
+
+In tmp/compile-check/ap_platform_requires.cr:2:25
+
+ 2 | AssetPipeline::Platform.requires(:ios)
+                             ^-------
+Error: AssetPipeline::Platform.requires(:ios) - this code path needs -Dios. Either build with that flag, or guard with `\{% if flag?(:ios) %}` and provide an else-branch.
+exit: 1

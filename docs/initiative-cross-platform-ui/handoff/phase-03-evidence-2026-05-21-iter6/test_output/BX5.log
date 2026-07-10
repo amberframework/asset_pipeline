@@ -1,0 +1,39 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX5_runtimeOverrideRerender]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:46.793
+    t =     0.02s Set Up
+    t =     0.02s     Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.02s         Launch com.assetpipeline.hig.CrystalHIGHost
+2026-05-21 13:41:46.814 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:46.814 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.23s             Setting up automation session
+    t =     1.01s             Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     2.27s     Waiting 10.0s for "hig-component-root" Other to exist
+    t =     3.35s         Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     3.36s             Checking existence of `"hig-component-root" Other`
+    t =     3.42s     Waiting 5.0s for "override-target" Button to exist
+    t =     4.49s         Checking `Expect predicate `existsNoRetry == 1` for object "override-target" Button`
+    t =     4.49s             Checking existence of `"override-target" Button`
+    t =     4.51s     Waiting 3.0s for "make-red-trigger" Button to exist
+    t =     5.58s         Checking `Expect predicate `existsNoRetry == 1` for object "make-red-trigger" Button`
+    t =     5.58s             Checking existence of `"make-red-trigger" Button`
+    t =     5.60s     Waiting 3.0s for "override-state" StaticText to exist
+    t =     6.67s         Checking `Expect predicate `existsNoRetry == 1` for object "override-state" StaticText`
+    t =     6.67s             Checking existence of `"override-state" StaticText`
+    t =     6.69s     Find the "override-state" StaticText
+    t =     6.70s     Checking existence of `"override-target" Button`
+    t =     6.71s     Find the "override-target" Button
+    t =     6.74s Added attachment named 'BX5-before.png'
+    t =     6.74s     Tap "make-red-trigger" Button
+    t =     6.74s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     6.74s         Find the "make-red-trigger" Button
+    t =     6.75s         Check for interrupting elements affecting "make-red-trigger" Button
+    t =     6.76s         Synthesize event
+    t =     7.06s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     7.58s     Find the "override-state" StaticText
+    t =     7.60s     Checking existence of `"override-target" Button`
+    t =     7.62s     Find the "override-target" Button
+    t =     7.64s Added attachment named 'BX5-after.png'
+    t =     7.64s Added attachment named 'BX5-state-transition.json'
+    t =     7.64s     Checking existence of `"override-target" Button`
+    t =     7.65s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX5_runtimeOverrideRerender]' passed (7.938 seconds).

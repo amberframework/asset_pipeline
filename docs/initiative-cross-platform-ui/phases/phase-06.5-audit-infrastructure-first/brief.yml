@@ -1,0 +1,405 @@
+phase:
+  number: "6.5"
+  name: "Audit-Infrastructure-First"
+  branch: "phase-06.5-audit-infrastructure-first"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "2e3e4fe"
+  authored_at: "2026-05-22"
+
+# ---------------------------------------------------------------------------
+# AMENDMENT — Phase 6.5 Remediation 1 (2026-05-23)
+# ---------------------------------------------------------------------------
+# Architect review of the Implementer-landed commits d9b40b1..ace85c1 found
+# that the iOS probes for I-1..I-7 were artifact-presence proxies, not real
+# probes — exactly the "vacuous probe" pattern brief §5 was authored to
+# prevent. Remediation 1 replaced each of I-1..I-8 + I-11 iOS with a real
+# `xcodebuild test` invocation against `CrystalHIGHostUITests/<Class>/<Method>`
+# on a "platform=iOS Simulator,name=iPhone 17" destination (iPhone 15 sim
+# images on this Xcode install pair only with iOS 17.x runtimes, which fail
+# against the project's iOS 26 deployment target).
+#
+# The owner approved the >60s per-cell budget overrun on 2026-05-22 to
+# unblock real probes. Measured runtimes on a warm cache (2026-05-23,
+# Xcode 16, M-class host):
+#
+#   I-1 ios (HIGVisualTests/testRenderSlug):                ~48s
+#   I-3 ios (Phase03BehaviorTests/testBX3_toggleValueCallback): ~128s
+#   I-8 ios (Phase03BehaviorTests/testBX10_darkModeTintShift_dark): ~43s
+#   I-11 ios (build_crystal_lib.sh + xcodebuild build-for-testing): ~7s warm,
+#     ~90-300s cold (first build of a fresh DerivedData)
+#
+# Other cells (I-2, I-4, I-5, I-6, I-7) follow the same shape — each is a
+# single XCUITest invocation, runtime dominated by xcodebuild + simulator
+# boot. Expect 40-130s per cell warm, 60-300s cold. Run aggregate budget
+# (8 iOS cells) is ~6-15 minutes warm; this remains in scope for the Phase
+# 6.5 Validator pass at end of phase.
+#
+# Remediation 1 also regenerated `samples/cross_platform/ios_host/CrystalHIGHost.xcodeproj`
+# via `xcodegen generate` because the D4-extracted Patterns/*.swift files
+# were not referenced in the prior project — without this the test target
+# could not resolve `VisualSnapshotPattern`, `HostLaunchPattern`, etc.
+# The regenerated project is an infrastructure artifact (consumes the
+# checked-in `project.yml`), not a production-code change.
+#
+# Override hook: set `AUDIT_HARNESS_IOS_DESTINATION` to a different
+# `xcodebuild -destination` string (e.g. on a fresh Xcode install with a
+# newer device family). The harness reads it from ENV at load time.
+# ---------------------------------------------------------------------------
+
+# Phase 6.5 contract decisions baked into this brief. Authored after Phase 5
+# v2 PASS + Phase 5.5 PASS, per the planning retrospective's Principle 6
+# (audit-first). The retrospective lives at
+# `docs/initiative-cross-platform-ui/handoff/planning-retrospective-2026-05-22.md`;
+# Section 5 of that doc names the canonical probe-command menu per
+# invariant per platform. Phase 6.5's contract is to make every Section 5
+# command actually runnable.
+#
+# 1. DELIVERABLES: 6 reusable assets.
+#    (a) `scripts/audit_harness.cr` — unified entrypoint with CLI args
+#        `--invariant <I-N>` `--platform <ios|macos|web|android>` `--slug <s>`.
+#        Routes to the appropriate probe based on invariant+platform combo.
+#        Returns structured pass/fail in <60s per invocation.
+#    (b) Visual diff baseline tooling. PNG baselines stored under
+#        `docs/initiative-cross-platform-ui/baselines/<platform>/<slug>.png`.
+#        `scripts/regenerate_baselines.sh` regenerates from a running app/
+#        simulator/headless browser. `magick compare` does the diff with
+#        per-baseline tolerance JSON.
+#    (c) AXTest pattern library: extract the patterns currently inline in
+#        the 3 macOS specs at `spec/ui/hig_validation/` into a require-able
+#        library at `spec/support/ax_test_patterns/` (or similar). Future
+#        specs `require "../support/ax_test_patterns"` instead of copying.
+#    (d) XCUITest pattern library: same for the 2 iOS test files at
+#        `samples/cross_platform/ios_host/UITests/`. Extract focus-trap,
+#        value-bound-control, sheet-present/dismiss, and dismiss-reason
+#        capture patterns into a `UITests/Patterns/` directory.
+#    (e) Generalized CDP harness: extract reusable probes from the 1272-
+#        line `scripts/phase04_cdp_harness.cr` into a `scripts/cdp_probes/`
+#        library; flesh out the 1-line stub scripts (axe_web_demo_audit.cr,
+#        ibm_web_demo_audit.cr).
+#    (f) Per-platform invariant probe coverage matrix: 11 invariants ×
+#        4 platforms = 44 cells. Currently most are stubs or skip records
+#        citing Phase 6.5. By end of Phase 6.5, each cell is either (a) a
+#        working probe with a slug-routing entry OR (b) an explicit skip
+#        record with owner-approved date in the schema-required format.
+#
+# 2. EXISTING ASSETS PHASE 6.5 BUILDS ON (not reinvented):
+#    - `scripts/phase04_cdp_harness.cr` (1272 lines) — Phase 4 R1 web CDP
+#      harness. Generalize, don't replace.
+#    - `scripts/axe_amber_demo_audit.cr` (224 lines) + `ibm_amber_demo_audit.cr`
+#      (221 lines) — Phase 4 R2 web a11y audits. Pattern reference.
+#    - `scripts/axe_web_demo_audit.cr` + `ibm_web_demo_audit.cr` — 1-line
+#      stubs; Phase 6.5 fills them out.
+#    - `spec/ui/hig_validation/macos_*_spec.cr` (384 lines across 3 specs)
+#      — Phase 3 macOS AXTest patterns to extract.
+#    - `samples/cross_platform/ios_host/UITests/{Phase03BehaviorTests,
+#      HIGVisualTests}.swift` (611 lines) — Phase 3 iOS XCUITest patterns
+#      to extract.
+#    - `samples/cross_platform/macos_host/Makefile` + `build_crystal_lib.sh`
+#      — existing build closure probes for I-11.
+#    - 5 `spec/ui/glass_material/*_spec.cr` — pending-body Phase 5 probe
+#      placeholders Phase 6.5 will activate.
+#
+# 3. NOT IN SCOPE:
+#    - Phase 6's Side-by-Side Demo App.
+#    - Phase 7's GitHub Actions / CI workflow files.
+#    - Android sim/emulator infrastructure (deferred per Phase 1 #17
+#      architect adjudication; Android probes remain skip records).
+#    - Modifying the existing renderers or design tokens (Phase 6.5 is
+#      pure audit infrastructure, not behavior change).
+#
+# 4. INVARIANT TOUCH PATTERN: Phase 6.5 is a pure-infrastructure phase. All
+#    11 invariants are `extends` (Phase 6.5 ships new probe surfaces for
+#    each) OR `preserves` (production behavior unchanged). No invariant
+#    is `replaces`. Specifically:
+#    - I-1..I-9: extends (each gets new probe runners per platform)
+#    - I-10: extends (Phase 6.5 ships the per-platform public API contract
+#      audit harness that walks adapter_cardinality rows + asserts runtime
+#      degradation matches documented contract — this is NEW probe surface,
+#      not preservation)
+#    - I-11: extends (Phase 6.5 adds new Crystal scripts that themselves
+#      need build proof; existing production build closure unchanged)
+#
+# 5. PROBE-CELL SEMANTICS (IMPORTANT — addresses Codex round-1 concern about
+#    vacuous probes). The probe cells for I-1..I-10 reference
+#    `scripts/audit_harness_smoke.sh` as a placeholder path. The brief
+#    validator only checks PATH EXISTENCE — it does NOT execute probes.
+#    The smoke shim currently exits 2 ("not implemented"). The Phase 6.5
+#    Implementer's contract is to make `audit_harness_smoke.sh` (or its
+#    Crystal underlying `scripts/audit_harness.cr`) exit 0 on probe pass
+#    for the named invariant+platform+slug combination.
+#
+#    The Phase 6.5 VALIDATOR at end of phase runs every probe cell command
+#    and expects exit 0 (or a documented skip). If the smoke shim is still
+#    exiting 2 at validation time, Phase 6.5 has not shipped its contract
+#    — Validator returns FAIL. This is the structural guarantee Codex's
+#    "vacuous probe" concern needs: the brief validator gates dispatch
+#    (path exists), the Validator gates close-out (exit 0 on every cell).
+#    Both gates must pass for the phase to PASS.
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: extends
+    rationale: "Phase 6.5 ships visual-diff baseline tooling that takes platform screenshots (macOS AXTest, iOS XCUITest, web CDP, Android skip), diffs against committed PNG baselines via `magick compare`, and surfaces pixel-level regressions with per-baseline tolerance JSON. Per-platform baselines live at `docs/initiative-cross-platform-ui/baselines/{platform}/{slug}.png` using curly-brace placeholders in path templates. The audit harness's `--invariant`, `--platform`, and `--slug` CLI flags dispatch to the platform-specific capturer + diff routine. Existing Phase 3 baseline infrastructure at `handoff/phase-03-baselines/` is the migration source."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-1 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-1 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-1 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator infrastructure deferred per Phase 1 #17 architect adjudication (Crystal stdlib c/sys/epoll gap on darwin). Phase 6.5 ships explicit skip record for Android I-1; activated when Android cross-build resolves"
+        owner_approved: "2026-05-22"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: extends
+    rationale: "Phase 6.5 ships mutation-then-read assertion patterns per platform. iOS: XCUITest invokes a Crystal mutator via test trigger, reads `XCUIElement.staticTexts[id].label` (id resolved at runtime) post-mutation, asserts transition. macOS: AXTest drives Crystal mutator, reads `AXValue` via `kAXValueAttribute`, asserts. web: CDP `Runtime.evaluate('apiCallToMutate()')` then `Runtime.evaluate('document.querySelector(SEL).textContent')` where SEL is the resolved selector. Patterns extracted from Phase 3 R4/R10 (the BX1/BX2/BX5 reactive probes) into reusable library; new specs `require` rather than copy."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-2 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-2 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-2 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: extends
+    rationale: "Phase 6.5 ships event-injection probes: iOS `XCUIElement.tap()` + coordinate tap with assertion that Crystal-side `Probe.last_value` updates AND the `on_change` callback fires. macOS: `AXUIElementPerformAction(elem, kAXPressAction)` with same assertion. web: CDP `Input.dispatchMouseEvent`/`dispatchKeyEvent` with window-level JS reflection AND host-language probe value assertion. Patterns extracted from Phase 3 R4 BX1 event-tap probes + Phase 4 R1 CDP harness."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-3 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-3 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-3 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: extends
+    rationale: "Phase 6.5 ships pre/post focus snapshot probes: iOS opens modal/navigation/sheet, records `app.firstMatch(forAccessibilityActivate:)` pre + post, asserts focus returns to invoking element. macOS: same via `AXUIElementCopyAttributeValue(kAXFocusedUIElementAttribute, valueRef)` calls with the focused element ref dereferenced. web: CDP `document.activeElement` snapshots. Patterns extracted from Phase 3 R7 AX-tree discoverability work."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-4 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-4 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-4 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: extends
+    rationale: "Phase 6.5 ships teardown-spy harness: a debug build flag exposes per-platform native handle release logging (NSObject -dealloc on Apple, View detach on web/Android). Per-platform probes assert the log message appears within N ms of host-side dismissal. This catches the iOS BX8 sheet-leak class of bugs Phase 3 R10 hunted."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-5 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-5 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-5 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: extends
+    rationale: "Phase 6.5 ships per-platform accessibility audit probes. iOS: XCUITest `XCTAttachment` with AX tree dump + assertion against expected accessibility identifiers. macOS: `AXIsProcessTrustedWithOptions` + AX tree walk via AXTest extracted patterns. web: axe-core + IBM Equal Access via CDP harness — Phase 4 R2 already shipped this for the Phase 4 web fallbacks; Phase 6.5 generalizes to any slug. WCAG-AA contrast checks ride along with axe-core. Patterns extracted from Phase 4 R2 R1 work."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-6 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-6 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-6 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: extends
+    rationale: "Phase 6.5 ships memory-violation probes. iOS + macOS: Address Sanitizer-instrumented test scenario builds via Xcode test plan + xcconfig overrides; the test runner exits non-zero if ASan reports any detected violation. web: JS GC abstracts heap ownership — Phase 6.5 ships a CDP-driven leak smoke test (instantiate widget tree, navigate away, re-instantiate; assert DOM node count stable). android: Android skip per Phase 1 #17."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-7 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-7 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-7 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: extends
+    rationale: "Phase 6.5 ships env-state probes. iOS: XCUITest with `app.launchArguments = ['-UIPreferredContentSizeCategoryName', 'UICTContentSizeCategoryAccessibilityXXXL']` + capture render. macOS: per-appearance + per-content-size launch via `defaults write` then capture. web: CDP `Emulation.setEmulatedMedia` for prefers-color-scheme / prefers-reduced-motion / forced-colors with media query verification. android: skip per Phase 1 #17. The 5 pending `spec/ui/glass_material/*_env_response_spec.cr` placeholders Phase 5 authored get activated by Phase 6.5's harness."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-8 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-8 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-8 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: extends
+    rationale: "Phase 6.5 ships embedding-spike probes. iOS: minimal iOS spike that exercises Crystal class-var init under iOS embedding (the BX8/R9 class-init gap scenario); prints resulting state; harness asserts expected value. macOS: same via AXTest spec runner. web: explicit skip — no embedding on web. android: skip per Phase 1 #17."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-9 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-9 macos"
+      web:
+        skip: true
+        reason: "No embedding on web; the web target is the host language's natural runtime — no class-init gap exists"
+        owner_approved: "2026-05-22"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: extends
+    rationale: "Phase 6.5 ships the per-platform API contract audit harness. The harness walks each phase brief's adapter_cardinality table and asserts at runtime that the documented degradation actually holds (e.g., for Phase 5's row 1 — AppleSemantic→NSVisualEffectMaterial — the harness verifies that constructing a Material with SystemResolved semantic yields zero `setMaterial:` calls observed by the AX-tree audit). Production behavior unchanged: Material API, AppleSemantic enum, ThicknessStep enum, per-widget defaults — all preserved. What's NEW is the audit infrastructure for I-10 itself, which is why this row is `extends`, not `preserves`."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-10 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-10 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-10 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-22"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 6.5 adds new Crystal scripts (`scripts/audit_harness.cr`, possibly `scripts/cdp_probes/*.cr`, the smoke shim `scripts/audit_harness_smoke.sh`) and may add new shared Crystal modules under `spec/support/` and Swift modules under `UITests/Patterns/`. These additions must themselves build cleanly. Per the planning retrospective Section 5 I-11 spec, full build closure on Apple platforms means iOS Crystal-lib + xcodebuild full link (not just `--no-codegen`), and on web `--no-codegen` + a demo run. Phase 6.5's I-11 probes execute the full closure on each platform via the smoke-shim entrypoint, which the Implementer wires to invoke `bash samples/cross_platform/ios_host/build_crystal_lib.sh simulator && xcodebuild test -only-testing:HIGHostUITests -destination 'platform=iOS Simulator,name=iPhone 15' build-for-testing` on iOS; the existing macOS `make build` (which already links to `bin/hig_showcase`); and `crystal-alpha build --no-codegen src/asset_pipeline.cr && crystal-alpha run examples/web_design_system_demo.cr > /dev/null` on web. The existing production build closure (macOS host bin, iOS Crystal-lib, web semantic) is unchanged by Phase 6.5."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-11 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-11 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-11 web"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17 (Crystal stdlib c/sys/epoll gap on darwin); Phase 6.5 does not touch Android renderer"
+        owner_approved: "2026-05-22"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "ImageMagick is installed and `magick compare` exists at /opt/homebrew/bin/compare (Apple Silicon Homebrew). Phase 6.5's visual-diff baseline tooling depends on it; without compare, the I-1 visual diff probe cannot run."
+    falsifier: "/opt/homebrew/bin/compare is missing OR `magick --version` returns non-zero"
+    verification: "test -x /opt/homebrew/bin/compare && /opt/homebrew/bin/magick --version > /dev/null"
+
+  - id: A2
+    claim: "Node.js (v20+) AND npm (v10+) are both available. Phase 6.5's axe-core + IBM Equal Access drivers require Node to execute audit CLIs OR — per Phase 4 R2 precedent — the audit JS sources can be vendored and evaluated through the existing CDP harness's `DevTools#evaluate`, in which case only Node remains required (for installing the vendored sources via npm install)."
+    falsifier: "Either node version < 20 OR npm absent"
+    verification: "node --version | grep -qE '^v(2[0-9]|[3-9][0-9])\\.' && npm --version | grep -qE '^(1[0-9]|[2-9][0-9])\\.'"
+
+  - id: A3
+    claim: "Crystal toolchain is available as either crystal-alpha or crystal"
+    falsifier: "Neither binary exists in PATH"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A4
+    claim: "Phase 4 CDP harness at scripts/phase04_cdp_harness.cr exists with non-trivial body (≥ 500 lines) — Phase 6.5 generalizes this, does not replace"
+    falsifier: "File missing OR < 500 lines"
+    verification: "test \"$(wc -l < scripts/phase04_cdp_harness.cr | tr -d ' ')\" -ge \"500\""
+
+  - id: A5
+    claim: "Phase 3 macOS AXTest specs exist at spec/ui/hig_validation/. Phase 6.5 D3 amended: after extraction the 3 spec files shrank to ~200 lines total; the extracted patterns live at spec/support/ax_test_patterns.cr (~300 lines)."
+    falsifier: "Fewer than 3 specs OR spec/support/ax_test_patterns.cr missing"
+    verification: "test \"$(ls spec/ui/hig_validation/*.cr | wc -l | tr -d ' ')\" -ge \"3\" && test -f spec/support/ax_test_patterns.cr"
+
+  - id: A6
+    claim: "Phase 3 iOS XCUITest patterns exist at samples/cross_platform/ios_host/UITests/. Phase 6.5 D4 amended: after extraction the 2 spec files shrank to ~290 lines total; the extracted patterns live at samples/cross_platform/ios_host/UITests/Patterns/ (7 files)."
+    falsifier: "Fewer than 2 swift files OR Patterns/ directory missing"
+    verification: "test \"$(ls samples/cross_platform/ios_host/UITests/*.swift | wc -l | tr -d ' ')\" -ge \"2\" && test -d samples/cross_platform/ios_host/UITests/Patterns"
+
+  - id: A7
+    claim: "Phase 3 baseline directory exists at docs/initiative-cross-platform-ui/handoff/phase-03-baselines/ — Phase 6.5 migrates these baselines into the canonical baselines/ tree"
+    falsifier: "Directory missing"
+    verification: "test -d docs/initiative-cross-platform-ui/handoff/phase-03-baselines"
+
+  - id: A8
+    claim: "Phase 5 pending probe placeholders exist at spec/ui/glass_material/ — at least 6 specs that Phase 6.5 will activate by hooking the harness"
+    falsifier: "Fewer than 6 specs"
+    verification: "test \"$(ls spec/ui/glass_material/*.cr | wc -l | tr -d ' ')\" -ge \"6\""
+
+  - id: A9
+    claim: "Phase 4 R2 a11y audit scripts exist as pattern references (axe_amber_demo_audit.cr + ibm_amber_demo_audit.cr) — Phase 6.5 generalizes their pattern"
+    falsifier: "Either script missing OR < 100 lines (stub)"
+    verification: "test -f scripts/axe_amber_demo_audit.cr && test -f scripts/ibm_amber_demo_audit.cr && test \"$(wc -l < scripts/axe_amber_demo_audit.cr | tr -d ' ')\" -ge \"100\" && test \"$(wc -l < scripts/ibm_amber_demo_audit.cr | tr -d ' ')\" -ge \"100\""
+
+  - id: A10
+    claim: "The macOS host build closure (Makefile build) is RUNNABLE (verified by actually executing it and observing exit 0 — after first rebuilding the swift package release for macOS). The iOS Crystal-lib build script exists at samples/cross_platform/ios_host/build_crystal_lib.sh (existence-checked only; full iOS simulator build is too slow for brief-validator runs but is exercised by the Phase 6.5 Validator at end of phase). Phase 6.5's I-11 probes invoke the iOS closure via the smoke-shim entrypoint."
+    falsifier: "macOS host build exits non-zero OR iOS build script missing"
+    verification: "test -f samples/cross_platform/ios_host/build_crystal_lib.sh && swift build -c release --package-path swift/AssetPipelineSwiftKit > /dev/null 2>&1 && make -C samples/cross_platform/macos_host build > /dev/null 2>&1"
+
+repo_derived_facts:
+  - fact: "Phase 4 CDP harness line count at HEAD (Phase 6.5 generalizes; size establishes pattern depth)"
+    query: "wc -l < scripts/phase04_cdp_harness.cr | tr -d ' '"
+    expected: "1272"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "Phase 4 R2 amber a11y audit line count (axe-core pattern reference)"
+    query: "wc -l < scripts/axe_amber_demo_audit.cr | tr -d ' '"
+    expected: "224"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "Phase 4 R2 IBM Equal Access amber audit line count (pattern reference)"
+    query: "wc -l < scripts/ibm_amber_demo_audit.cr | tr -d ' '"
+    expected: "221"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "Macos AXTest spec file count at spec/ui/hig_validation/"
+    query: "ls spec/ui/hig_validation/*.cr | wc -l | tr -d ' '"
+    expected: "3"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "Macos AXTest total line count across all specs (extraction surface area). Phase 6.5 D3 amended: line count dropped from 384 -> 202 after refactor to require spec/support/ax_test_patterns.cr; the extracted patterns themselves add ~250 lines under spec/support/."
+    query: "wc -l spec/ui/hig_validation/*.cr | tail -1 | awk '{print $1}' | tr -d ' '"
+    expected: "202"
+    captured_at_sha: "f852259"
+
+  - fact: "iOS XCUITest swift file count under samples/cross_platform/ios_host/UITests/. Phase 6.5 D4 amended: still 2 spec files; the 7 extracted Pattern files live under UITests/Patterns/ which the test files require."
+    query: "ls samples/cross_platform/ios_host/UITests/*.swift | wc -l | tr -d ' '"
+    expected: "2"
+    captured_at_sha: "f852259"
+
+  - fact: "iOS XCUITest total line count (extraction surface area). Phase 6.5 D4 amended: dropped from 611 -> 290 after refactor to delegate to UITests/Patterns/."
+    query: "wc -l samples/cross_platform/ios_host/UITests/*.swift | tail -1 | awk '{print $1}' | tr -d ' '"
+    expected: "290"
+    captured_at_sha: "f852259"
+
+  - fact: "Phase 5 glass-material probe placeholder count (Phase 6.5 activates these via harness)"
+    query: "ls spec/ui/glass_material/*.cr | wc -l | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "audit_harness.cr presence (Phase 6.5 D1 amended: now exists)"
+    query: "test -f scripts/audit_harness.cr && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "f852259"
+
+  - fact: "regenerate_baselines.sh presence (Phase 6.5 D2 amended: now exists)"
+    query: "test -f scripts/regenerate_baselines.sh && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "f852259"
+
+  - fact: "Canonical baselines/ directory presence (Phase 6.5 D2 amended: now exists with migrated Phase 3 macOS PNGs)"
+    query: "test -d docs/initiative-cross-platform-ui/baselines && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "f852259"
+
+  - fact: "Phase 5 v2 PASS tag exists (Phase 6.5 depends on Phase 5 v2 + 5.5)"
+    query: "git tag --list 'phase-05-v2-pass-2026-05-22' | head -1"
+    expected: "phase-05-v2-pass-2026-05-22"
+    captured_at_sha: "2e3e4fe"
+
+  - fact: "Phase 5.5 PASS tag exists (Phase 6.5 depends on 5.5 dead-code cleanup having landed)"
+    query: "git tag --list 'phase-05.5-pass-2026-05-22' | head -1"
+    expected: "phase-05.5-pass-2026-05-22"
+    captured_at_sha: "2e3e4fe"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

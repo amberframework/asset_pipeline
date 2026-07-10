@@ -1,0 +1,8 @@
+SnapshotTests
+
+swift/AssetPipelineSwiftKit/Tests/AssetPipelineSwiftKitTests/SnapshotTests/__Snapshots__//SnapshotTests:
+test_background_override_ios.background_override_ios.png
+test_corner_radius_zero_ios.corner_radius_zero_ios.png
+test_default_button_ios.default_button_ios.png
+test_default_button_macos.default_button_macos.png
+test_glass_default_ios26.glass_default_ios26.png

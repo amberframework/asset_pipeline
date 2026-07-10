@@ -1,0 +1,258 @@
+phase:
+  number: "5.5"
+  name: "AppKit + UIKit Legacy Material Cleanup"
+  branch: "phase-05.5-appkit-legacy-cleanup"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "09ff914"
+  authored_at: "2026-05-22"
+
+# Phase 5.5 contract decisions baked into this brief:
+#
+# 1. SCOPE: delete the 12 dead-code `_legacy_*` Category B methods (6 in
+#    appkit_renderer.cr + 6 in uikit_renderer.cr). Verified pre-dispatch
+#    that no callers exist (def line count == total ref count in both
+#    files). This is pure dead-code deletion.
+#
+# 2. NO BEHAVIOR CHANGE. All 11 invariants are `preserves` except I-11
+#    (build closure verification — the 4 platform builds must still
+#    resolve after the deletions).
+#
+# 3. NO NEW SURFACE. No new public API, no new tokens, no new C-exports,
+#    no new Crystal class vars. This phase only removes code.
+#
+# 4. PHASE 6.5 + PHASE 6 CAN PROCEED IN PARALLEL with this work since
+#    none of them touch the same files at the same offset (the 12
+#    `_legacy_*` methods are in renderer files that 6.5 + 6 only
+#    consume indirectly).
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: preserves
+    rationale: "The 12 `_legacy_*` methods are dead code on the active visit dispatch path. All 6 Category B widgets (TabView/Alert/NavigationSplitView/Toolbar/Sheet/Popover) route through SwiftKit facades (apsk_make_*) at runtime — verified at Phase 5 v2 close-out. Deleting unreferenced private methods does not change render output."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5; Phase 5.5 does not touch Android renderer"
+        owner_approved: "2026-05-22"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: preserves
+    rationale: "Phase 5.5 deletes private methods only. No state-mutation paths, no @Published, no ObservableObjects, no C-export mutators introduced or removed. Phase 3 reactive bridge unchanged."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: preserves
+    rationale: "Dead-code deletion. No event paths added or removed."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: preserves
+    rationale: "Private dead-code deletion does not touch focus order or focus-visible behavior."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: preserves
+    rationale: "No new mount/unmount/teardown paths. Removing unreferenced private methods has no lifecycle impact."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: preserves
+    rationale: "No accessibility surface change. The 12 `_legacy_*` methods are private to their renderer files; removing them does not touch any ARIA/AX-tree code."
+    probes:
+      ios:
+        skip: true
+        reason: "Phase 5.5 is dead-code deletion with no iOS behavior change; iOS build closure regression caught by I-11's iOS Crystal-lib build probe; iOS runtime probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+      macos: "crystal-alpha spec spec/ui/hig_validation/macos_action_tap_probe_spec.cr -Dmacos --link-flags=\"-framework ApplicationServices -framework CoreFoundation\""
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: preserves
+    rationale: "No new C-export mutators or ObservableObjects added or removed. Phase 5's android_view_apply_glass is unchanged."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "spec/asset_pipeline_spec.cr"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: preserves
+    rationale: "No env-response code touched. SwiftUI / NSVisualEffectView / UIVisualEffectView env delegation from Phase 5 unchanged."
+    probes:
+      ios: "spec/ui/glass_material/ios_glass_env_response_spec.cr"
+      macos: "spec/ui/glass_material/macos_glass_env_response_spec.cr"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android env-response probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "No new Crystal class vars with initializers. The 12 `_legacy_*` methods are instance methods on existing classes; removing them does not change class-init order."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web:
+        skip: true
+        reason: "No embedding on web; the web target is the host language's natural runtime"
+        owner_approved: "2026-05-22"
+      android:
+        skip: true
+        reason: "Android probe harness is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: preserves
+    rationale: "All 12 deleted methods are `private def`. Crystal `private` methods are NOT part of the library's public API. The Material two-axis API (semantic + step + intensity), the AppleSemantic enum, the ThicknessStep enum, and the per-widget facade dispatch are all unchanged. No public contract drift."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "crystal-alpha run scripts/validate_web_demo.cr"
+      android:
+        skip: true
+        reason: "Android API-contract probe is Phase 6.5"
+        owner_approved: "2026-05-22"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 5.5 modifies appkit_renderer.cr + uikit_renderer.cr by deleting 6 private methods from each. Build closure must still resolve on 3 verified targets (iOS Simulator Crystal lib, macOS host, web semantic) — Android is skipped per Phase 1 #17 architect precedent (Crystal stdlib c/sys/epoll gap on darwin); Phase 5.5 does not touch the Android renderer. By end of phase, the active dispatch path is verifiably the only path: `grep -cE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)'` against either renderer file should return 0."
+    probes:
+      ios: "bash samples/cross_platform/ios_host/build_crystal_lib.sh simulator"
+      macos: "make -C samples/cross_platform/macos_host build"
+      web: "crystal-alpha build --no-codegen src/asset_pipeline.cr"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17; Phase 5.5 does not touch Android renderer"
+        owner_approved: "2026-05-22"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "All 6 AppKit `_legacy_*` Category B methods are unreferenced on the active dispatch path — the only occurrences of `_legacy_tab_view|_legacy_alert|_legacy_navigation_split_view|_legacy_toolbar|_legacy_sheet|_legacy_popover` in appkit_renderer.cr are the `def` lines themselves (no callers)."
+    falsifier: "Total ref count differs from def line count, indicating a caller exists"
+    verification: "test \"$(grep -cE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' ')\" = \"$(grep -cE 'def _legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' ')\""
+
+  - id: A2
+    claim: "All 6 UIKit `_legacy_*` Category B methods are unreferenced on the active dispatch path — same shape as A1 for uikit_renderer.cr"
+    falsifier: "UIKit total ref count differs from UIKit def line count"
+    verification: "test \"$(grep -cE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' ')\" = \"$(grep -cE 'def _legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' ')\""
+
+  - id: A3
+    claim: "No code outside the two renderer files references `_legacy_*` Category B method patterns (samples / spec / src elsewhere)"
+    falsifier: "External grep finds any non-renderer file referencing these patterns"
+    verification: "test -z \"$(grep -rE '_legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ samples/ spec/ 2>/dev/null | grep -vE '^src/ui/renderers/(appkit|uikit)_renderer\\.cr:')\""
+
+  - id: A4
+    claim: "Crystal toolchain is available as either crystal-alpha or crystal at expected paths"
+    falsifier: "which returns non-zero for both"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A5
+    claim: "All 6 AppKit Category B SwiftKit facades exist as apsk_make_* call sites (must NOT regress during cleanup)"
+    falsifier: "AppKit facade count drops below 6"
+    verification: "test \"$(grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' ')\" = \"6\""
+
+  - id: A6
+    claim: "All 6 UIKit Category B SwiftKit facades exist as apsk_make_* call sites — UIKit uses apsk_make_sheet_reactive; other 5 names match AppKit (must NOT regress during cleanup)"
+    falsifier: "UIKit facade count drops below 6"
+    verification: "test \"$(grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet_reactive|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' ')\" = \"6\""
+
+repo_derived_facts:
+  # Phase 5.5 facts capture POST-implementation state (commit b6875b9
+  # deleted all 12 dead-code _legacy_* methods atomically). Pre-cleanup
+  # at SHA 09ff914 the _legacy_* counts were each 6; the cross-platform
+  # total was 12. Post-cleanup at b6875b9 those drop to 0 / 0 / 0 per the
+  # Phase 5.5 contract. Facade counts are unchanged at 6 / 6 (no facade
+  # regression).
+  - fact: "AppKit `_legacy_*` Category B method count (post-cleanup; pre-cleanup was 6)"
+    query: "grep -cE 'def _legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' '"
+    expected: "0"
+    captured_at_sha: "b6875b9"
+
+  - fact: "UIKit `_legacy_*` Category B method count (post-cleanup; pre-cleanup was 6)"
+    query: "grep -cE 'def _legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' '"
+    expected: "0"
+    captured_at_sha: "b6875b9"
+
+  - fact: "AppKit Category B facade call-site count (must remain 6 across cleanup — no facade regression)"
+    query: "grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "b6875b9"
+
+  - fact: "UIKit Category B facade call-site count (must remain 6 across cleanup; UIKit uses sheet_reactive)"
+    query: "grep -cE 'apsk_make_(tab_view|alert|navigation_split_view|toolbar|sheet_reactive|popover)' src/ui/renderers/uikit_renderer.cr | tr -d ' '"
+    expected: "6"
+    captured_at_sha: "b6875b9"
+
+  - fact: "Total cross-platform `_legacy_*` Category B method count across both renderers (post-cleanup; pre-cleanup was 12)"
+    query: "grep -cE 'def _legacy_(tab_view|alert|navigation_split_view|toolbar|sheet|popover)' src/ui/renderers/appkit_renderer.cr src/ui/renderers/uikit_renderer.cr | awk -F: '{s+=$2} END {print s}' | tr -d ' '"
+    expected: "0"
+    captured_at_sha: "b6875b9"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

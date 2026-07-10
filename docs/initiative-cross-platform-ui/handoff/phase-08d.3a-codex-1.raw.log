@@ -1,0 +1,1964 @@
+Reading additional input from stdin...
+OpenAI Codex v0.130.0
+--------
+workdir: /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, /Users/crimsonknight/.codex/memories]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019e5f52-a15c-77b3-8714-cc4644c596ee
+--------
+user
+You are Codex acting as the antagonist reviewer for Phase 8D.3a iteration 1. The implementer just shipped the Save-enabled-on-type fix for the Voyager TodoEditor.
+
+READ THESE FIRST in order:
+1) docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md — the brief (v2, dispatch-ready).
+2) docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.3a.md — your prior antagonist findings on brief v1 that v2 resolved.
+3) git diff HEAD~1 HEAD — the iter 1 changes (run `git log --oneline -5` to see the commit).
+4) samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr — the screen with the closure.
+5) samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr — defensive comment.
+6) samples/initiative-cross-platform-ui-voyager/app.cr — comment cleanup.
+7) spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr — Section 2a + 2b specs.
+8) src/ui/form_state.cr — for the wrap_text_handler composition.
+9) src/ui/views/button.cr — for Button#disabled= reactive path.
+
+EVIDENCE:
+- crystal spec (full): 1723 examples, 4 pre-existing failures, 0 errors, 66 pending. New spec adds 9 examples (all green).
+- iOS build: BUILD SUCCEEDED. Artifact: ~/Library/Developer/Xcode/DerivedData/VoyagerDemo-ahtdflpqfrbcssdshsvktymhwvqe/Build/Products/Debug-iphonesimulator/VoyagerDemo.app.
+- XCUITest regression: 3/3 passed (testColdLaunchSignInDispatcherWired, testColdLaunchTodosDispatcherWired, testRenderInitialSlug — 15.108s).
+
+ITEMS IN SCOPE (brief §4):
+- Item 1 — closure wiring in todo_editor.cr (DONE).
+- Item 2 — spec sections 2a + 2b (DONE).
+- Item 3 — controller defensive-fallback comment (DONE).
+- Item 5 — app.cr comment cleanup (DONE).
+- Item 6 — docs/initiative-cross-platform-ui/architecture/web-target-position.md (DONE — committed in second commit, please review that file).
+- Item 4 hand-test gate is OWNER work, not implementer scope.
+
+DELIVER: A REVISE / APPROVE_WITH_NOTES / APPROVE verdict with findings keyed by Item/severity. Pay special attention to:
+- Did Item 2's spec actually exercise both Section 2a (screen-authored) AND Section 2b (renderer-hook composition)? Field/button located by test_id?
+- Does Item 1's closure capture `save` cleanly without breaking the existing renderer hook composition?
+- Does Item 5's app.cr cleanup honor the audit grep (no remaining stale references)?
+- Does Item 6's position note stay ARCHITECTURAL (no migration-history dump per LOW 2)?
+- Any frozen-surface violations? (No public UI API changes, no C ABI, no Swift production edits, no Voyager.build_route rename.)
+
+Be terse. Direct findings only.
+codex
+I’ll review this as a strict code review against the brief and the listed files, then return only the verdict and direct findings.
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+# Phase 8D.3a — Save-Enabled-On-Type Fix + Owner Hand-Test Gate + Shim Disposition (BRIEF v2 — DISPATCH-READY)
+
+**Date drafted:** 2026-05-25
+**Status:** Brief v2 — addresses Codex antagonist findings (`codex-critique-1-brief-8d.3a.md`). Pending owner checkpoint.
+**Branch:** `phase-08d.3a-interaction-proof-and-disposition` (to be cut at owner-approval checkpoint).
+**Predecessors:**
+- Phase 8D.1 `phase-08d.1-pass-with-notes-2026-05-25`.
+- Phase 8D.2 `phase-08d.2-pass-with-notes-2026-05-25`.
+**Planning artifacts:** `scoping-8d.3.md`, `coplan-8d.3-codex-1.md`.
+**Successor:** `brief-8d.3b.md` (to be drafted after 8D.3a closes).
+
+---
+
+## 1. Mission
+
+Close the long-deferred Save-enabled-on-type behavioral bug in `TodoEditorScreen` AND run the owner hand-test gate that 8D.1 + 8D.2 both deferred. Resolve the `Voyager.build_route` web shim disposition to D1 (keep, doc). Commit the B2 web architecture position note.
+
+This is an architecture + verification phase. NO capture work — that's 8D.3b.
+
+## 2. Architectural reframing — view-local affordance vs app/domain state
+
+Per Codex co-plan §8: the Save button's enabled/disabled is **view-local control affordance state**, NOT app/domain state. The "every state mutation through dispatcher" architectural rule applies to app/domain state (todos list, user session, settings flags). Local UI affordances — a button's disabled state mirroring a single field's emptiness, a tooltip showing on hover — are local UI affordances and may be wired with closures over view references.
+
+This reframing was always implicit; 8D.3a writes it down so future contributors don't dispatch through controllers for trivial UI feedback.
+
+## 3. Frozen surfaces
+
+- **No public UI framework API changes.** `UI::Button`, `UI::FormState`, `UI::TextField`, `UI::Controller`, `UI::ActionDispatcher`, `UI::ActionResult` all unchanged.
+- **No C ABI changes** to `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr`.
+- **No Swift production code** edits.
+- **No `Voyager.build_route` rename or migration.**
+
+## 4. Item-by-item scope
+
+### Item 1 — Save-enabled-on-type fix in `TodoEditorScreen`
+
+**File:** `samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr`.
+
+**Approach (Codex co-plan §3 — option 1B):** local UI mutation through the existing reactive `UI::Button#disabled=` setter. The button's `disabled=` is reactive — assigning a new value propagates to native through `apsk_button_set_disabled`. So a closure on the title field's `on_change` that mutates `save.disabled` is sufficient.
+
+**Reference implementation:**
+
+```crystal
+# In TodoEditorScreen#build, AFTER both title_field and save have been
+# constructed (the closure needs to capture the `save` reference):
+
+title_field.on_change = ->(value : String) {
+  # View-local affordance: disabled mirrors title-emptiness.
+  # The existing UI::FormStateRendererHook.wrap_text_handler composes
+  # this with FormState.update("title", value), so domain state still
+  # flows through FormState; this closure only updates the visible
+  # affordance.
+  save.disabled = value.strip.empty?
+}
+```
+
+**Implementation detail:** The current code at `todo_editor.cr:34-67` constructs `title_field` BEFORE `save` (which is at `:110`). The closure assignment must go AFTER `save` exists, OR `title_field.on_change` is assigned later in the build method. **Implementer chooses:** the simplest re-ordering that makes the closure capture `save` cleanly. Don't introduce intermediate variables or restructure broader scope.
+
+**Stale-comment cleanup:** the existing comment at `todo_editor.cr:115-119` near `save.disabled = seed_title.strip.empty?` describes the reactive update as a "Phase 8B follow-up." Update it to reflect the new wiring (view-local affordance via the closure on `title_field.on_change`).
+
+**Composition with `wrap_text_handler`:** the renderer hook composes:
+1. Stale-fire guard (mount_token + form_state matches).
+2. `captured_fs.update(name, new_value)` — FormState write.
+3. `user_handler.try(&.call(new_value))` — user's `on_change` callback.
+
+So FormState gets the typed value FIRST, then our closure runs SECOND. Both writes happen on every keystroke. Per Codex iter-1 antagonist's full call-chain trace: `TodoEditorScreen#build` creates `title_field` and `save`; assigned closure captures `save`; UIKit renderer's `visit(UI::TextField)` captures `user_handler = view.on_change` at wrap time; native text change invokes wrapped handler; wrapper checks current FormState/token, calls `captured_fs.update(name, new_value)`, then calls the captured user handler; user handler sets `save.disabled = value.strip.empty?`; `Button#disabled=` propagates through `apsk_button_set_disabled`.
+
+### Item 2 — Crystal spec coverage (TWO specs per Codex HIGH 1)
+
+Per Codex HIGH 1: a screen-authored-closure spec proves the screen assigned the closure correctly, but iOS doesn't invoke that closure directly — UIKit's `visit(UI::TextField)` wraps it via `UI::FormStateRendererHook.wrap_text_handler`. Two specs are required.
+
+**File:** `spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr` (new).
+
+**Section 2a — screen-authored closure spec.** Doesn't require iOS — exercises the closure on `title_field.on_change` directly. Locates field + button by `test_id` (NOT child order — per Codex missed-points). Architect-direction examples:
+
+- Empty title → `save.disabled == true`.
+- Whitespace-only ("   ") → `save.disabled == true`.
+- "anything" → `save.disabled == false`.
+- Title becomes empty again → `save.disabled == true`.
+
+Cover the editing-prefilled case too (Editor opened with seed title; user clears the field → `save.disabled` becomes true).
+
+**Section 2b — renderer-hook composition spec.** Sets `UI::FormState.current = fs` + `UI::FormState.current_mount_token = N`, builds the editor screen, locates `title_field` and `save` by test_id, calls `UI::FormStateRendererHook.wrap_text_handler(title_field)` to obtain the wrapped proc (as iOS does), invokes the wrapped handler with sample values, asserts BOTH:
+- `fs["title"]` was updated (FormState write composed in).
+- `save.disabled` matches expected (user closure ran in composition).
+
+This is the unit proof that the screen's closure + the renderer's wrap COMPOSE correctly. Without 2b, the brief leaves a gap between "screen author intent" and "renderer-time behavior."
+
+Test_ids to use: `"voyager-todo-editor-title"` (TextField — verify it has this test_id; add if missing), `"voyager-todo-editor-save"` (Button — already set at `:112`).
+
+### Item 3 — `TodoEditorController#save` defensive-fallback documentation
+
+Per Codex R11: `TodoEditorController#save` currently calls `Pop` on blank-title save attempts. With Item 1 the button is disabled on blank, so this branch is unreachable from the UI — but it remains a defensive fallback for any code path that bypasses the disabled affordance.
+
+Implementer adds a one-line code comment in `samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr` at the blank-title check:
+
+```crystal
+# Defensive fallback: with Phase 8D.3a's title-field on_change closure,
+# save.disabled is true while title is blank, so this branch is
+# unreachable from the UI. Kept for safety against renderer
+# implementations that ignore disabled state.
+```
+
+NO behavior change in the controller.
+
+### Item 4 — Owner hand-test gate (BLOCKING)
+
+The 7-step recipe from `brief-8d.2.md` Item 9, executed on the iOS simulator by the owner. Architect coordinates: implementer ships build artifacts + recipe → architect surfaces to owner → owner reports PASS/FAIL per step.
+
+**Recipe (verbatim from brief-8d.2.md Item 9):**
+
+1. Open simulator. Launch VoyagerDemo. Confirm Sign-in screen renders.
+2. Tap "Sign in". Confirm navigation to Todos (5 seed rows visible).
+3. Tap "Add Todo". Confirm Editor screen renders with empty title field + disabled Save. Tap "Cancel". Confirm Pop to Todos with NO new row.
+4. Swipe a seeded row → tap "Edit". Confirm Editor renders with title prefilled + ENABLED Save. Edit the title (e.g. append " updated"). Tap "Save". Confirm Pop to Todos with row showing updated title.
+5. Tap a row's checkbox. Confirm checkmark applies + title strikethrough renders.
+6. Swipe a row → tap "Delete". Confirm row disappears from the list.
+7. Tap "Settings". Toggle "Hide completed". Tap "Back to todos". Confirm Todos rerenders with completed rows hidden.
+
+**Plus an extension (Item 1 INTEGRATION proof — the only proof that the renderer-time wrap composition fires on iOS):**
+
+8. With the Editor at empty title (Step 3 state, before tapping Cancel), tap into the title field, type "x". Confirm Save button ENABLES. Backspace to empty. Confirm Save button DISABLES. (Tests Item 1's reactive wiring directly — this is the LIVE iOS renderer integration proof. Per Codex HIGH 2 + MEDIUM 1: Item 2's specs prove the screen + the wrap composition; THIS step proves the wrap fires on the live iOS renderer with real text events.)
+
+**Owner reports** PASS/FAIL per step. ALL 8 steps must PASS for 8D.3a to close. If a step fails, implementer remediates and re-dispatches.
+
+### 4.1 — Hand-test handoff checklist (per Codex MEDIUM 2)
+
+Implementer must deliver, as part of the handoff to the owner:
+
+1. **App artifact path:** `~/Library/Developer/Xcode/DerivedData/VoyagerDemo-*/Build/Products/Debug-iphonesimulator/VoyagerDemo.app`. Implementer reports the exact glob match in the implementer report.
+2. **Simulator target:** iPhone 17 Pro (or newest available — confirm via `xcrun simctl list devices available | grep iPhone | head -3`).
+3. **Boot + install + launch commands (copy-paste reliable):**
+   ```bash
+   # Find a target iPhone — booted first, else any available iPhone.
+   DEVICE=$(xcrun simctl list devices booted | awk '/iPhone/ {print $NF; exit}' | tr -d '()')
+   if [ -z "$DEVICE" ]; then
+     DEVICE=$(xcrun simctl list devices available | awk '/iPhone 17 Pro/ {print $NF; exit; }' | tr -d '()')
+     if [ -z "$DEVICE" ]; then
+       DEVICE=$(xcrun simctl list devices available | awk '/iPhone/ {print $NF; exit; }' | tr -d '()')
+     fi
+     xcrun simctl boot "$DEVICE"
+   fi
+   echo "Using device: $DEVICE"
+   APP_PATH=$(ls -d ~/Library/Developer/Xcode/DerivedData/VoyagerDemo-*/Build/Products/Debug-iphonesimulator/VoyagerDemo.app | head -1)
+   xcrun simctl install "$DEVICE" "$APP_PATH"
+   xcrun simctl launch "$DEVICE" com.assetpipeline.voyager.VoyagerDemo
+   ```
+4. **App-state reset:** each step starts from the state the previous step ended in (no relaunch unless explicitly stated). If owner needs to restart, `xcrun simctl terminate "$DEVICE" com.assetpipeline.voyager.VoyagerDemo` + launch again.
+5. **Reporting format:** owner replies in chat. Per-step:
+   - `Step N PASS` — step completed; expected behavior observed.
+   - `Step N FAIL — <what happened>` — step did NOT match expected; owner describes what the screen showed.
+6. **Failure-loop protocol:** if a step fails, implementer remediates on the same `phase-08d.3a-*` branch + dispatches a fresh build → architect surfaces the new build to owner → owner re-runs from the failed step. Same iteration count.
+
+### Item 5 — `Voyager.build_route` D1 disposition + comprehensive comment cleanup (per Codex LOW 1)
+
+**File:** `samples/initiative-cross-platform-ui-voyager/app.cr`.
+
+The existing docstring/comments still describe the shim as a Phase 8D.1 compat with iOS as a caller. As of 8D.2, iOS no longer calls it. Update ALL stale references — not just the two cited blocks. Codex found multiple stale locations:
+
+- **`app.cr:16-24`** — top-of-file docstring describing the shim's purpose. Rewrite to describe the permanent static-site entry-point state.
+- **`app.cr:51-62`** — `@@dispatcher` comment block references "static-site web + current iOS bridge" — iOS bridge now dispatches.
+- **`app.cr:74-77`** — `dispatch` method docstring says "No-op when no dispatcher is set (static-site web + current iOS bridge)" — same issue.
+- **`app.cr:86-103`** — `build_route` docstring describes "Phase 8D.1 COMPATIBILITY SHIM" with iOS path. Rewrite as "permanent static-site entry point."
+- **`app.cr:137-140`** — `route_for_slug` comment says iOS/macOS hosts may pre-build routes by name. Verify whether that's still true post-8D.2 (it likely IS — the slug-resync flow in iOS bridge still calls `Voyager.route_for_slug`); update only if stale.
+
+**Audit method:** implementer runs `grep -n "iOS\|bridge\|dispatcher\|8D\." samples/initiative-cross-platform-ui-voyager/app.cr` and updates each match that misrepresents the post-8D.2 state.
+
+**Concrete edits:** rewrite comments to describe the post-8D.2 state. NO method rename. NO behavior change.
+
+### Item 6 — B2 web architecture position note
+
+**New file:** `docs/initiative-cross-platform-ui/architecture/web-target-position.md` (create the `architecture/` directory).
+
+**Content (2 pages max — architectural; link predecessor docs, don't re-narrate the journey per Codex LOW 2):**
+
+- Header section: "Voyager web is a static-site target; Amber is a separate full-server proof."
+- Architectural claim split:
+  - "Unified UI::App declaration drives native (macOS + iOS) via UI::ActionDispatcher" — TRUE per 8D.1 + 8D.2.
+  - "Unified UI::App declaration drives Amber web via UI::AmberIntegration.routes_for" — TRUE per Phase 8C (proven at `samples/phase-08-amber-spike/`).
+  - "Voyager web specifically uses the static-site mode (which is NOT on the unified dispatcher path)." This is deliberate — Voyager web prioritizes deployable static HTML over live action dispatch.
+- Code paths:
+  - Static-site web: `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` → `Voyager.build_route` shim.
+  - Amber web: `samples/phase-08-amber-spike/config/routes.cr` → `UI::AmberIntegration.routes_for`.
+- Future work option: a Voyager Amber port is possible (Phase 8 architecture supports it); not a 2026 commitment.
+- Cross-references to predecessor docs (8D scoping, 8D co-plan, this 8D.3 scoping).
+
+### Item 7 — Codex per-iteration review
+
+Standard pattern. Output saved to `docs/initiative-cross-platform-ui/handoff/phase-08d.3a-codex-N.md`.
+
+## 5. Acceptance criteria (closing-gate)
+
+A passing 8D.3a means ALL of:
+
+- [ ] `samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr` has the `title_field.on_change` closure that mutates `save.disabled` per Item 1.
+- [ ] `spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr` exists with BOTH Section 2a (screen-authored closure) AND Section 2b (renderer-hook composition) scenarios, all green. Field + button located by test_id, not child order.
+- [ ] Focused new + baseline specs pass green; full `crystal spec` suite has no regressions beyond the same 4 pre-existing failures (1714 baseline → 1714+N).
+- [ ] `samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr` has the defensive-fallback comment from Item 3.
+- [ ] iOS simulator build succeeds; `VoyagerDemo.app` installed; XCUITest cold-launch smokes from 8D.2 still pass.
+- [ ] **Owner hand-test recipe (Item 4) PASSES on all 8 steps.**
+- [ ] `samples/initiative-cross-platform-ui-voyager/app.cr` shim comments updated per Item 5; method NOT renamed.
+- [ ] `docs/initiative-cross-platform-ui/architecture/web-target-position.md` committed per Item 6.
+- [ ] Codex review APPROVE or APPROVE_WITH_NOTES (no REVISE outstanding).
+
+## 6. Risk register
+
+- **R1** — Closure capture of `save` requires reordering. *Mitigation:* implementer reorders. Simple.
+- **R2** — `title_field.on_change` composes with `wrap_text_handler`. *Mitigation:* per `src/ui/form_state.cr:160-180`, the wrap COMPOSES user handler AFTER FormState.update. Verified safe.
+- **R3** — XCUITest smokes from 8D.2 might fail with the new closure (if compositor breaks). *Mitigation:* implementer runs them after the fix; if fail, escalate.
+- **R4** — Hand-test gate fails on a step unrelated to Item 1 (e.g. Item 4's checkbox toggle reveals a dispatcher bug). *Mitigation:* implementer remediates; if architectural, escalate.
+- **R5 (DOWNGRADED per Codex HIGH 2)** — Closure on `title_field.on_change` doesn't fire on iOS due to renderer wiring gap. *Mitigation:* the closure uses the same code path as the sign-in email field's on_change (which is wired identically). Covered architecturally by FormState unit specs + Item 2b's renderer-hook composition spec. NOT directly proven on iOS until hand-test step 8 (the renderer integration proof). If step 8 fails, escalate — that means the wrap composition diverges from what the code-path read suggests.
+- **R6** — `Voyager.build_route` doc cleanup misses callsite — code citation reveals other callers we forgot. *Mitigation:* grep for callsites before editing comments. Should be web/static_site.cr only.
+
+## 7. Implementation order
+
+1. Item 1: closure wiring in `todo_editor.cr` + Item 3 controller comment.
+2. Item 2: spec.
+3. `crystal spec` validation.
+4. iOS simulator build + XCUITest re-run (`testColdLaunchSignInDispatcherWired`, `testColdLaunchTodosDispatcherWired`, `testRenderInitialSlug` — all must still pass).
+5. Item 5: `app.cr` comment cleanup.
+6. Item 6: position note.
+7. Codex iteration review.
+8. Hand off to architect with `.app` artifact + recipe → architect surfaces to owner → owner runs hand-test → owner reports.
+
+## 8. Validation invocations
+
+- `crystal spec` — full suite.
+- `crystal spec spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr` — new spec.
+- `crystal spec spec/asset_pipeline/voyager_dispatcher_integration_spec.cr` + `voyager_host_bootstrap_spec.cr` — regression coverage.
+- `cd samples/initiative-cross-platform-ui-voyager/ios && ./build_crystal_lib.sh simulator && xcodebuild ... build` — iOS build.
+- `xcodebuild ... test -only-testing:VoyagerDemoUITests/VoyagerVisualTests/testColdLaunchSignInDispatcherWired -only-testing:VoyagerDemoUITests/VoyagerVisualTests/testColdLaunchTodosDispatcherWired -only-testing:VoyagerDemoUITests/VoyagerVisualTests/testRenderInitialSlug` — XCUITest regression smoke.
+- Codex review: `codex exec -c 'model_reasoning_effort="medium"' "<prompt>" 2>&1 | tee /tmp/codex-iter-N.log | tail -300`.
+
+## 9. Hard rules
+
+- Forward commits only on `phase-08d.3a-interaction-proof-and-disposition`.
+- NO public UI framework API changes. Voyager-side wiring only.
+- NO C ABI changes.
+- NO Swift production code edits.
+- NO `Voyager.build_route` rename or migration.
+- Mid-stop dispatch protocol does NOT apply — 8D.3a is code work + owner verification, no capture work. Single implementer agent runs the full Mode A.
+- Codex review per iteration.
+- Standard Claude co-author footer: `Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>`.
+
+— Architect (Claude Opus 4.7)
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.3a.md" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+# Phase 8D.3a Brief Critique — Codex Antagonist (Architect-Side, Iter 1)
+
+**Date:** 2026-05-25
+**Brief reviewed:** `phase-08-ergonomic-mvc-api/brief-8d.3a.md` (v1)
+**Source log:** `/tmp/codex-critique-brief-8d3a.log`.
+
+## Verdict: REVISE
+
+8 findings: 0 BLOCKER, 2 HIGH, 2 MEDIUM, 2 LOW + 2 missed-points. All addressed in v2.
+
+## Findings
+
+### HIGH 1 — Item 2 spec gives false confidence about iOS wiring
+
+Brief v1 Item 2 spec exercises the closure that `TodoEditorScreen#build` AUTHORS on `title_field.on_change`. But iOS doesn't invoke that closure directly — the UIKit renderer's `visit(UI::TextField)` calls `UI::FormStateRendererHook.wrap_text_handler(view)`, which wraps the user's closure (captured at wrap time). Native text changes invoke the WRAPPED proc.
+
+A build-only spec proves the screen assigned a closure that mutates save.disabled. It does NOT prove the wrap composition, mount-token gating, OR that the wrap fires the user's closure correctly.
+
+**Resolution (v2):** Item 2 mandates TWO specs:
+- **2a — screen-authored spec.** Exercises the closure on `title_field.on_change` directly. Asserts save.disabled mutation.
+- **2b — renderer-hook spec.** Sets `UI::FormState.current` + `UI::FormState.current_mount_token`, builds the screen, locates field + button BY test_id, calls `UI::FormStateRendererHook.wrap_text_handler(title_field)`, invokes the wrapped handler with sample values, asserts BOTH `fs["title"]` (FormState updated) AND `save.disabled` (closure ran).
+
+### HIGH 2 — R5 overclaims iOS proof
+
+Brief v1 R5 claims the existing sign-in email field on_change proves on_change fires on iOS today. The code path supports the claim architecturally, but the existing iOS XCUITest smokes only prove cold launch + AX-discoverable elements. They do NOT type into the email field or assert FormState mutation.
+
+**Resolution (v2):** Downgrade R5 wording — "same code path as sign-in email field; covered by FormState unit specs but not directly proven on iOS until owner step 8 (renderer integration proof)."
+
+### MEDIUM 1 — Item 4 step 8 is the ONLY real Item 1 integration proof
+
+Step 8 ("type x → Save enables; backspace → Save disables") is well-formed for manual owner testing. It verifies Item 1 on the live iOS renderer because it exercises:
+- Renderer-time `wrap_text_handler` composition.
+- Native text change invokes wrapped handler.
+- Wrapped handler composes FormState write + user closure invocation.
+- User closure mutates `save.disabled`.
+- `Button#disabled=` propagates via `apsk_button_set_disabled`.
+
+**Resolution (v2):** Brief makes this explicit — step 8 is the integration proof; Item 2b is the unit proof; Item 2a is the screen-authored sanity check.
+
+### MEDIUM 2 — Hand-test gate not fully self-contained
+
+Brief v1 §4 depends on "architect coordinates" + "implementer ships build artifacts + recipe" without specifying the artifact path, simulator target, install commands, app-state reset between steps, or evidence reporting format.
+
+**Resolution (v2):** New sub-section §4.1 "Hand-test handoff checklist" with:
+- App artifact path: `~/Library/Developer/Xcode/DerivedData/VoyagerDemo-*/Build/Products/Debug-iphonesimulator/VoyagerDemo.app`.
+- Simulator target: iPhone 17 Pro (or newest available; `xcrun simctl list devices available | grep iPhone | head -3` to confirm).
+- Install command: `xcrun simctl install "$DEVICE" "$APP_PATH"`.
+- Launch command: `xcrun simctl launch "$DEVICE" com.assetpipeline.voyager.VoyagerDemo`.
+- Reset between steps: each step starts from the state the previous step ended in (no app relaunch unless explicitly stated).
+- Reporting format: owner replies in chat with PASS/FAIL per step, e.g. "Step 1 PASS, Step 2 PASS, Step 4 FAIL — Save did not enable after typing." Failures include what the screen showed.
+
+### LOW 1 — `app.cr` has more stale comments than the two cited blocks
+
+Beyond `:16-24` and `:86-103`, brief v1 missed:
+- `@@dispatcher` comment block at `:51-62` references "static-site web + current iOS bridge" — iOS bridge now dispatches.
+- `dispatch` method docstring at `:74-77` says "No-op when no dispatcher is set (static-site web + current iOS bridge)" — same issue.
+- `route_for_slug` comment at `:137-140` says iOS/macOS hosts may pre-build routes; verify whether that's still true post-8D.2.
+
+**Resolution (v2):** Item 5 expanded to enumerate ALL stale-comment locations. Implementer audits via `grep -n "iOS\|bridge\|dispatcher\|8D\." samples/initiative-cross-platform-ui-voyager/app.cr` and updates each.
+
+### LOW 2 — Position note location OK, page guardrail tight
+
+`docs/initiative-cross-platform-ui/architecture/web-target-position.md` is the right home. Two pages is enough IF the note stays architectural; should NOT become a migration history dump.
+
+**Resolution (v2):** Brief Item 6 adds explicit "link predecessor docs; don't re-narrate the journey" guardrail.
+
+### Missed-points
+
+- **Spec test_id selectors.** New specs should locate field + button by test_id (e.g. `"voyager-todo-editor-title"`, `"voyager-todo-editor-save"`), not child-order traversal. Brief Item 2 updated to specify.
+- **`todo_editor.cr` stale comment.** Near `save.disabled = seed_title.strip.empty?` at `:115-119`, the existing comment says reactive update is a follow-up. Brief Item 1 expanded to require cleanup of this comment as part of the fix.
+
+## What's strong about the brief
+
+The view-local-affordance vs app/domain-state reframing is the architectural insight that justifies 1B. The sub-phase split (8D.3a / 8D.3b) is correct. The frozen-surface declaration is clean. Hand-test placement BEFORE captures is the right call.
+
+Codex's iOS call-chain trace ("the closure captures save → UIKit renderer visits the text field after build → wrap_text_handler captures user_handler = view.on_change → native text change invokes wrapped handler → wrapper checks current FormState/token, calls captured_fs.update(name, new_value), then calls the captured user handler → user handler sets save.disabled = value.strip.empty? → Button#disabled= propagates via apsk_button_set_disabled") confirms Item 1 wiring is safe.
+
+— Codex (medium reasoning, arg-form prompt)
+
+exec
+/bin/zsh -lc 'git log --oneline -5' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+66c2cfc6 [Phase 8D.3a iter 1] Save-enabled-on-type via title_field closure + spec + comment cleanup
+9e2c428f [Phase 8D.3a planning] Scope interaction proof + Save-fix + shim disposition; brief v2 APPROVED
+ed993ab8 [Phase 8D.2] Architect reflection at PASS_WITH_NOTES close
+8af92f3d [Phase 8D.2 iter 1] Migrate iOS bridge to ActionDispatcher + XCUITest smokes
+86a2a5ba [Phase 8D.2 iter 1] HostBootstrap helper + spec
+
+exec
+/bin/zsh -lc 'git diff HEAD~1 HEAD -- samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr samples/initiative-cross-platform-ui-voyager/app.cr spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr src/ui/form_state.cr src/ui/views/button.cr docs/initiative-cross-platform-ui/architecture/web-target-position.md' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+diff --git a/samples/initiative-cross-platform-ui-voyager/app.cr b/samples/initiative-cross-platform-ui-voyager/app.cr
+index 6931c82c..9694ad6b 100644
+--- a/samples/initiative-cross-platform-ui-voyager/app.cr
++++ b/samples/initiative-cross-platform-ui-voyager/app.cr
+@@ -1,8 +1,6 @@
+-# Phase 6.10 + Phase 8D.1 — Voyager demo app.
++# Voyager demo app — unified UI::App / UI::Controller / UI::ActionDispatcher.
+ #
+-# A navigable Todos CRUD demo, refactored in Phase 8D.1 to use the
+-# unified Phase 8B UI::App + UI::Controller + UI::ActionDispatcher
+-# architecture. The screens are now `UI::Screen` subclasses with
++# A navigable Todos CRUD demo. Screens are `UI::Screen` subclasses with
+ # `build(ctx : UI::ScreenContext) : UI::View`; their callbacks dispatch
+ # action refs through `Voyager.dispatch(:action_name, action_params)`,
+ # which routes to the controller layer (one controller per route).
+@@ -13,15 +11,21 @@
+ #   :todo_editor   -> TodoEditorScreen / TodoEditorController
+ #   :settings      -> SettingsScreen   / SettingsController
+ #
+-# Phase 8D.1 keeps `Voyager.build_route(state, coord, route)` alive as
+-# a temporary COMPATIBILITY SHIM so iOS bridge.cr + web/static_site.cr
+-# continue to compile + run unchanged. Phase 8D.2 will migrate iOS to
+-# the dispatcher and may drop the shim; Phase 8D.3 evaluates the web
+-# dependency. The shim constructs a minimal ScreenContext::Native (no
+-# dispatcher attached) so user-intent callbacks become no-ops in the
+-# shim path — that matches today's web (static HTML + JS) and iOS
+-# (Swift-driven re-render via voyager_render) flows, which do NOT
+-# expect Crystal callbacks to do navigation work.
++# Native targets (macOS + iOS) drive screens through the dispatcher;
++# the iOS bridge migrated in Phase 8D.2 and now dispatches actions
++# through `UI::ActionDispatcher` (see `ios/bridge.cr`).
++#
++# `Voyager.build_route(state, coord, route)` survives as the permanent
++# entry point for the static-site web target (`web/static_site.cr`) —
++# the only caller post-8D.2. See
++# `docs/initiative-cross-platform-ui/architecture/web-target-position.md`
++# for the architectural rationale (Voyager web is deliberately
++# static-site, not a full-server dispatcher path; the Amber spike in
++# `samples/phase-08-amber-spike/` proves the dispatcher web target on
++# a different sample). The shim constructs a minimal
++# ScreenContext::Native (no dispatcher attached) so user-intent
++# callbacks become no-ops on the static-site path — static HTML + JS
++# handles navigation client-side.
+ 
+ require "../../src/ui"
+ require "../../src/asset_pipeline/native_app"
+@@ -45,17 +49,16 @@ require "./controllers/settings_controller"
+ module Voyager
+   SLUGS = ["voyager-sign-in", "voyager-todos", "voyager-todo-editor", "voyager-settings"]
+ 
+-  # Phase 8D.1 — host-set dispatcher.
++  # Host-set dispatcher.
+   #
+-  # macOS host (and 8D.2 iOS host) constructs a `UI::ActionDispatcher`
+-  # and assigns it here so screen callback closures can route action
+-  # refs through `Voyager.dispatch(:submit)` /
++  # macOS and iOS hosts each construct a `UI::ActionDispatcher` and
++  # assign it here so screen callback closures can route action refs
++  # through `Voyager.dispatch(:submit)` /
+   # `Voyager.dispatch(:edit_row, {"todo_id" => "5"})` without each
+-  # screen capturing a dispatcher reference. The compat shim
+-  # (`Voyager.build_route`) leaves this nil — the static-site web path
+-  # and iOS render-on-demand path don't dispatch; user-intent callbacks
+-  # on those targets become no-ops (web uses JS for nav; iOS bridge is
+-  # migrated in Phase 8D.2).
++  # screen capturing a dispatcher reference. The static-site web entry
++  # point (`Voyager.build_route`) leaves this nil — the static HTML +
++  # JS path handles navigation client-side, so user-intent callbacks
++  # become no-ops on that target.
+   #
+   # iOS class-init gap (see `project_crystal_ios_class_init_gap` memory):
+   # deliberately a nilable default — no class-var initializer side
+@@ -71,8 +74,9 @@ module Voyager
+   end
+ 
+   # Convenience: dispatch a Symbol action_ref through the host's
+-  # ActionDispatcher. No-op when no dispatcher is set (static-site web +
+-  # current iOS bridge). Per the brief's action-ref convention, the
++  # ActionDispatcher. No-op when no dispatcher is set (the static-site
++  # web path leaves the dispatcher nil; native targets assign one
++  # during host bootstrap). Per the brief's action-ref convention, the
+   # Symbol form runs the action on the CURRENTLY MOUNTED route's
+   # registered controller; the optional action_params hash forwards to
+   # ctx.action_params.
+@@ -83,24 +87,23 @@ module Voyager
+     nil
+   end
+ 
+-  # Phase 8D.1 COMPATIBILITY SHIM.
++  # Static-site web entry point.
++  #
++  # Permanent entry point for the static-site web target
++  # (`web/static_site.cr`) — the only caller post-8D.2. iOS migrated
++  # to the dispatcher path in Phase 8D.2 and no longer calls this.
++  # See
++  # `docs/initiative-cross-platform-ui/architecture/web-target-position.md`
++  # for the architectural rationale.
+   #
+-  # iOS bridge.cr + web/static_site.cr still call this. The shim
+-  # constructs a minimal ScreenContext::Native (no dispatcher
++  # Constructs a minimal ScreenContext::Native (no dispatcher
+   # attached) so the screen's `build` method has the abstract
+-  # `ScreenContext` parameter shape it now expects, and renders the
++  # `ScreenContext` parameter shape it expects, and renders the
+   # screen via its registered class. Sets `Voyager.state` to the
+   # passed-in state for the duration so screens reading
+-  # `Voyager.state` get the caller's instance.
+-  #
+-  # NOTE on brief signature: the brief shows
+-  # `UI::ScreenContext::Native.new(params:, action_params:, form_state:,
+-  # session:, flash:)` but the actual `ScreenContext::Native#initialize`
+-  # signature is `(form_state, session, flash, design_tokens,
+-  # navigation, action_params)` — no `params:` kwarg (params is
+-  # derived from `form_state.to_h`), and no `route_id` on FormState.
+-  # Documented in the Phase 8D.1 implementer report as a brief
+-  # inaccuracy (NOT a Phase 8B API gap).
++  # `Voyager.state` get the caller's instance. User-intent
++  # callbacks become no-ops on this path — static HTML + JS handles
++  # navigation client-side.
+   def self.build_route(state : State, coord : UI::NavigationCoordinator, route : UI::NavigationCoordinator::Route) : UI::View
+     # Make the per-call state visible to screens that read
+     # `Voyager.state`.
+@@ -159,9 +162,9 @@ module Voyager
+   end
+ end
+ 
+-# Phase 8D.1 — UI::App declaration. Routes are registered via the
+-# `screen` macro; bootstrap! re-runs the registrations defensively (iOS
+-# class-init gap recovery hatch — see src/asset_pipeline/native_app.cr).
++# UI::App declaration. Routes are registered via the `screen` macro;
++# bootstrap! re-runs the registrations defensively (iOS class-init
++# gap recovery hatch — see src/asset_pipeline/native_app.cr).
+ class VoyagerApp < UI::App
+   initial_route :sign_in
+   screen :sign_in,     Voyager::SignInController
+diff --git a/samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr b/samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr
+index 78720372..18717d97 100644
+--- a/samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr
++++ b/samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr
+@@ -28,10 +28,10 @@ module Voyager
+       note = context.form_state.values["note"]? || ""
+       completed = context.form_state.values["completed"]? == "true"
+ 
+-      # Save with blank title is a controller-level no-op. The view
+-      # disables the Save button while blank as the primary UX, but a
+-      # renderer that ignores the disabled flag would still post a
+-      # dispatch — we defensively pop without mutating.
++      # Defensive fallback: with Phase 8D.3a's title-field on_change closure,
++      # save.disabled is true while title is blank, so this branch is
++      # unreachable from the UI. Kept for safety against renderer
++      # implementations that ignore disabled state.
+       if title.empty?
+         return UI::ActionResult::Pop.new
+       end
+diff --git a/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr b/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr
+index 17e708d0..f471b1ce 100644
+--- a/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr
++++ b/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr
+@@ -112,14 +112,30 @@ module Voyager
+       save.test_id = "voyager-todo-editor-save"
+       save.minimum_width = half_button_width
+       save.maximum_width = half_button_width
+-      # Phase 8D.1: disabled-while-blank check now consults the seeded
+-      # title value. The renderer-wired live disable update is a
+-      # follow-up — Phase 8B's reactive Button.disabled path is what
+-      # Phase 03's reactive mutators target, not this controller's
+-      # primary scope.
++      # Initial disabled state mirrors the seeded title's blank-ness;
++      # the live update path is wired by the on_change closure below.
+       save.disabled = seed_title.strip.empty?
+       save.on_tap = -> { Voyager.dispatch(:save) }
+ 
++      # Phase 8D.3a — Save-enabled-on-type wiring.
++      #
++      # View-local affordance: `save.disabled` mirrors title-emptiness
++      # on every keystroke. `UI::Button#disabled=` is reactive (see
++      # `src/ui/views/button.cr` — propagates through SwiftKit's
++      # `apsk_button_set_disabled` so SwiftUI re-renders without a tree
++      # rebuild), so a closure assignment is sufficient.
++      #
++      # Composition with the renderer's FormState hook: the UIKit /
++      # AppKit renderer's `visit(UI::TextField)` wraps this proc via
++      # `UI::FormStateRendererHook.wrap_text_handler`, which runs
++      # `captured_fs.update("title", new_value)` FIRST (domain state),
++      # then invokes this closure (view-local affordance). Both writes
++      # happen on every keystroke. App/domain state still flows through
++      # FormState; this closure only governs the visible affordance.
++      title_field.on_change = ->(value : String) {
++        save.disabled = value.strip.empty?
++      }
++
+       actions << cancel.as(UI::View)
+       actions << save.as(UI::View)
+ 
+diff --git a/spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr b/spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr
+new file mode 100644
+index 00000000..7656ed95
+--- /dev/null
++++ b/spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr
+@@ -0,0 +1,264 @@
++require "../spec_helper"
++require "../../samples/initiative-cross-platform-ui-voyager/app"
++
++# Phase 8D.3a — Save-enabled-on-type wiring proof.
++#
++# TWO sections:
++#   2a — screen-authored closure spec. Locates title_field + save by
++#        test_id; invokes `title_field.on_change.not_nil!.call(value)`
++#        directly. Proves the screen assigned a closure that mutates
++#        `save.disabled` correctly for empty/whitespace/non-blank/cleared
++#        values + the editing-prefilled-then-cleared scenario.
++#
++#   2b — renderer-hook composition spec. Mirrors what the UIKit / AppKit
++#        renderer's `visit(UI::TextField)` does: sets
++#        `UI::FormState.current` + `current_mount_token`, calls
++#        `UI::FormStateRendererHook.wrap_text_handler(title_field)` to
++#        obtain the WRAPPED proc, then invokes that wrapped proc with
++#        sample values. Asserts BOTH:
++#          - `fs["title"]` is updated (FormState write composed in first),
++#          - `save.disabled` matches the closure's mirror logic (user
++#            closure ran second in the composition).
++#        This is the unit proof that the screen's closure + the renderer's
++#        wrap compose correctly. Without 2b, only the screen author's
++#        intent is verified; the LIVE iOS integration (renderer-time
++#        wrap + native text event) is proved by Item 4 step 8 hand-test.
++
++# Walks a built view tree depth-first, returning the first view whose
++# `test_id` matches the requested id (or nil if no match). Recurses
++# into VStack / HStack / ZStack children.
++private def find_view_by_test_id(view : UI::View, id : String) : UI::View?
++  return view if view.test_id == id
++
++  children : Array(UI::View)? = nil
++  case view
++  when UI::VStack then children = view.children
++  when UI::HStack then children = view.children
++  when UI::ZStack then children = view.children
++  end
++
++  if children
++    children.each do |child|
++      if hit = find_view_by_test_id(child, id)
++        return hit
++      end
++    end
++  end
++  nil
++end
++
++# Build a fresh ScreenContext::Native pre-seeded with the given
++# `todo_id` so the editor's `ctx.params["todo_id"]` resolves.
++# Optionally accepts a dispatcher so the editor's call to
++# `Voyager.dispatcher.try(&.current_form_state)` returns a usable
++# FormState (matches the pattern in voyager_dispatcher_integration_spec).
++private def make_editor_ctx(todo_id : String = "0", mount_token : Int64 = 1_i64) : UI::ScreenContext::Native
++  fs = UI::FormState.new(mount_token: mount_token)
++  fs.register("todo_id", todo_id)
++  coord = UI::NavigationCoordinator.new(UI::NavigationCoordinator::Route.new(:todo_editor))
++  UI::ScreenContext::Native.new(
++    form_state: fs,
++    session: UI::Session::InProcess.new,
++    flash: UI::Flash::InProcess.new,
++    design_tokens: UI::DesignTokens::Tokens.default,
++    navigation: coord,
++    action_params: {} of String => String,
++  )
++end
++
++describe "Phase 8D.3a — Voyager TodoEditor Save-enabled-on-type wiring" do
++  describe "Section 2a — screen-authored closure" do
++    it "Save is disabled when initial title is empty (new-todo flow)" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "0"))
++
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++      save.disabled.should be_true
++    end
++
++    it "Save is enabled when initial title is non-blank (edit-existing flow)" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      # todo_id "1" — the seeded "Buy groceries" todo.
++      root = screen.build(make_editor_ctx(todo_id: "1"))
++
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++      save.disabled.should be_false
++    end
++
++    it "closure: empty string disables Save" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      # Open in edit mode so initial disabled is false; then prove the
++      # closure flips it to true when the title is cleared.
++      root = screen.build(make_editor_ctx(todo_id: "1"))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      save.disabled.should be_false
++      title_field.on_change.not_nil!.call("")
++      save.disabled.should be_true
++    end
++
++    it "closure: whitespace-only string disables Save" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "1"))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      title_field.on_change.not_nil!.call("   ")
++      save.disabled.should be_true
++
++      title_field.on_change.not_nil!.call("\t\n")
++      save.disabled.should be_true
++    end
++
++    it "closure: non-blank string enables Save" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "0"))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      save.disabled.should be_true
++      title_field.on_change.not_nil!.call("anything")
++      save.disabled.should be_false
++    end
++
++    it "closure: title cleared after typing flips Save back to disabled" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "0"))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      title_field.on_change.not_nil!.call("Buy milk")
++      save.disabled.should be_false
++
++      title_field.on_change.not_nil!.call("")
++      save.disabled.should be_true
++    end
++
++    it "editing-prefilled then cleared: closure flips Save to disabled" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++      UI::FormState.reset_renderer_hooks!
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "1"))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      # Edit-prefilled flow: initial state has Save enabled.
++      save.disabled.should be_false
++
++      # User clears the field.
++      title_field.on_change.not_nil!.call("")
++      save.disabled.should be_true
++
++      # User types again.
++      title_field.on_change.not_nil!.call("Buy milk again")
++      save.disabled.should be_false
++    end
++  end
++
++  describe "Section 2b — renderer-hook composition (FormStateRendererHook.wrap_text_handler)" do
++    it "wrapped handler updates fs[\"title\"] AND mutates save.disabled on every keystroke" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++
++      # Simulate the dispatcher's wire-time renderer-hook setup: a
++      # FormState is mounted as current with a matching token.
++      UI::FormState.reset_renderer_hooks!
++      fs = UI::FormState.new(mount_token: 42_i64)
++      UI::FormState.current = fs
++      UI::FormState.current_mount_token = 42_i64
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "0", mount_token: 42_i64))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      # Sanity: initial new-todo state is empty title + disabled Save.
++      save.disabled.should be_true
++
++      # Renderer-time composition: wrap the screen-authored on_change
++      # through the same hook the UIKit/AppKit renderer uses.
++      wrapped = UI::FormStateRendererHook.wrap_text_handler(title_field).not_nil!
++
++      # Keystroke: user types "x".
++      wrapped.call("x")
++      fs["title"].should eq("x")        # FormState write composed in
++      save.disabled.should be_false     # screen closure ran after
++
++      # Keystroke: user clears the field.
++      wrapped.call("")
++      fs["title"].should eq("")
++      save.disabled.should be_true
++
++      # Keystroke: user types whitespace.
++      wrapped.call("   ")
++      fs["title"].should eq("   ")      # FormState records raw value
++      save.disabled.should be_true      # closure uses .strip.empty?
++
++      # Keystroke: user types a real title.
++      wrapped.call("Buy milk")
++      fs["title"].should eq("Buy milk")
++      save.disabled.should be_false
++
++      UI::FormState.reset_renderer_hooks!
++    end
++
++    it "wrapped handler is a full no-op when mount tokens mismatch (stale fire)" do
++      Voyager.state = Voyager::State.new
++      Voyager.dispatcher = nil
++
++      UI::FormState.reset_renderer_hooks!
++      fs_a = UI::FormState.new(mount_token: 1_i64)
++      UI::FormState.current = fs_a
++      UI::FormState.current_mount_token = 1_i64
++
++      screen = Voyager::TodoEditorScreen.new
++      root = screen.build(make_editor_ctx(todo_id: "1", mount_token: 1_i64))
++      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
++      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
++
++      # Editor opened in edit-existing mode: Save is enabled.
++      save.disabled.should be_false
++
++      wrapped = UI::FormStateRendererHook.wrap_text_handler(title_field).not_nil!
++
++      # Navigate away — dispatcher swaps in a new FormState/token.
++      fs_b = UI::FormState.new(mount_token: 2_i64)
++      UI::FormState.current = fs_b
++      UI::FormState.current_mount_token = 2_i64
++
++      # Stale fire. Neither FormState write NOR user closure runs.
++      wrapped.call("")
++      fs_a["title"].should eq("Buy groceries") # wire-time register seeded title
++      save.disabled.should be_false             # closure did NOT run (still enabled)
++
++      UI::FormState.reset_renderer_hooks!
++    end
++  end
++end
+
+codex
+I’ve got the brief and first diff pass. The key risk now is whether the composition spec is actually modeling the renderer hook’s capture semantics, so I’m reading the hook and current screen state before issuing the verdict.
+exec
+/bin/zsh -lc "sed -n '1,240p' src/ui/form_state.cr" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+# Phase 8B — UI::FormState — per-screen-mount input value registry.
+#
+# A `UI::FormState` holds the live values typed into the inputs on a
+# single screen mount. Native renderers (AppKit + UIKit) wire each
+# TextField / SecureField / Toggle's `on_change` to call
+# `form_state.update(name, value)` when the input has a non-empty
+# `name` property.
+#
+# # Per-screen-mount lifetime
+#
+# Every time the dispatcher mounts a screen (`mount_screen(route_id)`),
+# it creates a NEW FormState with a fresh `mount_token : Int64`. When
+# the user navigates away (push / pop / replace_root), the dispatcher
+# allocates yet another FormState for the next mount.
+#
+# # Mount-token-scoped stale-callback no-ops
+#
+# Renderer callbacks capture the FormState reference AND its mount
+# token at wire-time. When the callback fires, it compares the
+# captured token against the dispatcher's CURRENT token; if they
+# don't match, the callback is a no-op. This prevents a delayed
+# on_change from a prior screen's TextField from leaking values into
+# the next screen's FormState. Per Codex finding #3 on the brief.
+#
+# # Why module-level current_form_state + current_mount_token?
+#
+# Renderer code (UI::AppKit::Renderer / UI::UIKit::Renderer)
+# instantiates new `visit(UI::TextField)` calls for each tree walk.
+# Each visit needs to capture the CURRENT FormState reference + token
+# at wire-time. The dispatcher (iter 4) writes both values at the
+# start of every mount via class methods on `UI::FormState`. The
+# renderer reads them at visit time. This is a one-writer
+# (dispatcher) / many-reader (renderer visits) pattern — no race in
+# the single-threaded AppKit / UIKit main-loop world.
+
+require "./fluid"
+require "./view"
+
+module UI
+  class FormState
+    # Field name -> current value. Populated by `register` (initial seed
+    # from view.text) and `update` (on_change from input).
+    getter values : Hash(String, String)
+
+    # Monotonically-increasing token issued by `UI::ActionDispatcher` on
+    # every screen mount. Renderer callbacks capture this at wire-time;
+    # stale callbacks compare their captured token against the
+    # dispatcher's CURRENT token (`UI::FormState.current_mount_token`)
+    # and short-circuit on mismatch.
+    getter mount_token : Int64
+
+    def initialize(@mount_token : Int64 = 0_i64, initial : Hash(String, String) = {} of String => String)
+      @values = initial.dup
+    end
+
+    # Used by the iter-2 forward declaration's spec; preserves the
+    # old `UI::FormState.new` signature so existing callers don't break.
+    def self.new(initial : Hash(String, String) = {} of String => String) : self
+      new(mount_token: 0_i64, initial: initial)
+    end
+
+    # Renderer-side hook: when a TextField's `name` is non-empty, the
+    # renderer wires `form_state.register(name, view.text)` at view-
+    # construction so the initial value (e.g. pre-populated email after
+    # a failed submit) is in the registry before any on_change fires.
+    # Idempotent: a later `register` for the same key DOES update —
+    # the renderer may re-build the same name with a different initial
+    # value when the screen re-renders, and we want the latest one.
+    def register(name : String, initial : String = "") : Nil
+      @values[name] = initial unless @values.has_key?(name)
+      nil
+    end
+
+    # on_change wiring: called by the renderer's callback when the
+    # native input fires a change event. Mount-token check happens at
+    # the call site (in the renderer's visit_text_field) — by the time
+    # `update` is called, the stale-callback guard has already passed.
+    def update(name : String, value : String) : Nil
+      @values[name] = value
+      nil
+    end
+
+    def [](name : String) : String
+      @values[name]? || ""
+    end
+
+    def []?(name : String) : String?
+      @values[name]?
+    end
+
+    # Snapshot for the controller's `ctx.params`. Defensive copy so
+    # callers can't mutate the live registry.
+    def to_h : Hash(String, String)
+      @values.dup
+    end
+
+    # ----- Renderer hook surface ---------------------------------------
+    #
+    # The dispatcher (iter 4) writes these class-level slots at every
+    # `mount_screen`. The renderer (iter 3) reads them inside
+    # `visit(UI::TextField)` / `visit(UI::SecureField)` to wire
+    # mount-token-scoped on_change callbacks.
+
+    # `@@current` is nilable + accessed via method — iOS gap safe.
+    # `@@current_mount_token` defaults to 0_i64 via a class-var
+    # initialiser. The dispatcher (iter 4) writes the real token on
+    # every screen mount BEFORE the renderer reads it, so 0_i64 is a
+    # benign sentinel — if the iOS gap silently skips the initialiser,
+    # the field is still 0_i64 (the same value the gap would strand
+    # numerics at), which makes the renderer's wire-time captured
+    # token compare equal to the live token only when nothing has
+    # navigated yet. A subsequent dispatcher.mount_screen call writes
+    # a non-zero token and the system is back in sync.
+    @@current : UI::FormState? = nil
+    @@current_mount_token : Int64 = 0_i64
+
+    def self.current : UI::FormState?
+      @@current
+    end
+
+    def self.current=(fs : UI::FormState?) : UI::FormState?
+      @@current = fs
+    end
+
+    # The mount token belonging to `current`. The dispatcher keeps these
+    # two values in lockstep — every `current=` is followed by a token
+    # bump and a `current_mount_token=` write. Renderer callbacks
+    # compare their captured token against the live one to detect a
+    # stale fire after navigation.
+    def self.current_mount_token : Int64
+      @@current_mount_token
+    end
+
+    def self.current_mount_token=(t : Int64) : Int64
+      @@current_mount_token = t
+    end
+
+    # Reset all renderer-hook state. Used by specs between scenarios
+    # and by the dispatcher when tearing down an app.
+    def self.reset_renderer_hooks! : Nil
+      @@current = nil
+      @@current_mount_token = 0_i64
+      nil
+    end
+  end
+
+  # Renderer-side helper called from `visit(UI::TextField)` /
+  # `visit(UI::SecureField)` on the native renderers. Encapsulates the
+  # "if `view.name` is non-empty, register the initial value + wrap the
+  # author's on_change so it ALSO updates FormState with mount-token
+  # guarding" pattern, so the renderer code stays slim.
+  module FormStateRendererHook
+    # Wrap a TextField's on_change. Returns:
+    #   - nil if neither the view has a `name` nor a user-supplied
+    #     on_change (no wiring needed).
+    #   - the original on_change if the view has no `name`.
+    #   - a new proc that ALSO updates form_state (mount-token-checked)
+    #     before invoking the original on_change.
+    def self.wrap_text_handler(view : UI::TextField) : Proc(String, Nil)?
+      name = view.name
+      user_handler = view.on_change
+
+      if name && !name.empty?
+        captured_fs = UI::FormState.current
+        captured_token = captured_fs.try(&.mount_token) || 0_i64
+        if captured_fs
+          captured_fs.register(name, view.text)
+        end
+
+        ->(new_value : String) do
+          # Stale-fire guard: if the captured token doesn't match the
+          # dispatcher's CURRENT token, the entire callback is a no-op
+          # — including the user's on_change. Per Codex finding #3 on
+          # the brief: stale callbacks become no-ops, not "no-ops
+          # against FormState while still firing side effects."
+          if captured_fs &&
+             UI::FormState.current_mount_token == captured_token &&
+             UI::FormState.current == captured_fs
+            captured_fs.update(name, new_value)
+            user_handler.try(&.call(new_value))
+          end
+          nil
+        end
+      else
+        user_handler
+      end
+    end
+
+    # Wrap a SecureField's on_change. Same shape as `wrap_text_handler`
+    # but typed for SecureField. The current SwiftKit bridge for
+    # SecureField does NOT carry the cleartext through to Crystal — the
+    # action token only signals "something changed" and the user's
+    # on_change is invoked with `""`. form_state.update therefore writes
+    # an empty string for the SecureField's name. Authors who need true
+    # password capture on macOS / iOS for Phase 8B should use a plain
+    # `UI::TextField` for now. A future SwiftKit bridge iteration will
+    # carry the actual typed password.
+    def self.wrap_secure_handler(view : UI::SecureField) : Proc(String, Nil)?
+      name = view.name
+      user_handler = view.on_change
+
+      if name && !name.empty?
+        captured_fs = UI::FormState.current
+        captured_token = captured_fs.try(&.mount_token) || 0_i64
+        if captured_fs
+          captured_fs.register(name, view.text)
+        end
+
+        ->(new_value : String) do
+          # Same stale-fire guard as text handler: token mismatch =
+          # full no-op (FormState write AND user handler suppressed).
+          if captured_fs &&
+             UI::FormState.current_mount_token == captured_token &&
+             UI::FormState.current == captured_fs
+            captured_fs.update(name, new_value)
+            user_handler.try(&.call(new_value))
+          end
+          nil
+        end
+      else
+        user_handler
+      end
+    end
+  end
+end
+
+exec
+/bin/zsh -lc "sed -n '1,220p' src/ui/views/button.cr" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+require "../view"
+{% if flag?(:macos) || flag?(:ios) %}
+  require "../native/swiftkit_bridge"
+{% end %}
+
+module UI
+  # Visual presentation style for UI::Button.
+  #
+  # Maps to UIButton.Configuration variants on iOS 15+ and to NSButton
+  # bezel / fill attributes on macOS. HIG: "Use a consistent style to help
+  # people understand which buttons perform primary versus secondary actions."
+  #
+  #   Default    — bordered system button. UIButton.Configuration.gray() /
+  #                NSBezelStyleRounded. The standard interactive affordance
+  #                for most secondary and utility actions.
+  #   Prominent  — filled blue (or red when role == :destructive). Primary
+  #                call-to-action per HIG: "Use a filled button for the most
+  #                likely action in a view." UIButton.Configuration.filled() /
+  #                NSButton with bezelColor = controlAccentColor.
+  #   Tinted     — translucent tint fill, a softer alternative to Prominent
+  #                for secondary CTAs. UIButton.Configuration.tinted() /
+  #                NSButton with NSBezelStyleFlexiblePush.
+  #   Bordered   — explicit bordered button (same as Default on most surfaces;
+  #                use when you want to be explicit in code). Resolves
+  #                identically to Default in both renderers.
+  #   Borderless — no bezel; label text only. UIButton.Configuration.plain() /
+  #                NSButton with isBordered = false. Use for low-prominence
+  #                inline actions (e.g. "Learn more", "See details").
+  enum ButtonStyle
+    Default
+    Prominent
+    Tinted
+    Bordered
+    Borderless
+  end
+
+  # A tappable button with a text label and optional action callback.
+  #
+  # The `on_tap` proc is invoked when the button is activated.
+  # Buttons can be disabled to prevent interaction.
+  class Button < View
+    # HTML form-submission role for `UI::Button` on the web target.
+    # Native renderers (AppKit / UIKit) ignore this property —
+    # buttons are dispatched via `on_tap` on native.
+    #
+    # * `Button` — non-submitting; the default. Web emits `type="button"`.
+    # * `Submit` — submits the enclosing `<form>`. Web emits `type="submit"`.
+    # * `Reset`  — resets the enclosing `<form>`. Web emits `type="reset"`.
+    #
+    # `UI::Form` web-visit auto-promotes a single-button form's lone
+    # Button from `Type::Button` to `Type::Submit`. Multi-button forms
+    # MUST set `type: UI::Button::Type::Submit` explicitly on the
+    # intended submitter — no surprising "last button wins" convention.
+    enum Type
+      Button
+      Submit
+      Reset
+    end
+
+    # The button's display label
+    property label : String
+
+    # Font for the button label
+    property font : Font = Font.new
+
+    # Foreground (label) color
+    property foreground_color : Color = Color.new(r: 0.0, g: 0.478, b: 1.0)
+
+    # Whether the button is disabled (non-interactive).
+    #
+    # Reactive: after the renderer has emitted the SwiftUI hosting view,
+    # mutating this property propagates through the SwiftKit bridge so
+    # SwiftUI re-renders the Button with `.disabled(true)` / `.disabled(false)`
+    # without a tree rebuild. Setters issued before the view has been
+    # rendered are plain property assignments — the next render seeds the
+    # reactive state from the new value. Phase 6.11 added the reactive
+    # path so the Voyager Todo editor can flip Save's disabled state as
+    # the user types (blank title → disabled; non-blank → enabled) without
+    # rebuilding the whole screen.
+    getter disabled : Bool = false
+
+    def disabled=(new_value : Bool) : Bool
+      @disabled = new_value
+      {% if flag?(:macos) || flag?(:ios) %}
+        if sh = @swiftkit_state_handle
+          LibSwiftKitBridge.apsk_button_set_disabled(sh, new_value ? 1 : 0)
+        end
+      {% end %}
+      new_value
+    end
+
+    # Callback invoked when the button is tapped
+    property on_tap : Proc(Nil)? = nil
+
+    # Semantic role for the button. HIG-standard values:
+    #   :default      — normal/primary action (no special styling)
+    #   :destructive  — action destroys data; renderers color the label red
+    #   :cancel       — dismisses a presentation surface; renderers weight
+    #                   the label Semibold per HIG
+    property role : Symbol = :default
+
+    # Visual style. See ButtonStyle for full documentation.
+    # Default renders as a system bordered button; override to Prominent for
+    # filled-blue primary CTAs or Borderless for text-link style.
+    property style : ButtonStyle = ButtonStyle::Default
+
+    # Leading SF Symbol glyph name (macOS 11+ / iOS 13+). When non-nil the
+    # renderers prepend an SF Symbol image to the button. Unknown symbol
+    # names are silently skipped rather than crashing.
+    property symbol : String? = nil
+
+    # HTML form-submission role on the web target. See `UI::Button::Type`.
+    # Defaults to `Type::Button` (non-submitting). Set explicitly on the
+    # button intended to submit a `UI::Form` — multi-button forms do NOT
+    # auto-promote; only single-button forms do (see `UI::Form`).
+    property type : Type = Type::Button
+
+    def initialize(@label : String, *, @role : Symbol = :default, @style : ButtonStyle = ButtonStyle::Default, @symbol : String? = nil, @type : Type = Type::Button)
+    end
+
+    # Convenience constructor that accepts a tap handler block
+    def initialize(@label : String, *, @role : Symbol = :default, @style : ButtonStyle = ButtonStyle::Default, @symbol : String? = nil, @type : Type = Type::Button, &block : -> Nil)
+      @on_tap = block
+    end
+
+    def accept(visitor : PlatformVisitor)
+      visitor.visit(self)
+    end
+
+    # ---- Phase 3 Remediation 4 reactive overrides ----------------------
+    #
+    # Override the three setters that the SwiftKit bridge can mutate at
+    # runtime so a property change after the renderer has emitted the
+    # SwiftUI hosting view propagates to a SwiftUI re-render of just the
+    # affected modifier. Setters issued before the view is rendered are
+    # plain property assignments — the next render seeds reactive state
+    # from the new value.
+    #
+    # `background` and `corner_radius` live on UI::View; the override
+    # delegates to a single helper so all three call-sites stay
+    # consistent.
+
+    def background=(new_color : Color?) : Color?
+      @background = new_color
+      {% if flag?(:macos) || flag?(:ios) %}
+        if sh = @swiftkit_state_handle
+          if c = new_color
+            LibSwiftKitBridge.apsk_button_set_background_color(sh, c.r, c.g, c.b, c.a)
+          else
+            LibSwiftKitBridge.apsk_button_clear_background_color(sh)
+          end
+        end
+      {% end %}
+      new_color
+    end
+
+    def foreground_color=(new_color : Color) : Color
+      @foreground_color = new_color
+      {% if flag?(:macos) || flag?(:ios) %}
+        if sh = @swiftkit_state_handle
+          LibSwiftKitBridge.apsk_button_set_foreground_color(
+            sh, new_color.r, new_color.g, new_color.b, new_color.a,
+          )
+        end
+      {% end %}
+      new_color
+    end
+
+    def corner_radius=(new_radius : Float64) : Float64
+      @corner_radius = new_radius
+      {% if flag?(:macos) || flag?(:ios) %}
+        if sh = @swiftkit_state_handle
+          if new_radius == 0.0
+            LibSwiftKitBridge.apsk_button_clear_corner_radius(sh)
+          else
+            LibSwiftKitBridge.apsk_button_set_corner_radius(sh, new_radius)
+          end
+        end
+      {% end %}
+      new_radius
+    end
+  end
+end
+
+exec
+/bin/zsh -lc "sed -n '1,220p' samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+module Voyager
+  # Voyager — Todo Editor screen.
+  #
+  # Phase 8D.1: migrated from module-level class with
+  # `build(state, coord, todo_id)` to `UI::Screen` subclass with
+  # `build(ctx : UI::ScreenContext) : UI::View`. The todo_id arrives via
+  # `ctx.params["todo_id"]` — when the dispatcher mounts this screen via
+  # `Navigate.new(:todo_editor, params: {todo_id: "5"})`, it seeds the
+  # mount FormState with that key. `ctx.params == ctx.form_state.to_h`
+  # on native.
+  #
+  # Title TextField uses `name: "title"` so the renderer's FormState
+  # hook records typed values; `TodoEditorController#save` reads
+  # `ctx.form_state["title"]`. The completed Toggle has no renderer
+  # FormState hook (Phase 8B only ships hooks for TextField + SecureField),
+  # so the screen manually writes its value into FormState under
+  # `"completed"` via the dispatcher's current_form_state.
+  class TodoEditorScreen < UI::Screen
+    SLUG = "voyager-todo-editor"
+
+    def build(context : UI::ScreenContext) : UI::View
+      state = Voyager.state
+
+      # Phase 8D.1 — read the route-supplied todo_id from FormState
+      # (the dispatcher mounted the screen with route.params seeded
+      # into form_state, keyed by string). Treat absent / non-numeric
+      # / "0" as a new-todo signal (blank draft).
+      todo_id_str = context.params["todo_id"]? || "0"
+      todo_id = todo_id_str.to_i? || 0
+      editing = state.find_todo(todo_id)
+
+      # On a fresh mount, seed the title + completed FormState entries
+      # from the live editing target so the field renders with the
+      # current values. The renderer's FormState hook for TextField will
+      # `register` (idempotent for already-set entries) and update on
+      # type. Toggle's on_change writes its own value into FormState via
+      # the dispatcher accessor (see below).
+      seed_title = editing ? editing.title : ""
+      seed_completed = editing ? editing.completed : false
+      seed_note = editing ? editing.note : ""
+      d = Voyager.dispatcher
+      unless d.nil?
+        fs = d.current_form_state
+        fs.register("title", seed_title)
+        fs.register("note", seed_note)
+        fs.register("completed", seed_completed ? "true" : "false")
+      end
+
+      metrics = UI::DesignTokens::DeviceMetrics.current
+      content_width = metrics.compact_horizontal? ? 340.0 : 480.0
+      root = UI::VStack.new(spacing: 16.0)
+      root.root_fill = true
+      root.alignment = UI::Alignment::Leading
+      root.padding = UI::EdgeInsets.new(
+        top: 24.0 + metrics.safe_area_top_pt,
+        trailing: 20.0 + metrics.safe_area_trailing_pt,
+        bottom: 24.0 + metrics.safe_area_bottom_pt,
+        leading: 20.0 + metrics.safe_area_leading_pt,
+      )
+      root.accessibility_label = "Voyager todo editor"
+      root.test_id = "voyager-todo-editor-root"
+
+      title_label = UI::Label.new(editing ? "Edit todo" : "New todo")
+      title_label.font = UI::Font.new(size: 24.0, weight: :bold)
+
+      title_field = UI::TextField.new(placeholder: "Title", name: "title")
+      title_field.text = seed_title
+      title_field.accessibility_label = "Todo title"
+      title_field.test_id = "voyager-todo-editor-title"
+      title_field.minimum_width = content_width
+      title_field.maximum_width = content_width
+
+      note_field = UI::TextField.new(placeholder: "Note (optional)", name: "note")
+      note_field.text = seed_note
+      note_field.accessibility_label = "Todo note"
+      note_field.test_id = "voyager-todo-editor-note"
+      note_field.minimum_width = content_width
+      note_field.maximum_width = content_width
+
+      completed_toggle = UI::Toggle.new(label: "Completed", is_on: seed_completed)
+      completed_toggle.accessibility_label = "Mark as completed"
+      completed_toggle.test_id = "voyager-todo-editor-completed"
+      completed_toggle.minimum_width = content_width
+      completed_toggle.maximum_width = content_width
+      # Toggle has no Phase 8B FormState renderer hook (only TextField +
+      # SecureField do). Write the boolean into FormState manually so
+      # TodoEditorController#save can read ctx.form_state["completed"].
+      completed_toggle.on_change = ->(value : Bool) {
+        d2 = Voyager.dispatcher
+        unless d2.nil?
+          d2.current_form_state.update("completed", value ? "true" : "false")
+        end
+      }
+
+      actions = UI::HStack.new(spacing: 12.0)
+      actions.alignment = UI::Alignment::Center
+      actions.minimum_width = content_width
+      actions.maximum_width = content_width
+
+      half_button_width = (content_width - 12.0) / 2.0
+
+      cancel = UI::Button.new("Cancel")
+      cancel.role = :secondary
+      cancel.accessibility_label = "Cancel and discard changes"
+      cancel.test_id = "voyager-todo-editor-cancel"
+      cancel.minimum_width = half_button_width
+      cancel.maximum_width = half_button_width
+      cancel.on_tap = -> { Voyager.dispatch(:cancel) }
+
+      save = UI::Button.new("Save", style: UI::ButtonStyle::Prominent)
+      save.accessibility_label = "Save todo"
+      save.test_id = "voyager-todo-editor-save"
+      save.minimum_width = half_button_width
+      save.maximum_width = half_button_width
+      # Initial disabled state mirrors the seeded title's blank-ness;
+      # the live update path is wired by the on_change closure below.
+      save.disabled = seed_title.strip.empty?
+      save.on_tap = -> { Voyager.dispatch(:save) }
+
+      # Phase 8D.3a — Save-enabled-on-type wiring.
+      #
+      # View-local affordance: `save.disabled` mirrors title-emptiness
+      # on every keystroke. `UI::Button#disabled=` is reactive (see
+      # `src/ui/views/button.cr` — propagates through SwiftKit's
+      # `apsk_button_set_disabled` so SwiftUI re-renders without a tree
+      # rebuild), so a closure assignment is sufficient.
+      #
+      # Composition with the renderer's FormState hook: the UIKit /
+      # AppKit renderer's `visit(UI::TextField)` wraps this proc via
+      # `UI::FormStateRendererHook.wrap_text_handler`, which runs
+      # `captured_fs.update("title", new_value)` FIRST (domain state),
+      # then invokes this closure (view-local affordance). Both writes
+      # happen on every keystroke. App/domain state still flows through
+      # FormState; this closure only governs the visible affordance.
+      title_field.on_change = ->(value : String) {
+        save.disabled = value.strip.empty?
+      }
+
+      actions << cancel.as(UI::View)
+      actions << save.as(UI::View)
+
+      root << title_label.as(UI::View)
+      root << title_field.as(UI::View)
+      root << note_field.as(UI::View)
+      root << completed_toggle.as(UI::View)
+      root << actions.as(UI::View)
+
+      root.as(UI::View)
+    end
+  end
+end
+
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/initiative-cross-platform-ui/architecture/web-target-position.md" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+# Voyager web is a static-site target; Amber is a separate full-server proof
+
+**Status:** Architectural position note. Committed as part of Phase 8D.3a.
+**Audience:** Future contributors wondering "why doesn't the Voyager web
+build use `UI::ActionDispatcher` like macOS / iOS do?"
+
+---
+
+## Position
+
+`UI::App` declares routes + controllers once; native (macOS, iOS) hosts
+drive screens through `UI::ActionDispatcher`, and an Amber web host drives
+them through `UI::AmberIntegration.routes_for`. Both paths are real and
+proven. **Voyager web specifically uses the static-site mode, which is
+NOT on the unified dispatcher path** — and that is deliberate.
+
+### Architectural claim split
+
+- **"Unified `UI::App` declaration drives native (macOS + iOS) via
+  `UI::ActionDispatcher`"** — TRUE.
+  - Proof: Phase 8D.1 (macOS host migration) + Phase 8D.2 (iOS host
+    migration).
+  - Code: `src/asset_pipeline/action_dispatcher.cr`,
+    `samples/initiative-cross-platform-ui-voyager/macos/host_bootstrap.cr`,
+    `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr`.
+
+- **"Unified `UI::App` declaration drives a full-server web target via
+  `UI::AmberIntegration.routes_for`"** — TRUE.
+  - Proof: Phase 8C Amber spike.
+  - Code: `samples/phase-08-amber-spike/config/routes.cr`,
+    `src/asset_pipeline/amber_integration.cr`.
+
+- **"Voyager web specifically is on the unified dispatcher path"** —
+  FALSE, and deliberately so. Voyager web is a *static-site* target:
+  build-time HTML emission per known slug, navigation handled in the
+  browser by JavaScript. There is no Crystal server in the loop; there
+  is no live `UI::ActionDispatcher` to dispatch into.
+
+## Why split web into two targets
+
+Static-site web and full-server web answer different operational
+questions. Static-site web optimises for deployable artifacts — a
+fragment per slug emitted by `samples/initiative-cross-platform-ui-voyager/web/static_site.cr`,
+hostable on any object store with no Crystal runtime at the edge. Amber
+web optimises for live dispatch — every action routes through Amber's
+request lifecycle into a Crystal-resident `UI::ActionDispatcher`.
+
+Forcing Voyager's static-site target onto the dispatcher path would
+require either embedding a Crystal runtime in the browser (out of
+scope), or doing a server round-trip per action (defeats the purpose of
+a static site). Instead, Voyager web uses `Voyager.build_route` — the
+permanent static-site entry point — to render each slug's HTML
+fragment at build time, with screen callbacks reduced to no-ops on
+this path.
+
+## Code paths
+
+| Target | Entry point | File |
+|---|---|---|
+| Voyager native (macOS, iOS) | `UI::ActionDispatcher` | `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr`, `samples/initiative-cross-platform-ui-voyager/macos/host_bootstrap.cr` |
+| Voyager web (static site) | `Voyager.build_route` | `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` |
+| Amber web (full-server) | `UI::AmberIntegration.routes_for` | `samples/phase-08-amber-spike/config/routes.cr` |
+
+`Voyager.build_route` is **not** a transitional shim. Phase 8D.1 originally
+framed it that way, but post-8D.2 — once iOS no longer calls it — its
+role clarified to *the static-site entry point*. Phase 8D.3a settles its
+disposition at D1 (keep, doc) and updates the docstrings in
+`samples/initiative-cross-platform-ui-voyager/app.cr` accordingly.
+
+`UI::AmberIntegration.routes_for` is the dispatcher-driven web target.
+The Phase 8C Amber spike proves that the same `UI::App` declaration
+that drives native can also drive a live-server web stack — but
+through a separate code path from Voyager's static-site target.
+
+## Future work
+
+A "Voyager Amber port" — taking the Voyager sample and rebuilding its
+web surface as an Amber app on the dispatcher path — is supported by
+the Phase 8 architecture. It is **not** a 2026 commitment. The two
+targets serve different deployment models; both should remain
+demonstrable.
+
+If a future phase elects to merge them, the changes are localised:
+register Voyager's controllers with `UI::AmberIntegration.routes_for`,
+remove the static-site emitter, and update deployment from
+"upload fragments to S3" to "deploy an Amber app."
+
+## Cross-references
+
+- [Phase 8 design overview](../phases/phase-08-ergonomic-mvc-api/design.md)
+- [Phase 8D scoping](../phases/phase-08-ergonomic-mvc-api/scoping-8d.md)
+- [Phase 8D.3 scoping](../phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md)
+- [Phase 8D.3 co-plan](../phases/phase-08-ergonomic-mvc-api/coplan-8d.3-codex-1.md)
+- [Phase 8D.3a brief](../phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md)
+- Code: `samples/initiative-cross-platform-ui-voyager/app.cr` —
+  `Voyager.build_route` docstring describes this position in-context.
+
+exec
+/bin/zsh -lc "grep -n \"iOS\\|bridge\\|dispatcher\\|8D\\.\" samples/initiative-cross-platform-ui-voyager/app.cr" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+14:# Native targets (macOS + iOS) drive screens through the dispatcher;
+15:# the iOS bridge migrated in Phase 8D.2 and now dispatches actions
+16:# through `UI::ActionDispatcher` (see `ios/bridge.cr`).
+20:# the only caller post-8D.2. See
+23:# static-site, not a full-server dispatcher path; the Amber spike in
+24:# `samples/phase-08-amber-spike/` proves the dispatcher web target on
+26:# ScreenContext::Native (no dispatcher attached) so user-intent
+33:require "../../src/asset_pipeline/action_dispatcher"
+52:  # Host-set dispatcher.
+54:  # macOS and iOS hosts each construct a `UI::ActionDispatcher` and
+58:  # screen capturing a dispatcher reference. The static-site web entry
+63:  # iOS class-init gap (see `project_crystal_ios_class_init_gap` memory):
+66:  @@dispatcher : UI::ActionDispatcher? = nil
+68:  def self.dispatcher : UI::ActionDispatcher?
+69:    @@dispatcher
+72:  def self.dispatcher=(d : UI::ActionDispatcher?) : UI::ActionDispatcher?
+73:    @@dispatcher = d
+77:  # ActionDispatcher. No-op when no dispatcher is set (the static-site
+78:  # web path leaves the dispatcher nil; native targets assign one
+84:    d = @@dispatcher
+93:  # (`web/static_site.cr`) — the only caller post-8D.2. iOS migrated
+94:  # to the dispatcher path in Phase 8D.2 and no longer calls this.
+99:  # Constructs a minimal ScreenContext::Native (no dispatcher
+140:  # at build time) and by the iOS/macOS hosts when they need to
+166:# bootstrap! re-runs the registrations defensively (iOS class-init
+
+exec
+/bin/zsh -lc 'git show --stat --oneline --name-only HEAD' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+66c2cfc6 [Phase 8D.3a iter 1] Save-enabled-on-type via title_field closure + spec + comment cleanup
+samples/initiative-cross-platform-ui-voyager/app.cr
+samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr
+samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr
+
+exec
+/bin/zsh -lc "rg -n \"build_route|route_for_slug|Voyager\\.build_route|COMPATIBILITY SHIM|static-site|iOS bridge|current iOS|8D\\.1|8D\\.2\" samples/initiative-cross-platform-ui-voyager/app.cr docs/initiative-cross-platform-ui/architecture/web-target-position.md" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+samples/initiative-cross-platform-ui-voyager/app.cr:15:# the iOS bridge migrated in Phase 8D.2 and now dispatches actions
+samples/initiative-cross-platform-ui-voyager/app.cr:18:# `Voyager.build_route(state, coord, route)` survives as the permanent
+samples/initiative-cross-platform-ui-voyager/app.cr:19:# entry point for the static-site web target (`web/static_site.cr`) —
+samples/initiative-cross-platform-ui-voyager/app.cr:20:# the only caller post-8D.2. See
+samples/initiative-cross-platform-ui-voyager/app.cr:23:# static-site, not a full-server dispatcher path; the Amber spike in
+samples/initiative-cross-platform-ui-voyager/app.cr:27:# callbacks become no-ops on the static-site path — static HTML + JS
+samples/initiative-cross-platform-ui-voyager/app.cr:58:  # screen capturing a dispatcher reference. The static-site web entry
+samples/initiative-cross-platform-ui-voyager/app.cr:59:  # point (`Voyager.build_route`) leaves this nil — the static HTML +
+samples/initiative-cross-platform-ui-voyager/app.cr:77:  # ActionDispatcher. No-op when no dispatcher is set (the static-site
+samples/initiative-cross-platform-ui-voyager/app.cr:92:  # Permanent entry point for the static-site web target
+samples/initiative-cross-platform-ui-voyager/app.cr:93:  # (`web/static_site.cr`) — the only caller post-8D.2. iOS migrated
+samples/initiative-cross-platform-ui-voyager/app.cr:94:  # to the dispatcher path in Phase 8D.2 and no longer calls this.
+samples/initiative-cross-platform-ui-voyager/app.cr:107:  def self.build_route(state : State, coord : UI::NavigationCoordinator, route : UI::NavigationCoordinator::Route) : UI::View
+samples/initiative-cross-platform-ui-voyager/app.cr:139:  # static-site generator (which renders one fragment per known slug
+samples/initiative-cross-platform-ui-voyager/app.cr:142:  def self.route_for_slug(slug : String) : UI::NavigationCoordinator::Route
+samples/initiative-cross-platform-ui-voyager/app.cr:152:  # Slug for a Route.id (inverse of route_for_slug). Used by the
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:1:# Voyager web is a static-site target; Amber is a separate full-server proof
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:14:proven. **Voyager web specifically uses the static-site mode, which is
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:21:  - Proof: Phase 8D.1 (macOS host migration) + Phase 8D.2 (iOS host
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:34:  FALSE, and deliberately so. Voyager web is a *static-site* target:
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:48:Forcing Voyager's static-site target onto the dispatcher path would
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:51:a static site). Instead, Voyager web uses `Voyager.build_route` — the
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:52:permanent static-site entry point — to render each slug's HTML
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:61:| Voyager web (static site) | `Voyager.build_route` | `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` |
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:64:`Voyager.build_route` is **not** a transitional shim. Phase 8D.1 originally
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:65:framed it that way, but post-8D.2 — once iOS no longer calls it — its
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:66:role clarified to *the static-site entry point*. Phase 8D.3a settles its
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:73:through a separate code path from Voyager's static-site target.
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:85:remove the static-site emitter, and update deployment from
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:96:  `Voyager.build_route` docstring describes this position in-context.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+ M spec/test_js/some_js.js
+?? docs/initiative-cross-platform-ui/architecture/
+?? docs/initiative-cross-platform-ui/handoff/phase-01-evidence-2026-05-20-iter2/
+?? docs/initiative-cross-platform-ui/handoff/phase-01-evidence-2026-05-20/
+?? docs/initiative-cross-platform-ui/handoff/phase-02-evidence-2026-05-20-iter2/
+?? docs/initiative-cross-platform-ui/handoff/phase-02-evidence-2026-05-20/
+?? docs/initiative-cross-platform-ui/handoff/phase-03-evidence-2026-05-20-iter2/
+?? docs/initiative-cross-platform-ui/handoff/phase-03-evidence-2026-05-20/
+?? docs/initiative-cross-platform-ui/handoff/phase-06.10-rem-2-iter1/
+?? docs/initiative-cross-platform-ui/handoff/phase-06.10-rem-2-iter2/
+?? docs/initiative-cross-platform-ui/handoff/phase-06.11-evidence/legibility-audit.md
+?? docs/initiative-cross-platform-ui/phases/phase-06.11-ios-polish-defaults/iter-3.md
+?? docs/initiative-cross-platform-ui/phases/phase-06.11-ios-polish-defaults/iter-4.md
+?? docs/initiative-cross-platform-ui/phases/phase-06.11-ios-polish-defaults/iter-5.md
+?? output/initiative-demo/demo-dashboard-dark.html
+?? output/initiative-demo/demo-dashboard-light.html
+?? output/initiative-demo/demo-detail-dark.html
+?? output/initiative-demo/demo-detail-light.html
+?? output/initiative-demo/demo-settings-dark.html
+?? output/initiative-demo/demo-settings-light.html
+?? output/initiative-demo/demo-sign-in-dark.html
+?? output/initiative-demo/demo-sign-in-light.html
+?? output/initiative-demo/demo-tier-three-dark.html
+?? output/initiative-demo/demo-tier-three-light.html
+?? output/initiative-demo/index.html
+?? output/voyager-demo/
+
+exec
+/bin/zsh -lc "sed -n '128,158p' samples/initiative-cross-platform-ui-voyager/app.cr" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+      form_state: fs,
+      session: UI::Session::InProcess.new,
+      flash: UI::Flash::InProcess.new,
+      design_tokens: UI::DesignTokens::Tokens.default,
+      navigation: coord,
+      action_params: {} of String => String,
+    )
+    screen_class.new.build(ctx)
+  end
+
+  # Map a static slug ("voyager-todos") to a Route. Used by the web
+  # static-site generator (which renders one fragment per known slug
+  # at build time) and by the iOS/macOS hosts when they need to
+  # pre-build a route by name.
+  def self.route_for_slug(slug : String) : UI::NavigationCoordinator::Route
+    case slug
+    when "voyager-sign-in"     then UI::NavigationCoordinator::Route.new(:sign_in)
+    when "voyager-todos"       then UI::NavigationCoordinator::Route.new(:todos)
+    when "voyager-todo-editor" then UI::NavigationCoordinator::Route.new(:todo_editor)
+    when "voyager-settings"    then UI::NavigationCoordinator::Route.new(:settings)
+    else                            UI::NavigationCoordinator::Route.new(:sign_in)
+    end
+  end
+
+  # Slug for a Route.id (inverse of route_for_slug). Used by the
+  # web renderer's UIRouteHost push glue.
+  def self.slug_for_route_id(route_id : Symbol) : String
+    case route_id
+    when :sign_in     then "voyager-sign-in"
+    when :todos       then "voyager-todos"
+    when :todo_editor then "voyager-todo-editor"
+
+exec
+/bin/zsh -lc "rg -n \"Voyager\\.build_route|build_route\\(\" samples/initiative-cross-platform-ui-voyager src spec docs/initiative-cross-platform-ui | head -80" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+samples/initiative-cross-platform-ui-voyager/app.cr:18:# `Voyager.build_route(state, coord, route)` survives as the permanent
+samples/initiative-cross-platform-ui-voyager/app.cr:59:  # point (`Voyager.build_route`) leaves this nil — the static HTML +
+samples/initiative-cross-platform-ui-voyager/app.cr:107:  def self.build_route(state : State, coord : UI::NavigationCoordinator, route : UI::NavigationCoordinator::Route) : UI::View
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:51:a static site). Instead, Voyager web uses `Voyager.build_route` — the
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:61:| Voyager web (static site) | `Voyager.build_route` | `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` |
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:64:`Voyager.build_route` is **not** a transitional shim. Phase 8D.1 originally
+docs/initiative-cross-platform-ui/architecture/web-target-position.md:96:  `Voyager.build_route` docstring describes this position in-context.
+samples/initiative-cross-platform-ui-voyager/screens/state.cr:93:  # once in `VoyagerHost.run!`; the `Voyager.build_route` compat shim
+spec/asset_pipeline/voyager_app_spec.cr:11:#   - Voyager.build_route(state, coord, route) compat shim still returns
+spec/asset_pipeline/voyager_app_spec.cr:55:describe "Voyager.build_route compat shim" do
+spec/asset_pipeline/voyager_app_spec.cr:59:    view = Voyager.build_route(state, coord, coord.current)
+spec/asset_pipeline/voyager_app_spec.cr:66:    view = Voyager.build_route(state, coord, coord.current)
+spec/asset_pipeline/voyager_app_spec.cr:75:    view = Voyager.build_route(state, coord, route)
+spec/asset_pipeline/voyager_app_spec.cr:82:    view = Voyager.build_route(state, coord, coord.current)
+spec/asset_pipeline/voyager_app_spec.cr:90:    Voyager.build_route(state, coord, coord.current)
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:13:Migrate `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr` from the `Voyager.build_route` compat shim to the `UI::ActionDispatcher` host pattern that 8D.1 landed on macOS. After 8D.2 the iOS Voyager binary has live action dispatch: tapping any button on iOS fires the controller layer, returns an `ActionResult`, mounts the new screen before publishing the coord change, and Swift re-renders.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:26:- **Voyager.build_route compat shim** remains untouched in 8D.2. Web's `static_site.cr` still calls it. Phase 8D.3 evaluates final disposition.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:107:**Voyager.build_route is NOT called from this path after 8D.2.** The compat shim continues to exist for the web target only.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:126:`Voyager.build_route(state, coord, route)` stays as-is in `app.cr`. After 8D.2:
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:131:If the implementer wants to add a comment to `Voyager.build_route`'s docstring noting "as of 8D.2 only `web/static_site.cr` calls this" — fine.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:197:- [ ] `bridge.cr` no longer calls `Voyager.build_route`.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:231:4. Replace `render_slug` internals: remove `Voyager.build_route(...)`, build `ScreenContext::Native` from dispatcher getters, call `registration_for(route.id).screen_class.new.build(ctx)`, preserve fresh `UIKit::Renderer.new` per call.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.v1.md:259:- NO touch on `web/static_site.cr` or `Voyager.build_route`.
+samples/initiative-cross-platform-ui-voyager/ios/bridge.cr:94:      # `Voyager.build_route` because the editor's
+samples/initiative-cross-platform-ui-voyager/ios/bridge.cr:210:    # Phase 8D.2 — Voyager.build_route is NO LONGER called from this
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/coplan-8d.2-codex-1.md:58:4. Replace `render_slug` internals: remove `Voyager.build_route(...)`, build `ScreenContext::Native` from dispatcher getters, call `registration_for(route.id).screen_class.new.build(ctx)`, preserve fresh `UIKit::Renderer.new` per render call.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/coplan-8d.2-codex-1.md:68:- iOS bridge no longer calls `Voyager.build_route`.
+samples/initiative-cross-platform-ui-voyager/web/static_site.cr:28:  view = Voyager.build_route(state, coord, route)
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:13:Migrate `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr` from the `Voyager.build_route` compat shim to the `UI::ActionDispatcher` host pattern that 8D.1 landed on macOS. After 8D.2 the iOS Voyager binary has live action dispatch: tapping any button on iOS fires the controller layer, returns an `ActionResult`, mounts the new screen before publishing the coord change, and Swift re-renders.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:27:- **`Voyager.build_route` compat shim** remains untouched in 8D.2. Web's `static_site.cr` still calls it. Phase 8D.3 evaluates final disposition.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:112:**Voyager.build_route is NOT called from this path after 8D.2.** The compat shim continues to exist for the web target only.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:131:`Voyager.build_route(state, coord, route)` stays as-is in `app.cr`. After 8D.2:
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:282:- [ ] `bridge.cr` no longer calls `Voyager.build_route`.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.2.md:352:- NO touch on `web/static_site.cr` or `Voyager.build_route`.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/coplan-8d.3-codex-1.md:14:- **8D.3a** — Save-enabled-on-type fix + owner hand-test gate + `Voyager.build_route` D1 disposition + B2 web architecture position note. ALL architecture + verification, NO captures.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/coplan-8d.3-codex-1.md:55:Keep `Voyager.build_route` as the permanent static-site entry point. Update stale comments in `samples/initiative-cross-platform-ui-voyager/app.cr` that still describe iOS as a caller (R12). NO rename, NO migration.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/coplan-8d.3-codex-1.md:76:- `Voyager.build_route` disposition recorded as D1 + stale comments updated.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:16:Close the long-deferred Save-enabled-on-type behavioral bug in `TodoEditorScreen` AND run the owner hand-test gate that 8D.1 + 8D.2 both deferred. Resolve the `Voyager.build_route` web shim disposition to D1 (keep, doc). Commit the B2 web architecture position note.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:31:- **No `Voyager.build_route` rename or migration.**
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:114:### Item 5 — `Voyager.build_route` D1 disposition + comment cleanup
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:139:  - Static-site web: `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` → `Voyager.build_route` shim.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:169:- **R6** — `Voyager.build_route` doc cleanup misses callsite — code citation reveals other callers we forgot. *Mitigation:* grep for callsites before editing comments. Should be web/static_site.cr only.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.v1.md:197:- NO `Voyager.build_route` rename or migration.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:21:- `app.cr` is a `Voyager` MODULE. `Voyager.build_route(state, coord, route)` is a case statement.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:26:- iOS bridge calls `Voyager.build_route` from a C-ABI function.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:27:- Web (`web/static_site.cr`) calls `Voyager.build_route` to generate 4 static HTML files.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:35:- **`Voyager.build_route` REMAINS as a temporary compat shim** so iOS bridge and web static-site continue to compile. The shim constructs a minimal ScreenContext and calls `registration.screen_class.new.build(ctx)`. 8D.2 removes the iOS dependency; 8D.3 may remove the web dependency or leave the shim permanently.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:116:- REMOVE `Voyager.build_route` (the case-statement form). REPLACE with a thin compat shim — see below.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:126:  def self.build_route(state : State, coord : UI::NavigationCoordinator, route : UI::NavigationCoordinator::Route) : UI::View
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:158:- `Voyager.build_route(state, coord, route)` still works (compat shim).
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:180:- No `Voyager.build_route` calls inside screen build methods (only the compat shim calls it externally).
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.1.md:333:- `Voyager.build_route` compat shim works for iOS bridge + web static-site (verify both still compile: macOS build + run web/static_site.cr generator).
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md:18:A third concern: `Voyager.build_route` compat shim's permanent disposition. Web `static_site.cr` still calls it; the Phase 8D co-plan picked B2 (web stays static; not on the unified-dispatcher path).
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md:43:### D. `Voyager.build_route` compat shim disposition
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md:47:- **D2.** Rename to `Voyager.build_route_for_static_site` to make intent clear.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md:57:- Web has TWO modes: (i) static-site (Voyager's path; uses `Voyager.build_route` shim); (ii) full Amber server (Phase 8C's `routes_for(UI::App)`; proven on `samples/phase-08-amber-spike/`).
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.3.md:111:### Item 5 — `Voyager.build_route` shim disposition
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.1.md:14:### 1. BLOCKER — `Voyager.build_route` removal breaks iOS + web
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.1.md:16:Brief Item 1 removes `Voyager.build_route` but `web/static_site.cr` AND `ios/bridge.cr` both call it. iOS is explicitly out of 8D.1 scope; web is too (per Codex co-plan B2 — web stays static). Removing the method breaks compile/link for both targets during the 8D.1 → 8D.2 window.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.1.md:18:**Resolution:** Keep `Voyager.build_route(state, coord, route)` as a temporary COMPATIBILITY SHIM in 8D.1. The shim constructs a minimal `UI::ScreenContext::Native` (without dispatcher integration), looks up the screen class via `VoyagerApp.registration_for(route.id).screen_class`, and calls `screen.build(ctx)`. This is the bridge that keeps iOS + web compiling while the macOS host migrates fully. 8D.2 (iOS bridge migration) is the phase that removes the shim.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.1.md:94:Brief said "REPLACE the `Voyager.build_route` / `Voyager.route_for_slug` / `Voyager.slug_for_route_id` module methods" then said "Remove `build_route`; keep `route_for_slug` + `slug_for_route_id`."
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/codex-critique-1-brief-8d.1.md:96:**Resolution:** Brief v2 says: keep `Voyager.build_route` as a temporary compat shim (per Finding 1); keep `route_for_slug` + `slug_for_route_id` unchanged.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.2.md:12:Phase 8D.1 migrated Voyager's macOS host to `UI::ActionDispatcher`. The iOS bridge at `samples/initiative-cross-platform-ui-voyager/ios/bridge.cr` still calls the `Voyager.build_route(state, coord, route)` **compat shim**, which constructs a dispatcher-less `ScreenContext::Native`. As a result:
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.2.md:54:Today's `render_slug` calls `Voyager.build_route(state, coord, route)`. After 8D.2 it must:
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/scoping-8d.2.md:94:- `Voyager.build_route` is still called by `samples/initiative-cross-platform-ui-voyager/web/static_site.cr`.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:16:Close the long-deferred Save-enabled-on-type behavioral bug in `TodoEditorScreen` AND run the owner hand-test gate that 8D.1 + 8D.2 both deferred. Resolve the `Voyager.build_route` web shim disposition to D1 (keep, doc). Commit the B2 web architecture position note.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:31:- **No `Voyager.build_route` rename or migration.**
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:154:### Item 5 — `Voyager.build_route` D1 disposition + comprehensive comment cleanup (per Codex LOW 1)
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:182:  - Static-site web: `samples/initiative-cross-platform-ui-voyager/web/static_site.cr` → `Voyager.build_route` shim.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:212:- **R6** — `Voyager.build_route` doc cleanup misses callsite — code citation reveals other callers we forgot. *Mitigation:* grep for callsites before editing comments. Should be web/static_site.cr only.
+docs/initiative-cross-platform-ui/phases/phase-08-ergonomic-mvc-api/brief-8d.3a.md:240:- NO `Voyager.build_route` rename or migration.
+spec/ui/voyager_state_propagation_spec.cr:15:# the host calls Voyager.build_route(state, coord, route) again, and
+spec/ui/voyager_state_propagation_spec.cr:24:    view = Voyager.build_route(state, coord, coord.current)
+spec/ui/voyager_state_propagation_spec.cr:56:    view = Voyager.build_route(state, coord, coord.current)
+spec/ui/voyager_state_propagation_spec.cr:85:    view = Voyager.build_route(state, coord, coord.current)
+spec/ui/voyager_state_propagation_spec.cr:121:    view = Voyager.build_route(state, coord, coord.current)
+docs/initiative-cross-platform-ui/phases/phase-06.10-navigable-crud-demo/remediation-4.md:46:4. When `on_change` fires, does the iOS host's content swap actually call `Voyager.build_route(state, coord, :voyager_todos)` with the UPDATED state? Or is it building from a stale state reference?
+docs/initiative-cross-platform-ui/handoff/phase-06.10-remediation-4-implementer-report.md:85:  `Voyager.build_route` call so the AppKit DeviceMetrics provider can
+docs/initiative-cross-platform-ui/handoff/phase-06.10-remediation-3-implementer-report.md:147:The Editor route's `Voyager.build_route` calls
+docs/initiative-cross-platform-ui/handoff/phase-06.10-implementer-report-2026-05-23.md:48:  call `Voyager.build_route(state, coord, coord.current)` inside their
+
+exec
+/bin/zsh -lc "rg -n \"voyager-todo-editor-title|voyager-todo-editor-save|wrap_text_handler|on_change\" spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr src/ui -g'*.cr'" in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:8:#        test_id; invokes `title_field.on_change.not_nil!.call(value)`
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:16:#        `UI::FormStateRendererHook.wrap_text_handler(title_field)` to
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:79:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:92:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:105:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:106:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:109:      title_field.on_change.not_nil!.call("")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:120:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:121:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:123:      title_field.on_change.not_nil!.call("   ")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:126:      title_field.on_change.not_nil!.call("\t\n")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:137:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:138:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:141:      title_field.on_change.not_nil!.call("anything")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:152:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:153:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:155:      title_field.on_change.not_nil!.call("Buy milk")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:158:      title_field.on_change.not_nil!.call("")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:169:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:170:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:176:      title_field.on_change.not_nil!.call("")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:180:      title_field.on_change.not_nil!.call("Buy milk again")
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:185:  describe "Section 2b — renderer-hook composition (FormStateRendererHook.wrap_text_handler)" do
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:199:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:200:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:205:      # Renderer-time composition: wrap the screen-authored on_change
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:207:      wrapped = UI::FormStateRendererHook.wrap_text_handler(title_field).not_nil!
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:243:      title_field = find_view_by_test_id(root, "voyager-todo-editor-title").as(UI::TextField)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:244:      save = find_view_by_test_id(root, "voyager-todo-editor-save").as(UI::Button)
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr:249:      wrapped = UI::FormStateRendererHook.wrap_text_handler(title_field).not_nil!
+src/ui/views/text_field.cr:36:    property on_change : Proc(String, Nil)? = nil
+src/ui/views/text_field.cr:46:      @on_change = block
+src/ui/views/tab_view.cr:29:    property on_change : Proc(Int32, Nil)? = nil
+src/ui/views/tab_view.cr:56:      @on_change = block
+src/ui/views/slider.cr:11:    # without firing the `on_change` callback (Crystal-initiated mutation
+src/ui/views/slider.cr:28:    property on_change : Proc(Float64, Nil)? = nil
+src/ui/views/slider.cr:34:      @on_change = block
+src/ui/views/color_picker.cr:6:    property on_change : Proc(Color, Nil)? = nil
+src/ui/views/text_editor.cr:12:    property on_change : Proc(String, Nil)? = nil
+src/ui/views/text_editor.cr:18:      @on_change = block
+src/ui/views/checkbox.cr:7:    property on_change : Proc(Bool, Nil)? = nil
+src/ui/views/checkbox.cr:13:      @on_change = block
+src/ui/views/segmented_control.cr:7:    property on_change : Proc(Int32, Nil)? = nil
+src/ui/views/segmented_control.cr:13:      @on_change = block
+src/ui/views/secure_field.cr:14:    property on_change : Proc(String, Nil)? = nil
+src/ui/views/secure_field.cr:20:      @on_change = block
+src/ui/views/date_picker.cr:10:    property on_change : Proc(Time, Nil)? = nil
+src/ui/views/date_picker.cr:16:      @on_change = block
+src/ui/views/text_area.cr:12:    property on_change : Proc(String, Nil)? = nil
+src/ui/views/text_area.cr:18:      @on_change = block
+src/ui/views/radio_group.cr:7:    property on_change : Proc(Int32, Nil)? = nil
+src/ui/views/radio_group.cr:13:      @on_change = block
+src/ui/views/picker.cr:19:    property on_change : Proc(Int32, Nil)? = nil
+src/ui/views/picker.cr:25:      @on_change = block
+src/ui/native/callback_registry.cr:44:#   - the new Float64 for Slider#on_change, Stepper#on_change
+src/ui/native/callback_registry.cr:45:#   - 1.0/0.0 for Toggle#on_change (Bool encoded as Float64)
+src/ui/native/callback_registry.cr:345:    # Register a Float64-valued SwiftKit action (Slider#on_change,
+src/ui/native/callback_registry.cr:346:    # Stepper#on_change, Toggle#on_change after Bool→Float64 coercion).
+src/ui/navigation_coordinator.cr:4:  # Owns the route stack + on_change callbacks that renderers subscribe to.
+src/ui/navigation_coordinator.cr:13:  # re-render on coordinator change), renderers subscribe via #on_change
+src/ui/navigation_coordinator.cr:20:  # `@on_change_callbacks` field is a normal instance variable initialised
+src/ui/navigation_coordinator.cr:25:  #   coord.on_change { |route| renderer.rebuild_root(route) }
+src/ui/navigation_coordinator.cr:41:    @on_change_callbacks : Array(Proc(Route, Nil))
+src/ui/navigation_coordinator.cr:45:      @on_change_callbacks = [] of Proc(Route, Nil)
+src/ui/navigation_coordinator.cr:93:    def on_change(&block : Route ->) : Nil
+src/ui/navigation_coordinator.cr:94:      @on_change_callbacks << block
+src/ui/navigation_coordinator.cr:99:      @on_change_callbacks.size
+src/ui/navigation_coordinator.cr:114:      @on_change_callbacks.each { |cb| cb.call(current_route) }
+src/ui/views/stepper.cr:11:    property on_change : Proc(Float64, Nil)? = nil
+src/ui/views/stepper.cr:17:      @on_change = block
+src/ui/form_state.cr:5:# TextField / SecureField / Toggle's `on_change` to call
+src/ui/form_state.cr:22:# on_change from a prior screen's TextField from leaking values into
+src/ui/form_state.cr:42:    # from view.text) and `update` (on_change from input).
+src/ui/form_state.cr:65:    # a failed submit) is in the registry before any on_change fires.
+src/ui/form_state.cr:74:    # on_change wiring: called by the renderer's callback when the
+src/ui/form_state.cr:102:    # mount-token-scoped on_change callbacks.
+src/ui/form_state.cr:150:  # author's on_change so it ALSO updates FormState with mount-token
+src/ui/form_state.cr:153:    # Wrap a TextField's on_change. Returns:
+src/ui/form_state.cr:155:    #     on_change (no wiring needed).
+src/ui/form_state.cr:156:    #   - the original on_change if the view has no `name`.
+src/ui/form_state.cr:158:    #     before invoking the original on_change.
+src/ui/form_state.cr:159:    def self.wrap_text_handler(view : UI::TextField) : Proc(String, Nil)?
+src/ui/form_state.cr:161:      user_handler = view.on_change
+src/ui/form_state.cr:173:          # — including the user's on_change. Per Codex finding #3 on
+src/ui/form_state.cr:189:    # Wrap a SecureField's on_change. Same shape as `wrap_text_handler`
+src/ui/form_state.cr:193:    # on_change is invoked with `""`. form_state.update therefore writes
+src/ui/form_state.cr:200:      user_handler = view.on_change
+src/ui/views/time_picker.cr:9:    property on_change : Proc(Time, Nil)? = nil
+src/ui/views/time_picker.cr:15:      @on_change = block
+src/ui/views/combo_box.cr:33:    property on_change : Proc(String, Void)?
+src/ui/views/combo_box.cr:43:      @on_change : Proc(String, Void)? = nil,
+src/ui/views/toggle.cr:11:    # without firing the `on_change` callback (Crystal initiated the
+src/ui/views/toggle.cr:27:    property on_change : Proc(Bool, Nil)? = nil
+src/ui/views/toggle.cr:36:      @on_change = block
+src/ui/views/search_field.cr:9:    property on_change : Proc(String, Nil)? = nil
+src/ui/views/search_field.cr:17:      @on_change = block
+src/ui/state.cr:10:  #   counter.on_change { |old_val, new_val| puts "#{old_val} -> #{new_val}" }
+src/ui/state.cr:30:    def on_change(&block : T, T -> Nil) : Nil
+src/ui/renderers/appkit_renderer.cr:553:        # Phase 6.10 Rem 4 (Item 1) — string-typed on_change channel.
+src/ui/renderers/appkit_renderer.cr:559:        # has a non-empty `name` property, wrap the user's on_change so
+src/ui/renderers/appkit_renderer.cr:564:        wrapped_handler = UI::FormStateRendererHook.wrap_text_handler(view)
+src/ui/renderers/appkit_renderer.cr:685:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:717:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:742:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:775:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:883:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1010:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1270:        # The legacy on_change for SecureField receives "" (the SwiftUI
+src/ui/renderers/appkit_renderer.cr:1304:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1330:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1360:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1386:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1412:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:1438:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:2312:        if change_handler = view.on_change
+src/ui/renderers/appkit_renderer.cr:3016:        if change_handler = view.on_change
+src/ui/probes/toggle_probe.cr:7:  # `on_change` updates `last_value`; the adjacent Label mirrors it.
+src/ui/renderers/android_renderer.cr:187:    fun android_seekbar_set_on_change_listener(env : Void*, sb : Void*, callback_id : UInt64)
+src/ui/renderers/android_renderer.cr:646:      # Wire up on_change via TextWatcher.
+src/ui/renderers/android_renderer.cr:649:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:752:      # Wire up on_change via OnCheckedChangeListener. The Android listener
+src/ui/renderers/android_renderer.cr:754:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:784:      # Wire up on_change via OnCheckedChangeListener (same pattern as Switch).
+src/ui/renderers/android_renderer.cr:785:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:845:      # Wire up on_change via OnCheckedChangeListener on the RadioGroup. The
+src/ui/renderers/android_renderer.cr:848:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:909:      # Wire up on_change via OnSeekBarChangeListener. The listener dispatches
+src/ui/renderers/android_renderer.cr:912:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:937:        LibAndroidBridge.android_seekbar_set_on_change_listener(@env, sb, callback_id)
+src/ui/renderers/android_renderer.cr:1109:        segmented = if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1143:        radio_group = if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1205:      if !view.options.empty? && (change_handler = view.on_change)
+src/ui/renderers/android_renderer.cr:1335:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1360:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1385:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1436:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1496:      change_callback_id = if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:1686:      if change_handler = view.on_change
+src/ui/renderers/android_renderer.cr:2742:      color_change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:496:        # Phase 6.10 Rem 4 (Item 1) — TextField on_change must receive
+src/ui/renderers/uikit_renderer.cr:509:        wrapped_handler = UI::FormStateRendererHook.wrap_text_handler(view)
+src/ui/renderers/uikit_renderer.cr:632:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:659:      # toggles its checked state on tap and calls the on_change handler.
+src/ui/renderers/uikit_renderer.cr:671:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:704:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:751:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:851:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1007:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1337:        # The legacy on_change receives "" (the SwiftUI bridge doesn't
+src/ui/renderers/uikit_renderer.cr:1365:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1388:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1415:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1438:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1461:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:1484:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:2431:        if change_handler = view.on_change
+src/ui/renderers/uikit_renderer.cr:2991:        if change_handler = view.on_change
+src/ui/probes/slider_probe.cr:7:  # `on_change` writes the latest Float64 into `last_value`; the
+
+exec
+/bin/zsh -lc 'git ls-files docs/initiative-cross-platform-ui/architecture/web-target-position.md; git status --short docs/initiative-cross-platform-ui/architecture/web-target-position.md' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+?? docs/initiative-cross-platform-ui/architecture/web-target-position.md
+
+exec
+/bin/zsh -lc 'git diff --name-only HEAD~1 HEAD' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+samples/initiative-cross-platform-ui-voyager/app.cr
+samples/initiative-cross-platform-ui-voyager/controllers/todo_editor_controller.cr
+samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr
+spec/asset_pipeline/voyager_todo_editor_save_disabled_spec.cr
+
+exec
+/bin/zsh -lc 'git show HEAD:docs/initiative-cross-platform-ui/architecture/web-target-position.md >/dev/null && echo tracked || echo missing-from-head' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+fatal: path 'docs/initiative-cross-platform-ui/architecture/web-target-position.md' exists on disk, but not in 'HEAD'
+missing-from-head
+
+exec
+/bin/zsh -lc 'git diff --name-only -- docs/initiative-cross-platform-ui/architecture/web-target-position.md' in /Users/crimsonknight/open_source_coding_projects/asset_pipeline
+ succeeded in 0ms:
+codex
+**Verdict: REVISE**
+
+**Findings**
+
+- **Item 6 / HIGH**: [web-target-position.md](/Users/crimsonknight/open_source_coding_projects/asset_pipeline/docs/initiative-cross-platform-ui/architecture/web-target-position.md:1) exists on disk but is **not committed**. `git show HEAD:docs/initiative-cross-platform-ui/architecture/web-target-position.md` fails, and `git diff HEAD~1 HEAD --name-only` excludes it. Acceptance requires the position note committed. Content is acceptable and architectural enough; commit inclusion is the failure.
+
+**Passed Checks**
+
+- **Item 1**: Closure captures `save` cleanly after construction in [todo_editor.cr](/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr:125). It does not break `wrap_text_handler` composition.
+- **Item 2**: Spec covers both 2a direct screen-authored closure and 2b renderer-hook composition, and locates field/button by `test_id`.
+- **Item 3**: Controller fallback comment is present, no behavior change.
+- **Item 5**: `app.cr` stale shim/iOS comments are cleaned up; audit grep leftovers are accurate, not stale.
+- **Frozen surfaces**: No public UI API, C ABI, Swift production, or `Voyager.build_route` rename violations in the committed diff.
+tokens used
+64,966
+**Verdict: REVISE**
+
+**Findings**
+
+- **Item 6 / HIGH**: [web-target-position.md](/Users/crimsonknight/open_source_coding_projects/asset_pipeline/docs/initiative-cross-platform-ui/architecture/web-target-position.md:1) exists on disk but is **not committed**. `git show HEAD:docs/initiative-cross-platform-ui/architecture/web-target-position.md` fails, and `git diff HEAD~1 HEAD --name-only` excludes it. Acceptance requires the position note committed. Content is acceptable and architectural enough; commit inclusion is the failure.
+
+**Passed Checks**
+
+- **Item 1**: Closure captures `save` cleanly after construction in [todo_editor.cr](/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/initiative-cross-platform-ui-voyager/screens/todo_editor.cr:125). It does not break `wrap_text_handler` composition.
+- **Item 2**: Spec covers both 2a direct screen-authored closure and 2b renderer-hook composition, and locates field/button by `test_id`.
+- **Item 3**: Controller fallback comment is present, no behavior change.
+- **Item 5**: `app.cr` stale shim/iOS comments are cleaned up; audit grep leftovers are accurate, not stale.
+- **Frozen surfaces**: No public UI API, C ABI, Swift production, or `Voyager.build_route` rename violations in the committed diff.

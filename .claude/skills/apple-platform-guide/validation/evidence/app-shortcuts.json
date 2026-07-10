@@ -1,0 +1,52 @@
+{
+  "errors": [
+    "missing report: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/skills/apple-platform-guide/validation/reports/app-shortcuts.md"
+  ],
+  "generated_at": "2026-04-17T13:39:40.796567+00:00",
+  "report": {
+    "exists": false,
+    "path": "reports/app-shortcuts.md"
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:35:11.130539+00:00",
+      "path": "screenshots/app-shortcuts-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "49145069d89931a936d9543492ed5e0a02256a4ed3ac4ed25d8871d9c430bae5",
+      "size_bytes": 748444
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:34:41.131685+00:00",
+      "path": "screenshots/app-shortcuts-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "87d0f5a65d617990961f2545081106e50ed26a63038ba6f57db1ae21cb7d0d13",
+      "size_bytes": 482607
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:24:49.303021+00:00",
+      "path": "screenshots/app-shortcuts-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "d33bbdee24e5a87c37f476e364fd091425c9f4a436bbfb1feb6d426b485899bc",
+      "size_bytes": 127798
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:24:48.467156+00:00",
+      "path": "screenshots/app-shortcuts-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "d17defdf5dc5bb0896bc232fc854f85b7f7e6482554179fea16060c0f6c27756",
+      "size_bytes": 122247
+    }
+  },
+  "slug": "app-shortcuts",
+  "valid": false,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

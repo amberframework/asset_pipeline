@@ -1,0 +1,43 @@
+{
+  "check_id": "conformance.action-sheet-positioning-1280",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet__panel"
+  ],
+  "cdp_methods": [
+    "Emulation.setDeviceMetricsOverride",
+    "Runtime.evaluate (__phase4.open)",
+    "Runtime.evaluate (getBoundingClientRect)"
+  ],
+  "trusted_input_trace": [
+    "setDeviceMetricsOverride 1280x800",
+    "click trigger (__phase4.open)"
+  ],
+  "expected_state": {
+    "horizontal_centered_within_2px": true,
+    "vertical_centered_within_2px": true
+  },
+  "observed_state": {
+    "viewport": {
+      "w": 1280,
+      "h": 800
+    },
+    "panel_rect": {
+      "left": 414,
+      "top": 289,
+      "right": 866,
+      "bottom": 511,
+      "width": 452,
+      "height": 222
+    },
+    "predicates": {
+      "horizontal_centered_within_2px": true,
+      "vertical_centered_within_2px": true
+    },
+    "title_lines": 1
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/conformance.action-sheet-positioning-1280.json"
+  ]
+}

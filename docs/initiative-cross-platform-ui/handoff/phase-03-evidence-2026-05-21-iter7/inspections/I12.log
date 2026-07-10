@@ -1,0 +1,32 @@
+167:        role_str = view.role == :default ? nil : view.role.to_s
+247:        unless view.shows_cancel_button
+277:        sender.set_number(target, :setIconSize, view.icon_size == 24.0 ? nil : view.icon_size)
+287:        sender.set_number(target, :setThickness, view.thickness == 1.0 ? nil : view.thickness)
+289:        unless view.orientation == :horizontal
+296:        sender.set_number(target, :setMinLength, view.min_length == 0.0 ? nil : view.min_length)
+307:        unless view.style == UI::ToggleStyle::Switch
+323:        sender.set_number(target, :setStep, view.step == 0.0 ? nil : view.step)
+328:        sender.set_number(target, :setStep, view.step_value == 1.0 ? nil : view.step_value)
+338:        unless view.style == UI::PickerStyle::Menu
+345:        unless view.mode == UI::DatePickerMode::Date
+353:        sender.set_number(target, :setMinuteInterval, view.minute_interval == 1 ? nil : view.minute_interval.to_f64)
+393:        unless view.bar_position == :bottom
+401:          view.selected_index == 0 ? nil : view.selected_index)
+407:        unless view.surface_style == :auto
+412:        unless view.detents == default_detents
+422:        unless view.arrow_edge == :bottom
+435:        unless view.buttons.empty?
+448:        unless view.confirm_label == "Confirm"
+451:        unless view.cancel_label == "Cancel"
+454:        unless view.confirm_style == :default
+463:        unless view.items.empty?
+475:        unless view.sections.empty?
+497:        unless view.alignment == UI::Alignment::Leading
+502:        unless view.children.empty?
+514:        unless view.material == :secondary
+525:        unless view.shape == :rectangle
+534:        unless view.button_style == :default
+538:          view.selected_index == 0 ? nil : view.selected_index)
+539:        unless view.items.empty?
+--- count of nil-guards in populators ---
+25

@@ -1,0 +1,6 @@
+1182:          uibutton_cls = LibObjCBridge.objc_getClass("UIButton")
+2824:        uibutton_cls = LibObjCBridge.objc_getClass("UIButton")
+3936:          uibtn_cls = LibObjCBridge.objc_getClass("UIButton")
+4000:              LibObjCBridge.objc_getClass("UIButton"), sel("buttonWithType:"), 1_i64)
+4041:          LibObjCBridge.objc_getClass("UIButton"), sel("buttonWithType:"), 1_i64)
+4180:        uibtn_cls = LibObjCBridge.objc_getClass("UIButton")

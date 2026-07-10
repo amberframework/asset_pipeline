@@ -1,0 +1,244 @@
+Building for debugging...
+[0/10] Write sources
+[2/10] /Users/crimsonknight/open_source_coding_projects/asset_pipeline/swift/AssetPipelineSwiftKit/.build/arm64-apple-macosx/debug/AssetPipelineSwiftKitPackageTests.derived/runner.swift
+[3/10] Write sources
+[5/10] Write swift-version--58304C5D6DBC2206.txt
+[7/120] Emitting module AssetPipelineSwiftKit
+[8/128] Compiling AssetPipelineSwiftKit SecureFieldOverrides.swift
+[9/128] Compiling AssetPipelineSwiftKit SegmentedControlOverrides.swift
+[10/128] Compiling AssetPipelineSwiftKit SheetOverrides.swift
+[11/128] Compiling AssetPipelineSwiftKit SliderOverrides.swift
+[12/128] Compiling AssetPipelineSwiftKit SpacerOverrides.swift
+[13/128] Compiling AssetPipelineSwiftKit StepperOverrides.swift
+[14/128] Compiling AssetPipelineSwiftKit SurfaceOverrides.swift
+[15/128] Compiling AssetPipelineSwiftKit TabViewOverrides.swift
+[16/128] Compiling AssetPipelineSwiftKit FormOverrides.swift
+[17/128] Compiling AssetPipelineSwiftKit GlassBackgroundOverrides.swift
+[18/128] Compiling AssetPipelineSwiftKit GridOverrides.swift
+[19/128] Compiling AssetPipelineSwiftKit IconButtonOverrides.swift
+[20/128] Compiling AssetPipelineSwiftKit ImageOverrides.swift
+[21/128] Compiling AssetPipelineSwiftKit LabelOverrides.swift
+[22/128] Compiling AssetPipelineSwiftKit LinkButtonOverrides.swift
+[23/128] Compiling AssetPipelineSwiftKit ListViewOverrides.swift
+[24/128] Compiling AssetPipelineSwiftKit AlertOverrides.swift
+[25/128] Compiling AssetPipelineSwiftKit ButtonOverrides.swift
+[26/128] Compiling AssetPipelineSwiftKit CardOverrides.swift
+[27/128] Compiling AssetPipelineSwiftKit CheckboxOverrides.swift
+[28/128] Compiling AssetPipelineSwiftKit ColorPickerOverrides.swift
+[29/128] Compiling AssetPipelineSwiftKit ConfirmationDialogOverrides.swift
+[30/128] Compiling AssetPipelineSwiftKit DatePickerOverrides.swift
+[31/128] Compiling AssetPipelineSwiftKit DividerOverrides.swift
+[32/128] Compiling AssetPipelineSwiftKit MenuButtonOverrides.swift
+[33/128] Compiling AssetPipelineSwiftKit NavigationLinkOverrides.swift
+[34/128] Compiling AssetPipelineSwiftKit NavigationSplitViewOverrides.swift
+[35/128] Compiling AssetPipelineSwiftKit NavigationStackOverrides.swift
+[36/128] Compiling AssetPipelineSwiftKit PickerOverrides.swift
+[37/128] Compiling AssetPipelineSwiftKit PopoverOverrides.swift
+[38/128] Compiling AssetPipelineSwiftKit RadioGroupOverrides.swift
+[39/128] Compiling AssetPipelineSwiftKit SearchFieldOverrides.swift
+[40/128] Compiling AssetPipelineSwiftKit SecureFieldFacade.swift
+[41/128] Compiling AssetPipelineSwiftKit SegmentedControlFacade.swift
+[42/128] Compiling AssetPipelineSwiftKit SheetFacade.swift
+[43/128] Compiling AssetPipelineSwiftKit SliderFacade.swift
+[44/128] Compiling AssetPipelineSwiftKit SpacerFacade.swift
+[45/128] Compiling AssetPipelineSwiftKit StepperFacade.swift
+[46/128] Compiling AssetPipelineSwiftKit SurfaceFacade.swift
+[47/128] Compiling AssetPipelineSwiftKit TabViewFacade.swift
+[48/128] Compiling AssetPipelineSwiftKit TextAreaFacade.swift
+[49/128] Compiling AssetPipelineSwiftKit TextAreaOverrides.swift
+[50/128] Compiling AssetPipelineSwiftKit TextEditorOverrides.swift
+[51/128] Compiling AssetPipelineSwiftKit TextFieldOverrides.swift
+[52/128] Compiling AssetPipelineSwiftKit TimePickerOverrides.swift
+[53/128] Compiling AssetPipelineSwiftKit ToggleButtonOverrides.swift
+[54/128] Compiling AssetPipelineSwiftKit ToggleOverrides.swift
+[55/128] Compiling AssetPipelineSwiftKit ToolbarOverrides.swift
+[56/128] Compiling AssetPipelineSwiftKit ViewOverrides.swift
+[57/128] Compiling AssetPipelineSwiftKit DividerFacade.swift
+[58/128] Compiling AssetPipelineSwiftKit FormFacade.swift
+[59/128] Compiling AssetPipelineSwiftKit GlassBackgroundFacade.swift
+[60/128] Compiling AssetPipelineSwiftKit GridFacade.swift
+[61/128] Compiling AssetPipelineSwiftKit IconButtonFacade.swift
+[62/128] Compiling AssetPipelineSwiftKit ImageFacade.swift
+[63/128] Compiling AssetPipelineSwiftKit LabelFacade.swift
+[64/128] Compiling AssetPipelineSwiftKit LinkButtonFacade.swift
+[65/128] Compiling AssetPipelineSwiftKit ListViewFacade.swift
+[66/128] Compiling AssetPipelineSwiftKit AssetPipelineSwiftKit.swift
+[67/128] Compiling AssetPipelineSwiftKit CallbackBridge.swift
+[68/128] Compiling AssetPipelineSwiftKit AlertFacade.swift
+[69/128] Compiling AssetPipelineSwiftKit ButtonFacade.swift
+[70/128] Compiling AssetPipelineSwiftKit CardFacade.swift
+[71/128] Compiling AssetPipelineSwiftKit CheckboxFacade.swift
+[72/128] Compiling AssetPipelineSwiftKit ColorPickerFacade.swift
+[73/128] Compiling AssetPipelineSwiftKit ConfirmationDialogFacade.swift
+[74/128] Compiling AssetPipelineSwiftKit DatePickerFacade.swift
+[75/128] Compiling AssetPipelineSwiftKit MenuButtonFacade.swift
+[76/128] Compiling AssetPipelineSwiftKit NavigationLinkFacade.swift
+[77/128] Compiling AssetPipelineSwiftKit NavigationSplitViewFacade.swift
+[78/128] Compiling AssetPipelineSwiftKit NavigationStackFacade.swift
+[79/128] Compiling AssetPipelineSwiftKit PickerFacade.swift
+[80/128] Compiling AssetPipelineSwiftKit PopoverFacade.swift
+[81/128] Compiling AssetPipelineSwiftKit RadioGroupFacade.swift
+[82/128] Compiling AssetPipelineSwiftKit ReactiveState.swift
+[83/128] Compiling AssetPipelineSwiftKit SearchFieldFacade.swift
+[84/128] Compiling AssetPipelineSwiftKit TextEditorFacade.swift
+[85/128] Compiling AssetPipelineSwiftKit TextFieldFacade.swift
+[86/128] Compiling AssetPipelineSwiftKit TimePickerFacade.swift
+[87/128] Compiling AssetPipelineSwiftKit ToggleButtonFacade.swift
+[88/128] Compiling AssetPipelineSwiftKit ToggleFacade.swift
+[89/128] Compiling AssetPipelineSwiftKit ToolbarFacade.swift
+[90/128] Compiling AssetPipelineSwiftKit ValueStorage.swift
+[91/128] Compiling AssetPipelineSwiftKit HostingHelpers.swift
+[92/128] Compiling AssetPipelineSwiftKit CommonModifiers.swift
+[92/128] Write Objects.LinkFileList
+[93/128] Archiving libAssetPipelineSwiftKit.a
+[126/131] Emitting module SnapshotTesting
+[127/131] Compiling SnapshotTesting UIView.swift
+[128/131] Compiling SnapshotTesting UIViewController.swift
+[129/131] Compiling SnapshotTesting URLRequest.swift
+[130/136] Compiling AssetPipelineSwiftKitTests ReactiveStateTests.swift
+[131/136] Emitting module AssetPipelineSwiftKitTests
+[132/136] Compiling AssetPipelineSwiftKitTests SnapshotTests.swift
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/swift/AssetPipelineSwiftKit/Tests/AssetPipelineSwiftKitTests/SnapshotTests/SnapshotTests.swift:34:9: warning: 'isRecording' is deprecated: Use 'withSnapshotTesting' to customize the record mode. See the documentation for more information. [#DeprecatedDeclaration]
+ 32 |         // Per swift-snapshot-testing 1.17 docs: setting the env var
+ 33 |         // `RECORD_SNAPSHOTS=1` flips the package-wide recording mode.
+ 34 |         isRecording = ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1"
+    |         `- warning: 'isRecording' is deprecated: Use 'withSnapshotTesting' to customize the record mode. See the documentation for more information. [#DeprecatedDeclaration]
+ 35 |     }
+ 36 | 
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+[133/136] Compiling AssetPipelineSwiftKitTests RuntimeBridgeTests.swift
+[134/136] Compiling AssetPipelineSwiftKitTests OverridesPropagationTests.swift
+[135/138] Compiling AssetPipelineSwiftKitPackageTests runner.swift
+[136/138] Emitting module AssetPipelineSwiftKitPackageTests
+[136/138] Write Objects.LinkFileList
+[137/138] Linking AssetPipelineSwiftKitPackageTests
+Build complete! (18.92s)
+Test Suite 'All tests' started at 2026-05-21 13:36:35.771.
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' started at 2026-05-21 13:36:35.773.
+Test Suite 'OverridesPropagationTests' started at 2026-05-21 13:36:35.773.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testAccessibilityIdentifierRoundTrips]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testAccessibilityIdentifierRoundTrips]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testApskAccessibilityLabelRoundTrips]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testApskAccessibilityLabelRoundTrips]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDestructiveRoleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDestructiveRoleRenders]' passed (0.061 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDisabledRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeDisabledRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeProminentStyleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeProminentStyleRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeWithSymbolNameRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testButtonFacadeWithSymbolNameRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeCornerRadiusOverrideAppliesViaCommonModifiers]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeCornerRadiusOverrideAppliesViaCommonModifiers]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeOutlinedRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeOutlinedRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithMaterialOverrideRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithMaterialOverrideRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithTitleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testCardFacadeWithTitleRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithThinMaterialRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithThinMaterialRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithUltraThinMaterialRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testGlassBackgroundFacadeWithUltraThinMaterialRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeEmbedsChildViaHostedChild]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeEmbedsChildViaHostedChild]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithEmptyChildren]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithEmptyChildren]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithTitle]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testNavigationStackFacadeRendersWithTitle]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeRendersWithDefaults]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeSecureEntryRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeSecureEntryRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeWithInitialTextRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testTextFieldFacadeWithInitialTextRenders]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeDisabledRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeDisabledRenders]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeRendersWithDefaults]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeRendersWithDefaults]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeSwitchStyleRenders]' started.
+Test Case '-[AssetPipelineSwiftKitTests.OverridesPropagationTests testToggleFacadeSwitchStyleRenders]' passed (0.001 seconds).
+Test Suite 'OverridesPropagationTests' passed at 2026-05-21 13:36:35.845.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.071 (0.073) seconds
+Test Suite 'ReactiveStateTests' started at 2026-05-21 13:36:35.845.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonClearBackgroundColorResetsField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonClearBackgroundColorResetsField]' passed (0.210 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonClearCornerRadiusResetsField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonClearCornerRadiusResetsField]' passed (0.213 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetBackgroundColorUpdatesField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetBackgroundColorUpdatesField]' passed (0.211 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetCornerRadiusUpdatesField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetCornerRadiusUpdatesField]' passed (0.202 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetForegroundColorUpdatesField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskButtonSetForegroundColorUpdatesField]' passed (0.213 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskLabelSetTextHandlesEmptyString]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskLabelSetTextHandlesEmptyString]' passed (0.214 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskLabelSetTextUpdatesPublishedField]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskLabelSetTextUpdatesPublishedField]' passed (0.202 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskSliderSetValueUpdatesStorage]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskSliderSetValueUpdatesStorage]' passed (0.210 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskToggleSetValueUpdatesStorage]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testApskToggleSetValueUpdatesStorage]' passed (0.415 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testButtonStateNilFieldsByDefault]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testButtonStateNilFieldsByDefault]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testLabelStateInitialText]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testLabelStateInitialText]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testLabelStatePublisherFiresOnTextChange]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testLabelStatePublisherFiresOnTextChange]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testMakeReactiveButtonWritesStatePointer]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testMakeReactiveButtonWritesStatePointer]' passed (0.213 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testMakeReactiveLabelWritesStatePointer]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testMakeReactiveLabelWritesStatePointer]' passed (0.216 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testStateReleaseAcceptsNil]' started.
+Test Case '-[AssetPipelineSwiftKitTests.ReactiveStateTests testStateReleaseAcceptsNil]' passed (0.001 seconds).
+Test Suite 'ReactiveStateTests' passed at 2026-05-21 13:36:38.374.
+	 Executed 15 tests, with 0 failures (0 unexpected) in 2.522 (2.529) seconds
+Test Suite 'RuntimeBridgeTests' started at 2026-05-21 13:36:38.374.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testBrandTintStartsUnset]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testBrandTintStartsUnset]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireInvokesInstalledTrampoline]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireInvokesInstalledTrampoline]' passed (0.001 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireMultipleInvocations]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireMultipleInvocations]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireTokenZeroIsNoOp]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testCallbackBridgeFireTokenZeroIsNoOp]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testClearBrandTintResetsToNil]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testClearBrandTintResetsToNil]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testInstallTestTrampolineSetsInstalled]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testInstallTestTrampolineSetsInstalled]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testModuleIsLoaded]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testModuleIsLoaded]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintFlipsHasBrandTint]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintFlipsHasBrandTint]' passed (0.000 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintIsReCallable]' started.
+Test Case '-[AssetPipelineSwiftKitTests.RuntimeBridgeTests testSetBrandTintIsReCallable]' passed (0.000 seconds).
+Test Suite 'RuntimeBridgeTests' passed at 2026-05-21 13:36:38.379.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.003 (0.005) seconds
+Test Suite 'SnapshotTests' started at 2026-05-21 13:36:38.380.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' passed (0.051 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' passed (0.005 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' passed (0.004 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' passed (0.003 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' passed (0.009 seconds).
+Test Suite 'SnapshotTests' passed at 2026-05-21 13:36:38.452.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.072 (0.073) seconds
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' passed at 2026-05-21 13:36:38.452.
+	 Executed 53 tests, with 0 failures (0 unexpected) in 2.668 (2.679) seconds
+Test Suite 'All tests' passed at 2026-05-21 13:36:38.452.
+	 Executed 53 tests, with 0 failures (0 unexpected) in 2.668 (2.681) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

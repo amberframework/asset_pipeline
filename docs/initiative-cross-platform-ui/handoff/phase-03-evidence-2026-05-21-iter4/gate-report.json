@@ -1,0 +1,426 @@
+{
+  "phase": 3,
+  "phase_name": "SwiftUI Native Bridge",
+  "validator_run_date": "2026-05-21",
+  "iteration": 4,
+  "implementer_commits": [
+    "7756d25", "6996ba7",
+    "7486040", "ed51fd7", "dfe1274", "bdfcf18",
+    "3a81950", "34e1d4b",
+    "f647ddb", "f2cae3b",
+    "c1b87e8", "5525c43", "5e0887f",
+    "6bdaa47", "0e66992", "60faa89"
+  ],
+  "verdict": "FAIL",
+  "checks": [
+    {
+      "check_id": "swiftkit.build-ios-simulator",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B1.log"],
+      "notes": "swift build with --triple arm64-apple-ios16.0-simulator exited 0. Built archive lives at .build/arm64-apple-ios-simulator/release/libAssetPipelineSwiftKit.a (toolchain normalized triple)."
+    },
+    {
+      "check_id": "swiftkit.build-ios-device",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B2.log"],
+      "notes": "swift build with --triple arm64-apple-ios16.0 exited 0. Built archive at .build/arm64-apple-ios/release/libAssetPipelineSwiftKit.a."
+    },
+    {
+      "check_id": "swiftkit.build-macos",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B3.log"],
+      "notes": "swift build with --triple arm64-apple-macosx13.0 exited 0. Built archive at .build/arm64-apple-macosx/release/libAssetPipelineSwiftKit.a."
+    },
+    {
+      "check_id": "sample.ios-builds-clean",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B4.log", "build_logs/B4-deps.log", "inspections/B4-symbols.log"],
+      "notes": "build_crystal_lib.sh simulator succeeded — libhighost.a 4.7MB + swiftkit_simulator.a 4.3MB produced. xcodebuild then built CrystalHIGHost.app for the iOS 26.3 iPhone 17 Pro simulator (UDID A517D070-5008-4577-B7B0-B6914D11B391) after generating cross-compile deps (libgc/libpcre2). APSKButtonFacade + APSKRuntime symbols confirmed present in swiftkit_simulator.a via nm. App installed and launched on the booted sim (PID 83042); launch screenshot at samples/ios-launch.png."
+    },
+    {
+      "check_id": "sample.macos-builds-clean",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B5.log", "inspections/B5-otool.log", "samples/macos-launch.png"],
+      "notes": "make build succeeded. bin/hig_showcase is 5.7MB, code-signed Developer ID, links SwiftUI + Combine + AppKit + AVKit + WebKit + MapKit. Binary launched with HIG_SLUG=buttons and produced a 2400x1800 screenshot via offscreen render. Additional slugs (toggles, sliders, pickers) all snapshot successfully — confirms the SwiftKit-linked binary is fully runnable."
+    },
+    {
+      "check_id": "crystal.spec-suite-green",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/B6.log"],
+      "notes": "1318 examples, 4 failures, 0 errors. The 4 failures match the architect-adjudicated pre-existing failures from before commit 7756d25 (1 in spec/ui/views_spec.cr theme rendering + 3 in spec/components/phase2_verification_spec.cr counter component name). Not Phase 3 regressions. Counted as passed per orchestrator instruction (Bucket B)."
+    },
+    {
+      "check_id": "swift.test-suite-green",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/B7.log"],
+      "notes": "All 38 Swift tests pass — 24 OverridesPropagationTests + 9 RuntimeBridgeTests + 5 SnapshotTests. Zero XCTFail."
+    },
+    {
+      "check_id": "crystal.web-build-clean",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B8.log"],
+      "notes": "crystal build --no-codegen src/asset_pipeline.cr exited 0 with no output. Web build untouched by the SwiftKit refactor."
+    },
+    {
+      "check_id": "crystal.android-build-clean",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["build_logs/B9.log"],
+      "notes": "Architect-adjudicated precedent PASS (cite Phase 1 #17). crystal-alpha build with -Dandroid on darwin fails on c/sys/epoll (Linux-only header) at compiler stdlib stage — this is a Crystal cross-compilation limitation on darwin hosts, not a Phase 3 regression. The same failure existed before any Phase 3 commit. Per orchestrator: 'this remains environment-blocked. Adjudicate as architect-precedent PASS with disclosure.'"
+    },
+    {
+      "check_id": "bridge.no-raw-uikit-for-migrated-widgets",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I1-raw-uikit.log", "inspections/I1-raw-uikit-contexts.log"],
+      "notes": "8 raw UIButton/etc references remain in uikit_renderer.cr; all 8 are within visit methods for non-migrated widgets (Alert, ActivityView, DisclosureGroup) OR inside a private _legacy_menu_button method retained for reference (MenuButton's live visit path uses apsk_make_menu_button). All migrated widgets in §6 use the facade path."
+    },
+    {
+      "check_id": "bridge.no-raw-appkit-for-migrated-widgets",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I2-raw-appkit.log"],
+      "notes": "Zero raw NSButton/NSSwitch/etc class lookups found in appkit_renderer.cr. All migrated AppKit visit methods route through apsk_make_* facades."
+    },
+    {
+      "check_id": "bridge.facades-called-for-each-widget",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I3-typed-wrapper-matrix.log"],
+      "notes": "38 distinct apsk_make_* call sites per renderer (uikit and appkit), covering every §6 widget including ListView (added in Remediation 2) and GlassBackground. Identical widget set in both renderers."
+    },
+    {
+      "check_id": "bridge.objc-msg-send-conventions",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I4.log"],
+      "notes": "Architect-adjudicated PASS (carry-forward from iter 2/3). Implementer used typed `fun apsk_make_*` declarations in `LibSwiftKitBridge` instead of the raw `objc_send_ulong_ret_id` symbol named in §7.3 of implementation.md. Per §7.4 (which supersedes §7.3), the typed wrapper IS the canonical pattern. 38 apsk_make_* calls confirmed in each renderer."
+    },
+    {
+      "check_id": "callback.registry-exports-trampoline",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I5.log"],
+      "notes": "callback_registry.cr line 50: `fun ap_swiftkit_invoke_action(token : UInt64, value : Float64) : Void`. Lines 326/332/346: register_action, register_action_with_value, invoke_swiftkit (the rubric's `invoke` — renamed for clarity, semantically equivalent)."
+    },
+    {
+      "check_id": "swiftkit.overrides-class-per-widget",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I6.log"],
+      "notes": "41 files in Overrides/ directory. Every §6 widget has a matching *Overrides.swift file including ListView (added in Remediation 2). Coverage cross-checked vs facade inventory."
+    },
+    {
+      "check_id": "swiftkit.facade-class-per-widget",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I7-facade-inventory.log"],
+      "notes": "39 Facade.swift files. Every §6 widget has a *Facade.swift with at least one @objc public static func make* method (cross-checked via I8 host call count)."
+    },
+    {
+      "check_id": "swiftkit.common-modifiers-helper-applied",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I8.log"],
+      "notes": "Every facade (39 files) has at least one `CommonModifiers.apply` and at least one `HostingHelpers.host` call. ButtonFacade has 2 applies (variants for tinted vs default); GlassBackgroundFacade has 2 hosts (light/dark fallback paths); TextFieldFacade has 2 hosts (text+secure variants)."
+    },
+    {
+      "check_id": "swiftkit.glass-uses-glass-effect",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I9.log"],
+      "notes": "GlassBackgroundFacade.swift line 37: `if #available(iOS 26.0, macOS 26.0, *)` wraps `.glassEffect()` call (line 45 — the canonical iOS 26 SwiftUICore modifier, semantically equivalent to `.glassBackgroundEffect()`). Else branch uses `.background(material)` with material switch on overrides.material (thin/regular/thick/ultraThin/ultraThick) — line 49-62. Both branches present and correctly guarded."
+    },
+    {
+      "check_id": "swiftkit.runtime-init-call-site",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I10.log"],
+      "notes": "Architect-adjudicated PASS (carry-forward from iter 2/3). The action trampoline install happens via renderer-internal `ensure_swiftkit_runtime!` (uikit_renderer.cr line 4571, appkit_renderer.cr line 4535) called from each renderer's `render(...)` entry point (uikit line 182, appkit line 165). This is idempotent and more robust than per-sample-startup install. The samples themselves do not call APSKRuntime directly — the renderer ensures install on first render."
+    },
+    {
+      "check_id": "swiftkit.no-leak-of-hosting-controller",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I11.log"],
+      "notes": "HostingHelpers.swift line 106: `objc_setAssociatedObject(...)` with `.OBJC_ASSOCIATION_RETAIN_NONATOMIC` (line 110). Hosting controller retained for the lifetime of the returned view."
+    },
+    {
+      "check_id": "bridge.default-nil-propagation",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I12.log"],
+      "notes": "swiftkit_overrides.cr populate_view_common (line 115-155) shows the default-nil guard pattern for every base property: corner_radius == 0.0 ? nil, opacity == 1.0 ? nil, hidden ? true : nil, padding == 0.0 ? nil (per-edge), border_width == 0.0 ? nil, shadow_radius == 0.0 ? nil, shadow_offset_{x,y} == 0.0 ? nil. The guard logic is centralized in the populator (better than per-visit-method) and exercised by 104 passing swiftkit_overrides specs."
+    },
+    {
+      "check_id": "bridge.no-todo-fixme-in-migrated-code",
+      "required": false,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["inspections/I13.log"],
+      "notes": "Zero TODO/FIXME/XXX matches across swift/AssetPipelineSwiftKit/Sources/ + uikit_renderer.cr + appkit_renderer.cr."
+    },
+    {
+      "check_id": "action.button-tap-fires-handler-ios",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap, not env. Env is now provisioned (iOS 26.3 sim booted, CrystalHIGHost.app installed and launched on UDID A517D070). However, the rubric drives this check via slug `phase-03-action-tap-probe` which does not exist anywhere in samples/cross_platform/ios_host/. Validator cannot author probe slugs per orchestrator directive (no modifying src/, swift/, samples/). The probe code was never authored by the implementer — needs remediation dispatch or Phase 7 deferral."
+    },
+    {
+      "check_id": "action.button-tap-fires-handler-macos",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. macOS sample binary runs and produces screenshots (samples/macos-launch.png), AXTest framework is wired (spec/ui/hig_validation/), but slug `phase-03-action-tap-probe` does not exist in hig_showcase.cr. Probe code was never authored."
+    },
+    {
+      "check_id": "bridge.value-callback-toggle-ios",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-toggle-value-probe` does not exist."
+    },
+    {
+      "check_id": "bridge.value-callback-slider-ios",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-slider-value-probe` does not exist."
+    },
+    {
+      "check_id": "bridge.override-rerender-runtime",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-runtime-override-probe` does not exist. Per rubric BX5 implementer-dependency clause: 'If `phase-03-runtime-override-probe` does not already exist ... mark this check blocked: true.' Honored."
+    },
+    {
+      "check_id": "bridge.hosted-form-children-nonzero",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-form-nested-buttons` does not exist."
+    },
+    {
+      "check_id": "bridge.hosted-form-children-nonzero-macos",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Same `phase-03-form-nested-buttons` slug. macOS AXTest spec was never authored."
+    },
+    {
+      "check_id": "bridge.dismiss-returns-focus",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-sheet-focus-return` does not exist; dismiss-reason mirror label not in source."
+    },
+    {
+      "check_id": "bridge.touch-target-minimum-measured",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — depends on V1 slug + XCUITest harness that does not exist."
+    },
+    {
+      "check_id": "bridge.dark-mode-tint-shifts-measured",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — depends on V1 light + dark captures that depend on `phase-03-button-default` slug."
+    },
+    {
+      "check_id": "bridge.action-token-collision-no-op",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/BX11.log"],
+      "notes": "spec/ui/renderers/swiftkit/callback_registry_swiftkit_spec.cr line 52 calls `UI::CallbackRegistry.invoke_swiftkit(99_999_u64, 0.0)` and asserts no exception. Line 62 covers token==0 short-circuit. 8 examples pass. spec/ui/native/callback_registry_spec.cr line 66/104 cover unknown-ID no-op for the underlying registries. 25 + 8 examples pass; total registry coverage."
+    },
+    {
+      "check_id": "bridge.runtime-init-order-enforced",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log", "samples/macos-launch.log", "samples/ios-launch.png"],
+      "notes": "PARTIALLY OBSERVED: macOS hig_showcase launches cleanly without dyld errors, renders, and produces screenshots — empirically confirming Crystal-runtime-then-SwiftKit-trampoline install order works on macOS. iOS CrystalHIGHost.app launches in the simulator (PID 83042) and produces a launch screenshot without crashing — same empirical confirmation. However, the rubric requires capturing os_log streams and asserting trampoline-installed log line precedes first facade call, which requires the never-authored Log.info instrumentation. Marked blocked on the strict rubric criterion despite positive empirical signal."
+    },
+    {
+      "check_id": "swiftui.button-default-renders-ios",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-button-default` not in iOS host source. (Snapshot-test baseline default_button_ios.png exists in swift package tests and the corresponding swift test passes — but the live-sample screenshot capture path is unimplemented.)"
+    },
+    {
+      "check_id": "swiftui.button-default-renders-macos",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-button-default` not in macOS hig_showcase.cr. (Snapshot-test default_button_macos.png exists and the swift test passes; live-sample capture unimplemented.)"
+    },
+    {
+      "check_id": "swiftui.button-background-override",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-button-background-override` not authored. (Swift snapshot baseline background_override_ios.png exists.)"
+    },
+    {
+      "check_id": "swiftui.button-corner-radius-zero",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-button-square` not authored. (Swift snapshot baseline corner_radius_zero_ios.png exists.)"
+    },
+    {
+      "check_id": "swiftui.toggle-default-renders",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-toggle-default` not authored."
+    },
+    {
+      "check_id": "swiftui.glass-cascade-ios26",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log", "inspections/I9.log"],
+      "notes": "BLOCKED — substance gap on live sample. Slug `phase-03-card-default` not authored. The cascade is structurally verified (I9 confirms `if #available(iOS 26.0, macOS 26.0, *)` wraps `.glassEffect()` with `.background(material)` fallback) and the Swift snapshot baseline glass_default_ios26.png is committed and passes — but the rubric also wants a live-simulator capture diffed against an iOS 18 baseline, which requires the slug + a non-iOS-26 simulator."
+    },
+    {
+      "check_id": "swiftui.tabview-child-rendering",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Both `phase-03-button-default` standalone capture and the TabView-child scene are unimplemented."
+    },
+    {
+      "check_id": "swiftui.form-default-renders",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Slug `phase-03-form-default` not authored."
+    },
+    {
+      "check_id": "swiftui.dynamic-type-respected",
+      "required": false,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — optional check; same root cause. Slug `phase-03-button-default` at XXXL category not implemented. Optional check does not affect verdict."
+    },
+    {
+      "check_id": "swiftui.dark-mode-tracking",
+      "required": true,
+      "passed": false,
+      "blocked": true,
+      "evidence": ["inspections/BX-V-probe-gap.log"],
+      "notes": "BLOCKED — substance gap. Depends on V1 light + dark captures."
+    },
+    {
+      "check_id": "spec.overrides-population-button",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S1.log"],
+      "notes": "spec/ui/renderers/swiftkit/button_overrides_spec.cr — 22 examples, 0 failures. Covers default-detection of every UI::View base property + UI::Button specifics."
+    },
+    {
+      "check_id": "spec.overrides-population-toggle",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S2.log"],
+      "notes": "Architect-adjudicated PASS (carry-forward from iter 2/3): `toggle_overrides_spec.cr` literal file absent; coverage lives in spec/ui/renderers/swiftkit/group1_overrides_spec.cr `describe \"#populate_toggle\"`. 24 examples in group1 pass."
+    },
+    {
+      "check_id": "spec.default-detection-invariant",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S3.log"],
+      "notes": "Architect-adjudicated PASS (carry-forward from iter 2/3): `default_detection_spec.cr` literal file absent; the invariant is exhaustively covered structurally across button_overrides_spec.cr, group1_overrides_spec.cr, group3_overrides_spec.cr, glass_background_overrides_spec.cr, list_view_overrides_spec.cr, objc_setter_selector_spec.cr — 104 examples, 0 failures spanning Button + Toggle + Label + VStack + Card + GlassBackground + ListView."
+    },
+    {
+      "check_id": "spec.callback-registry",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S4.log"],
+      "notes": "spec/ui/native/callback_registry_spec.cr — 25 examples, 0 failures, covering register/call (no-arg, string, bool, float, int, time), unregister, unknown-ID no-op. Plus spec/ui/renderers/swiftkit/callback_registry_swiftkit_spec.cr — 8 examples covering invoke_swiftkit including unknown token."
+    },
+    {
+      "check_id": "spec.swift-overrides-propagation",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S5.log"],
+      "notes": "Architect-adjudicated PASS (carry-forward from iter 2/3): cross-cutting common-field grid framing is cleanup; per-widget coverage in OverridesPropagationTests.swift — 24 tests, 0 failures."
+    },
+    {
+      "check_id": "spec.swift-snapshot-tests",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S6.log", "inspections/S6-baseline-inventory.log"],
+      "notes": "SnapshotTests.swift — 5 tests, 0 failures. All 5 required baselines committed: default_button_ios.png, default_button_macos.png, background_override_ios.png, corner_radius_zero_ios.png, glass_default_ios26.png."
+    },
+    {
+      "check_id": "spec.runtime-bridge",
+      "required": true,
+      "passed": true,
+      "blocked": false,
+      "evidence": ["test_output/S7.log"],
+      "notes": "RuntimeBridgeTests.swift — 9 tests, 0 failures. Confirms APSKRuntime.initialize(actionTrampoline:) stores the pointer and CallbackBridge.fire invokes it."
+    }
+  ],
+  "summary": "27 of 49 required checks pass (Build 9/9, Inspection 12/12, Spec 7/7, BX 2/12, V 0/9 required). Build, inspection, and spec groups are fully green: macOS sample binary builds and runs producing screenshots, iOS app builds and launches on the iOS 26.3 iPhone 17 Pro simulator, all 38 Swift tests pass, all 104 swiftkit Crystal specs pass, all structural inspections pass with 5 architect-adjudicated PASSes carrying forward. The 22 remaining FAILs (10 BX + 9 V required + 3 V/BX optional treated as blocked) all share a single root cause: the rubric's required slug names (`phase-03-action-tap-probe`, `phase-03-toggle-value-probe`, `phase-03-slider-value-probe`, `phase-03-runtime-override-probe`, `phase-03-form-nested-buttons`, `phase-03-sheet-focus-return`, `phase-03-button-default`, `phase-03-button-background-override`, `phase-03-button-square`, `phase-03-toggle-default`, `phase-03-card-default`, `phase-03-form-default`) do not exist in the iOS or macOS sample sources. The implementer never authored the probe scenes; the validator cannot author them per orchestrator directive. The env-provisioning that the owner authorized (crystal-alpha installed, iOS 26.3 sim booted, both sample binaries built and runnable) did successfully clear what could be cleared — both samples now produce screenshots — but the underlying substance gap (probe scenes never written) remains and is the genuine blocker. Architect-attention: this is a substance gap that needs either an implementer remediation dispatch to author the 12 probe slugs + matching XCUITest/AXTest spec files, OR an architect adjudication that defers the live-sample behavior probes to Phase 7 (visual-regression automation) per the iter-3 architect recommendation (treating the in-package Swift snapshot tests + structural inspection + 104 unit specs as sufficient proof of bridge correctness for Phase 3 sign-off)."
+}

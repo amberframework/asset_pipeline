@@ -1,0 +1,20 @@
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_background_override_ios]' passed (0.045 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_corner_radius_zero_ios]' passed (0.005 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_ios]' passed (0.003 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_default_button_macos]' passed (0.003 seconds).
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' started.
+Test Case '-[AssetPipelineSwiftKitTests.SnapshotTests test_glass_default_ios26]' passed (0.006 seconds).
+Test Suite 'SnapshotTests' passed at 2026-05-22 16:00:51.323.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.064 (0.064) seconds
+Test Suite 'AssetPipelineSwiftKitPackageTests.xctest' passed at 2026-05-22 16:00:51.323.
+	 Executed 53 tests, with 0 failures (0 unexpected) in 2.625 (2.638) seconds
+Test Suite 'All tests' passed at 2026-05-22 16:00:51.323.
+	 Executed 53 tests, with 0 failures (0 unexpected) in 2.625 (2.640) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

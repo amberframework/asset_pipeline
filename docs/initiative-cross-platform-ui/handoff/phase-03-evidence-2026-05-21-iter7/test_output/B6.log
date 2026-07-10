@@ -1,0 +1,475 @@
+In spec/components/cache/cache_warmer_spec.cr:113:25
+
+ 113 | start_time = Time.monotonic
+                         ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/cache/cache_warmer_spec.cr:115:23
+
+ 115 | duration = Time.monotonic - start_time
+                       ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:88:18
+
+ 88 | start = Time.monotonic
+                   ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:90:22
+
+ 90 | duration1 = Time.monotonic - start
+                       ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:93:18
+
+ 93 | start = Time.monotonic
+                   ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:95:22
+
+ 95 | duration2 = Time.monotonic - start
+                       ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:117:18
+
+ 117 | start = Time.monotonic
+                    ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:119:22
+
+ 119 | duration1 = Time.monotonic - start
+                        ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:122:18
+
+ 122 | start = Time.monotonic
+                    ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase3_verification_spec.cr:124:22
+
+ 124 | duration2 = Time.monotonic - start
+                        ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase6_final_verification_spec.cr:84:18
+
+ 84 | start = Time.monotonic
+                   ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase6_final_verification_spec.cr:86:22
+
+ 86 | duration1 = Time.monotonic - start
+                       ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase6_final_verification_spec.cr:89:18
+
+ 89 | start = Time.monotonic
+                   ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+In spec/components/phase6_final_verification_spec.cr:91:22
+
+ 91 | duration2 = Time.monotonic - start
+                       ^--------
+Warning: Deprecated Time.monotonic. Use `Time.instant` instead.
+
+A total of 14 warnings were found.
+..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................F.........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................F..FF.................
+
+Failures:
+
+  1) UI::Theme web renderer inject_theme_css returns empty string with no theme
+     Failure/Error: renderer.inject_theme_css.should eq("")
+
+       Expected: ""
+            got: "<style>\n" +
+       ":root {\n" +
+       "  --md-sys-color-primary: rgba(165, 76, 1, 1.0);\n" +
+       "  --md-sys-color-on-primary: rgba(253, 252, 249, 1.0);\n" +
+       "  --md-sys-color-primary-container: rgba(1, 192, 185, 1.0);\n" +
+       "  --md-sys-color-on-primary-container: rgba(11, 18, 25, 1.0);\n" +
+       "  --md-sys-color-secondary: rgba(48, 84, 174, 1.0);\n" +
+       "  --md-sys-color-on-secondary: rgba(253, 252, 249, 1.0);\n" +
+       "  --md-sys-color-secondary-container: rgba(217, 230, 245, 1.0);\n" +
+       "  --md-sys-color-on-secondary-container: rgba(26, 41, 61, 1.0);\n" +
+       "  --md-sys-color-tertiary: rgba(1, 192, 185, 1.0);\n" +
+       "  --md-sys-color-on-tertiary: rgba(253, 252, 249, 1.0);\n" +
+       "  --md-sys-color-tertiary-container: rgba(235, 222, 255, 1.0);\n" +
+       "  --md-sys-color-on-tertiary-container: rgba(41, 20, 64, 1.0);\n" +
+       "  --md-sys-color-error: rgba(162, 8, 12, 1.0);\n" +
+       "  --md-sys-color-on-error: rgba(255, 255, 255, 1.0);\n" +
+       "  --md-sys-color-error-container: rgba(250, 222, 222, 1.0);\n" +
+       "  --md-sys-color-on-error-container: rgba(64, 0, 0, 1.0);\n" +
+       "  --md-sys-color-background: rgba(253, 250, 243, 1.0);\n" +
+       "  --md-sys-color-on-background: rgba(11, 18, 25, 1.0);\n" +
+       "  --md-sys-color-surface: rgba(255, 255, 255, 1.0);\n" +
+       "  --md-sys-color-on-surface: rgba(11, 18, 25, 1.0);\n" +
+       "  --md-sys-color-surface-variant: rgba(244, 239, 232, 1.0);\n" +
+       "  --md-sys-color-on-surface-variant: rgba(55, 68, 81, 1.0);\n" +
+       "  --md-sys-color-outline: rgba(149, 131, 108, 1.0);\n" +
+       "  --md-sys-color-outline-variant: rgba(203, 195, 181, 1.0);\n" +
+       "  --md-sys-color-inverse-surface: rgba(48, 48, 56, 1.0);\n" +
+       "  --md-sys-color-inverse-on-surface: rgba(240, 240, 245, 1.0);\n" +
+       "  --md-sys-typescale-body-font: var(--ap-font-sans);\n" +
+       "  --md-sys-typescale-body-size: 16.0px;\n" +
+       "  --md-sys-typescale-title-size: 22.0px;\n" +
+       "  --md-sys-typescale-headline-size: 34.0px;\n" +
+       "  --md-sys-typescale-caption-size: 12.5px;\n" +
+       "  --md-sys-shape-corner-small: 8.0px;\n" +
+       "  --md-sys-shape-corner-medium: 12.0px;\n" +
+       "  --md-sys-shape-corner-large: 16.0px;\n" +
+       "}\n" +
+       "/* GENERATED by UI::DesignTokens::WebGenerator. Do not edit by hand. */\n" +
+       ":root {\n" +
+       "  color-scheme: light dark;\n" +
+       "\n" +
+       "  /* colors — canonical OKLCH plus baked RGB fallback */\n" +
+       "  --ap-color-brand-primary: oklch(0.520 0.160 50.00);\n" +
+       "  --ap-color-brand-primary-rgb: 165 76 1;\n" +
+       "  --ap-color-brand-primary-hover: oklch(0.470 0.170 48.00);\n" +
+       "  --ap-color-brand-primary-hover-rgb: 146 63 0;\n" +
+       "  --ap-color-brand-primary-active: oklch(0.400 0.150 46.00);\n" +
+       "  --ap-color-brand-primary-active-rgb: 118 47 1;\n" +
+       "  --ap-color-brand-secondary: oklch(0.470 0.150 265.00);\n" +
+       "  --ap-color-brand-secondary-rgb: 48 84 174;\n" +
+       "  --ap-color-brand-accent: oklch(0.730 0.150 190.00);\n" +
+       "  --ap-color-brand-accent-rgb: 1 192 185;\n" +
+       "  --ap-color-surface-canvas: oklch(0.985 0.009 82.00);\n" +
+       "  --ap-color-surface-canvas-rgb: 253 250 243;\n" +
+       "  --ap-color-surface-panel: oklch(1.000 0.000 0.00);\n" +
+       "  --ap-color-surface-panel-rgb: 255 255 255;\n" +
+       "  --ap-color-surface-elevated: oklch(0.995 0.003 80.00);\n" +
+       "  --ap-color-surface-elevated-rgb: 254 253 251;\n" +
+       "  --ap-color-surface-sunken: oklch(0.955 0.011 79.00);\n" +
+       "  --ap-color-surface-sunken-rgb: 244 239 232;\n" +
+       "  --ap-color-surface-inverse: oklch(0.180 0.018 248.00);\n" +
+       "  --ap-color-surface-inverse-rgb: 11 18 25;\n" +
+       "  --ap-color-text-primary: oklch(0.180 0.018 248.00);\n" +
+       "  --ap-color-text-primary-rgb: 11 18 25;\n" +
+       "  --ap-color-text-secondary: oklch(0.380 0.028 248.00);\n" +
+       "  --ap-color-text-secondary-rgb: 55 68 81;\n" +
+       "  --ap-color-text-muted: oklch(0.520 0.025 248.00);\n" +
+       "  --ap-color-text-muted-rgb: 94 107 119;\n" +
+       "  --ap-color-text-inverse: oklch(0.990 0.003 80.00);\n" +
+       "  --ap-color-text-inverse-rgb: 253 252 249;\n" +
+       "  --ap-color-text-link: oklch(0.500 0.130 235.00);\n" +
+       "  --ap-color-text-link-rgb: 0 108 151;\n" +
+       "  --ap-color-border-subtle: oklch(0.910 0.014 82.00);\n" +
+       "  --ap-color-border-subtle-rgb: 230 225 215;\n" +
+       "  --ap-color-border-default: oklch(0.820 0.021 82.00);\n" +
+       "  --ap-color-border-default-rgb: 203 195 181;\n" +
+       "  --ap-color-border-strong: oklch(0.620 0.040 75.00);\n" +
+       "  --ap-color-border-strong-rgb: 149 131 108;\n" +
+       "  --ap-color-border-focus: oklch(0.660 0.150 50.00 / 0.58);\n" +
+       "  --ap-color-border-focus-rgb: 217 114 48;\n" +
+       "  --ap-color-success: oklch(0.470 0.120 155.00);\n" +
+       "  --ap-color-success-rgb: 1 109 60;\n" +
+       "  --ap-color-warning: oklch(0.580 0.150 75.00);\n" +
+       "  --ap-color-warning-rgb: 164 110 1;\n" +
+       "  --ap-color-danger: oklch(0.450 0.180 28.00);\n" +
+       "  --ap-color-danger-rgb: 162 8 12;\n" +
+       "  --ap-color-info: oklch(0.480 0.130 235.00);\n" +
+       "  --ap-color-info-rgb: 3 101 142;\n" +
+       "\n" +
+       "  /* spacing — rem */\n" +
+       "  --ap-space-px: 1px;\n" +
+       "  --ap-space-0: 0rem;\n" +
+       "  --ap-space-0_5: 0.125rem;\n" +
+       "  --ap-space-1: 0.25rem;\n" +
+       "  --ap-space-1_5: 0.375rem;\n" +
+       "  --ap-space-2: 0.5rem;\n" +
+       "  --ap-space-2_5: 0.625rem;\n" +
+       "  --ap-space-3: 0.75rem;\n" +
+       "  --ap-space-3_5: 0.875rem;\n" +
+       "  --ap-space-4: 1rem;\n" +
+       "  --ap-space-5: 1.25rem;\n" +
+       "  --ap-space-6: 1.5rem;\n" +
+       "  --ap-space-7: 1.75rem;\n" +
+       "  --ap-space-8: 2rem;\n" +
+       "  --ap-space-9: 2.25rem;\n" +
+       "  --ap-space-10: 2.5rem;\n" +
+       "  --ap-space-11: 2.75rem;\n" +
+       "  --ap-space-12: 3rem;\n" +
+       "  --ap-space-14: 3.5rem;\n" +
+       "  --ap-space-16: 4rem;\n" +
+       "  --ap-space-20: 5rem;\n" +
+       "  --ap-space-24: 6rem;\n" +
+       "  --ap-space-28: 7rem;\n" +
+       "  --ap-space-32: 8rem;\n" +
+       "  --ap-space-36: 9rem;\n" +
+       "  --ap-space-40: 10rem;\n" +
+       "  --ap-space-44: 11rem;\n" +
+       "  --ap-space-48: 12rem;\n" +
+       "  --ap-space-52: 13rem;\n" +
+       "  --ap-space-56: 14rem;\n" +
+       "  --ap-space-60: 15rem;\n" +
+       "  --ap-space-64: 16rem;\n" +
+       "  --ap-space-72: 18rem;\n" +
+       "  --ap-space-80: 20rem;\n" +
+       "  --ap-space-96: 24rem;\n" +
+       "\n" +
+       "  /* type */\n" +
+       "  --ap-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n" +
+       "  --ap-font-display: Newsreader, Georgia, ui-serif, serif;\n" +
+       "  --ap-font-mono: ui-monospace, SFMono-Regular, \"SF Mono\", Consolas, monospace;\n" +
+       "  --ap-type-caption-size: 0.78125rem;\n" +
+       "  --ap-type-caption-line-height: 1.4;\n" +
+       "  --ap-type-caption-weight: 450;\n" +
+       "  --ap-type-caption-tracking: 0em;\n" +
+       "  --ap-type-body-size: 1rem;\n" +
+       "  --ap-type-body-line-height: 1.55;\n" +
+       "  --ap-type-body-weight: 450;\n" +
+       "  --ap-type-body-tracking: 0em;\n" +
+       "  --ap-type-body-emph-size: 1rem;\n" +
+       "  --ap-type-body-emph-line-height: 1.55;\n" +
+       "  --ap-type-body-emph-weight: 600;\n" +
+       "  --ap-type-body-emph-tracking: 0em;\n" +
+       "  --ap-type-title-size: 1.375rem;\n" +
+       "  --ap-type-title-line-height: 1.3;\n" +
+       "  --ap-type-title-weight: 600;\n" +
+       "  --ap-type-title-tracking: 0em;\n" +
+       "  --ap-type-headline-size: 2.125rem;\n" +
+       "  --ap-type-headline-line-height: 1.2;\n" +
+       "  --ap-type-headline-weight: 720;\n" +
+       "  --ap-type-headline-tracking: 0em;\n" +
+       "  --ap-type-display-size: 3rem;\n" +
+       "  --ap-type-display-line-height: 1.05;\n" +
+       "  --ap-type-display-weight: 720;\n" +
+       "  --ap-type-display-tracking: -0.01em;\n" +
+       "\n" +
+       "  /* radius */\n" +
+       "  --ap-radius-none: 0rem;\n" +
+       "  --ap-radius-xs: 0.25rem;\n" +
+       "  --ap-radius-sm: 0.125rem;\n" +
+       "  --ap-radius-md: 0.375rem;\n" +
+       "  --ap-radius-lg: 0.5rem;\n" +
+       "  --ap-radius-xl: 0.75rem;\n" +
+       "  --ap-radius-2xl: 1rem;\n" +
+       "  --ap-radius-card: 0.625rem;\n" +
+       "  --ap-radius-sheet: 0.875rem;\n" +
+       "  --ap-radius-avatar: 1.875rem;\n" +
+       "  --ap-radius-avatar-lg: 3.75rem;\n" +
+       "  --ap-radius-pill: 9999px;\n" +
+       "\n" +
+       "  /* shadow */\n" +
+       "  --ap-shadow-flat: none;\n" +
+       "  --ap-shadow-raised: 0rem 0.0625rem 0.125rem oklch(0.000 0.000 0.00 / 0.08), 0rem 0.5rem 1.5rem oklch(0.180 0.020 248.00 / 0.08);\n" +
+       "  --ap-shadow-floating: 0rem 1rem 2.625rem oklch(0.180 0.020 248.00 / 0.16);\n" +
+       "  --ap-shadow-overlay: 0rem 1.5rem 5rem oklch(0.180 0.020 248.00 / 0.22);\n" +
+       "\n" +
+       "  /* motion */\n" +
+       "  --ap-motion-duration-instant: 80ms;\n" +
+       "  --ap-motion-duration-fast: 150ms;\n" +
+       "  --ap-motion-duration-base: 240ms;\n" +
+       "  --ap-motion-duration-slow: 420ms;\n" +
+       "  --ap-motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);\n" +
+       "  --ap-motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);\n" +
+       "  --ap-motion-spring: linear(0, 0.35 25%, 1.08 70%, 1);\n" +
+       "\n" +
+       "  /* breakpoints — informational; actual breakpoints live in @media rules */\n" +
+       "  --ap-bp-sm: 640px;\n" +
+       "  --ap-bp-md: 768px;\n" +
+       "  --ap-bp-lg: 1024px;\n" +
+       "  --ap-bp-xl: 1280px;\n" +
+       "  --ap-bp-2xl: 1536px;\n" +
+       "\n" +
+       "  --ap-touch-target-min: 44px;\n" +
+       "}\n" +
+       "\n" +
+       "@media (prefers-color-scheme: dark) {\n" +
+       "  :root {\n" +
+       "    /* colors — canonical OKLCH plus baked RGB fallback */\n" +
+       "    --ap-color-brand-primary: oklch(0.780 0.170 58.00);\n" +
+       "    --ap-color-brand-primary-rgb: 255 156 71;\n" +
+       "    --ap-color-brand-primary-hover: oklch(0.840 0.150 60.00);\n" +
+       "    --ap-color-brand-primary-hover-rgb: 255 186 129;\n" +
+       "    --ap-color-brand-primary-active: oklch(0.700 0.180 54.00);\n" +
+       "    --ap-color-brand-primary-active-rgb: 239 122 2;\n" +
+       "    --ap-color-brand-secondary: oklch(0.750 0.120 265.00);\n" +
+       "    --ap-color-brand-secondary-rgb: 137 172 250;\n" +
+       "    --ap-color-brand-accent: oklch(0.800 0.140 190.00);\n" +
+       "    --ap-color-brand-accent-rgb: 2 217 209;\n" +
+       "    --ap-color-surface-canvas: oklch(0.150 0.025 260.00);\n" +
+       "    --ap-color-surface-canvas-rgb: 6 11 22;\n" +
+       "    --ap-color-surface-panel: oklch(0.200 0.024 260.00);\n" +
+       "    --ap-color-surface-panel-rgb: 16 22 33;\n" +
+       "    --ap-color-surface-elevated: oklch(0.250 0.028 260.00);\n" +
+       "    --ap-color-surface-elevated-rgb: 26 34 47;\n" +
+       "    --ap-color-surface-sunken: oklch(0.120 0.022 260.00);\n" +
+       "    --ap-color-surface-sunken-rgb: 3 6 14;\n" +
+       "    --ap-color-surface-inverse: oklch(0.950 0.006 80.00);\n" +
+       "    --ap-color-surface-inverse-rgb: 241 238 234;\n" +
+       "    --ap-color-text-primary: oklch(0.950 0.006 80.00);\n" +
+       "    --ap-color-text-primary-rgb: 241 238 234;\n" +
+       "    --ap-color-text-secondary: oklch(0.780 0.015 85.00);\n" +
+       "    --ap-color-text-secondary-rgb: 188 183 173;\n" +
+       "    --ap-color-text-muted: oklch(0.650 0.018 85.00);\n" +
+       "    --ap-color-text-muted-rgb: 148 143 131;\n" +
+       "    --ap-color-text-inverse: oklch(0.180 0.018 248.00);\n" +
+       "    --ap-color-text-inverse-rgb: 11 18 25;\n" +
+       "    --ap-color-text-link: oklch(0.770 0.100 225.00);\n" +
+       "    --ap-color-text-link-rgb: 102 194 228;\n" +
+       "    --ap-color-border-subtle: oklch(0.310 0.020 248.00);\n" +
+       "    --ap-color-border-subtle-rgb: 40 49 58;\n" +
+       "    --ap-color-border-default: oklch(0.380 0.025 248.00);\n" +
+       "    --ap-color-border-default-rgb: 56 68 79;\n" +
+       "    --ap-color-border-strong: oklch(0.520 0.030 248.00);\n" +
+       "    --ap-color-border-strong-rgb: 92 107 122;\n" +
+       "    --ap-color-border-focus: oklch(0.750 0.140 58.00 / 0.62);\n" +
+       "    --ap-color-border-focus-rgb: 239 149 75;\n" +
+       "    --ap-color-success: oklch(0.720 0.140 153.00);\n" +
+       "    --ap-color-success-rgb: 83 189 122;\n" +
+       "    --ap-color-warning: oklch(0.800 0.150 78.00);\n" +
+       "    --ap-color-warning-rgb: 242 176 54;\n" +
+       "    --ap-color-danger: oklch(0.720 0.180 28.00);\n" +
+       "    --ap-color-danger-rgb: 255 114 100;\n" +
+       "    --ap-color-info: oklch(0.720 0.120 235.00);\n" +
+       "    --ap-color-info-rgb: 76 176 229;\n" +
+       "  }\n" +
+       "}\n" +
+       "\n" +
+       "[data-ap-theme=\"light\"] {\n" +
+       "  /* colors — canonical OKLCH plus baked RGB fallback */\n" +
+       "  --ap-color-brand-primary: oklch(0.520 0.160 50.00);\n" +
+       "  --ap-color-brand-primary-rgb: 165 76 1;\n" +
+       "  --ap-color-brand-primary-hover: oklch(0.470 0.170 48.00);\n" +
+       "  --ap-color-brand-primary-hover-rgb: 146 63 0;\n" +
+       "  --ap-color-brand-primary-active: oklch(0.400 0.150 46.00);\n" +
+       "  --ap-color-brand-primary-active-rgb: 118 47 1;\n" +
+       "  --ap-color-brand-secondary: oklch(0.470 0.150 265.00);\n" +
+       "  --ap-color-brand-secondary-rgb: 48 84 174;\n" +
+       "  --ap-color-brand-accent: oklch(0.730 0.150 190.00);\n" +
+       "  --ap-color-brand-accent-rgb: 1 192 185;\n" +
+       "  --ap-color-surface-canvas: oklch(0.985 0.009 82.00);\n" +
+       "  --ap-color-surface-canvas-rgb: 253 250 243;\n" +
+       "  --ap-color-surface-panel: oklch(1.000 0.000 0.00);\n" +
+       "  --ap-color-surface-panel-rgb: 255 255 255;\n" +
+       "  --ap-color-surface-elevated: oklch(0.995 0.003 80.00);\n" +
+       "  --ap-color-surface-elevated-rgb: 254 253 251;\n" +
+       "  --ap-color-surface-sunken: oklch(0.955 0.011 79.00);\n" +
+       "  --ap-color-surface-sunken-rgb: 244 239 232;\n" +
+       "  --ap-color-surface-inverse: oklch(0.180 0.018 248.00);\n" +
+       "  --ap-color-surface-inverse-rgb: 11 18 25;\n" +
+       "  --ap-color-text-primary: oklch(0.180 0.018 248.00);\n" +
+       "  --ap-color-text-primary-rgb: 11 18 25;\n" +
+       "  --ap-color-text-secondary: oklch(0.380 0.028 248.00);\n" +
+       "  --ap-color-text-secondary-rgb: 55 68 81;\n" +
+       "  --ap-color-text-muted: oklch(0.520 0.025 248.00);\n" +
+       "  --ap-color-text-muted-rgb: 94 107 119;\n" +
+       "  --ap-color-text-inverse: oklch(0.990 0.003 80.00);\n" +
+       "  --ap-color-text-inverse-rgb: 253 252 249;\n" +
+       "  --ap-color-text-link: oklch(0.500 0.130 235.00);\n" +
+       "  --ap-color-text-link-rgb: 0 108 151;\n" +
+       "  --ap-color-border-subtle: oklch(0.910 0.014 82.00);\n" +
+       "  --ap-color-border-subtle-rgb: 230 225 215;\n" +
+       "  --ap-color-border-default: oklch(0.820 0.021 82.00);\n" +
+       "  --ap-color-border-default-rgb: 203 195 181;\n" +
+       "  --ap-color-border-strong: oklch(0.620 0.040 75.00);\n" +
+       "  --ap-color-border-strong-rgb: 149 131 108;\n" +
+       "  --ap-color-border-focus: oklch(0.660 0.150 50.00 / 0.58);\n" +
+       "  --ap-color-border-focus-rgb: 217 114 48;\n" +
+       "  --ap-color-success: oklch(0.470 0.120 155.00);\n" +
+       "  --ap-color-success-rgb: 1 109 60;\n" +
+       "  --ap-color-warning: oklch(0.580 0.150 75.00);\n" +
+       "  --ap-color-warning-rgb: 164 110 1;\n" +
+       "  --ap-color-danger: oklch(0.450 0.180 28.00);\n" +
+       "  --ap-color-danger-rgb: 162 8 12;\n" +
+       "  --ap-color-info: oklch(0.480 0.130 235.00);\n" +
+       "  --ap-color-info-rgb: 3 101 142;\n" +
+       "}\n" +
+       "\n" +
+       "[data-ap-theme=\"dark\"] {\n" +
+       "  /* colors — canonical OKLCH plus baked RGB fallback */\n" +
+       "  --ap-color-brand-primary: oklch(0.780 0.170 58.00);\n" +
+       "  --ap-color-brand-primary-rgb: 255 156 71;\n" +
+       "  --ap-color-brand-primary-hover: oklch(0.840 0.150 60.00);\n" +
+       "  --ap-color-brand-primary-hover-rgb: 255 186 129;\n" +
+       "  --ap-color-brand-primary-active: oklch(0.700 0.180 54.00);\n" +
+       "  --ap-color-brand-primary-active-rgb: 239 122 2;\n" +
+       "  --ap-color-brand-secondary: oklch(0.750 0.120 265.00);\n" +
+       "  --ap-color-brand-secondary-rgb: 137 172 250;\n" +
+       "  --ap-color-brand-accent: oklch(0.800 0.140 190.00);\n" +
+       "  --ap-color-brand-accent-rgb: 2 217 209;\n" +
+       "  --ap-color-surface-canvas: oklch(0.150 0.025 260.00);\n" +
+       "  --ap-color-surface-canvas-rgb: 6 11 22;\n" +
+       "  --ap-color-surface-panel: oklch(0.200 0.024 260.00);\n" +
+       "  --ap-color-surface-panel-rgb: 16 22 33;\n" +
+       "  --ap-color-surface-elevated: oklch(0.250 0.028 260.00);\n" +
+       "  --ap-color-surface-elevated-rgb: 26 34 47;\n" +
+       "  --ap-color-surface-sunken: oklch(0.120 0.022 260.00);\n" +
+       "  --ap-color-surface-sunken-rgb: 3 6 14;\n" +
+       "  --ap-color-surface-inverse: oklch(0.950 0.006 80.00);\n" +
+       "  --ap-color-surface-inverse-rgb: 241 238 234;\n" +
+       "  --ap-color-text-primary: oklch(0.950 0.006 80.00);\n" +
+       "  --ap-color-text-primary-rgb: 241 238 234;\n" +
+       "  --ap-color-text-secondary: oklch(0.780 0.015 85.00);\n" +
+       "  --ap-color-text-secondary-rgb: 188 183 173;\n" +
+       "  --ap-color-text-muted: oklch(0.650 0.018 85.00);\n" +
+       "  --ap-color-text-muted-rgb: 148 143 131;\n" +
+       "  --ap-color-text-inverse: oklch(0.180 0.018 248.00);\n" +
+       "  --ap-color-text-inverse-rgb: 11 18 25;\n" +
+       "  --ap-color-text-link: oklch(0.770 0.100 225.00);\n" +
+       "  --ap-color-text-link-rgb: 102 194 228;\n" +
+       "  --ap-color-border-subtle: oklch(0.310 0.020 248.00);\n" +
+       "  --ap-color-border-subtle-rgb: 40 49 58;\n" +
+       "  --ap-color-border-default: oklch(0.380 0.025 248.00);\n" +
+       "  --ap-color-border-default-rgb: 56 68 79;\n" +
+       "  --ap-color-border-strong: oklch(0.520 0.030 248.00);\n" +
+       "  --ap-color-border-strong-rgb: 92 107 122;\n" +
+       "  --ap-color-border-focus: oklch(0.750 0.140 58.00 / 0.62);\n" +
+       "  --ap-color-border-focus-rgb: 239 149 75;\n" +
+       "  --ap-color-success: oklch(0.720 0.140 153.00);\n" +
+       "  --ap-color-success-rgb: 83 189 122;\n" +
+       "  --ap-color-warning: oklch(0.800 0.150 78.00);\n" +
+       "  --ap-color-warning-rgb: 242 176 54;\n" +
+       "  --ap-color-danger: oklch(0.720 0.180 28.00);\n" +
+       "  --ap-color-danger-rgb: 255 114 100;\n" +
+       "  --ap-color-info: oklch(0.720 0.120 235.00);\n" +
+       "  --ap-color-info-rgb: 76 176 229;\n" +
+       "}\n" +
+       "</style>\n"
+
+     # spec/ui/views_spec.cr:3249
+
+  2) Phase 2 Verification - Core Component System demonstrates component composition
+     Failure/Error: rendered.should contain("btn btn-primary")
+
+       Expected:   "<main><h1>Welcome to Components</h1>&lt;div class=&quot;am-card&quot; data-component=&quot;card&quot; data-state=&quot;default&quot;&gt;&lt;div class=&quot;am-card__body&quot;&gt;&lt;h3 class=&quot;am-card__title&quot;&gt;Feature Card&lt;/h3&gt;&lt;p class=&quot;am-card__subtitle&quot;&gt;Reusable component&lt;/p&gt;&lt;div class=&quot;am-card__content&quot;&gt;This card is a reusable component built from elements.&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;am-button am-button--brand am-button--solid am-button--md&quot; data-state=&quot;default&quot; data-tone=&quot;brand&quot; data-emphasis=&quot;solid&quot;&gt;Primary Action&lt;/button&gt; &lt;button type=&quot;button&quot; class=&quot;am-button am-button--neutral am-button--solid am-button--md&quot; data-state=&quot;default&quot; data-tone=&quot;neutral&quot; data-emphasis=&quot;solid&quot;&gt;Secondary Action&lt;/button&gt;</main>"
+       to include: "btn btn-primary"
+
+     # spec/components/phase2_verification_spec.cr:86
+
+  3) Phase 2 Verification - Core Component System components can be nested within components
+     Failure/Error: rendered.should contain("btn btn-info btn-small")
+
+       Expected:   "<div class=\"dashboard-card\">&lt;div class=&quot;am-card&quot; data-component=&quot;card&quot; data-state=&quot;default&quot;&gt;&lt;div class=&quot;am-card__body&quot;&gt;&lt;h3 class=&quot;am-card__title&quot;&gt;Sales Report&lt;/h3&gt;&lt;p class=&quot;am-card__subtitle&quot;&gt;Q4 2025&lt;/p&gt;&lt;div class=&quot;am-card__content&quot;&gt;&amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;am-button am-button--info am-button--solid am-button--sm&amp;quot; data-state=&amp;quot;default&amp;quot; data-tone=&amp;quot;info&amp;quot; data-emphasis=&amp;quot;solid&amp;quot;&amp;gt;View Details&amp;lt;/button&amp;gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</div>"
+       to include: "btn btn-info btn-small"
+
+     # spec/components/phase2_verification_spec.cr:126
+
+  4) Phase 2 Verification - Core Component System achieves the component system goals
+     Failure/Error: counter.render.should contain("<div class=\"counter-component\">")
+
+       Expected:   "<div class=\"am-counter\"><div class=\"am-counter__display\"><span class=\"am-counter__label\">Count: </span><span class=\"counter-value am-counter__value\">0</span></div><div class=\"am-counter__controls\"><button type=\"button\" class=\"am-button am-button--neutral am-button--outline am-button--sm\" data-action=\"click-&gt;decrement\">-</button> <button type=\"button\" class=\"am-button am-button--brand am-button--solid am-button--sm\" data-action=\"click-&gt;increment\">+</button> <button type=\"button\" class=\"am-button am-button--warning am-button--soft am-button--sm\" data-action=\"click-&gt;reset\">Reset</button></div></div>"
+       to include: "<div class=\"counter-component\">"
+
+     # spec/components/phase2_verification_spec.cr:143
+
+Finished in 5.38 seconds
+1330 examples, 4 failures, 0 errors, 0 pending
+
+Failed examples:
+
+crystal spec spec/ui/views_spec.cr:3247 # UI::Theme web renderer inject_theme_css returns empty string with no theme
+crystal spec spec/components/phase2_verification_spec.cr:52 # Phase 2 Verification - Core Component System demonstrates component composition
+crystal spec spec/components/phase2_verification_spec.cr:116 # Phase 2 Verification - Core Component System components can be nested within components
+crystal spec spec/components/phase2_verification_spec.cr:129 # Phase 2 Verification - Core Component System achieves the component system goals

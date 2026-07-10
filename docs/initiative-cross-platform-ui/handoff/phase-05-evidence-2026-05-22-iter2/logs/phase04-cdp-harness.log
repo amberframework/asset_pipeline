@@ -1,0 +1,30 @@
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-375-light.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_action_sheet_demo-375-dark.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.action-sheet-axe-clean.json
+[phase04_cdp_harness] probe: fallback.action-sheet-ibm-equal-access-clean
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.action-sheet-ibm-equal-access-clean.json
+[phase04_cdp_harness] probe: focus.context-menu-keyboard-nav
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/inspections/focus.context-menu-keyboard-nav.json
+[phase04_cdp_harness] probe: focus.context-menu-outside-click-closes
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/inspections/focus.context-menu-outside-click-closes.json
+[phase04_cdp_harness] probe: conformance.context-menu-positioning
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/inspections/conformance.context-menu-positioning-top-left.json
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/inspections/conformance.context-menu-positioning-center.json
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/inspections/conformance.context-menu-positioning-bottom-right.json
+[phase04_cdp_harness] probe: fallback.context-menu-axe-clean
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-1280-light.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-1280-dark.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-375-light.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-375-dark.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.context-menu-axe-clean.json
+[phase04_cdp_harness] probe: fallback.context-menu-ibm-equal-access-clean
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.context-menu-ibm-equal-access-clean.json
+[phase04_cdp_harness] probe: fallback.path-control-axe-clean (supplementary)
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_path_control_demo-1280-light.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_path_control_demo-1280-dark.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_path_control_demo-375-light.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_path_control_demo-375-dark.png
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.path-control-axe-clean.json
+[phase04_cdp_harness] probe: fallback.path-control-ibm-equal-access-clean (supplementary)
+[phase04_cdp_harness]   wrote docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/audits/fallback.path-control-ibm-equal-access-clean.json
+[phase04_cdp_harness] DONE. any_failed=false

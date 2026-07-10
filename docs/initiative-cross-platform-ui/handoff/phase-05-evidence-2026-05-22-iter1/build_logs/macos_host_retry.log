@@ -1,0 +1,11 @@
+crystal-alpha build hig_showcase.cr -o bin/hig_showcase -Dmacos \
+		--link-flags="/Users/crimsonknight/open_source_coding_projects/asset_pipeline/src/ui/native/objc_bridge.o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/src/ui/native/swiftkit_bridge.o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/macos_host/window_helper.o -Wl,-force_load,/Users/crimsonknight/open_source_coding_projects/asset_pipeline/swift/AssetPipelineSwiftKit/.build/release/libAssetPipelineSwiftKit.a -framework AppKit -framework Foundation -framework SwiftUI -framework Combine -framework ApplicationServices -framework CoreFoundation -framework CoreGraphics -framework ImageIO -framework QuartzCore -framework UserNotifications -framework WebKit -framework MapKit -framework CoreLocation -framework AVKit -framework AVFoundation -lobjc -Wl,-rpath,/usr/lib/swift"
+ld: warning: ignoring duplicate libraries: '-lobjc'
+[codesign] Signing bin/hig_showcase with: Developer ID Application: AgentC Consulting LLC (PXDF92M2T4)
+bin/hig_showcase: replacing existing signature
+bin/hig_showcase: valid on disk
+bin/hig_showcase: satisfies its Designated Requirement
+# Note: hardened runtime (--options runtime) is intentionally NOT enabled.
+# The binary loads homebrew dylibs (libssl, libcrypto) signed by their own
+# teams; hardened runtime would reject them as "different Team IDs."
+# Hardened runtime is required for notarized distribution, not dev tools.

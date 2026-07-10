@@ -1,0 +1,10 @@
+src/ui/renderers/appkit_renderer.cr:139:      # trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`. The
+src/ui/renderers/appkit_renderer.cr:165:        ensure_swiftkit_runtime!
+src/ui/renderers/appkit_renderer.cr:221:      # `render(...)` / `ensure_swiftkit_runtime!`).
+src/ui/renderers/appkit_renderer.cr:252:        #    APSKRuntime invokes `ap_swiftkit_invoke_action(token, 0.0)` on
+src/ui/renderers/appkit_renderer.cr:4574:      private def ensure_swiftkit_runtime! : Nil
+src/ui/renderers/uikit_renderer.cr:159:      # action trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`.
+src/ui/renderers/uikit_renderer.cr:182:        ensure_swiftkit_runtime!
+src/ui/renderers/uikit_renderer.cr:229:      # (see `render(...)` / `ensure_swiftkit_runtime!`).
+src/ui/renderers/uikit_renderer.cr:4637:      # `UI::AppKit::Renderer#ensure_swiftkit_runtime!` — see that method
+src/ui/renderers/uikit_renderer.cr:4640:      private def ensure_swiftkit_runtime! : Nil

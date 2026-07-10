@@ -1,0 +1,50 @@
+    t =    17.54s         Find the "sheet-content" Other
+    t =    17.56s         Find the "sheet-content" Other
+    t =    17.57s         Find the "sheet-content" Other
+    t =    19.52s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =    20.90s Checking `Expect predicate `exists == 0` for object "sheet-primary" Button`
+    t =    20.90s     Checking existence of `"sheet-primary" Button`
+    t =    21.23s Find the "dismiss-reason" StaticText
+    t =    21.42s Added attachment named 'BX8-after-swipe.png'
+    t =    21.42s Added attachment named 'BX8-dismiss-matrix.json'
+    t =    21.42s Checking existence of `"sheet-trigger" Button`
+    t =    21.43s Find the "sheet-trigger" Button
+    t =    21.45s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX8_sheetDismissReturnsFocus]' passed (21.725 seconds).
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum]' started.
+    t =     0.00s Start Test at 2026-05-22 16:05:24.927
+    t =     0.03s Set Up
+    t =     0.04s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Terminate com.assetpipeline.hig.CrystalHIGHost:68361
+2026-05-22 16:05:26.051 xcodebuild[66585:6263091] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-22 16:05:26.051 xcodebuild[66585:6263091] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.34s         Setting up automation session
+    t =     2.16s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.39s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.44s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.44s         Checking existence of `"hig-component-root" Other`
+    t =     4.49s Waiting 5.0s for "save" Button to exist
+    t =     5.54s     Checking `Expect predicate `existsNoRetry == 1` for object "save" Button`
+    t =     5.54s         Checking existence of `"save" Button`
+    t =     5.56s Find the "save" Button
+    t =     5.73s Added attachment named 'BX9-default-button.png'
+    t =     5.73s Added attachment named 'BX9-frame.json'
+    t =     5.73s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum]' passed (5.939 seconds).
+Test Suite 'Phase03BehaviorTests' passed at 2026-05-22 16:05:30.866.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 97.876 (97.888) seconds
+Test Suite 'CrystalHIGHostUITests.xctest' passed at 2026-05-22 16:05:30.867.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 97.876 (97.889) seconds
+Test Suite 'Selected tests' passed at 2026-05-22 16:05:30.868.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 97.876 (97.890) seconds
+2026-05-22 16:05:45.156 xcodebuild[66585:6263091] [MT] IDETestOperationsObserverDebug: 134.930 elapsed -- Testing started completed.
+2026-05-22 16:05:45.156 xcodebuild[66585:6263091] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-05-22 16:05:45.156 xcodebuild[66585:6263091] [MT] IDETestOperationsObserverDebug: 134.930 sec, +134.930 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/crimsonknight/Library/Developer/Xcode/DerivedData/CrystalHIGHost-gyyltlmtfuuxregachzydskezilk/Logs/Test/Test-CrystalHIGHost-2026.05.22_16-03-28--0400.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

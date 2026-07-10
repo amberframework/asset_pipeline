@@ -1,0 +1,22 @@
+name: kilt
+version: 0.6.1
+crystal: '< 2.0.0'
+
+authors:
+  - Jerome Gravel-Niquet <jeromegn@gmail.com>
+
+license: MIT
+
+development_dependencies:
+  slang:
+    github: jeromegn/slang
+  crustache:
+    github: MakeNowJust/crustache
+  temel:
+    github: f/temel
+  liquid:
+    github: TechMagister/liquid.cr
+  jbuilder:
+    github: shootingfly/jbuilder
+  water:
+    github: shootingfly/water

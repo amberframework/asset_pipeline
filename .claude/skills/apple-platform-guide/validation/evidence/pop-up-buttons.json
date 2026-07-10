@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.201952+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-17T13:38:08.976557+00:00",
+    "path": "reports/pop-up-buttons.md",
+    "sha256": "c7c84cded0bd60ed5391c83266bd17909bd7a2c73d5acddb03eba5e4bef9d949",
+    "size_bytes": 8151
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T13:09:46.249587+00:00",
+      "path": "screenshots/pop-up-buttons-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "3f0524ea6fddc1374711f079cac4aa49fb694f3ec876e58c01c96acc6cfcaea4",
+      "size_bytes": 118451
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-17T13:09:20.320971+00:00",
+      "path": "screenshots/pop-up-buttons-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "0547638199e03bfee76d7660ad0d324bbd0ccb275257181f42b436a7b78fe1e8",
+      "size_bytes": 119052
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T12:34:22.338431+00:00",
+      "path": "screenshots/pop-up-buttons-macos-dark.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "4cd187a039d2041b491590a55915827b16fa35210a9ef328c9f860f8d13fc145",
+      "size_bytes": 38515
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-17T12:34:21.494677+00:00",
+      "path": "screenshots/pop-up-buttons-macos-light.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "30acfa9012ba91a9f89579151dd471d5b330eeff7a43f49c68a7d539122bb252",
+      "size_bytes": 37630
+    }
+  },
+  "slug": "pop-up-buttons",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

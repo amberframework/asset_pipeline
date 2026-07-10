@@ -1,0 +1,12 @@
+Showing last frame. Use --error-trace for full trace.
+
+In /opt/homebrew/Cellar/crystal/1.20.0/share/crystal/src/crystal/system/unix/epoll.cr:1:1
+
+ 1 | require "c/sys/epoll"
+     ^
+Error: can't find file 'c/sys/epoll'
+
+If you're trying to require a shard:
+- Did you remember to run `shards install`?
+- Did you make sure you're running the compiler in the same directory as your shard.yml?
+EXIT: 1

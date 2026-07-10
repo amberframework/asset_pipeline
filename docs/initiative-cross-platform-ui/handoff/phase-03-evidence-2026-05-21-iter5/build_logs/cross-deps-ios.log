@@ -1,0 +1,1624 @@
+==> Building for iOS Device (arm64-apple-ios17.0)
+  -> Cloning https://github.com/ivmai/bdwgc.git -> /tmp/crystal-cross-deps/src/bdwgc
+Cloning into '/tmp/crystal-cross-deps/src/bdwgc'...
+Note: switching to 'e340b2e869e02718de9c9d7fa440ef4b35785388'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+  -> Fetching libatomic_ops submodule
+  -> Running autogen in bdwgc
+glibtoolize: putting auxiliary files in '.'.
+glibtoolize: copying file './ltmain.sh'
+glibtoolize: putting macros in AC_CONFIG_MACRO_DIRS, 'm4'.
+glibtoolize: copying file 'm4/libtool.m4'
+glibtoolize: copying file 'm4/ltoptions.m4'
+glibtoolize: copying file 'm4/ltsugar.m4'
+glibtoolize: copying file 'm4/ltversion.m4'
+glibtoolize: copying file 'm4/lt~obsolete.m4'
+configure.ac:395: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:395: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:395: the top level
+configure.ac:401: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:401: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:401: the top level
+configure.ac:414: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:414: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:414: the top level
+configure.ac:446: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:446: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:446: the top level
+configure.ac:578: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:578: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:578: the top level
+configure.ac:644: warning: The macro 'AC_PROG_LIBTOOL' is obsolete.
+configure.ac:644: You should run autoupdate.
+m4/libtool.m4:100: AC_PROG_LIBTOOL is expanded from...
+configure.ac:644: the top level
+configure.ac:800: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:800: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:800: the top level
+configure.ac:814: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:814: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+configure.ac:814: the top level
+configure.ac:830: warning: The macro 'AC_TRY_LINK' is obsolete.
+configure.ac:830: You should run autoupdate.
+./lib/autoconf/general.m4:2918: AC_TRY_LINK is expanded from...
+configure.ac:830: the top level
+configure.ac:838: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:838: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+configure.ac:838: the top level
+configure.ac:838: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:838: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:690: _AS_IF_ELSE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+./lib/autoconf/general.m4:2821: _AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2837: AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+configure.ac:838: the top level
+configure.ac:838: warning: The macro 'AC_TRY_COMPILE' is obsolete.
+configure.ac:838: You should run autoupdate.
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:690: _AS_IF_ELSE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+./lib/autoconf/general.m4:2821: _AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2837: AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:690: _AS_IF_ELSE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+./lib/autoconf/general.m4:2821: _AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2837: AC_COMPILE_IFELSE is expanded from...
+./lib/autoconf/general.m4:2845: AC_TRY_COMPILE is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+configure.ac:838: the top level
+configure.ac:1089: warning: The macro 'AC_TRY_RUN' is obsolete.
+configure.ac:1089: You should run autoupdate.
+./lib/autoconf/general.m4:2995: AC_TRY_RUN is expanded from...
+configure.ac:1089: the top level
+configure.ac:1155: warning: The macro 'AC_TRY_LINK' is obsolete.
+configure.ac:1155: You should run autoupdate.
+./lib/autoconf/general.m4:2918: AC_TRY_LINK is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+configure.ac:1155: the top level
+configure.ac:1155: warning: The macro 'AC_TRY_LINK' is obsolete.
+configure.ac:1155: You should run autoupdate.
+./lib/autoconf/general.m4:2918: AC_TRY_LINK is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+lib/m4sugar/m4sh.m4:697: AS_IF is expanded from...
+configure.ac:1155: the top level
+configure.ac:32: installing './compile'
+configure.ac:22: installing './config.guess'
+configure.ac:22: installing './config.sub'
+configure.ac:25: installing './install-sh'
+configure.ac:25: installing './missing'
+Makefile.am: installing './depcomp'
+parallel-tests: installing './test-driver'
+
+Ready to run './configure'.
+  -> Configuring libgc for aarch64-apple-darwin
+checking build system type... aarch64-apple-darwin25.5.0
+checking host system type... aarch64-apple-darwin
+checking target system type... aarch64-apple-darwin
+checking GC version numbers... major=8 minor=2                 micro=6
+checking for a BSD-compatible install... /opt/homebrew/bin/ginstall -c
+checking whether sleep supports fractional seconds... yes
+checking filesystem timestamp resolution... 2
+checking whether build environment is sane... yes
+checking for aarch64-apple-darwin-strip... no
+checking for strip... strip
+checking for a race-free mkdir -p... /opt/homebrew/bin/gmkdir -p
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking xargs -n works... yes
+checking whether UID '501' is supported by ustar format... yes
+checking whether GID '20' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking whether make supports the include directive... yes (GNU style)
+checking for aarch64-apple-darwin-gcc... xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk accepts -g... yes
+checking for xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk option to enable C11 features... none needed
+checking whether xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk understands -c and -o together... yes
+checking dependency style of xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk... gcc3
+checking for aarch64-apple-darwin-g++... no
+checking for aarch64-apple-darwin-c++... no
+checking for aarch64-apple-darwin-gpp... no
+checking for aarch64-apple-darwin-aCC... no
+checking for aarch64-apple-darwin-CC... no
+checking for aarch64-apple-darwin-cxx... no
+checking for aarch64-apple-darwin-cc++... no
+checking for aarch64-apple-darwin-cl.exe... no
+checking for aarch64-apple-darwin-FCC... no
+checking for aarch64-apple-darwin-KCC... no
+checking for aarch64-apple-darwin-RCC... no
+checking for aarch64-apple-darwin-xlC_r... no
+checking for aarch64-apple-darwin-xlC... no
+checking for aarch64-apple-darwin-clang++... no
+checking for g++... g++
+configure: WARNING: using cross tools not prefixed with host triplet
+checking whether the compiler supports GNU C++... yes
+checking whether g++ accepts -g... yes
+checking for g++ option to enable C++11 features... none needed
+checking dependency style of g++... gcc3
+checking dependency style of xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk... gcc3
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking for BSD- or MS-compatible name lister (nm)... no
+checking for aarch64-apple-darwin-dumpbin... no
+checking for aarch64-apple-darwin-link... no
+checking for dumpbin... no
+checking for link... link -dump
+checking the name lister (nm) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 786432
+checking how to convert aarch64-apple-darwin25.5.0 file names to aarch64-apple-darwin format... func_convert_file_noop
+checking how to convert aarch64-apple-darwin25.5.0 file names to toolchain format... func_convert_file_noop
+checking for /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld option to reload object files... -r
+checking for file... file
+checking for aarch64-apple-darwin-objdump... no
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for aarch64-apple-darwin-dlltool... no
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for aarch64-apple-darwin-ranlib... no
+checking for ranlib... ranlib
+checking for aarch64-apple-darwin-ar... no
+checking for ar... ar
+checking for archiver @FILE support... no
+checking for aarch64-apple-darwin-strip... strip
+checking command to parse nm output from xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk object... ok
+checking for sysroot... no
+checking for a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd bs=4096 count=1
+checking for aarch64-apple-darwin-mt... no
+checking for mt... no
+checking if : is a manifest tool... no
+checking for aarch64-apple-darwin-dsymutil... no
+checking for dsymutil... dsymutil
+checking for aarch64-apple-darwin-nmedit... no
+checking for nmedit... nmedit
+checking for aarch64-apple-darwin-lipo... no
+checking for lipo... lipo
+checking for aarch64-apple-darwin-otool... no
+checking for otool... otool
+checking for aarch64-apple-darwin-otool64... no
+checking for otool64... no
+checking for -single_module linker flag... ld: warning: -single_module is obsolete
+no
+checking for -no_fixup_chains linker flag... yes
+checking for -exported_symbols_list linker flag... yes
+checking for -force_load linker flag... yes
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk supports -fno-rtti -fno-exceptions... yes
+checking for xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk option to produce PIC... -fno-common -DPIC
+checking if xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk PIC flag -fno-common -DPIC works... yes
+checking if xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk static flag -static works... no
+checking if xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk supports -c -o file.o... yes
+checking if xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk supports -c -o file.o... (cached) yes
+checking whether the xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... darwin dyld
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... g++ -E
+checking for ld used by g++... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking for g++ option to produce PIC... -fno-common -DPIC
+checking if g++ PIC flag -fno-common -DPIC works... yes
+checking if g++ static flag -static works... no
+checking if g++ supports -c -o file.o... yes
+checking if g++ supports -c -o file.o... (cached) yes
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... darwin dyld
+checking how to hardcode library paths into programs... immediate
+checking for emscripten... no
+checking for inline... inline
+checking for clock_gettime without additional libraries... yes
+checking whether compiler supports -Wextra... yes
+checking whether compiler supports -Wpedantic... yes
+checking for xlc... no
+checking whether compiler supports -fno-strict-aliasing... yes
+checking for getcontext... yes
+checking for dl_iterate_phdr... no
+checking for execinfo.h... yes
+checking whether to build shared libraries... no
+checking which machine-dependent code should be used... 
+checking whether AIX gcc optimization fix is necessary... no
+checking whether -Wno-frame-address works... yes
+checking for dladdr... yes
+checking for sigsetjmp... yes
+checking for sys/dg_sys_info.h... no
+checking which libatomic_ops to use... none
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating bdw-gc.pc
+config.status: creating include/config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing default commands
+  -> Building libgc for aarch64-apple-darwin (-j10)
+depbase=`echo allchblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT allchblk.lo -MD -MP -MF $depbase.Tpo -c -o allchblk.lo /tmp/crystal-cross-deps/src/bdwgc/allchblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo alloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT alloc.lo -MD -MP -MF $depbase.Tpo -c -o alloc.lo /tmp/crystal-cross-deps/src/bdwgc/alloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo blacklst.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT blacklst.lo -MD -MP -MF $depbase.Tpo -c -o blacklst.lo /tmp/crystal-cross-deps/src/bdwgc/blacklst.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo dbg_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT dbg_mlc.lo -MD -MP -MF $depbase.Tpo -c -o dbg_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/dbg_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo dyn_load.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT dyn_load.lo -MD -MP -MF $depbase.Tpo -c -o dyn_load.lo /tmp/crystal-cross-deps/src/bdwgc/dyn_load.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo finalize.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT finalize.lo -MD -MP -MF $depbase.Tpo -c -o finalize.lo /tmp/crystal-cross-deps/src/bdwgc/finalize.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo gc_dlopen.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT gc_dlopen.lo -MD -MP -MF $depbase.Tpo -c -o gc_dlopen.lo /tmp/crystal-cross-deps/src/bdwgc/gc_dlopen.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo headers.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT headers.lo -MD -MP -MF $depbase.Tpo -c -o headers.lo /tmp/crystal-cross-deps/src/bdwgc/headers.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo mach_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mach_dep.lo -MD -MP -MF $depbase.Tpo -c -o mach_dep.lo /tmp/crystal-cross-deps/src/bdwgc/mach_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo malloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT malloc.lo -MD -MP -MF $depbase.Tpo -c -o malloc.lo /tmp/crystal-cross-deps/src/bdwgc/malloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT headers.lo -MD -MP -MF .deps/headers.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/headers.c -o headers.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT finalize.lo -MD -MP -MF .deps/finalize.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/finalize.c -o finalize.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT dyn_load.lo -MD -MP -MF .deps/dyn_load.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/dyn_load.c -o dyn_load.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT blacklst.lo -MD -MP -MF .deps/blacklst.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/blacklst.c -o blacklst.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT alloc.lo -MD -MP -MF .deps/alloc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/alloc.c -o alloc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mach_dep.lo -MD -MP -MF .deps/mach_dep.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mach_dep.c -o mach_dep.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT dbg_mlc.lo -MD -MP -MF .deps/dbg_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/dbg_mlc.c -o dbg_mlc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT malloc.lo -MD -MP -MF .deps/malloc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/malloc.c -o malloc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT allchblk.lo -MD -MP -MF .deps/allchblk.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/allchblk.c -o allchblk.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT gc_dlopen.lo -MD -MP -MF .deps/gc_dlopen.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/gc_dlopen.c -o gc_dlopen.o
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1329:11: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1329 |     sec = GC_GETSECTBYNAME(hdr, GC_dyld_sections[i].seg,
+      |           ^~~~~~~~~~~~~~~~
+      |           use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1359:13: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1359 |       sec = GC_GETSECTBYNAME(hdr, SEG_DATA, secnam);
+      |             ^~~~~~~~~~~~~~~~
+      |             use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1393:11: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1393 |     sec = GC_GETSECTBYNAME(hdr, GC_dyld_sections[i].seg,
+      |           ^~~~~~~~~~~~~~~~
+      |           use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1417:13: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1417 |       sec = GC_GETSECTBYNAME(hdr, SEG_DATA, secnam);
+      |             ^~~~~~~~~~~~~~~~
+      |             use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+depbase=`echo mallocx.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mallocx.lo -MD -MP -MF $depbase.Tpo -c -o mallocx.lo /tmp/crystal-cross-deps/src/bdwgc/mallocx.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo mark.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mark.lo -MD -MP -MF $depbase.Tpo -c -o mark.lo /tmp/crystal-cross-deps/src/bdwgc/mark.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+4 warnings generated.
+depbase=`echo mark_rts.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mark_rts.lo -MD -MP -MF $depbase.Tpo -c -o mark_rts.lo /tmp/crystal-cross-deps/src/bdwgc/mark_rts.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo misc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT misc.lo -MD -MP -MF $depbase.Tpo -c -o misc.lo /tmp/crystal-cross-deps/src/bdwgc/misc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo new_hblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT new_hblk.lo -MD -MP -MF $depbase.Tpo -c -o new_hblk.lo /tmp/crystal-cross-deps/src/bdwgc/new_hblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo obj_map.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT obj_map.lo -MD -MP -MF $depbase.Tpo -c -o obj_map.lo /tmp/crystal-cross-deps/src/bdwgc/obj_map.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo os_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT os_dep.lo -MD -MP -MF $depbase.Tpo -c -o os_dep.lo /tmp/crystal-cross-deps/src/bdwgc/os_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo ptr_chck.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT ptr_chck.lo -MD -MP -MF $depbase.Tpo -c -o ptr_chck.lo /tmp/crystal-cross-deps/src/bdwgc/ptr_chck.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo reclaim.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT reclaim.lo -MD -MP -MF $depbase.Tpo -c -o reclaim.lo /tmp/crystal-cross-deps/src/bdwgc/reclaim.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo specific.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT specific.lo -MD -MP -MF $depbase.Tpo -c -o specific.lo /tmp/crystal-cross-deps/src/bdwgc/specific.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mark.lo -MD -MP -MF .deps/mark.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mark.c -o mark.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mallocx.lo -MD -MP -MF .deps/mallocx.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mallocx.c -o mallocx.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT misc.lo -MD -MP -MF .deps/misc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/misc.c -o misc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mark_rts.lo -MD -MP -MF .deps/mark_rts.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mark_rts.c -o mark_rts.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT os_dep.lo -MD -MP -MF .deps/os_dep.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/os_dep.c -o os_dep.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT obj_map.lo -MD -MP -MF .deps/obj_map.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/obj_map.c -o obj_map.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT new_hblk.lo -MD -MP -MF .deps/new_hblk.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/new_hblk.c -o new_hblk.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT specific.lo -MD -MP -MF .deps/specific.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/specific.c -o specific.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT ptr_chck.lo -MD -MP -MF .deps/ptr_chck.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/ptr_chck.c -o ptr_chck.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT reclaim.lo -MD -MP -MF .deps/reclaim.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/reclaim.c -o reclaim.o
+depbase=`echo typd_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT typd_mlc.lo -MD -MP -MF $depbase.Tpo -c -o typd_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/typd_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2137:19: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2137 |         if ((word)DATASTART - 1U >= (word)DATAEND) {
+      |                   ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2137:43: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2137 |         if ((word)DATASTART - 1U >= (word)DATAEND) {
+      |                                           ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2141:44: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2141 |                      ": %p .. %p", (void *)DATASTART, (void *)DATAEND);
+      |                                            ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2141:63: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2141 |                      ": %p .. %p", (void *)DATASTART, (void *)DATAEND);
+      |                                                               ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2143:28: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2143 |         GC_add_roots_inner(DATASTART, DATAEND, FALSE);
+      |                            ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2143:39: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2143 |         GC_add_roots_inner(DATASTART, DATAEND, FALSE);
+      |                                       ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+depbase=`echo gcj_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT gcj_mlc.lo -MD -MP -MF $depbase.Tpo -c -o gcj_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/gcj_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+6 warnings generated.
+depbase=`echo fnlz_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT fnlz_mlc.lo -MD -MP -MF $depbase.Tpo -c -o fnlz_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/fnlz_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c -o cord/libcord_la-cordbscs.lo `test -f 'cord/cordbscs.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordbscs.c
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c -o cord/libcord_la-cordprnt.lo `test -f 'cord/cordprnt.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordprnt.c
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c -o cord/libcord_la-cordxtra.lo `test -f 'cord/cordxtra.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordxtra.c
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT typd_mlc.lo -MD -MP -MF .deps/typd_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/typd_mlc.c -o typd_mlc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT gcj_mlc.lo -MD -MP -MF .deps/gcj_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/gcj_mlc.c -o gcj_mlc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT fnlz_mlc.lo -MD -MP -MF .deps/fnlz_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/fnlz_mlc.c -o fnlz_mlc.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordxtra.c -o cord/libcord_la-cordxtra.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordbscs.c -o cord/libcord_la-cordbscs.o
+libtool: compile:  xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordprnt.c -o cord/libcord_la-cordprnt.o
+/bin/sh ./libtool  --tag=CC   --mode=link xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -Wl,-single_module -version-info 6:3:5 -no-undefined -L/opt/homebrew/opt/postgresql@17/lib -o libgc.la -rpath /tmp/crystal-cross-deps/ios-device/lib allchblk.lo alloc.lo blacklst.lo dbg_mlc.lo dyn_load.lo finalize.lo gc_dlopen.lo headers.lo mach_dep.lo malloc.lo mallocx.lo mark.lo mark_rts.lo misc.lo new_hblk.lo obj_map.lo os_dep.lo ptr_chck.lo reclaim.lo specific.lo typd_mlc.lo        gcj_mlc.lo fnlz_mlc.lo     
+mv -f cord/.deps/libcord_la-cordprnt.Tpo cord/.deps/libcord_la-cordprnt.Plo
+mv -f cord/.deps/libcord_la-cordxtra.Tpo cord/.deps/libcord_la-cordxtra.Plo
+mv -f cord/.deps/libcord_la-cordbscs.Tpo cord/.deps/libcord_la-cordbscs.Plo
+libtool: link: ar cr .libs/libgc.a  allchblk.o alloc.o blacklst.o dbg_mlc.o dyn_load.o finalize.o gc_dlopen.o headers.o mach_dep.o malloc.o mallocx.o mark.o mark_rts.o misc.o new_hblk.o obj_map.o os_dep.o ptr_chck.o reclaim.o specific.o typd_mlc.o gcj_mlc.o fnlz_mlc.o
+libtool: link: ranlib .libs/libgc.a
+libtool: link: ( cd ".libs" && rm -f "libgc.la" && ln -s "../libgc.la" "libgc.la" )
+/bin/sh ./libtool  --tag=CC   --mode=link xcrun --sdk iphoneos clang -target arm64-apple-ios17.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -version-info 6:1:5 -no-undefined -L/opt/homebrew/opt/postgresql@17/lib -o libcord.la -rpath /tmp/crystal-cross-deps/ios-device/lib cord/libcord_la-cordbscs.lo cord/libcord_la-cordprnt.lo cord/libcord_la-cordxtra.lo libgc.la 
+libtool: link: ar cr .libs/libcord.a  cord/libcord_la-cordbscs.o cord/libcord_la-cordprnt.o cord/libcord_la-cordxtra.o
+libtool: link: ranlib .libs/libcord.a
+libtool: link: ( cd ".libs" && rm -f "libcord.la" && ln -s "../libcord.la" "libcord.la" )
+  -> Installing libgc to /tmp/crystal-cross-deps/ios-device
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-device/lib'
+ /bin/sh ./libtool   --mode=install /opt/homebrew/bin/ginstall -c   libgc.la libcord.la '/tmp/crystal-cross-deps/ios-device/lib'
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libgc.lai /tmp/crystal-cross-deps/ios-device/lib/libgc.la
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libcord.lai /tmp/crystal-cross-deps/ios-device/lib/libcord.la
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libgc.a /tmp/crystal-cross-deps/ios-device/lib/libgc.a
+libtool: install: chmod 644 /tmp/crystal-cross-deps/ios-device/lib/libgc.a
+libtool: install: ranlib /tmp/crystal-cross-deps/ios-device/lib/libgc.a
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libcord.a /tmp/crystal-cross-deps/ios-device/lib/libcord.a
+libtool: install: chmod 644 /tmp/crystal-cross-deps/ios-device/lib/libcord.a
+libtool: install: ranlib /tmp/crystal-cross-deps/ios-device/lib/libcord.a
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-device/include'
+ /opt/homebrew/bin/ginstall -c -m 644 /tmp/crystal-cross-deps/src/bdwgc/include/extra/gc.h '/tmp/crystal-cross-deps/ios-device/include'
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-device/lib/pkgconfig'
+ /opt/homebrew/bin/ginstall -c -m 644 bdw-gc.pc '/tmp/crystal-cross-deps/ios-device/lib/pkgconfig'
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-device/include/gc'
+ /opt/homebrew/bin/ginstall -c -m 644 /tmp/crystal-cross-deps/src/bdwgc/include/gc_gcj.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_disclaim.h /tmp/crystal-cross-deps/src/bdwgc/include/gc.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_backptr.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_config_macros.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_inline.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_mark.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_tiny_fl.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_typed.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_version.h /tmp/crystal-cross-deps/src/bdwgc/include/javaxfc.h /tmp/crystal-cross-deps/src/bdwgc/include/leak_detector.h /tmp/crystal-cross-deps/src/bdwgc/include/cord.h /tmp/crystal-cross-deps/src/bdwgc/include/cord_pos.h /tmp/crystal-cross-deps/src/bdwgc/include/ec.h '/tmp/crystal-cross-deps/ios-device/include/gc'
+  -> Cloning https://github.com/PCRE2Project/pcre2.git -> /tmp/crystal-cross-deps/src/pcre2
+Cloning into '/tmp/crystal-cross-deps/src/pcre2'...
+Note: switching to '6ae58beca071f13ccfed31d03b3f479ab520639b'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+  -> Configuring libpcre2 via cmake
+CMake Deprecation Warning at CMakeLists.txt:108 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found BZip2: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/lib/libbz2.tbd (found version "1.0.8")
+-- Looking for BZ2_bzCompressInit
+-- Looking for BZ2_bzCompressInit - found
+-- Found ZLIB: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/usr/lib/libz.tbd (found version "1.2.12")
+-- Could not find OPTIONAL package Readline
+-- Could not find OPTIONAL package Editline
+-- Looking for dirent.h
+-- Looking for dirent.h - found
+-- Looking for sys/stat.h
+-- Looking for sys/stat.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for windows.h
+-- Looking for windows.h - not found
+-- Looking for bcopy
+-- Looking for bcopy - found
+-- Looking for memfd_create
+-- Looking for memfd_create - not found
+-- Looking for memmove
+-- Looking for memmove - found
+-- Looking for secure_getenv
+-- Looking for secure_getenv - not found
+-- Looking for strerror
+-- Looking for strerror - found
+-- Performing Test HAVE_REALPATH
+-- Performing Test HAVE_REALPATH - Success
+-- Performing Test HAVE_BUILTIN_MUL_OVERFLOW
+-- Performing Test HAVE_BUILTIN_MUL_OVERFLOW - Success
+-- Performing Test HAVE_ATTRIBUTE_UNINITIALIZED
+-- Performing Test HAVE_ATTRIBUTE_UNINITIALIZED - Success
+-- Performing Test HAVE_VISIBILITY
+-- Performing Test HAVE_VISIBILITY - Success
+-- Performing Test INTEL_CET_ENABLED
+-- Performing Test INTEL_CET_ENABLED - Failed
+-- 
+-- 
+-- PCRE2-10.44 configuration summary:
+-- 
+--   Install prefix .................. : /tmp/crystal-cross-deps/ios-device
+--   C compiler ...................... : /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+--   C compiler flags ................ : -target arm64-apple-ios17.0 
+-- 
+--   Build 8 bit PCRE2 library ....... : ON
+--   Build 16 bit PCRE2 library ...... : OFF
+--   Build 32 bit PCRE2 library ...... : OFF
+--   Enable JIT compiling support .... : OFF
+--   Use SELinux allocator in JIT .... : IGNORE
+--   Enable Unicode support .......... : ON
+--   Newline char/sequence ........... : LF
+--   \R matches only ANYCRLF ......... : OFF
+--   \C is disabled .................. : OFF
+--   EBCDIC coding ................... : OFF
+--   EBCDIC coding with NL=0x25 ...... : OFF
+--   Rebuild char tables ............. : OFF
+--   Internal link size .............. : 2
+--   Maximum variable lookbehind ..... : 255
+--   Parentheses nest limit .......... : 250
+--   Heap limit ...................... : 20000000
+--   Match limit ..................... : 10000000
+--   Match depth limit ............... : MATCH_LIMIT
+--   Build shared libs ............... : OFF
+--   Build static libs ............... : ON
+--      with PIC enabled ............. : OFF
+--   Build pcre2grep ................. : OFF
+--   Enable JIT in pcre2grep ......... : ON
+--   Enable callouts in pcre2grep .... : ON
+--   Enable callout fork in pcre2grep. : ON
+--   Buffer size for pcre2grep ....... : 20480
+--   Build tests (implies pcre2test .. : OFF
+--                and pcre2grep)
+--   Link pcre2grep with libz ........ : ON
+--   Link pcre2grep with libbz2 ...... : ON
+--   Link pcre2test with libeditline . : Library not found
+--   Link pcre2test with libreadline . : Library not found
+--   Support Valgrind .................: OFF
+--   Use %zu and %td ..................: AUTO
+-- 
+-- Configuring done (2.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/crystal-cross-deps/build/pcre2-ios-device
+  -> Building libpcre2 (-j10)
+[  6%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_config.c.o
+[  6%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_auto_possess.c.o
+[  9%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_chkdint.c.o
+[ 16%] Building C object CMakeFiles/pcre2-8-static.dir/pcre2_chartables.c.o
+[ 16%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_context.c.o
+[ 19%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_error.c.o
+[ 22%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_compile.c.o
+[ 25%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_convert.c.o
+[ 29%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_dfa_match.c.o
+[ 32%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_extuni.c.o
+[ 35%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_jit_compile.c.o
+[ 38%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_find_bracket.c.o
+[ 41%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_match.c.o
+[ 45%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_maketables.c.o
+[ 48%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_newline.c.o
+[ 51%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_match_data.c.o
+[ 54%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_ord2utf.c.o
+[ 58%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_pattern_info.c.o
+[ 61%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_script_run.c.o
+[ 64%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_serialize.c.o
+[ 67%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_string_utils.c.o
+[ 70%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_study.c.o
+[ 74%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_substitute.c.o
+[ 77%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_substring.c.o
+[ 80%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_tables.c.o
+[ 83%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_valid_utf.c.o
+[ 87%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_ucd.c.o
+[ 90%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_xclass.c.o
+[ 93%] Linking C static library libpcre2-8.a
+[ 93%] Built target pcre2-8-static
+[ 96%] Building C object CMakeFiles/pcre2-posix-static.dir/src/pcre2posix.c.o
+[100%] Linking C static library libpcre2-posix.a
+[100%] Built target pcre2-posix-static
+  -> Installing libpcre2 to /tmp/crystal-cross-deps/ios-device
+-- Install configuration: ""
+-- Installing: /tmp/crystal-cross-deps/ios-device/lib/libpcre2-8.a
+-- Installing: /tmp/crystal-cross-deps/ios-device/lib/libpcre2-posix.a
+-- Installing: /tmp/crystal-cross-deps/ios-device/lib/pkgconfig/libpcre2-posix.pc
+-- Installing: /tmp/crystal-cross-deps/ios-device/lib/pkgconfig/libpcre2-8.pc
+-- Installing: /tmp/crystal-cross-deps/ios-device/bin/pcre2-config
+-- Installing: /tmp/crystal-cross-deps/ios-device/include/pcre2.h
+-- Installing: /tmp/crystal-cross-deps/ios-device/include/pcre2posix.h
+-- Installing: /tmp/crystal-cross-deps/ios-device/cmake/pcre2-config.cmake
+-- Installing: /tmp/crystal-cross-deps/ios-device/cmake/pcre2-config-version.cmake
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man1/pcre2-config.1
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man1/pcre2grep.1
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man1/pcre2test.1
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_callout_enumerate.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_code_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_code_copy_with_tables.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_code_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_compile.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_compile_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_compile_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_compile_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_config.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_convert_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_convert_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_convert_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_converted_pattern_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_dfa_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_general_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_general_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_general_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_error_message.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_mark.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_match_data_heapframes_size.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_match_data_size.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_ovector_count.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_ovector_pointer.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_get_startchar.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_compile.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_free_unused_memory.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_stack_assign.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_stack_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_jit_stack_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_maketables.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_maketables_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_data_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_data_create_from_pattern.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_match_data_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_pattern_convert.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_pattern_info.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_serialize_decode.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_serialize_encode.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_serialize_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_serialize_get_number_of_codes.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_bsr.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_character_tables.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_compile_extra_options.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_compile_recursion_guard.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_depth_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_glob_escape.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_glob_separator.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_heap_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_match_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_max_pattern_compiled_length.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_max_pattern_length.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_max_varlookbehind.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_newline.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_offset_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_parens_nest_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_recursion_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_recursion_memory_management.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_set_substitute_callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substitute.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_copy_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_copy_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_get_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_get_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_length_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_length_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_list_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_list_get.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_nametable_scan.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2_substring_number_from_name.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2api.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2build.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2compat.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2convert.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2demo.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2jit.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2limits.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2matching.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2partial.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2pattern.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2perform.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2posix.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2sample.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2serialize.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2syntax.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/man/man3/pcre2unicode.3
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/index.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2-config.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_callout_enumerate.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_code_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_code_copy_with_tables.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_code_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_compile.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_compile_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_compile_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_compile_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_config.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_convert_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_convert_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_convert_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_converted_pattern_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_dfa_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_general_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_general_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_general_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_error_message.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_mark.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_match_data_heapframes_size.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_match_data_size.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_ovector_count.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_ovector_pointer.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_get_startchar.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_compile.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_free_unused_memory.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_stack_assign.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_stack_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_jit_stack_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_maketables.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_maketables_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_data_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_data_create_from_pattern.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_match_data_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_pattern_convert.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_pattern_info.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_serialize_decode.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_serialize_encode.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_serialize_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_serialize_get_number_of_codes.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_bsr.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_character_tables.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_compile_extra_options.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_compile_recursion_guard.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_depth_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_glob_escape.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_glob_separator.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_heap_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_match_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_max_pattern_compiled_length.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_max_pattern_length.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_max_varlookbehind.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_newline.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_offset_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_parens_nest_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_recursion_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_recursion_memory_management.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_set_substitute_callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substitute.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_copy_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_copy_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_get_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_get_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_length_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_length_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_list_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_list_get.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_nametable_scan.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2_substring_number_from_name.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2api.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2build.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2compat.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2convert.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2demo.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2grep.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2jit.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2limits.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2matching.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2partial.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2pattern.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2perform.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2posix.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2sample.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2serialize.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2syntax.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2test.html
+-- Installing: /tmp/crystal-cross-deps/ios-device/share/doc/pcre2/html/pcre2unicode.html
+==> iOS Device deps ready in /tmp/crystal-cross-deps/ios-device
+-rw-r--r--  1 crimsonknight  wheel    36K May 21 12:38 /tmp/crystal-cross-deps/ios-device/lib/libcord.a
+-rw-r--r--  1 crimsonknight  wheel   214K May 21 12:38 /tmp/crystal-cross-deps/ios-device/lib/libgc.a
+-rw-r--r--  1 crimsonknight  wheel   543K May 21 12:38 /tmp/crystal-cross-deps/ios-device/lib/libpcre2-8.a
+-rw-r--r--  1 crimsonknight  wheel   5.8K May 21 12:38 /tmp/crystal-cross-deps/ios-device/lib/libpcre2-posix.a
+==> Building for iOS Simulator (arm64-apple-ios17.0-simulator)
+  -> Source already present: /tmp/crystal-cross-deps/src/bdwgc (skipping clone)
+  -> Fetching libatomic_ops submodule
+  -> Configuring libgc for aarch64-apple-darwin
+checking build system type... aarch64-apple-darwin25.5.0
+checking host system type... aarch64-apple-darwin
+checking target system type... aarch64-apple-darwin
+checking GC version numbers... major=8 minor=2                 micro=6
+checking for a BSD-compatible install... /opt/homebrew/bin/ginstall -c
+checking whether sleep supports fractional seconds... yes
+checking filesystem timestamp resolution... 2
+checking whether build environment is sane... yes
+checking for aarch64-apple-darwin-strip... no
+checking for strip... strip
+checking for a race-free mkdir -p... /opt/homebrew/bin/gmkdir -p
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking xargs -n works... yes
+checking whether UID '501' is supported by ustar format... yes
+checking whether GID '20' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking whether make supports the include directive... yes (GNU style)
+checking for aarch64-apple-darwin-gcc... xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk accepts -g... yes
+checking for xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk option to enable C11 features... none needed
+checking whether xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk understands -c and -o together... yes
+checking dependency style of xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk... gcc3
+checking for aarch64-apple-darwin-g++... no
+checking for aarch64-apple-darwin-c++... no
+checking for aarch64-apple-darwin-gpp... no
+checking for aarch64-apple-darwin-aCC... no
+checking for aarch64-apple-darwin-CC... no
+checking for aarch64-apple-darwin-cxx... no
+checking for aarch64-apple-darwin-cc++... no
+checking for aarch64-apple-darwin-cl.exe... no
+checking for aarch64-apple-darwin-FCC... no
+checking for aarch64-apple-darwin-KCC... no
+checking for aarch64-apple-darwin-RCC... no
+checking for aarch64-apple-darwin-xlC_r... no
+checking for aarch64-apple-darwin-xlC... no
+checking for aarch64-apple-darwin-clang++... no
+checking for g++... g++
+configure: WARNING: using cross tools not prefixed with host triplet
+checking whether the compiler supports GNU C++... yes
+checking whether g++ accepts -g... yes
+checking for g++ option to enable C++11 features... none needed
+checking dependency style of g++... gcc3
+checking dependency style of xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk... gcc3
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking for BSD- or MS-compatible name lister (nm)... no
+checking for aarch64-apple-darwin-dumpbin... no
+checking for aarch64-apple-darwin-link... no
+checking for dumpbin... no
+checking for link... link -dump
+checking the name lister (nm) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 786432
+checking how to convert aarch64-apple-darwin25.5.0 file names to aarch64-apple-darwin format... func_convert_file_noop
+checking how to convert aarch64-apple-darwin25.5.0 file names to toolchain format... func_convert_file_noop
+checking for /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld option to reload object files... -r
+checking for file... file
+checking for aarch64-apple-darwin-objdump... no
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for aarch64-apple-darwin-dlltool... no
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for aarch64-apple-darwin-ranlib... no
+checking for ranlib... ranlib
+checking for aarch64-apple-darwin-ar... no
+checking for ar... ar
+checking for archiver @FILE support... no
+checking for aarch64-apple-darwin-strip... strip
+checking command to parse nm output from xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk object... ok
+checking for sysroot... no
+checking for a working dd... /bin/dd
+checking how to truncate binary pipes... /bin/dd bs=4096 count=1
+checking for aarch64-apple-darwin-mt... no
+checking for mt... no
+checking if : is a manifest tool... no
+checking for aarch64-apple-darwin-dsymutil... no
+checking for dsymutil... dsymutil
+checking for aarch64-apple-darwin-nmedit... no
+checking for nmedit... nmedit
+checking for aarch64-apple-darwin-lipo... no
+checking for lipo... lipo
+checking for aarch64-apple-darwin-otool... no
+checking for otool... otool
+checking for aarch64-apple-darwin-otool64... no
+checking for otool64... no
+checking for -single_module linker flag... ld: warning: -single_module is obsolete
+no
+checking for -no_fixup_chains linker flag... yes
+checking for -exported_symbols_list linker flag... yes
+checking for -force_load linker flag... yes
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk supports -fno-rtti -fno-exceptions... yes
+checking for xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk option to produce PIC... -fno-common -DPIC
+checking if xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk PIC flag -fno-common -DPIC works... yes
+checking if xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk static flag -static works... no
+checking if xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk supports -c -o file.o... yes
+checking if xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk supports -c -o file.o... (cached) yes
+checking whether the xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... darwin dyld
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... g++ -E
+checking for ld used by g++... /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+checking if the linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) is GNU ld... no
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking for g++ option to produce PIC... -fno-common -DPIC
+checking if g++ PIC flag -fno-common -DPIC works... yes
+checking if g++ static flag -static works... no
+checking if g++ supports -c -o file.o... yes
+checking if g++ supports -c -o file.o... (cached) yes
+checking whether the g++ linker (/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... darwin dyld
+checking how to hardcode library paths into programs... immediate
+checking for emscripten... no
+checking for inline... inline
+checking for clock_gettime without additional libraries... yes
+checking whether compiler supports -Wextra... yes
+checking whether compiler supports -Wpedantic... yes
+checking for xlc... no
+checking whether compiler supports -fno-strict-aliasing... yes
+checking for getcontext... yes
+checking for dl_iterate_phdr... no
+checking for execinfo.h... yes
+checking whether to build shared libraries... no
+checking which machine-dependent code should be used... 
+checking whether AIX gcc optimization fix is necessary... no
+checking whether -Wno-frame-address works... yes
+checking for dladdr... yes
+checking for sigsetjmp... yes
+checking for sys/dg_sys_info.h... no
+checking which libatomic_ops to use... none
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating bdw-gc.pc
+config.status: creating include/config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing default commands
+  -> Building libgc for aarch64-apple-darwin (-j10)
+depbase=`echo allchblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT allchblk.lo -MD -MP -MF $depbase.Tpo -c -o allchblk.lo /tmp/crystal-cross-deps/src/bdwgc/allchblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo alloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT alloc.lo -MD -MP -MF $depbase.Tpo -c -o alloc.lo /tmp/crystal-cross-deps/src/bdwgc/alloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo blacklst.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT blacklst.lo -MD -MP -MF $depbase.Tpo -c -o blacklst.lo /tmp/crystal-cross-deps/src/bdwgc/blacklst.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo dbg_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT dbg_mlc.lo -MD -MP -MF $depbase.Tpo -c -o dbg_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/dbg_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo dyn_load.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT dyn_load.lo -MD -MP -MF $depbase.Tpo -c -o dyn_load.lo /tmp/crystal-cross-deps/src/bdwgc/dyn_load.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo finalize.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT finalize.lo -MD -MP -MF $depbase.Tpo -c -o finalize.lo /tmp/crystal-cross-deps/src/bdwgc/finalize.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo gc_dlopen.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT gc_dlopen.lo -MD -MP -MF $depbase.Tpo -c -o gc_dlopen.lo /tmp/crystal-cross-deps/src/bdwgc/gc_dlopen.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo headers.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT headers.lo -MD -MP -MF $depbase.Tpo -c -o headers.lo /tmp/crystal-cross-deps/src/bdwgc/headers.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo mach_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mach_dep.lo -MD -MP -MF $depbase.Tpo -c -o mach_dep.lo /tmp/crystal-cross-deps/src/bdwgc/mach_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo malloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT malloc.lo -MD -MP -MF $depbase.Tpo -c -o malloc.lo /tmp/crystal-cross-deps/src/bdwgc/malloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT blacklst.lo -MD -MP -MF .deps/blacklst.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/blacklst.c -o blacklst.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT dyn_load.lo -MD -MP -MF .deps/dyn_load.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/dyn_load.c -o dyn_load.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT malloc.lo -MD -MP -MF .deps/malloc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/malloc.c -o malloc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT dbg_mlc.lo -MD -MP -MF .deps/dbg_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/dbg_mlc.c -o dbg_mlc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT finalize.lo -MD -MP -MF .deps/finalize.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/finalize.c -o finalize.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT allchblk.lo -MD -MP -MF .deps/allchblk.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/allchblk.c -o allchblk.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT alloc.lo -MD -MP -MF .deps/alloc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/alloc.c -o alloc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT headers.lo -MD -MP -MF .deps/headers.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/headers.c -o headers.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT gc_dlopen.lo -MD -MP -MF .deps/gc_dlopen.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/gc_dlopen.c -o gc_dlopen.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mach_dep.lo -MD -MP -MF .deps/mach_dep.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mach_dep.c -o mach_dep.o
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1329:11: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1329 |     sec = GC_GETSECTBYNAME(hdr, GC_dyld_sections[i].seg,
+      |           ^~~~~~~~~~~~~~~~
+      |           use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1359:13: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1359 |       sec = GC_GETSECTBYNAME(hdr, SEG_DATA, secnam);
+      |             ^~~~~~~~~~~~~~~~
+      |             use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1393:11: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1393 |     sec = GC_GETSECTBYNAME(hdr, GC_dyld_sections[i].seg,
+      |           ^~~~~~~~~~~~~~~~
+      |           use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+/tmp/crystal-cross-deps/src/bdwgc/dyn_load.c:1417:13: warning: 'getsectbynamefromheader_64' is deprecated: first deprecated in iOS 16.0 [-Wdeprecated-declarations]
+ 1417 |       sec = GC_GETSECTBYNAME(hdr, SEG_DATA, secnam);
+      |             ^~~~~~~~~~~~~~~~
+      |             use getsectiondata()
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gc_priv.h:823:29: note: expanded from macro 'GC_GETSECTBYNAME'
+  823 | #   define GC_GETSECTBYNAME getsectbynamefromheader_64
+      |                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:136:33: note: 'getsectbynamefromheader_64' has been explicitly marked deprecated here
+  136 | extern const struct section_64 *getsectbynamefromheader_64(
+      |                                 ^
+4 warnings generated.
+depbase=`echo mallocx.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mallocx.lo -MD -MP -MF $depbase.Tpo -c -o mallocx.lo /tmp/crystal-cross-deps/src/bdwgc/mallocx.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo mark.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mark.lo -MD -MP -MF $depbase.Tpo -c -o mark.lo /tmp/crystal-cross-deps/src/bdwgc/mark.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo mark_rts.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT mark_rts.lo -MD -MP -MF $depbase.Tpo -c -o mark_rts.lo /tmp/crystal-cross-deps/src/bdwgc/mark_rts.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo misc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT misc.lo -MD -MP -MF $depbase.Tpo -c -o misc.lo /tmp/crystal-cross-deps/src/bdwgc/misc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo new_hblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT new_hblk.lo -MD -MP -MF $depbase.Tpo -c -o new_hblk.lo /tmp/crystal-cross-deps/src/bdwgc/new_hblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo obj_map.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT obj_map.lo -MD -MP -MF $depbase.Tpo -c -o obj_map.lo /tmp/crystal-cross-deps/src/bdwgc/obj_map.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo os_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT os_dep.lo -MD -MP -MF $depbase.Tpo -c -o os_dep.lo /tmp/crystal-cross-deps/src/bdwgc/os_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo ptr_chck.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT ptr_chck.lo -MD -MP -MF $depbase.Tpo -c -o ptr_chck.lo /tmp/crystal-cross-deps/src/bdwgc/ptr_chck.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo reclaim.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT reclaim.lo -MD -MP -MF $depbase.Tpo -c -o reclaim.lo /tmp/crystal-cross-deps/src/bdwgc/reclaim.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo specific.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT specific.lo -MD -MP -MF $depbase.Tpo -c -o specific.lo /tmp/crystal-cross-deps/src/bdwgc/specific.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mark.lo -MD -MP -MF .deps/mark.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mark.c -o mark.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mark_rts.lo -MD -MP -MF .deps/mark_rts.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mark_rts.c -o mark_rts.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT new_hblk.lo -MD -MP -MF .deps/new_hblk.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/new_hblk.c -o new_hblk.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT misc.lo -MD -MP -MF .deps/misc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/misc.c -o misc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT mallocx.lo -MD -MP -MF .deps/mallocx.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/mallocx.c -o mallocx.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT obj_map.lo -MD -MP -MF .deps/obj_map.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/obj_map.c -o obj_map.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT os_dep.lo -MD -MP -MF .deps/os_dep.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/os_dep.c -o os_dep.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT ptr_chck.lo -MD -MP -MF .deps/ptr_chck.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/ptr_chck.c -o ptr_chck.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT specific.lo -MD -MP -MF .deps/specific.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/specific.c -o specific.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT reclaim.lo -MD -MP -MF .deps/reclaim.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/reclaim.c -o reclaim.o
+depbase=`echo typd_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT typd_mlc.lo -MD -MP -MF $depbase.Tpo -c -o typd_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/typd_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo gcj_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT gcj_mlc.lo -MD -MP -MF $depbase.Tpo -c -o gcj_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/gcj_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo fnlz_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT fnlz_mlc.lo -MD -MP -MF $depbase.Tpo -c -o fnlz_mlc.lo /tmp/crystal-cross-deps/src/bdwgc/fnlz_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2137:19: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2137 |         if ((word)DATASTART - 1U >= (word)DATAEND) {
+      |                   ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2137:43: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2137 |         if ((word)DATASTART - 1U >= (word)DATAEND) {
+      |                                           ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2141:44: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2141 |                      ": %p .. %p", (void *)DATASTART, (void *)DATAEND);
+      |                                            ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2141:63: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2141 |                      ": %p .. %p", (void *)DATASTART, (void *)DATAEND);
+      |                                                               ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2143:28: warning: 'get_etext' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2143 |         GC_add_roots_inner(DATASTART, DATAEND, FALSE);
+      |                            ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:938:30: note: expanded from macro 'DATASTART'
+  938 | #   define DATASTART ((ptr_t)get_etext())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:58:22: note: 'get_etext' has been explicitly marked deprecated here
+   58 | extern unsigned long get_etext(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/tmp/crystal-cross-deps/src/bdwgc/os_dep.c:2143:39: warning: 'get_end' is deprecated: first deprecated in iOS 16.0 - No longer supported [-Wdeprecated-declarations]
+ 2143 |         GC_add_roots_inner(DATASTART, DATAEND, FALSE);
+      |                                       ^
+/tmp/crystal-cross-deps/src/bdwgc/include/private/gcconfig.h:939:30: note: expanded from macro 'DATAEND'
+  939 | #   define DATAEND   ((ptr_t)get_end())
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/include/mach-o/getsect.h:57:22: note: 'get_end' has been explicitly marked deprecated here
+   57 | extern unsigned long get_end(void) __CCTOOLS_DEPRECATED;
+      |                      ^
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c -o cord/libcord_la-cordbscs.lo `test -f 'cord/cordbscs.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordbscs.c
+6 warnings generated.
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c -o cord/libcord_la-cordprnt.lo `test -f 'cord/cordprnt.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordprnt.c
+/bin/sh ./libtool  --tag=CC   --mode=compile xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H   -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include   -I/opt/homebrew/opt/postgresql@17/include   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c -o cord/libcord_la-cordxtra.lo `test -f 'cord/cordxtra.c' || echo '/tmp/crystal-cross-deps/src/bdwgc/'`cord/cordxtra.c
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT typd_mlc.lo -MD -MP -MF .deps/typd_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/typd_mlc.c -o typd_mlc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT gcj_mlc.lo -MD -MP -MF .deps/gcj_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/gcj_mlc.c -o gcj_mlc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT fnlz_mlc.lo -MD -MP -MF .deps/fnlz_mlc.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/fnlz_mlc.c -o fnlz_mlc.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordbscs.c -o cord/libcord_la-cordbscs.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordxtra.c -o cord/libcord_la-cordxtra.o
+libtool: compile:  xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -DHAVE_CONFIG_H -I./include -I/tmp/crystal-cross-deps/src/bdwgc/include -I/opt/homebrew/opt/postgresql@17/include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c /tmp/crystal-cross-deps/src/bdwgc/cord/cordprnt.c -o cord/libcord_la-cordprnt.o
+mv -f cord/.deps/libcord_la-cordprnt.Tpo cord/.deps/libcord_la-cordprnt.Plo
+/bin/sh ./libtool  --tag=CC   --mode=link xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -Wl,-single_module -version-info 6:3:5 -no-undefined -L/opt/homebrew/opt/postgresql@17/lib -o libgc.la -rpath /tmp/crystal-cross-deps/ios-simulator/lib allchblk.lo alloc.lo blacklst.lo dbg_mlc.lo dyn_load.lo finalize.lo gc_dlopen.lo headers.lo mach_dep.lo malloc.lo mallocx.lo mark.lo mark_rts.lo misc.lo new_hblk.lo obj_map.lo os_dep.lo ptr_chck.lo reclaim.lo specific.lo typd_mlc.lo        gcj_mlc.lo fnlz_mlc.lo     
+mv -f cord/.deps/libcord_la-cordxtra.Tpo cord/.deps/libcord_la-cordxtra.Plo
+mv -f cord/.deps/libcord_la-cordbscs.Tpo cord/.deps/libcord_la-cordbscs.Plo
+libtool: link: ar cr .libs/libgc.a  allchblk.o alloc.o blacklst.o dbg_mlc.o dyn_load.o finalize.o gc_dlopen.o headers.o mach_dep.o malloc.o mallocx.o mark.o mark_rts.o misc.o new_hblk.o obj_map.o os_dep.o ptr_chck.o reclaim.o specific.o typd_mlc.o gcj_mlc.o fnlz_mlc.o
+libtool: link: ranlib .libs/libgc.a
+libtool: link: ( cd ".libs" && rm -f "libgc.la" && ln -s "../libgc.la" "libgc.la" )
+/bin/sh ./libtool  --tag=CC   --mode=link xcrun --sdk iphonesimulator clang -target arm64-apple-ios17.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -O2 -mios-simulator-version-min=17.0 -fno-strict-aliasing -Wno-frame-address  -version-info 6:1:5 -no-undefined -L/opt/homebrew/opt/postgresql@17/lib -o libcord.la -rpath /tmp/crystal-cross-deps/ios-simulator/lib cord/libcord_la-cordbscs.lo cord/libcord_la-cordprnt.lo cord/libcord_la-cordxtra.lo libgc.la 
+libtool: link: ar cr .libs/libcord.a  cord/libcord_la-cordbscs.o cord/libcord_la-cordprnt.o cord/libcord_la-cordxtra.o
+libtool: link: ranlib .libs/libcord.a
+libtool: link: ( cd ".libs" && rm -f "libcord.la" && ln -s "../libcord.la" "libcord.la" )
+  -> Installing libgc to /tmp/crystal-cross-deps/ios-simulator
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-simulator/lib'
+ /bin/sh ./libtool   --mode=install /opt/homebrew/bin/ginstall -c   libgc.la libcord.la '/tmp/crystal-cross-deps/ios-simulator/lib'
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libgc.lai /tmp/crystal-cross-deps/ios-simulator/lib/libgc.la
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libcord.lai /tmp/crystal-cross-deps/ios-simulator/lib/libcord.la
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libgc.a /tmp/crystal-cross-deps/ios-simulator/lib/libgc.a
+libtool: install: chmod 644 /tmp/crystal-cross-deps/ios-simulator/lib/libgc.a
+libtool: install: ranlib /tmp/crystal-cross-deps/ios-simulator/lib/libgc.a
+libtool: install: /opt/homebrew/bin/ginstall -c .libs/libcord.a /tmp/crystal-cross-deps/ios-simulator/lib/libcord.a
+libtool: install: chmod 644 /tmp/crystal-cross-deps/ios-simulator/lib/libcord.a
+libtool: install: ranlib /tmp/crystal-cross-deps/ios-simulator/lib/libcord.a
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-simulator/include'
+ /opt/homebrew/bin/ginstall -c -m 644 /tmp/crystal-cross-deps/src/bdwgc/include/extra/gc.h '/tmp/crystal-cross-deps/ios-simulator/include'
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-simulator/lib/pkgconfig'
+ /opt/homebrew/bin/ginstall -c -m 644 bdw-gc.pc '/tmp/crystal-cross-deps/ios-simulator/lib/pkgconfig'
+ /opt/homebrew/bin/gmkdir -p '/tmp/crystal-cross-deps/ios-simulator/include/gc'
+ /opt/homebrew/bin/ginstall -c -m 644 /tmp/crystal-cross-deps/src/bdwgc/include/gc_gcj.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_disclaim.h /tmp/crystal-cross-deps/src/bdwgc/include/gc.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_backptr.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_config_macros.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_inline.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_mark.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_tiny_fl.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_typed.h /tmp/crystal-cross-deps/src/bdwgc/include/gc_version.h /tmp/crystal-cross-deps/src/bdwgc/include/javaxfc.h /tmp/crystal-cross-deps/src/bdwgc/include/leak_detector.h /tmp/crystal-cross-deps/src/bdwgc/include/cord.h /tmp/crystal-cross-deps/src/bdwgc/include/cord_pos.h /tmp/crystal-cross-deps/src/bdwgc/include/ec.h '/tmp/crystal-cross-deps/ios-simulator/include/gc'
+  -> Source already present: /tmp/crystal-cross-deps/src/pcre2 (skipping clone)
+  -> Configuring libpcre2 via cmake
+CMake Deprecation Warning at CMakeLists.txt:108 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found BZip2: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/lib/libbz2.tbd (found version "1.0.8")
+-- Looking for BZ2_bzCompressInit
+-- Looking for BZ2_bzCompressInit - found
+-- Found ZLIB: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/usr/lib/libz.tbd (found version "1.2.12")
+-- Could not find OPTIONAL package Readline
+-- Could not find OPTIONAL package Editline
+-- Looking for dirent.h
+-- Looking for dirent.h - found
+-- Looking for sys/stat.h
+-- Looking for sys/stat.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for windows.h
+-- Looking for windows.h - not found
+-- Looking for bcopy
+-- Looking for bcopy - found
+-- Looking for memfd_create
+-- Looking for memfd_create - not found
+-- Looking for memmove
+-- Looking for memmove - found
+-- Looking for secure_getenv
+-- Looking for secure_getenv - not found
+-- Looking for strerror
+-- Looking for strerror - found
+-- Performing Test HAVE_REALPATH
+-- Performing Test HAVE_REALPATH - Success
+-- Performing Test HAVE_BUILTIN_MUL_OVERFLOW
+-- Performing Test HAVE_BUILTIN_MUL_OVERFLOW - Success
+-- Performing Test HAVE_ATTRIBUTE_UNINITIALIZED
+-- Performing Test HAVE_ATTRIBUTE_UNINITIALIZED - Success
+-- Performing Test HAVE_VISIBILITY
+-- Performing Test HAVE_VISIBILITY - Success
+-- Performing Test INTEL_CET_ENABLED
+-- Performing Test INTEL_CET_ENABLED - Failed
+-- 
+-- 
+-- PCRE2-10.44 configuration summary:
+-- 
+--   Install prefix .................. : /tmp/crystal-cross-deps/ios-simulator
+--   C compiler ...................... : /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+--   C compiler flags ................ : -target arm64-apple-ios17.0-simulator 
+-- 
+--   Build 8 bit PCRE2 library ....... : ON
+--   Build 16 bit PCRE2 library ...... : OFF
+--   Build 32 bit PCRE2 library ...... : OFF
+--   Enable JIT compiling support .... : OFF
+--   Use SELinux allocator in JIT .... : IGNORE
+--   Enable Unicode support .......... : ON
+--   Newline char/sequence ........... : LF
+--   \R matches only ANYCRLF ......... : OFF
+--   \C is disabled .................. : OFF
+--   EBCDIC coding ................... : OFF
+--   EBCDIC coding with NL=0x25 ...... : OFF
+--   Rebuild char tables ............. : OFF
+--   Internal link size .............. : 2
+--   Maximum variable lookbehind ..... : 255
+--   Parentheses nest limit .......... : 250
+--   Heap limit ...................... : 20000000
+--   Match limit ..................... : 10000000
+--   Match depth limit ............... : MATCH_LIMIT
+--   Build shared libs ............... : OFF
+--   Build static libs ............... : ON
+--      with PIC enabled ............. : OFF
+--   Build pcre2grep ................. : OFF
+--   Enable JIT in pcre2grep ......... : ON
+--   Enable callouts in pcre2grep .... : ON
+--   Enable callout fork in pcre2grep. : ON
+--   Buffer size for pcre2grep ....... : 20480
+--   Build tests (implies pcre2test .. : OFF
+--                and pcre2grep)
+--   Link pcre2grep with libz ........ : ON
+--   Link pcre2grep with libbz2 ...... : ON
+--   Link pcre2test with libeditline . : Library not found
+--   Link pcre2test with libreadline . : Library not found
+--   Support Valgrind .................: OFF
+--   Use %zu and %td ..................: AUTO
+-- 
+-- Configuring done (2.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/crystal-cross-deps/build/pcre2-ios-simulator
+  -> Building libpcre2 (-j10)
+[  6%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_config.c.o
+[  6%] Building C object CMakeFiles/pcre2-8-static.dir/pcre2_chartables.c.o
+[  9%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_error.c.o
+[ 12%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_auto_possess.c.o
+[ 16%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_chkdint.c.o
+[ 19%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_dfa_match.c.o
+[ 22%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_context.c.o
+[ 29%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_extuni.c.o
+[ 29%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_compile.c.o
+[ 32%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_convert.c.o
+[ 35%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_find_bracket.c.o
+[ 38%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_match.c.o
+[ 41%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_jit_compile.c.o
+[ 45%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_maketables.c.o
+[ 48%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_match_data.c.o
+[ 51%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_ord2utf.c.o
+[ 54%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_newline.c.o
+[ 58%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_pattern_info.c.o
+[ 61%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_script_run.c.o
+[ 64%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_string_utils.c.o
+[ 70%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_serialize.c.o
+[ 70%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_study.c.o
+[ 74%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_substitute.c.o
+[ 77%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_tables.c.o
+[ 80%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_substring.c.o
+[ 83%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_valid_utf.c.o
+[ 87%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_ucd.c.o
+[ 90%] Building C object CMakeFiles/pcre2-8-static.dir/src/pcre2_xclass.c.o
+[ 93%] Linking C static library libpcre2-8.a
+[ 93%] Built target pcre2-8-static
+[ 96%] Building C object CMakeFiles/pcre2-posix-static.dir/src/pcre2posix.c.o
+[100%] Linking C static library libpcre2-posix.a
+[100%] Built target pcre2-posix-static
+  -> Installing libpcre2 to /tmp/crystal-cross-deps/ios-simulator
+-- Install configuration: ""
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/lib/libpcre2-8.a
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/lib/libpcre2-posix.a
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/lib/pkgconfig/libpcre2-posix.pc
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/lib/pkgconfig/libpcre2-8.pc
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/bin/pcre2-config
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/include/pcre2.h
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/include/pcre2posix.h
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/cmake/pcre2-config.cmake
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/cmake/pcre2-config-version.cmake
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man1/pcre2-config.1
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man1/pcre2grep.1
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man1/pcre2test.1
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_callout_enumerate.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_code_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_code_copy_with_tables.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_code_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_compile.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_compile_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_compile_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_compile_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_config.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_convert_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_convert_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_convert_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_converted_pattern_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_dfa_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_general_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_general_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_general_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_error_message.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_mark.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_match_data_heapframes_size.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_match_data_size.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_ovector_count.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_ovector_pointer.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_get_startchar.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_compile.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_free_unused_memory.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_stack_assign.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_stack_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_jit_stack_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_maketables.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_maketables_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_context_copy.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_context_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_context_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_data_create.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_data_create_from_pattern.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_match_data_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_pattern_convert.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_pattern_info.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_serialize_decode.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_serialize_encode.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_serialize_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_serialize_get_number_of_codes.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_bsr.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_character_tables.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_compile_extra_options.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_compile_recursion_guard.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_depth_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_glob_escape.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_glob_separator.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_heap_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_match_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_max_pattern_compiled_length.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_max_pattern_length.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_max_varlookbehind.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_newline.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_offset_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_parens_nest_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_recursion_limit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_recursion_memory_management.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_set_substitute_callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substitute.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_copy_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_copy_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_get_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_get_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_length_byname.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_length_bynumber.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_list_free.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_list_get.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_nametable_scan.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2_substring_number_from_name.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2api.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2build.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2callout.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2compat.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2convert.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2demo.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2jit.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2limits.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2matching.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2partial.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2pattern.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2perform.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2posix.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2sample.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2serialize.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2syntax.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/man/man3/pcre2unicode.3
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/index.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2-config.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_callout_enumerate.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_code_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_code_copy_with_tables.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_code_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_compile.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_compile_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_compile_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_compile_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_config.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_convert_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_convert_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_convert_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_converted_pattern_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_dfa_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_general_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_general_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_general_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_error_message.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_mark.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_match_data_heapframes_size.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_match_data_size.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_ovector_count.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_ovector_pointer.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_get_startchar.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_compile.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_free_unused_memory.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_stack_assign.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_stack_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_jit_stack_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_maketables.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_maketables_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_context_copy.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_context_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_context_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_data_create.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_data_create_from_pattern.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_match_data_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_pattern_convert.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_pattern_info.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_serialize_decode.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_serialize_encode.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_serialize_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_serialize_get_number_of_codes.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_bsr.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_character_tables.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_compile_extra_options.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_compile_recursion_guard.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_depth_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_glob_escape.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_glob_separator.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_heap_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_match_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_max_pattern_compiled_length.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_max_pattern_length.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_max_varlookbehind.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_newline.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_offset_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_parens_nest_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_recursion_limit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_recursion_memory_management.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_set_substitute_callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substitute.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_copy_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_copy_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_get_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_get_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_length_byname.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_length_bynumber.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_list_free.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_list_get.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_nametable_scan.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2_substring_number_from_name.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2api.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2build.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2callout.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2compat.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2convert.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2demo.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2grep.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2jit.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2limits.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2matching.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2partial.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2pattern.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2perform.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2posix.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2sample.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2serialize.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2syntax.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2test.html
+-- Installing: /tmp/crystal-cross-deps/ios-simulator/share/doc/pcre2/html/pcre2unicode.html
+==> iOS Simulator deps ready in /tmp/crystal-cross-deps/ios-simulator
+-rw-r--r--  1 crimsonknight  wheel    36K May 21 12:38 /tmp/crystal-cross-deps/ios-simulator/lib/libcord.a
+-rw-r--r--  1 crimsonknight  wheel   214K May 21 12:38 /tmp/crystal-cross-deps/ios-simulator/lib/libgc.a
+-rw-r--r--  1 crimsonknight  wheel   543K May 21 12:38 /tmp/crystal-cross-deps/ios-simulator/lib/libpcre2-8.a
+-rw-r--r--  1 crimsonknight  wheel   5.8K May 21 12:38 /tmp/crystal-cross-deps/ios-simulator/lib/libpcre2-posix.a
+
+Done. Built libraries are in: /tmp/crystal-cross-deps
+
+Next steps:
+  iOS device:    ./scripts/build_ios.sh <source.cr> device
+  iOS simulator: ./scripts/build_ios.sh <source.cr> simulator
+  Android:       ./scripts/build_android.sh <source.cr>

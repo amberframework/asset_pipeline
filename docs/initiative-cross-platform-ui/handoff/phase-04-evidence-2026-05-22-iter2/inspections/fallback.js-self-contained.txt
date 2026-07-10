@@ -1,0 +1,6 @@
+--- src/ui/web/action_sheet_fallback.js ---
+lines:      140
+external refs: 0
+--- src/ui/web/context_menu_fallback.js ---
+lines:      188
+external refs: 0

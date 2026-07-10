@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.189204+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T14:54:45.013218+00:00",
+    "path": "reports/maps.md",
+    "sha256": "880fd181294fa3c51f81cf55765dd512b53a3d748b46383c1b89ca9be9753e19",
+    "size_bytes": 3443
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T14:53:44.301203+00:00",
+      "path": "screenshots/maps-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "4035107edd5e882023835359cd677fe358b466069e9bc1417762a465a9e62716",
+      "size_bytes": 867819
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T14:53:09.262261+00:00",
+      "path": "screenshots/maps-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "8dde245a05bd9c53396c2ef5055ccaec227d14b4a06a760fe22afd84048ac5f1",
+      "size_bytes": 852005
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T14:52:10.502810+00:00",
+      "path": "screenshots/maps-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "2b13cc3af3d6540fa2c9f9e36763599803218a3ef003d02b244f473429baa6ff",
+      "size_bytes": 1583804
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T14:52:05.372625+00:00",
+      "path": "screenshots/maps-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "2d05aab2f574addb750e8239eb5aa8d696455ec6d3c3d344d1387ee8b544dad4",
+      "size_bytes": 1387340
+    }
+  },
+  "slug": "maps",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

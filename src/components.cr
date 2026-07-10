@@ -38,26 +38,68 @@ require "./components/elements/forms/form"
 require "./components/elements/forms/input"
 require "./components/elements/forms/form_controls"
 require "./components/elements/embedded/img"
+require "./components/elements/embedded/media"
 
 # CSS System
 require "./components/css/class_registry"
 require "./components/css/class_builder"
 require "./components/css/styleable"
+require "./components/css/tokens/design_system_theme"
 require "./components/css/config/css_config"
 require "./components/css/engine/css_rule"
 require "./components/css/engine/css_parser"
 require "./components/css/engine/css_generator"
+require "./components/css/component_css_registry"
+require "./components/css/container_query_components"
 require "./components/css/scanner/class_scanner"
+require "./components/variants/component_variant"
 
 # Asset Pipeline
 require "./components/assets/base/asset"
 require "./components/assets/css_asset"
+require "./components/assets/font_asset"
 
-# Reactive components
-require "./components/reactive/reactive_component"
+# Reactive components — server/web only (pulls in http/server + OpenSSL + zlib
+# via reactive_handler). iOS and Android targets must skip this subtree;
+# their Crystal binaries cross-compile without the OpenSSL/zlib symbols
+# present, so unconditionally requiring it leaves undefined link symbols.
+{% unless flag?(:ios) || flag?(:android) %}
+  require "./components/reactive/reactive_component"
+{% end %}
 
-# Integration
-require "./components/integration"
+# Example components
+require "./components/examples/button_component"
+require "./components/examples/card_component"
+require "./components/examples/auth_form_component"
+{% unless flag?(:ios) || flag?(:android) %}
+  require "./components/examples/chat_component"
+{% end %}
+require "./components/examples/command_palette_component"
+require "./components/examples/counter_component"
+require "./components/examples/carousel_component"
+require "./components/examples/data_table_component"
+require "./components/examples/dialog_component"
+require "./components/examples/form_field_component"
+require "./components/examples/form_component"
+{% unless flag?(:ios) || flag?(:android) %}
+  require "./components/examples/live_search_component"
+{% end %}
+require "./components/examples/payment_form_component"
+require "./components/examples/pricing_card_component"
+require "./components/examples/schedule_heatmap_component"
+require "./components/examples/simple_chart_component"
+require "./components/examples/tabs_component"
+require "./components/examples/theme_switcher_component"
+require "./components/examples/timeline_component"
+
+# Design system namespace
+require "./components/design_system/components"
+
+# Integration — Amber framework helpers; transitively pulls in http/server
+# via reactive_handler. Web/server only.
+{% unless flag?(:ios) || flag?(:android) %}
+  require "./components/integration"
+{% end %}
 
 # Helper to create a page
 module Components
@@ -66,25 +108,25 @@ module Components
     property? lang : String = "en"
     property head_content : Proc(Nil)?
     property body_content : Proc(Nil)?
-    
+
     def initialize(@title : String, @lang = "en", &block : Nil ->)
       super()
       @body_content = block
     end
-    
+
     def render_content : String
-      html(lang: lang) do
-        head do
-          title { @title }
+      Elements::Html.new(lang: @lang).build do |html|
+        html << Elements::Head.new.build do |head|
+          head << Elements::Title.new.build { |title| title << @title }
           @head_content.try(&.call)
         end
-        body do
+        html << Elements::Body.new.build do |_body|
           @body_content.try(&.call)
         end
-      end
+      end.render
     end
   end
-  
+
   # Helper method to create raw HTML
   def self.raw_html(content : String)
     Elements::RawHTML.new(content)

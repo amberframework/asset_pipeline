@@ -1,0 +1,166 @@
+# R10 Part 2 proposed fix — Sheet reactive bridge + slug + test rewrite
+
+## Goal
+
+Make Crystal-side mutation of `UI::Sheet#is_presented` reach the SwiftUI
+.sheet(isPresented:) binding, then rewrite the BX8 slug + test to use the
+correct present-then-dismiss flow with 3 dismiss paths and explicit-flag
+on_dismiss guard semantics.
+
+## Scope
+
+iOS only. macOS Sheet untouched (BX8 macOS twin doesn't exist per R3
+handoff). UI::Sheet view class unchanged except for the new reactive
+setter.
+
+## Files touched
+
+### Swift side
+
+1. `swift/.../ReactiveState.swift`
+   - Add `APSKSheetState : NSObject, ObservableObject` with
+     `@Published var isPresented: Bool`.
+   - Add `@_cdecl("apsk_sheet_set_presented")` mutator:
+     `state.isPresented = (val != 0)` on main queue.
+
+2. `swift/.../SheetFacade.swift`
+   - Add `makeReactiveSheet(childViews:overrides:dismissToken:outState:)`
+     entry point. Allocates an `APSKSheetState`, writes it through
+     `outState` via `Unmanaged.passRetained`.
+   - Refactor `SheetHost` to take a `state: APSKSheetState` (replacing
+     `storage: BoolStorage`) and bind
+     `.sheet(isPresented: $state.isPresented, onDismiss: { ... }) { ... }`.
+   - Keep the legacy `makeSheet(...)` entry point as a no-op shim that
+     calls the reactive form with NULL outState — preserves bridge ABI.
+   - onDismiss closure fires CallbackBridge.fire(token: dismissToken,
+     value: 0.0) — Crystal-side dismiss handler discriminates "swipe"
+     vs button-driven via the explicit-flag.
+
+### Swift→C trampoline
+
+3. `src/ui/native/swiftkit_bridge.m`
+   - Add `apsk_make_sheet_reactive(const void *child_views, int count,
+     void *overrides, unsigned long long dismiss_token, void **out_state)`
+     trampoline. Selector:
+     `makeReactiveSheetWithChildViews:overrides:dismissToken:outState:`.
+
+### Crystal bridge
+
+4. `src/ui/native/swiftkit_bridge.cr`
+   - Add `fun apsk_make_sheet_reactive(child_views : Void*, child_count :
+     Int32, overrides : Void*, dismiss_token : UInt64, out_state : Void**)
+     : Void*`.
+   - Add `fun apsk_sheet_set_presented(state : Void*, is_presented :
+     Int32)`.
+
+### Crystal view
+
+5. `src/ui/views/sheet.cr`
+   - Switch `is_presented` to `getter` + custom `def is_presented=(v :
+     Bool) : Bool` that calls
+     `LibSwiftKitBridge.apsk_sheet_set_presented(sh, v ? 1 : 0)` when
+     `@swiftkit_state_handle` is non-nil, mirroring `UI::Toggle#is_on=`.
+
+### Crystal renderer
+
+6. `src/ui/renderers/uikit_renderer.cr` — `visit(view : UI::Sheet)`
+   - Replace `apsk_make_sheet(...)` call with `apsk_make_sheet_reactive`
+     using the `state_box : Void**` out-parameter; capture state_slot;
+     wire `handle.state_handle = state_slot` and
+     `view.swiftkit_state_handle = state_slot` (mirror the existing
+     Toggle visit at uikit_renderer.cr:567-595).
+
+### Crystal slug
+
+7. `samples/cross_platform/ios_host/hig_bridge.cr` —
+   `when "phase-03-sheet-focus-return"` (iOS path, ~line 3159)
+   - Wire `ios_sheet_trigger.on_tap` to:
+     `DismissProbe.reset` (clear stale state from prior runs) +
+     `ios_sheet_v.is_presented = true`.
+   - Wire `ios_sheet_primary.on_tap` (replace current block):
+     `DismissProbe.mark_explicit("primary")` then
+     `ios_sheet_v.is_presented = false`.
+   - Wire `ios_sheet_cancel.on_tap`:
+     `DismissProbe.mark_explicit("cancel")` then
+     `ios_sheet_v.is_presented = false`.
+   - Wire `ios_sheet_v.on_dismiss = -> { DismissProbe.handle_dismiss }`
+     — sets "swipe" reason ONLY IF explicit-flag is false; always resets
+     the explicit-flag.
+   - Add `ios_sheet_reason` reactive label updates: since DismissProbe
+     calls `ProbeStore.instance.set("dismiss-reason", ...)`, and the
+     reactive Label setter pattern (R4) auto-mirrors via
+     swiftkit_state_handle, ensure the label is constructed via
+     `UI::Label.new(initial)` and the slug also wires the DismissProbe
+     update path to write through to the label's text= so the mirror
+     updates in real time. Look at how the existing tap-probe slug wires
+     its counter label to a probe handler — same pattern.
+
+### DismissProbe
+
+8. `src/ui/probes/dismiss_probe.cr`
+   - Add `@@explicit : Bool = false` class var with `.reset` (already
+     exists; extend).
+   - Add `def self.mark_explicit(reason : String) : Nil`:
+     `@@explicit = true; set(reason)`.
+   - Add `def self.handle_dismiss : Nil`:
+     `unless @@explicit; set("swipe"); end; @@explicit = false`.
+   - Existing `set(reason)` still updates @@last_reason +
+     ProbeStore.instance.set.
+   - Update `reset` to also clear `@@explicit = false`.
+
+### XCUITest
+
+9. `samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift`
+   - Rewrite `testBX8_sheetDismissReturnsFocus`:
+     a. Assert `sheet-trigger` exists; assert `sheet-primary` /
+        `sheet-cancel` / `sheet-content` do NOT exist (NSPredicate
+        existsNoRetry == false with brief waitForExistence(timeout: 0.3)).
+     b. Define a helper `openSheet(_:)` that taps `sheet-trigger`, then
+        does `XCTAssertTrue(app.buttons["sheet-primary"].waitForExistence
+        (timeout: 5))` to wait for animation + AX-tree population.
+     c. Helper `assertSheetClosed(_:)` waits for absence via NSPredicate
+        on sheet-primary (timeout 5s).
+     d. For each of 3 paths (primary, cancel, swipe):
+        - openSheet(app)
+        - tap or swipe to dismiss
+        - assertSheetClosed(app)
+        - read app.staticTexts["dismiss-reason"].label/value, assert it
+          equals "primary"/"cancel"/"swipe"
+     e. After all 3: assert sheet-trigger.exists AND
+        sheet-trigger.isHittable (focus return rubric)
+     f. Attach JSON of dismiss-matrix + screenshots
+
+### Gap-3 AX dump
+
+After applying everything else, run the BX8 test once, but use a
+diagnostic patch that, after opening the sheet, dumps
+`app.debugDescription` to stderr. Inspect the dump to choose the right
+query collection. If sheet-primary doesn't appear under app.buttons
+directly, refine queries (app.sheets.buttons["sheet-primary"] vs
+app.otherElements["sheet-content"].buttons["sheet-primary"]).
+
+If discovery is broken at the facade level (APSKHostedChild AX boundary),
+add `.accessibilityElement(children: .contain)` to the content wrapper
+inside SheetFacade.applyDetents, OR set
+`isAccessibilityElement = false` on the hosted child controller view.
+
+## Memory / lifecycle
+
+- APSKSheetState retains via Unmanaged.passRetained; released by
+  `NativeHandle#release!` → `apsk_state_release` (existing generic
+  releaser handles AnyObject; SheetState is reference-typed NSObject ✓).
+
+## Regression risk
+
+- macOS Sheet: unchanged — the SheetFacade reactive shim falls back to
+  legacy behavior on macOS too because the new entry point just adds an
+  outState slot; legacy `apsk_make_sheet` still calls the old path.
+  Verify nothing else depends on the old SheetFacade signature.
+- iOS BX1/3/4/5/6/9/10/12: unrelated paths. No expected regressions.
+- Crystal spec baseline: UI::Sheet API gains a reactive setter; existing
+  specs that set `is_presented = X` continue to work (the setter still
+  updates @is_presented before optionally calling the bridge).
+
+## Test expectation
+
+testBX8_sheetDismissReturnsFocus should PASS for all 3 dismiss paths.

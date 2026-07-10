@@ -1,0 +1,30 @@
+Showing last frame. Use --error-trace for full trace.
+
+In tmp/compile-check/ctx_no_flag.cr:2:24
+
+ 2 | menu = UI::ContextMenu.new
+                            ^--
+Error: UI::ContextMenu is Apple-family only (Tier 3). This build does not have -Dmacos or -Dios.
+
+Pick one:
+
+1. Build with -Dmacos or -Dios:
+     crystal build my_app.cr -Dmacos
+     crystal build my_app.cr -Dios
+
+2. Use the explicit web-fallback class instead:
+     UI::ContextMenuWithWebFallback.new
+   which renders a native context menu on Apple targets and an
+   accessible vanilla-JS positioned dropdown on web.
+
+3. Guard the usage at the call site:
+     {% if flag?(:macos) || flag?(:ios) %}
+       menu = UI::ContextMenu.new
+       # ...
+     {% else %}
+       # alternate UI for this platform
+     {% end %}
+
+See docs/initiative-cross-platform-ui/tier-matrix.md for the full
+tier classification and which widgets require which flags.
+EXIT: 1

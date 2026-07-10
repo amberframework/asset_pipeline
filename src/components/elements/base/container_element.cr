@@ -9,8 +9,17 @@ module Components
         super(tag_name, **attrs)
       end
       
-      # Add a child element or text content
-      def <<(child : HTMLElement | String | RawHTML) : self
+      # Add a container element child and return the child for chaining
+      # This enables patterns like: parent << Child.new << "text"
+      # where "text" becomes a child of Child, not parent
+      def <<(child : ContainerElement) : ContainerElement
+        @children << child
+        child
+      end
+
+      # Add text content, void elements, or raw HTML and return self for chaining
+      # This enables patterns like: element << "One" << "Two" << "Three"
+      def <<(child : VoidElement | String | RawHTML) : self
         @children << child
         self
       end
@@ -21,9 +30,10 @@ module Components
         self
       end
       
-      # Add a child element or text content (alias for <<)
+      # Add a child element or text content
       def add_child(child : HTMLElement | String | RawHTML) : self
-        self << child
+        @children << child
+        self
       end
       
       # Add multiple children at once

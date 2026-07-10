@@ -1,0 +1,13 @@
+# Phase 10A.0a — Convention linter config.
+#
+# Read by `scripts/lint_conventions.cr` (and any rule that overrides
+# `ConventionRule#configure`). Missing keys fall back to compiled-in
+# defaults; passing `--config=<path>` overrides this file's location.
+
+view_subclass:
+  # Directory prefixes (repo-relative) under which a `< UI::View`
+  # subclass may legally live. Files outside these roots that declare
+  # a view subclass fire `family_1/view_subclass_under_views_dir`.
+  approved_roots:
+    - "src/ui/views/"
+    - "samples/"

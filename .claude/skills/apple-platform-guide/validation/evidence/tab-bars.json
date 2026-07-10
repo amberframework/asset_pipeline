@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.220824+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T15:36:35.734703+00:00",
+    "path": "reports/tab-bars.md",
+    "sha256": "691cebccb066b54dc88d9b082389eaf6d8a60c2873ebf5696d9e6359441be772",
+    "size_bytes": 2159
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T15:27:02.910703+00:00",
+      "path": "screenshots/tab-bars-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "b1d82d212607d54b83b253d415ac71953c353eff6de29e42c4a46262d10c2215",
+      "size_bytes": 414662
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T15:26:28.625994+00:00",
+      "path": "screenshots/tab-bars-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "6c095a6dad96b8a693154837c3a2a99aa538f20377de534c3d26d30d57ddf1c6",
+      "size_bytes": 376059
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T15:21:20.811460+00:00",
+      "path": "screenshots/tab-bars-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "98165f74b69663b353ca204b3cc3a55497e132a19bd327e9259debc7fefbe88f",
+      "size_bytes": 1233566
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T15:21:19.951545+00:00",
+      "path": "screenshots/tab-bars-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "83683233c655f84a4301d2d2982464efaa0a6af97631ffbe9981df374f451906",
+      "size_bytes": 949019
+    }
+  },
+  "slug": "tab-bars",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

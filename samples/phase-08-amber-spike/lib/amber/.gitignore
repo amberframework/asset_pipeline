@@ -1,0 +1,16 @@
+/doc/
+/docs/
+/bin/
+/.shards/
+/.vscode/
+.DS_Store
+lib/
+.shards/
+/amber
+/tmp
+shard.lock
+.crystal-version
+package-lock.json
+node_modules
+/myapp
+cli.dwarf

@@ -1,0 +1,363 @@
+phase:
+  number: 6
+  name: "Side-by-Side Demo App"
+  branch: "phase-06-side-by-side-demo-app"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "035f09e"
+  authored_at: "2026-05-23"
+
+# Phase 6 contract decisions baked into this brief. Authored after Phase 6.5
+# PASS (audit harness ships). Phase 6 is the integration test for everything
+# Phases 1-5 + 5.5 built — a single Crystal source that renders to web,
+# iOS, macOS. Phase 6's Implementer uses Phase 6.5's audit harness during
+# development (audit-first principle); Phase 7 wraps the harness into CI.
+#
+# 1. SCOPE: ship a small but representative demo app.
+#    - New folder at `samples/initiative-cross-platform-ui-demo/` with:
+#      (a) Single Crystal source declaring 5 demo screens (sign-in,
+#          3-tab dashboard, detail, settings/form, tier-3-platform-only).
+#      (b) Brand override file declaring a visibly distinct brand
+#          (notably different primary color from amber default).
+#      (c) Build configs: `make web` → static HTML at output/initiative-demo/;
+#          `make macos` → runnable .app; `make ios` → iOS sim app.
+#      (d) Screenshot harness `scripts/capture_demo_quad.cr` that produces
+#          a quad-comparison HTML page at
+#          output/initiative-demo/quad-comparison.html showing all four
+#          platforms side-by-side per screen in light + dark.
+#    - README at samples/initiative-cross-platform-ui-demo/README.md.
+#
+# 2. NOT IN SCOPE:
+#    - Real-world content (lorem-ipsum + placeholder images).
+#    - Auth / networking (sign-in is visual-only).
+#    - Animation polish beyond Tier 2 defaults.
+#    - New widget types — Phase 6 consumes the 81 UI::View widgets that
+#      Phases 1-5 + 5.5 already shipped. No new src/ui/views/ files.
+#    (BASELINE CAPTURE IS IN SCOPE — see decision #9 below. Phase 6
+#    owns generating new baseline PNGs into baselines/; Phase 7 only
+#    wraps the populated harness into CI gates.)
+#
+# 3. INVARIANT TOUCH PATTERN: Phase 6 is the integration test for the
+#    initiative. Most invariants are `extends` (5 new demo screens
+#    introduce new content that exercises each invariant under
+#    representative conditions). Specifically:
+#    - I-1 (render): extends — 5 demo screens × 4 platforms = ~20 new
+#      visual baselines via Phase 6.5's regenerate_baselines.sh.
+#    - I-2 (reactive forward): extends — sign-in form field validation,
+#      toggle/picker/slider value reflections on settings screen.
+#    - I-3 (events): extends — button taps, tab switches, navigation
+#      pushes/pops, sheet present/dismiss, segmented control selection.
+#    - I-4 (focus): extends — sign-in form focus order, sheet focus
+#      restoration, tab switch focus contract.
+#    - I-5 (lifecycle): extends — 5 screens mount/unmount as user
+#      navigates; detail view's hero image lifecycle.
+#    - I-6 (a11y): extends — 5 screens × per-platform a11y audit via
+#      Phase 6.5 harness; WCAG-AA contrast verified for the brand
+#      override's palette.
+#    - I-7 (memory): extends — Phase 6's 5 screens × new view trees
+#      + sheet present/dismiss + image hero asset lifecycle + native
+#      .app hosts exercise memory ownership at scale; Phase 6.5's
+#      teardown-spy probe asserts no leaks per demo screen slug.
+#    - I-8 (env): extends — 5 screens in light + dark + responsive
+#      viewports (1280/768/375 on web).
+#    - I-9 (embedding): preserves — demo app uses existing iOS host's
+#      embedding path from Phase 3; no new class vars.
+#    - I-10 (API contract): extends — tier-3 screen uses
+#      *WithWebFallback variants explicitly; demonstrates the
+#      documented degradation contract from Phase 4.
+#    - I-11 (build closure): extends — 3 new build targets
+#      (make web/macos/ios) under samples/initiative-cross-platform-ui-demo/.
+#
+# 4. PHASE 6.5 HARNESS AS DEVELOPMENT TOOL: Per the planning retrospective's
+#    audit-first principle, Phase 6's Implementer MUST use Phase 6.5's
+#    `scripts/audit_harness.cr` during development — not only at gate time.
+#    Specifically: per screen, after authoring the screen's Crystal source,
+#    run `bash scripts/audit_harness_smoke.sh I-1 web <screen-slug>` and
+#    iterate until visual diff passes. Same for I-6 (a11y) via the CDP
+#    axe + IBM Equal Access probes. The 7 demo-content gaps the Phase 6.5
+#    Validator deferred to Phase 6 (probe-scene demos that need actual
+#    screens to target) get closed as Phase 6's screens land.
+#
+# 5. QUAD-COMPARISON OUTPUT IS THE LITMUS ARTIFACT. The user's stated
+#    success criterion (per README): "I should be able to look at them
+#    side by side and tell that they represent the same brand." The
+#    quad-comparison.html page is what Validator checks. Its layout
+#    matters — like-for-like grid (5 rows × 4 columns × light/dark
+#    pairs) so the brand consistency is immediately legible.
+#
+# 6. BRAND OVERRIDE MUST BE VISIBLY DISTINCT. The brand override file
+#    Phase 6 ships should be NOTABLY different from the default amber
+#    brand — not a subtle palette tweak. The "brand override works" claim
+#    is visually demonstrated, not just numerically asserted. Choose a
+#    primary color in a different OKLCH hue family from amber's default
+#    (e.g., deep blue, teal, or magenta).
+#
+# 7. SCREEN SLUG VOCABULARY. Phase 6 ships exactly 5 demo screens, each
+#    addressable by a stable slug. The Phase 6.5 audit_harness routes
+#    `--slug` to the appropriate per-screen probe; Phase 6 Implementer
+#    extends the harness to recognize:
+#      - demo-sign-in
+#      - demo-dashboard
+#      - demo-detail
+#      - demo-settings
+#      - demo-tier-three
+#    PLUS a meta-slug `demo-all` that iterates all 5 in sequence. Each
+#    invariant×platform probe cell in this brief targets the meta-slug
+#    by default (so the validator's probe-cell command exercises all
+#    5 screens), but individual screen slugs can be probed during
+#    iteration via `bash scripts/audit_harness_smoke.sh I-1 web demo-detail`.
+#
+# 8. QUAD DEFINITION CLARIFICATION. The "quad-comparison" page shows 4
+#    distinct user-facing surfaces, NOT 4 build targets. The 4 surfaces
+#    are: web-desktop (1280px viewport), web-mobile (375px viewport),
+#    iOS sim (iPhone 17), macOS host (resizable). Android consumers see
+#    the web target via the Tier-3 *WithWebFallback path — Android is
+#    not a 5th surface. This matches the README's "side by side, same
+#    brand" litmus test: a reasonable reviewer sees 4 columns × 5 rows
+#    × light/dark pairs in the quad-comparison.html grid.
+#
+# 9. BASELINE OWNERSHIP. Phase 6 (NOT Phase 7) writes the new baseline
+#    PNGs into docs/initiative-cross-platform-ui/baselines/. Phase 6.5's
+#    regenerate_baselines.sh is the generation script; Phase 6 invokes
+#    it as part of development per the audit-first principle. Phase 7's
+#    scope is to wrap Phase 6.5's harness (which Phase 6 populates with
+#    baselines) into CI gates — Phase 7 does NOT capture new baselines.
+#    The README's outdated "visual regression baseline capture is
+#    phase 7" line is superseded by this brief's contract.
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: extends
+    rationale: "Phase 6 ships 5 new demo screens (sign-in, dashboard 3-tab, detail, settings, tier-3) rendered across 4 platforms (web at 1280/768/375 viewports, iOS sim iPhone 17, macOS resizable, Android skip per Phase 1 #17). That's ~20+ new visual baselines registered with Phase 6.5's regenerate_baselines.sh + magick-compare-based visual_diff. Each new screen × platform combination becomes a new slug routable through the audit harness. Implementer iterates each screen until the per-platform visual diff is stable, then commits the baseline PNG + tolerance JSON to docs/initiative-cross-platform-ui/baselines/{platform}/{slug}.png. The quad-comparison.html page assembles the per-platform PNGs into the litmus-test grid."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-1 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-1 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-1 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17 architect adjudication; demo app's web fallback covers Android consumers"
+        owner_approved: "2026-05-23"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: extends
+    rationale: "Phase 6's settings screen exercises every reactive widget Phase 3 R4 + R10 shipped: Toggle, Slider, SegmentedControl, Picker, TextField (sign-in form). Each widget's value flows through the existing reactive bridge. The demo's Crystal source declares state-bound view bindings; mutating state re-renders. Phase 6.5's mutate-read probes assert the transitions on each platform per screen-slug."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-2 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-2 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-2 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: extends
+    rationale: "Phase 6's screens exercise event paths: button taps (sign-in primary, dashboard cards, detail actions), tab switches (TabView), navigation pushes/pops (NavigationStack from dashboard to detail), sheet present/dismiss (settings opens a modal sheet), segmented control selection. Each event triggers a Crystal-side handler that updates demo state. Phase 6.5's click probe + tap probe assert the dispatch on each platform."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-3 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-3 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-3 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: extends
+    rationale: "Phase 6's sign-in form establishes a focus order (email field → password field → primary button → secondary link). The settings screen's modal sheet must restore focus to its invoking control on dismiss (the BX8 Phase 3 R10 contract). Phase 6.5's focus probe asserts pre/post-focus snapshots on each platform per screen-slug."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-4 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-4 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-4 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: extends
+    rationale: "Phase 6's 5 screens mount + unmount as the user navigates. The detail view's hero image (placeholder asset) loads + releases. The settings sheet presents + dismisses. Each screen's teardown is observed by Phase 6.5's teardown spy probe — log messages assert dealloc happens within N ms of dismiss. The demo screens are the surface that catches the BX8/R9 class-init gap class of bugs at scale."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-5 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-5 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-5 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: extends
+    rationale: "Phase 6's 5 screens × 4 platforms × light/dark = ~40 accessibility audits. Each uses Phase 6.5's CDP-driven axe-core + IBM Equal Access on web, AXTest patterns on macOS, and XCUITest AX-tree dumps on iOS. WCAG-AA contrast must hold for the brand override's palette across light + dark + every glass surface step. Dynamic-type response on iOS settings screen verified."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-6 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-6 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-6 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: extends
+    rationale: "Phase 6 adds 5 demo screens with new view trees, navigation pushes/pops, sheet present/dismiss, image hero asset loads, and the native macOS .app + iOS .app hosts. While Phase 6 itself adds no new C-export mutators or ObservableObjects, the screens exercise the existing native handle lifecycle at scale: each screen mounts a fresh view tree, navigation tears it down, sheets present and dismiss, images load and release. Phase 6.5's teardown-spy probe (ASan-instrumented on Apple, DOM-node-count smoke on web) asserts no leaks across the 5 demo screen slugs. The macOS + iOS .app hosts themselves are new processes whose lifecycle the probe covers."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-7 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-7 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-7 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: extends
+    rationale: "Phase 6's 5 screens render in light + dark on every platform. The web target reflows fluidly through 1280/768/375 viewports. The iOS settings screen respects Dynamic Type up to UICTContentSizeCategoryAccessibilityXXXL. The macOS app respects user appearance preference. Phase 6.5's emulation probe drives these env states via CDP setEmulatedMedia (web), defaults write (macOS), and XCUITest launchArguments (iOS)."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-8 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-8 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-8 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "Phase 6 introduces NO new Crystal class vars with initializers. The demo's brand override is a Brand subclass — an instance-level value, not a class var. The 5 demo screens use existing widget class definitions from Phases 1-5 + 5.5. iOS embedding through hig_bridge.cr is the existing path; Phase 6 adds no new embedding surface."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-9 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-9 macos"
+      web:
+        skip: true
+        reason: "No embedding on web; the web target is the host language's natural runtime"
+        owner_approved: "2026-05-23"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: extends
+    rationale: "Phase 6's tier-3 demo screen EXPLICITLY uses the *WithWebFallback variants Phase 4 shipped (ActionSheetWithWebFallback, ContextMenuWithWebFallback, PathControlWithWebFallback). On iOS/macOS these resolve to native chrome (action sheet, context menu); on web they resolve to the documented HTML fallback. The contract walker in Phase 6.5's audit_contract_walk.cr asserts the documented degradation actually holds at runtime — Phase 6 generates new contract-walk evidence as the demo runs."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-10 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-10 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-10 web"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 6 adds 3 new build closures: `make web` (Crystal compiles + writes static HTML to output/initiative-demo/), `make macos` (Crystal builds a .app under samples/initiative-cross-platform-ui-demo/macos/), `make ios` (Crystal builds the libCrystalLib.a + xcodebuild builds the .app for iPhone 17 Simulator). All three must exit 0. The existing samples/cross_platform/macos_host + ios_host + samples/cross_platform/web build closures are unchanged."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-11 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-11 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-11 web"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17; demo app's web target is the Android-equivalent surface"
+        owner_approved: "2026-05-23"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "Crystal toolchain is available (crystal-alpha or crystal)"
+    falsifier: "Neither binary exists in PATH"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A2
+    claim: "Phase 6.5 audit harness is shipped and exit code-routed — scripts/audit_harness_smoke.sh exists and exec's scripts/audit_harness.cr through the Crystal toolchain"
+    falsifier: "Either file missing"
+    verification: "test -x scripts/audit_harness_smoke.sh && test -f scripts/audit_harness.cr"
+
+  - id: A3
+    claim: "Phase 6.5 visual diff infrastructure exists — scripts/visual_diff.cr + scripts/regenerate_baselines.sh + canonical baselines/ tree are in place for Phase 6 to write new baselines into"
+    falsifier: "Any of the three missing"
+    verification: "test -f scripts/visual_diff.cr && test -x scripts/regenerate_baselines.sh && test -d docs/initiative-cross-platform-ui/baselines"
+
+  - id: A4
+    claim: "ImageMagick is installed — BOTH /opt/homebrew/bin/compare AND /opt/homebrew/bin/magick are present. Phase 6's visual baseline generation invokes magick; visual_diff.cr from Phase 6.5 invokes both"
+    falsifier: "Either compare or magick binary missing"
+    verification: "test -x /opt/homebrew/bin/compare && test -x /opt/homebrew/bin/magick"
+
+  - id: A5
+    claim: "Phase 5 Material API (AppleSemantic + ThicknessStep + intensity) exists at src/ui/design_tokens/material.cr; Phase 6's brand override consumes the Tokens.default.with_brand pattern"
+    falsifier: "src/ui/design_tokens/material.cr missing OR lacks the two-axis Material struct"
+    verification: "test -f src/ui/design_tokens/material.cr && grep -q 'AppleSemantic' src/ui/design_tokens/material.cr && grep -q 'ThicknessStep' src/ui/design_tokens/material.cr"
+
+  - id: A6
+    claim: "UI::View widget catalog at src/ui/views/ has ≥ 50 files (Phase 6 consumes them; if fewer, demo can't ship 5 representative screens)"
+    falsifier: "src/ui/views/ has fewer than 50 widget files"
+    verification: "test \"$(find src/ui/views -type f -name '*.cr' | wc -l | tr -d ' ')\" -ge \"50\""
+
+  - id: A7
+    claim: "Phase 4 *WithWebFallback Tier-3 widgets exist (ActionSheetWithWebFallback, ContextMenuWithWebFallback, PathControlWithWebFallback) — Phase 6's tier-3 screen consumes them"
+    falsifier: "Any of the 3 *WithWebFallback files missing from src/ui/views/"
+    verification: "test -f src/ui/views/action_sheet_with_web_fallback.cr && test -f src/ui/views/context_menu_with_web_fallback.cr && test -f src/ui/views/path_control_with_web_fallback.cr"
+
+  - id: A8
+    claim: "Existing samples/cross_platform/macos_host + ios_host build closures are runnable (precondition for Phase 6's new make macos + make ios targets, which will mirror their build patterns)"
+    falsifier: "Either Makefile or build_crystal_lib.sh missing"
+    verification: "test -f samples/cross_platform/macos_host/Makefile && test -f samples/cross_platform/ios_host/build_crystal_lib.sh"
+
+repo_derived_facts:
+  - fact: "UI::View widget file count under src/ui/views/ (Phase 6 consumes this catalog)"
+    query: "find src/ui/views -type f -name '*.cr' | wc -l | tr -d ' '"
+    expected: "81"
+    captured_at_sha: "035f09e"
+
+  # Post-impl facts capture the state Phase 6 SHIPPED. Pre-impl at
+  # SHA 035f09e all three of these directories/files did NOT exist;
+  # the architect amendment flips the expected values to match
+  # current HEAD 0d19dc0, where Phase 6's Implementer + 5 remediation
+  # cycles produced the demo app + quad-comparison + capture harness.
+  - fact: "Demo app directory at samples/initiative-cross-platform-ui-demo (post-Phase-6: exists)"
+    query: "test -d samples/initiative-cross-platform-ui-demo && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "0d19dc0"
+
+  - fact: "Quad-comparison output at output/initiative-demo/quad-comparison.html (post-Phase-6: exists)"
+    query: "test -f output/initiative-demo/quad-comparison.html && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "0d19dc0"
+
+  - fact: "capture_demo_quad.cr script (post-Phase-6: exists)"
+    query: "test -f scripts/capture_demo_quad.cr && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "0d19dc0"
+
+  - fact: "Phase 6.5 audit harness Crystal entry-point exists (Phase 6 depends on it)"
+    query: "test -f scripts/audit_harness.cr && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "035f09e"
+
+  - fact: "Phase 6.5 PASS tag exists (Phase 6 dependency check)"
+    query: "git tag --list 'phase-06.5-pass-2026-05-23' | head -1"
+    expected: "phase-06.5-pass-2026-05-23"
+    captured_at_sha: "035f09e"
+
+  - fact: "Phase 5 v2 Material two-axis model present (Phase 6's brand override consumes it)"
+    query: "grep -c 'enum AppleSemantic\\|enum ThicknessStep' src/ui/design_tokens/material.cr | tr -d ' '"
+    expected: "2"
+    captured_at_sha: "035f09e"
+
+  - fact: "Phase 4 Tier-3 *WithWebFallback widget count (Phase 6 tier-3 screen consumes these)"
+    query: "ls src/ui/views/*_with_web_fallback.cr | wc -l | tr -d ' '"
+    expected: "3"
+    captured_at_sha: "035f09e"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

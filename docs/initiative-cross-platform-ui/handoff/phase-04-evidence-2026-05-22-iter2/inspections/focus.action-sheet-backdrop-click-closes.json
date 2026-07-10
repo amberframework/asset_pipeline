@@ -1,0 +1,69 @@
+{
+  "check_id": "focus.action-sheet-backdrop-click-closes",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    ".ap-action-sheet__backdrop",
+    ".ap-action-sheet__panel"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (__phase4.open)",
+    "Runtime.evaluate (rect capture)",
+    "Input.dispatchMouseEvent (mousePressed/mouseReleased)",
+    "Runtime.evaluate (4-boolean snapshot)"
+  ],
+  "trusted_input_trace": [
+    "click trigger (__phase4.open)",
+    "mouseDown@(24.0,24.0)",
+    "mouseUp@(24.0,24.0)"
+  ],
+  "expected_state": {
+    "dismiss_log_single_backdrop": true,
+    "data_presented": "false",
+    "panel_ax_visible": false,
+    "focus_restored": true
+  },
+  "observed_state": {
+    "pre_snapshot": {
+      "data_presented": "true",
+      "dismiss_log_length": 0,
+      "panel_ax_visible": true,
+      "active_in_panel": true
+    },
+    "panel_rect": {
+      "left": 414,
+      "top": 289,
+      "right": 866,
+      "bottom": 511,
+      "width": 452,
+      "height": 222
+    },
+    "backdrop_rect": {
+      "left": 0,
+      "top": 0,
+      "right": 1280,
+      "bottom": 800,
+      "width": 1280,
+      "height": 800
+    },
+    "click_point": {
+      "x": 24.0,
+      "y": 24.0
+    },
+    "click_outside_panel": true,
+    "post_snapshot": {
+      "dismiss_log": [
+        {
+          "reason": "backdrop"
+        }
+      ],
+      "data_presented": "false",
+      "panel_ax_visible": false,
+      "focus_restored": true,
+      "active_testid": "action-sheet-trigger"
+    }
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/focus.action-sheet-backdrop-click-closes.json"
+  ]
+}

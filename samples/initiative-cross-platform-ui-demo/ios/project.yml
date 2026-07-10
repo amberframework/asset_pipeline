@@ -1,0 +1,48 @@
+name: CascadeDemo
+options:
+  bundleIdPrefix: com.assetpipeline.cascade
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
+targets:
+  CascadeDemo:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      PRODUCT_BUNDLE_IDENTIFIER: com.assetpipeline.cascade.CascadeDemo
+      LIBRARY_SEARCH_PATHS:
+        - $(PROJECT_DIR)/build
+        - /tmp/crystal-cross-deps/ios-simulator/lib
+      SWIFT_OBJC_BRIDGING_HEADER: Sources/Cascade-Bridging-Header.h
+      OTHER_LDFLAGS:
+        - -lcascade
+        - -lgc
+        - -liconv
+        - -Wl,-force_load,$(PROJECT_DIR)/build/swiftkit_simulator.a
+        - -framework SwiftUI
+        - -framework Combine
+        - -framework UIKit
+        - -framework Foundation
+        - -framework UserNotifications
+        - -framework WebKit
+        - -framework MapKit
+        - -framework CoreLocation
+        - -framework AVKit
+        - -framework AVFoundation
+        - -lobjc
+    dependencies: []
+  CascadeDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      PRODUCT_BUNDLE_IDENTIFIER: com.assetpipeline.cascade.CascadeDemoUITests
+      TEST_TARGET_NAME: CascadeDemo
+    dependencies:
+      - target: CascadeDemo

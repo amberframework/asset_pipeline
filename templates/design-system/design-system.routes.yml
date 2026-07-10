@@ -1,0 +1,71 @@
+# Starter manifest for `scripts/validate_design_system_manifest.cr` and future
+# `asset_pipeline validate` / `asset_pipeline capture` commands.
+# The current script is static-only; browser, axe, IBM, keyboard, contrast, and
+# reduced-motion flags document the target shape for consuming apps.
+
+site:
+  name: Design System App
+  root: output
+  artifacts: test-results/design-system
+  runtime_files:
+    - public/js/design-system.js
+
+defaults:
+  themes:
+    - light
+    - dark
+  viewports:
+    desktop:
+      width: 1440
+      height: 1100
+    mobile:
+      width: 390
+      height: 1250
+    reflow:
+      width: 320
+      height: 1800
+  checks:
+    static: true
+    browser: true
+    axe: true
+    ibm: true
+    accessibility_tree: true
+    keyboard: true
+    contrast: true
+    touch_targets: true
+    reduced_motion: true
+
+forbidden:
+  classes:
+    - btn
+    - btn-primary
+    - card-body
+    - form-control
+    - list-group
+  runtime_terms:
+    - "@hotwired/stimulus"
+    - "Chart.js"
+    - "node --"
+    - "node "
+    - "playwright"
+  inline_handlers: true
+
+pages:
+  - name: home
+    path: index.html
+    title: Home
+    required_components:
+      - theme-switcher
+      - button
+      - card
+    required_hooks:
+      - data-ap-theme-toggle
+
+  - name: form
+    path: form.html
+    title: Form
+    required_components:
+      - field
+      - button
+    required_hooks:
+      - data-ap-validate

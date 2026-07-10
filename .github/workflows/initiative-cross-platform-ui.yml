@@ -1,0 +1,584 @@
+# Phase 7 — Cross-platform UI initiative CI gate.
+#
+# Wraps Phase 6.5's audit harness (scripts/audit_harness.cr +
+# scripts/audit_harness_smoke.sh) and Phase 6/6.8/6.9's committed demo
+# baselines into an automated PR gate.
+#
+# Trigger:   pull_request -> feature/utility-first-css-asset-pipeline
+# Runner:    macOS (only target capable of Swift + xcodebuild + Crystal
+#            cross-compile for iOS in a single job).
+# Outputs:   PASS/FAIL on visual regression + a11y audits for the 4 demo
+#            surfaces (web-desktop, web-mobile, macOS, iOS simulator).
+#
+# Constraints (from brief.yml decisions #1 + #4):
+#   * Workflow MUST NOT modify the working tree.
+#   * Workflow MUST fail (non-zero) if any audit reports FAIL.
+#   * Workflow MUST NOT run `npm install` — Phase 6.5 vendored axe-core +
+#     IBM Equal Access at vendor/audit/. Node is pre-installed on the
+#     GitHub macOS runner and is used only by the CDP harness.
+#   * Caches: Crystal lib/ shards + Swift .build/. No npm cache.
+#
+# Refresh runbook: docs/initiative-cross-platform-ui/verification-runbook.md
+
+name: Cross-platform UI initiative CI
+
+on:
+  pull_request:
+    branches:
+      - feature/utility-first-css-asset-pipeline
+
+# Cancel superseded runs on the same PR to keep CI minutes bounded.
+concurrency:
+  group: initiative-cross-platform-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  HOMEBREW_NO_ANALYTICS: "1"
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+  # Phase 6.5's harness honors this to skip TCC-gated paths in CI.
+  AUDIT_CI: "1"
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Phase 10C.0 spec-lane jobs.
+  #
+  # Brief §4 line 140-144 split:
+  #   * `make test-web` runs the default web spec lane (Linux runner —
+  #     plain `crystal spec`, no native deps, fastest CI path).
+  #   * `make test-web` also runs on macos-14 to confirm Makefile
+  #     compatibility with BSD make + macOS toolchain.
+  #   * `make test-macos` runs the macOS native spec lane under
+  #     spec/native_macos/ (macos-14 only — needs ObjC bridge + AppKit).
+  #   * `make test-ios` and `make test-android` are placeholders today
+  #     (`continue-on-error: true`) — see
+  #     docs/initiative-cross-platform-ui/native-compile-matrix.md.
+  #   * `lint` runs Phase 10A.0a's convention rule runner
+  #     (`scripts/lint_conventions.cr`). The runner ships with phase-10-a-0a
+  #     which is merged onto phase-10-c-0 in iter 2.
+  # ---------------------------------------------------------------------
+  lint:
+    name: Lint (convention rules)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: make lint
+        run: make lint
+
+  test-web-linux:
+    name: Spec lane (web, Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: make test-web
+        run: make test-web
+
+  test-web-macos:
+    name: Spec lane (web, macOS)
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: make test-web
+        run: make test-web
+
+  test-macos:
+    name: Spec lane (macOS native)
+    runs-on: macos-14
+    timeout-minutes: 25
+    # Phase 10C.0 native compile matrix reports macOS test-macos as
+    # `attempted-blocked` (two distinct blockers — see
+    # native-compile-matrix.md). Until the C collection bridge is
+    # implemented and the spec-entry require pattern is settled in
+    # downstream tooling, this job must not fail the workflow.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Cache Swift .build
+        uses: actions/cache@v4
+        with:
+          path: swift/AssetPipelineSwiftKit/.build
+          key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
+          restore-keys: |
+            swift-build-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: make test-macos
+        run: make test-macos
+
+  test-ios:
+    name: Spec lane (iOS native)
+    runs-on: macos-14
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: make test-ios (placeholder)
+        run: make test-ios
+
+  test-android:
+    name: Spec lane (Android native)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: make test-android (placeholder)
+        run: make test-android
+
+  # ---------------------------------------------------------------------
+  # Demo-build + visual-audit jobs (Phase 6.5+) — unchanged.
+  # ---------------------------------------------------------------------
+  build-web:
+    name: Build (web demo)
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install magick (visual diff)
+        run: brew install imagemagick
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Crystal closure check (no-codegen)
+        run: crystal-alpha build --no-codegen src/asset_pipeline.cr
+
+      - name: Build web demo
+        run: make -C samples/initiative-cross-platform-ui-demo web
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during build-web:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — build-web did not mutate sources."
+
+      - name: Upload web demo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-web
+          path: |
+            output/initiative-demo/
+          if-no-files-found: error
+          retention-days: 7
+
+  build-macos:
+    name: Build (macOS demo)
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Cache Swift .build
+        uses: actions/cache@v4
+        with:
+          path: swift/AssetPipelineSwiftKit/.build
+          key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
+          restore-keys: |
+            swift-build-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install magick (visual diff)
+        run: brew install imagemagick
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Build SwiftKit (release)
+        run: swift build -c release --package-path swift/AssetPipelineSwiftKit
+
+      - name: Build macOS demo
+        run: make -C samples/initiative-cross-platform-ui-demo macos
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during build-macos:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — build-macos did not mutate sources."
+
+      - name: Upload macOS demo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-macos
+          path: |
+            samples/initiative-cross-platform-ui-demo/macos/bin/
+          if-no-files-found: error
+          retention-days: 7
+
+  build-ios:
+    name: Build (iOS simulator demo)
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Cross-compile Crystal libcascade.a (iOS simulator)
+        run: bash samples/initiative-cross-platform-ui-demo/ios/build_crystal_lib.sh simulator
+
+      - name: Build iOS demo (xcodegen + xcodebuild)
+        run: make -C samples/initiative-cross-platform-ui-demo ios
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during build-ios:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — build-ios did not mutate sources."
+
+      - name: Upload iOS demo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-ios
+          path: |
+            samples/initiative-cross-platform-ui-demo/ios/build/
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ---------------------------------------------------------------------
+  # Audit jobs — each invokes Phase 6.5's smoke shim, which dispatches
+  # to scripts/audit_harness.cr with --invariant/--platform/--slug.
+  # Exit code 0 = PASS or documented SKIP. Non-zero = FAIL.
+  # All audit jobs run after their corresponding build job. Independent
+  # platforms run in parallel; the workflow as a whole fails if any
+  # audit job fails.
+  # ---------------------------------------------------------------------
+  audit-web:
+    name: Audit web (I-1 visual + I-6 a11y)
+    needs: build-web
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install magick (visual diff)
+        run: brew install imagemagick
+
+      - name: Download web demo artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-web
+          path: output/initiative-demo/
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Audit I-1 (visual regression — web, all demo screens)
+        run: bash scripts/audit_harness_smoke.sh I-1 web demo-all
+
+      - name: Audit I-6 (accessibility — web axe-core + IBM Equal Access)
+        run: bash scripts/audit_harness_smoke.sh I-6 web demo-all
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during audit-web:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — audit-web did not mutate sources."
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-logs-web
+          path: |
+            tmp/audit-harness/
+            tmp/audit-diffs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  audit-macos:
+    name: Audit macOS (I-1 visual)
+    needs: build-macos
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Cache Swift .build
+        uses: actions/cache@v4
+        with:
+          path: swift/AssetPipelineSwiftKit/.build
+          key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
+          restore-keys: |
+            swift-build-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install magick (visual diff)
+        run: brew install imagemagick
+
+      - name: Download macOS demo artifact
+        # NOTE: actions/upload-artifact@v4 strips the upload-path root and
+        # writes contents directly into the download target. Since
+        # build-macos uploads `.../macos/bin/`, the `cascade` binary inside
+        # the artifact must land at `.../macos/bin/cascade`, NOT
+        # `.../macos/cascade`. Set the download path to the bin/ dir.
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-macos
+          path: samples/initiative-cross-platform-ui-demo/macos/bin/
+
+      - name: Restore macOS demo binary permissions
+        run: |
+          if [ -f samples/initiative-cross-platform-ui-demo/macos/bin/cascade ]; then
+            chmod +x samples/initiative-cross-platform-ui-demo/macos/bin/cascade
+          else
+            echo "::error::cascade binary not found at expected path after artifact download"
+            ls -la samples/initiative-cross-platform-ui-demo/macos/ || true
+            exit 1
+          fi
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Audit I-1 (visual regression — macOS, all demo screens)
+        run: bash scripts/audit_harness_smoke.sh I-1 macos demo-all
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during audit-macos:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — audit-macos did not mutate sources."
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-logs-macos
+          path: |
+            tmp/audit-harness/
+            tmp/audit-diffs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  audit-ios:
+    name: Audit iOS (I-1 visual)
+    needs: build-ios
+    runs-on: macos-14
+    # ~100s per slug per the Phase 6.5 audit harness contract; budget
+    # for 5 slugs + simulator boot.
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Crystal shards
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
+          restore-keys: |
+            crystal-shards-${{ runner.os }}-
+
+      - name: Install crystal-alpha (Homebrew tap)
+        run: |
+          brew tap crimson-knight/agent-crystal
+          brew install crimson-knight/agent-crystal/agent-crystal
+
+      - name: Install magick (visual diff)
+        run: brew install imagemagick
+
+      - name: Download iOS demo artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-ios
+          path: samples/initiative-cross-platform-ui-demo/ios/build/
+
+      - name: Shards install
+        run: |
+          if [ -f shard.yml ]; then shards install; fi
+
+      - name: Audit I-1 (visual regression — iOS simulator, all demo screens)
+        run: bash scripts/audit_harness_smoke.sh I-1 ios demo-all
+
+      - name: Guard — no tracked-file mutations
+        run: |
+          if ! git diff --quiet HEAD --; then
+            echo "::error::Tracked files were modified during audit-ios:"
+            git diff --stat HEAD --
+            exit 1
+          fi
+          echo "Tracked files clean — audit-ios did not mutate sources."
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-logs-ios
+          path: |
+            tmp/audit-harness/
+            tmp/audit-diffs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ---------------------------------------------------------------------
+  # NOTE on working-tree integrity:
+  # Each build and audit job above ends with a `git diff --quiet HEAD --`
+  # check that fails the job if any TRACKED file was modified during that
+  # job's execution. Build artifacts written to untracked paths
+  # (output/initiative-demo/, samples/.../macos/bin/, samples/.../ios/build/,
+  # tmp/audit-harness/, tmp/audit-diffs/, *.o under src/ui/native/, etc.)
+  # are expected and do not trigger the guard — only mutations to tracked
+  # source files do. A separate aggregator job is unnecessary because the
+  # check is local to the job that could mutate the tree, which gives a
+  # precise blame source when the guard fires.
+  # ---------------------------------------------------------------------

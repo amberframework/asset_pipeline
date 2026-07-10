@@ -1,0 +1,51 @@
+{
+  "check_id": "conformance.action-sheet-touch-targets",
+  "page": "samples/cross_platform/web/dist/phase04_action_sheet_demo.html",
+  "selectors": [
+    "[data-ap-as-action]",
+    "[data-ap-as-dismiss=cancel]"
+  ],
+  "cdp_methods": [
+    "Emulation.setDeviceMetricsOverride (375x667)",
+    "Runtime.evaluate (__phase4.open)",
+    "Runtime.evaluate (getBoundingClientRect per button)"
+  ],
+  "trusted_input_trace": [
+    "setDeviceMetricsOverride 375x667",
+    "click trigger (__phase4.open)"
+  ],
+  "expected_state": {
+    "every_button_meets_44pt": true
+  },
+  "observed_state": {
+    "button_count": 3,
+    "rects": [
+      {
+        "testid_or_action": "0",
+        "label": "Save",
+        "width": 343,
+        "height": 44,
+        "meets_44pt": true
+      },
+      {
+        "testid_or_action": "1",
+        "label": "Delete",
+        "width": 343,
+        "height": 44,
+        "meets_44pt": true
+      },
+      {
+        "testid_or_action": "2",
+        "label": "Cancel",
+        "width": 343,
+        "height": 46,
+        "meets_44pt": true
+      }
+    ],
+    "every_button_meets_44pt": true
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/conformance.action-sheet-touch-targets.json"
+  ]
+}

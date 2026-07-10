@@ -1,0 +1,133 @@
+# Manifest fixture for the current no-build web design-system demo.
+# `scripts/validate_design_system_manifest.cr` uses this by default so the
+# manifest-driven validator can prove a reusable static subset without relying
+# on hard-coded page paths inside the script.
+
+site:
+  name: Frontloader Studio Demo
+  root: ../../output
+  artifacts: ../../test-results/web-design-system
+  runtime_files:
+    - ../../public/js/design-system.js
+
+defaults:
+  checks:
+    static: true
+
+forbidden:
+  classes:
+    - btn
+    - btn-primary
+    - card-body
+    - form-control
+    - list-group
+  runtime_terms:
+    - "@hotwired/stimulus"
+    - "Chart.js"
+    - "node --"
+    - "node "
+    - "playwright"
+  inline_handlers: true
+
+pages:
+  - name: overview
+    path: web-design-system-demo.html
+    title: Frontloader Studio
+    required_components:
+      - theme-switcher
+      - theme-status
+    required_hooks:
+      - data-ap-theme-toggle
+      - data-ap-theme-set
+      - data-ap-sticky-hover
+    required_text:
+      - Beautiful launch ops by default.
+
+  - name: pricing
+    path: web-design-system-pricing.html
+    title: Frontloader Studio Pricing
+    required_components:
+      - theme-switcher
+      - pricing-card
+      - payment-form
+      - field
+    required_hooks:
+      - data-ap-pricing
+      - data-ap-payment-form
+      - data-ap-card-number
+      - data-ap-validate
+    required_text:
+      - Plans that prove form states.
+
+  - name: forms
+    path: web-design-system-forms.html
+    title: Frontloader Studio Forms
+    required_components:
+      - theme-switcher
+      - auth-form
+      - validated-form
+      - field
+    required_hooks:
+      - data-ap-auth-form
+      - data-ap-password
+      - data-ap-password-confirm
+      - data-ap-validate
+    required_text:
+      - Sign-up and sign-in
+
+  - name: dashboard
+    path: web-design-system-dashboard.html
+    title: Frontloader Studio Dashboard
+    required_components:
+      - theme-switcher
+      - table
+      - chart
+      - schedule-heatmap
+      - command-palette
+    required_hooks:
+      - data-ap-filter
+      - data-ap-command-panel
+    required_text:
+      - A dense product surface that stays calm.
+
+  - name: timeline
+    path: web-design-system-timeline.html
+    title: Crystal Timeline
+    required_components:
+      - theme-switcher
+      - timeline
+    required_hooks:
+      - data-ap-reveal
+    required_text:
+      - Crystal 1.0
+
+  - name: collaboration
+    path: web-design-system-collaboration.html
+    title: Frontloader Studio Collaboration
+    required_components:
+      - theme-switcher
+      - field
+      - badge
+    required_hooks:
+      - data-ap-chat-form
+      - data-ap-chat-log
+      - data-ap-live-search
+    required_text:
+      - Launch room
+
+  - name: patterns
+    path: web-design-system-patterns.html
+    title: Frontloader Studio Patterns
+    required_components:
+      - theme-switcher
+      - tabs
+      - carousel
+      - dialog
+      - alert
+    required_hooks:
+      - data-ap-tabs
+      - data-ap-carousel
+      - data-ap-dialog-open
+      - data-ap-disclosure
+    required_text:
+      - Page patterns

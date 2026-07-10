@@ -1,0 +1,19 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum]' started.
+    t =     0.00s Start Test at 2026-05-21 13:42:04.008
+    t =     0.03s Set Up
+    t =     0.03s         Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.03s             Launch com.assetpipeline.hig.CrystalHIGHost
+2026-05-21 13:42:04.038 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:42:04.038 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     0.25s                 Setting up automation session
+    t =     1.04s                 Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     2.27s         Waiting 10.0s for "hig-component-root" Other to exist
+    t =     3.33s             Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     3.33s                 Checking existence of `"hig-component-root" Other`
+    t =     3.40s         Waiting 5.0s for "save" Button to exist
+    t =     4.46s             Checking `Expect predicate `existsNoRetry == 1` for object "save" Button`
+    t =     4.46s                 Checking existence of `"save" Button`
+    t =     4.48s         Find the "save" Button
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/UITests/Phase03BehaviorTests.swift:394: error: -[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum] : XCTAssertTrue failed - BX9: height must be ≥44pt — got 25.125
+    t =     4.50s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX9_touchTargetMinimum]' failed (4.743 seconds).

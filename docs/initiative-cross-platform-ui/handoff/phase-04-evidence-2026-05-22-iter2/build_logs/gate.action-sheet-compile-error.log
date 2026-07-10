@@ -1,0 +1,30 @@
+Showing last frame. Use --error-trace for full trace.
+
+In tmp/compile-check/as_no_flag.cr:2:25
+
+ 2 | sheet = UI::ActionSheet.new("Title", "Message")
+                             ^--
+Error: UI::ActionSheet is iOS-only (Tier 3). This build does not have -Dios.
+
+Pick one:
+
+1. Build with -Dios:
+     crystal build my_app.cr -Dios
+
+2. Use the explicit web-fallback class instead:
+     UI::ActionSheetWithWebFallback.new(...)
+   which renders a native iOS action sheet on -Dios and an
+   accessible vanilla-JS bottom sheet on web (and a styled
+   ConfirmationDialog on macOS / Android).
+
+3. Guard the usage at the call site:
+     {% if flag?(:ios) %}
+       sheet = UI::ActionSheet.new("Title", "Message")
+       # ...
+     {% else %}
+       # alternate UI for this platform
+     {% end %}
+
+See docs/initiative-cross-platform-ui/tier-matrix.md for the full
+tier classification and which widgets require which flags.
+EXIT: 1

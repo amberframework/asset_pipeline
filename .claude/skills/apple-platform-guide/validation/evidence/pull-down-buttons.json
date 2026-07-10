@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.206029+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-17T13:38:08.977282+00:00",
+    "path": "reports/pull-down-buttons.md",
+    "sha256": "b764442ea7af8604bee4ba6cfc257e0a9489dc44c178eb186c9b9f7ad6ed7aab",
+    "size_bytes": 10745
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T13:11:29.716262+00:00",
+      "path": "screenshots/pull-down-buttons-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "ac30a3ef64562182ff0821834758f4b6db2a9ca5a9c933768bc3dd7eb4b81599",
+      "size_bytes": 118959
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-17T13:11:01.258743+00:00",
+      "path": "screenshots/pull-down-buttons-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "192086d53bcb935a91523089c77e75ca63ce4d1cafc6f1559e1a034253359d3c",
+      "size_bytes": 119034
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-17T12:34:24.015021+00:00",
+      "path": "screenshots/pull-down-buttons-macos-dark.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "23806c76dace2d56251f1d4993c17b4638623e1aae45dce6fbec1cb0d12158c4",
+      "size_bytes": 40501
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-17T12:34:23.175471+00:00",
+      "path": "screenshots/pull-down-buttons-macos-light.png",
+      "pixel_height": 900,
+      "pixel_width": 1200,
+      "sha256": "e6330bbbd4ee491326901351d141d454666646c42c9fae2a0501fdd8e8f778e7",
+      "size_bytes": 39424
+    }
+  },
+  "slug": "pull-down-buttons",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

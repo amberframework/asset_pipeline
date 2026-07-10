@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.212839+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T23:34:53.076311+00:00",
+    "path": "reports/segmented-controls.md",
+    "sha256": "913bee0156ed804e39a67f4ec48f9b6b63ff89a310c0dd7315f072593dd2ffe6",
+    "size_bytes": 1816
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T23:31:33.857863+00:00",
+      "path": "screenshots/segmented-controls-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "ea85ab57d68e11e75f8b91288b367902a2a8156d63905890ac9a7182a16f34b1",
+      "size_bytes": 563693
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-16T23:30:57.075591+00:00",
+      "path": "screenshots/segmented-controls-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "b1d05c06a3a22efed15ada19e1a86467c634e8c09008adc345a4450434612658",
+      "size_bytes": 431921
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-16T23:33:03.224534+00:00",
+      "path": "screenshots/segmented-controls-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "9dd582eb3b38e01c8ad49a452f841e20be2009c999905d945dd272dfa2f3a96d",
+      "size_bytes": 1279124
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-16T23:33:02.356565+00:00",
+      "path": "screenshots/segmented-controls-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "943099b302cb016e1e79fd82c11dc82d58b0e0b962929e9bb418b7935e3a1f23",
+      "size_bytes": 953820
+    }
+  },
+  "slug": "segmented-controls",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

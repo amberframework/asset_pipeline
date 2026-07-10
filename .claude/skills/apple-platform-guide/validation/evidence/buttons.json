@@ -1,0 +1,53 @@
+{
+  "errors": [],
+  "generated_at": "2026-04-17T19:19:00.166459+00:00",
+  "report": {
+    "exists": true,
+    "mtime": "2026-04-16T15:36:35.731631+00:00",
+    "path": "reports/buttons.md",
+    "sha256": "97f77b9acad96cef2474af2cd68d8a62ab60133bcceadf04eb506ff1d945b258",
+    "size_bytes": 2338
+  },
+  "screenshots": {
+    "ios_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:37:19.674170+00:00",
+      "path": "screenshots/buttons-ios-dark.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "671b68ee82e2b902e0bba3e6d9da9dbeb7219f101fa4f566e0ef8ece841480b2",
+      "size_bytes": 886284
+    },
+    "ios_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:36:49.493039+00:00",
+      "path": "screenshots/buttons-ios-light.png",
+      "pixel_height": 1808,
+      "pixel_width": 1206,
+      "sha256": "7126888527587acc886f4101b36ab963e7c33a2e073b7f4d8e9237e34b52ea3e",
+      "size_bytes": 648087
+    },
+    "macos_dark": {
+      "exists": true,
+      "mtime": "2026-04-15T20:24:52.938640+00:00",
+      "path": "screenshots/buttons-macos-dark.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "38596d5629c9c286c86d6a86e96fd1376174e7dd1284f9858ccf53a425148303",
+      "size_bytes": 442980
+    },
+    "macos_light": {
+      "exists": true,
+      "mtime": "2026-04-15T20:24:51.968318+00:00",
+      "path": "screenshots/buttons-macos-light.png",
+      "pixel_height": 1800,
+      "pixel_width": 2400,
+      "sha256": "4eb95ce927a8a7e8ae6eeb3f273d114154b518310263486260ddc2871335a860",
+      "size_bytes": 404892
+    }
+  },
+  "slug": "buttons",
+  "valid": true,
+  "validation_state": "pass_with_notes",
+  "warnings": []
+}

@@ -1,0 +1,3 @@
+getpwuid_r did not find a match for uid 501
+Filtering the log data using "composedMessage CONTAINS "voyager-interaction-proof""
+Child process terminated with signal 15: Terminated

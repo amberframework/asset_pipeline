@@ -1,0 +1,115 @@
+{
+  "check_id": "focus.context-menu-keyboard-nav",
+  "page": "samples/cross_platform/web/dist/phase04_context_menu_demo.html",
+  "selectors": [
+    "[data-testid=ctx-trigger-center]",
+    ".ap-ctx-menu",
+    ".ap-ctx-menu__item"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (trigger.focus + dispatchEvent contextmenu)",
+    "Input.dispatchKeyEvent (ArrowDown/Up/Home/End/Escape)",
+    "Runtime.evaluate (activeElement transcript)"
+  ],
+  "trusted_input_trace": [
+    "trigger.focus",
+    "dispatchEvent('contextmenu')",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowUp",
+    "Home",
+    "End",
+    "Escape"
+  ],
+  "expected_state": {
+    "menu_closed_after_escape": true,
+    "focus_returned_to_trigger": true,
+    "no_disabled_item_visited": true
+  },
+  "observed_state": {
+    "menu_items_fixture": [
+      {
+        "index": 0,
+        "label": "Open",
+        "aria_disabled": "false",
+        "is_destructive": false
+      },
+      {
+        "index": 1,
+        "label": "Rename",
+        "aria_disabled": "false",
+        "is_destructive": false
+      },
+      {
+        "index": 2,
+        "label": "Duplicate",
+        "aria_disabled": "true",
+        "is_destructive": false
+      },
+      {
+        "index": 3,
+        "label": "Delete",
+        "aria_disabled": "false",
+        "is_destructive": true
+      }
+    ],
+    "transcript": [
+      {
+        "after": "open",
+        "tag": "BUTTON",
+        "label": "Open",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "ArrowDown",
+        "tag": "BUTTON",
+        "label": "Rename",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "ArrowDown",
+        "tag": "BUTTON",
+        "label": "Delete",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "ArrowUp",
+        "tag": "BUTTON",
+        "label": "Rename",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "Home",
+        "tag": "BUTTON",
+        "label": "Open",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "End",
+        "tag": "BUTTON",
+        "label": "Delete",
+        "aria_disabled": null,
+        "in_menu": true
+      },
+      {
+        "after": "Escape",
+        "tag": "BUTTON",
+        "label": "Center trigger",
+        "aria_disabled": null,
+        "in_menu": false
+      }
+    ],
+    "menu_closed_after_escape": true,
+    "focus_returned_to_trigger": true,
+    "no_disabled_item_visited": true
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/focus.context-menu-keyboard-nav.json"
+  ]
+}

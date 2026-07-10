@@ -1,0 +1,174 @@
+{
+  "accessibility": [
+    "accessibility",
+    "voiceover"
+  ],
+  "alert": [
+    "alerts"
+  ],
+  "animation": [
+    "gestures",
+    "live-photos",
+    "motion"
+  ],
+  "appearance": [
+    "dark-mode",
+    "modality"
+  ],
+  "button": [
+    "action-button",
+    "buttons",
+    "combo-boxes",
+    "controls",
+    "pop-up-buttons",
+    "pull-down-buttons",
+    "segmented-controls"
+  ],
+  "chart": [
+    "charting-data",
+    "charts"
+  ],
+  "color": [
+    "color",
+    "color-wells",
+    "dark-mode"
+  ],
+  "feedback": [
+    "color",
+    "feedback",
+    "motion"
+  ],
+  "gesture": [
+    "gestures"
+  ],
+  "icon": [
+    "app-icons",
+    "dock-menus",
+    "icons"
+  ],
+  "image": [
+    "image-views",
+    "image-wells",
+    "images",
+    "imessage-apps-and-stickers",
+    "page-controls",
+    "split-views"
+  ],
+  "input": [
+    "combo-boxes",
+    "digital-crown",
+    "keyboards",
+    "nfc",
+    "remotes",
+    "search-fields",
+    "selection-and-input",
+    "text-fields",
+    "token-fields"
+  ],
+  "interactive": [
+    "live-photos",
+    "lockups",
+    "popovers"
+  ],
+  "layout": [
+    "collections",
+    "layout",
+    "layout-and-organization",
+    "spatial-layout"
+  ],
+  "list": [
+    "lists-and-tables",
+    "outline-views",
+    "page-controls",
+    "pickers"
+  ],
+  "map": [
+    "maps"
+  ],
+  "material": [
+    "materials"
+  ],
+  "menu": [
+    "context-menus",
+    "dock-menus",
+    "edit-menus",
+    "menus",
+    "menus-and-actions",
+    "pop-up-buttons",
+    "pull-down-buttons",
+    "the-menu-bar"
+  ],
+  "navigation": [
+    "navigation-and-search",
+    "toolbars"
+  ],
+  "notification": [
+    "managing-notifications",
+    "notifications"
+  ],
+  "onboarding": [
+    "onboarding"
+  ],
+  "picker": [
+    "pickers"
+  ],
+  "search": [
+    "navigation-and-search",
+    "search-fields",
+    "searching",
+    "toolbars"
+  ],
+  "sheet": [
+    "action-sheets",
+    "activity-views",
+    "sheets"
+  ],
+  "sidebar": [
+    "sidebars"
+  ],
+  "slider": [
+    "sliders"
+  ],
+  "tab-bar": [
+    "tab-bars",
+    "tab-views"
+  ],
+  "table": [
+    "lists-and-tables",
+    "split-views"
+  ],
+  "text": [
+    "color-wells",
+    "combo-boxes",
+    "drag-and-drop",
+    "keyboards",
+    "labels",
+    "sf-symbols",
+    "text-fields",
+    "text-views",
+    "token-fields",
+    "typography"
+  ],
+  "toggle": [
+    "multitasking",
+    "tab-views",
+    "toggles"
+  ],
+  "toolbar": [
+    "toolbars"
+  ],
+  "typography": [
+    "sf-symbols",
+    "typography"
+  ],
+  "widget": [
+    "widgets"
+  ],
+  "window": [
+    "going-full-screen",
+    "immersive-experiences",
+    "ornaments",
+    "panels",
+    "windows"
+  ]
+}

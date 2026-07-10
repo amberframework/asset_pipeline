@@ -1,4 +1,5 @@
 require "../elements/base/raw_html"
+require "../css/component_css_registry"
 
 module Components
   # Base class for all components
@@ -6,70 +7,94 @@ module Components
   abstract class Component
     # Unique identifier for this component instance
     getter component_id : String
-    
+
     # Component attributes (props)
     getter attributes : Hash(String, String)
-    
+
     # Component children
     getter children : Array(Component | Elements::HTMLElement | String | Elements::RawHTML)
-    
+
     def initialize(**attrs)
       @component_id = generate_component_id
       @attributes = {} of String => String
       @children = [] of Component | Elements::HTMLElement | String | Elements::RawHTML
-      
+
       # Process attributes
       attrs.each do |key, value|
         @attributes[key.to_s] = value.to_s
       end
     end
-    
+
     # Add a child to the component
     def <<(child : Component | Elements::HTMLElement | String | Elements::RawHTML) : self
       @children << child
       self
     end
-    
+
     # Add multiple children
     def add_children(*children : Component | Elements::HTMLElement | String | Elements::RawHTML) : self
       children.each { |child| self << child }
       self
     end
-    
+
     # Build content using a block
     def build(&block : self -> Nil) : self
       yield self
       self
     end
-    
+
     # Get an attribute value
     def [](name : String) : String?
       @attributes[name]?
     end
-    
+
     # Set an attribute value
     def []=(name : String, value : String) : String
       @attributes[name] = value
     end
-    
+
     # Render the component to HTML string
     def render : String
       render_content
     end
-    
+
     # Render the component as raw HTML (for adding to elements)
     def to_raw_html : Elements::RawHTML
       Elements::RawHTML.new(render)
     end
-    
+
+    # Macro for registering component-level CSS.
+    # CSS is stored as a class variable and registered with the global
+    # ComponentCSSRegistry when the class is first loaded.
+    #
+    # Usage:
+    #   class ButtonComponent < Components::StatelessComponent
+    #     component_css <<-CSS
+    #       .btn { display: inline-flex; align-items: center; }
+    #       .btn-primary { background-color: var(--color-blue-500); }
+    #     CSS
+    #   end
+    macro component_css(css_string)
+      @@_component_css : String = {{css_string}}
+
+      def self.component_css_string : String
+        @@_component_css
+      end
+
+      Components::CSS::ComponentCSSRegistry.instance.register(
+        {{@type.name.stringify}},
+        @@_component_css
+      )
+    end
+
     # Abstract method to be implemented by subclasses
     abstract def render_content : String
-    
+
     # Generate a unique component ID
     private def generate_component_id : String
       "component-#{Time.utc.to_unix_ms}-#{Random.rand(10000)}"
     end
-    
+
     # Render children components/elements
     protected def render_children : String
       @children.map do |child|
@@ -87,16 +112,16 @@ module Components
         end
       end.join
     end
-    
+
     # Escape HTML content
     protected def escape_html(content : String) : String
       content.gsub('&', "&amp;")
-             .gsub('<', "&lt;")
-             .gsub('>', "&gt;")
-             .gsub('"', "&quot;")
-             .gsub('\'', "&#39;")
+        .gsub('<', "&lt;")
+        .gsub('>', "&gt;")
+        .gsub('"', "&quot;")
+        .gsub('\'', "&#39;")
     end
-    
+
     # Convert to string (alias for render)
     def to_s(io : IO) : Nil
       io << render

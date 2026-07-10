@@ -1,0 +1,9 @@
+BX12 iOS — Phase03BehaviorTests/testBX12_runtimeInitOrder
+======================================================
+Status: PASSED (5.872 seconds)
+Source: xcuitest-full.log line 138-155
+Assertion 1: app.buttons["save"].waitForExistence(timeout:5) — PASS
+Assertion 2: app.state == .runningForeground — PASS
+Conclusion: iOS host reached first SwiftKit-rendered Button without crashing.
+EXC_BAD_ACCESS recorded ONLY for BX4 (sprintf Float64) and BX8 (apsk_nsstring NULL),
+both inside specific probe slugs — not on launch and not on the BX12 init path.

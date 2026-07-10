@@ -1,0 +1,19 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX10_darkModeTintShift_dark]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:05.975
+    t =     0.04s Set Up
+    t =     0.04s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Terminate com.assetpipeline.hig.CrystalHIGHost:82740
+2026-05-21 13:41:07.123 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:07.123 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.37s         Setting up automation session
+    t =     2.19s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.43s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.51s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.52s         Checking existence of `"hig-component-root" Other`
+    t =     4.57s Waiting 5.0s for "save" Button to exist
+    t =     5.64s     Checking `Expect predicate `existsNoRetry == 1` for object "save" Button`
+    t =     5.64s         Checking existence of `"save" Button`
+    t =     5.83s Added attachment named 'V1-default-button-ios-dark.png'
+    t =     5.83s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX10_darkModeTintShift_dark]' passed (6.121 seconds).

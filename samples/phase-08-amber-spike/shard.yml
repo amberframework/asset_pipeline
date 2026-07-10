@@ -1,0 +1,21 @@
+name: phase_08_amber_spike
+version: 0.1.0
+
+authors:
+  - crimson-knight <crimsonknightstudios@gmail.com>
+
+crystal: ">= 1.11.0"
+
+license: MIT
+
+targets:
+  spike:
+    main: src/spike_app.cr
+
+dependencies:
+  amber:
+    github: amberframework/amber
+    version: ~> 1.4.0
+
+  asset_pipeline:
+    path: ../..

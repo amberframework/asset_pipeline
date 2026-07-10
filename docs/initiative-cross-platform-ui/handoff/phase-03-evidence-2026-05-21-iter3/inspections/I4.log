@@ -1,0 +1,18 @@
+=== I4 inspection result (architect-adjudicated PASS) ===
+
+Literal symbol `objc_send_ulong_ret_id` NOT FOUND in:
+  - src/ui/native/objc_bridge.m
+  - src/ui/renderers/uikit_renderer.cr
+  - src/ui/renderers/appkit_renderer.cr
+
+Per Phase 3 implementation.md §7.4, the canonical pattern is the typed
+LibSwiftKitBridge wrappers (`fun apsk_make_<widget>(... action_token : UInt64) : Void*`).
+The §7.3 raw `objc_send_ulong_ret_id` pattern is superseded.
+
+Verification of the equivalent canonical pattern:
+  - src/ui/native/swiftkit_bridge.cr declares 39 `fun apsk_make_*` typed wrappers
+  - including `apsk_make_list_view` at line 236 (the Remediation 2 closure)
+  - call site in uikit_renderer.cr line 1264, appkit_renderer.cr line 1269
+
+ADJUDICATION (per Architect handoff, owner-approved):
+  passed = true; rationale = "Typed-wrapper §7.4 canonical pattern in place; semantic met."

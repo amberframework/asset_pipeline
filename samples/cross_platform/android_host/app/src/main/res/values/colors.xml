@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="host_primary">#6750A4</color>
+    <color name="host_on_primary">#FFFFFF</color>
+    <color name="host_primary_container">#EADDFF</color>
+    <color name="host_on_primary_container">#21005D</color>
+    <color name="host_surface">#FFFBFE</color>
+    <color name="host_surface_variant">#E7E0EC</color>
+    <color name="host_on_surface">#1D1B20</color>
+    <color name="host_on_surface_variant">#49454F</color>
+    <color name="host_outline">#79747E</color>
+    <color name="host_outline_variant">#CAC4D0</color>
+</resources>
+

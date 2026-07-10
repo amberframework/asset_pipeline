@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T14:43:15Z",
+  "slug": "buttons",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/buttons.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/buttons-android-phone-light.png",
+      "tablet": "../screenshots/buttons-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/buttons-android-phone-dark.png",
+      "tablet": "../screenshots/buttons-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Static light, dark, phone, and tablet captures are current.",
+    "Pressed, disabled, and focus-state evidence is still missing.",
+    "Button callback verification is still blocked on the unfinished Android interaction bridge."
+  ],
+  "errors": [
+
+  ]
+}

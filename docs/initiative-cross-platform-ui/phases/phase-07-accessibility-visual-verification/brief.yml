@@ -1,0 +1,307 @@
+phase:
+  number: 7
+  name: "CI Integration for Accessibility & Visual Verification"
+  branch: "phase-07-ci-integration"
+  parent_branch: "feature/utility-first-css-asset-pipeline"
+  parent_sha: "c93e7d7"
+  authored_at: "2026-05-23"
+
+# Phase 7 contract decisions baked into this brief. Final phase of the
+# cross-platform UI initiative. Wraps Phase 6.5's pre-existing audit
+# harness + Phase 6/6.8/6.9's polished baselines into GitHub Actions
+# CI so the audits + visual diffs run on every PR.
+#
+# 1. SCOPE (per Phase 7 README — narrowed 2026-05-22):
+#    (a) GitHub Actions workflow at
+#        `.github/workflows/initiative-cross-platform-ui.yml` that runs
+#        on PRs to feature/utility-first-css-asset-pipeline.
+#    (b) Workflow invokes Phase 6.5's `scripts/audit_harness.cr` (and
+#        `audit_harness_smoke.sh`) to run visual regression + a11y
+#        audits across the demo's 4 surfaces.
+#    (c) Workflow builds the demo on web + macOS + iOS (macOS runner
+#        only — Linux runners can't build iOS).
+#    (d) Workflow fails the check if any audit reports a violation.
+#    (e) Verification runbook at
+#        `docs/initiative-cross-platform-ui/verification-runbook.md`
+#        explaining how to refresh baselines, interpret CI failures,
+#        and run audits locally.
+#    (f) CLAUDE.md pointer to the runbook + audit harness.
+#    (g) Initial test PR demonstrating the gate works (introduce a
+#        deliberate regression, observe CI failure, revert).
+#
+# 2. NOT IN SCOPE (per README — moved to Phase 6.5):
+#    - Authoring the audit harness itself.
+#    - Designing visual diff algorithm or pixel tolerance.
+#    - AXTest/XCUITest pattern library.
+#    Phase 7 ONLY wraps existing infrastructure into CI.
+#
+# 3. INVARIANT TOUCH PATTERN: Phase 7 is pure CI integration —
+#    runtime behavior of the asset_pipeline library is unchanged.
+#    All 11 invariants are `preserves` EXCEPT I-11 (build/link/load
+#    closure) which is `extends` because Phase 7 adds the GitHub
+#    Actions workflow as a new build closure target.
+#
+# 4. CI WORKFLOW CONSTRAINTS:
+#    - Use macOS runner (only one capable of building Swift +
+#      xcodebuild + Crystal cross-compile for iOS).
+#    - Cache: Crystal `lib/` shards, Swift `.build/` to keep CI runtime
+#      under ~30 minutes. NO npm cache needed — Phase 6.5 ships axe-core
+#      + IBM Equal Access as VENDORED JS at vendor/audit/ (no live npm
+#      install at runtime).
+#    - Required setup steps: install crystal-alpha (Homebrew tap),
+#      install magick (Homebrew), Crystal cross-compile deps already
+#      vendored. Node is pre-installed on GitHub macOS runners — used
+#      ONLY by the harness's CDP probes for evaluating the vendored
+#      axe/IBM Equal Access JS, not for npm install at runtime.
+#    - Workflow MUST NOT modify the working tree. It runs audits +
+#      reports.
+#
+# 5. TEST PR DEMONSTRATION: The brief requires test PR evidence that
+#    the gate works on BOTH failure modes:
+#    (a) Visual regression: introduce a deliberate visual change
+#        (e.g., flip Sign-in button color to red in sign_in.cr);
+#        observe CI fails on the diff against the committed baseline;
+#        revert the change.
+#    (b) Accessibility violation: introduce a deliberate a11y
+#        regression (e.g., remove an aria-label or color-contrast
+#        violation in the demo); observe CI fails on the axe-core
+#        + IBM Equal Access audit; revert.
+#    Both test PR runs must be captured (URL + screenshot/log) and
+#    included in the Implementer's report.
+#
+#    If the Implementer dispatch DOES NOT have GitHub push access:
+#    the Implementer EXPLICITLY says so in their report, and the
+#    architect adjudicates by running the workflow locally via
+#    `act` (or equivalent) on the YAML file and capturing the
+#    output as substitute evidence. The architect-adjudication
+#    decision goes in the Phase 7 reflection doc.
+
+invariant_matrix:
+  - id: I-1
+    name: "Render correctly"
+    touch: preserves
+    rationale: "Phase 7 ships CI workflow only — no rendering code changes. The visual baselines committed by Phase 6/6.8/6.9 remain the ground truth; CI re-runs the diff against them on every PR."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-1 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-1 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-1 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android sim/emulator deferred per Phase 1 #17 — Phase 7 CI workflow excludes Android target"
+        owner_approved: "2026-05-23"
+
+  - id: I-2
+    name: "Update reactively (forward)"
+    touch: preserves
+    rationale: "No runtime behavior change. Reactive bridge unchanged."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-2 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-2 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-2 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-3
+    name: "Dispatch events (backward)"
+    touch: preserves
+    rationale: "No event-path changes. CI runs the existing probes."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-3 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-3 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-3 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-4
+    name: "Restore focus"
+    touch: preserves
+    rationale: "No focus-handling changes. CI runs existing focus probes."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-4 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-4 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-4 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-5
+    name: "Manage lifecycle"
+    touch: preserves
+    rationale: "No lifecycle code changes."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-5 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-5 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-5 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-6
+    name: "Propagate accessibility"
+    touch: preserves
+    rationale: "Phase 7 wraps Phase 6.5's existing axe-core + IBM Equal Access + AXTest + XCUITest probes into CI. The accessibility checks themselves are unchanged; what Phase 7 adds is automated invocation on every PR."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-6 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-6 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-6 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-7
+    name: "Manage memory ownership"
+    touch: preserves
+    rationale: "No new C-export mutators or ObservableObjects. Phase 7 is pure YAML + documentation."
+    probes:
+      ios: "spec/asset_pipeline_spec.cr"
+      macos: "spec/asset_pipeline_spec.cr"
+      web: "spec/asset_pipeline_spec.cr"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-8
+    name: "Honor environment"
+    touch: preserves
+    rationale: "No env-response code changes. CI runs the existing env probes."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-8 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-8 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-8 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-9
+    name: "Survive embedding"
+    touch: preserves
+    rationale: "No new Crystal class vars. Phase 7 is YAML workflow + runbook + CLAUDE.md pointer."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-9 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-9 macos demo-sign-in"
+      web:
+        skip: true
+        reason: "No embedding on web"
+        owner_approved: "2026-05-23"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-10
+    name: "API/fallback contract fidelity"
+    touch: preserves
+    rationale: "No public API changes. CI runs the existing contract-walker (audit_contract_walk.cr from Phase 6.5)."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-10 ios demo-sign-in"
+      macos: "bash scripts/audit_harness_smoke.sh I-10 macos demo-sign-in"
+      web: "bash scripts/audit_harness_smoke.sh I-10 web demo-sign-in"
+      android:
+        skip: true
+        reason: "Android deferred per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+  - id: I-11
+    name: "Target build / link / load closure"
+    touch: extends
+    rationale: "Phase 7 adds the GitHub Actions workflow as a NEW build closure target. The workflow's setup steps must successfully install crystal-alpha + magick + dependencies on GitHub macOS runners and run all 4 existing build closures (web semantic, macOS host, iOS Crystal-lib, iOS xcodebuild) + the audit harness on every PR. Local probe verification is the existing 4 build closures; the GitHub Actions workflow's verification happens when a test PR runs."
+    probes:
+      ios: "bash scripts/audit_harness_smoke.sh I-11 ios"
+      macos: "bash scripts/audit_harness_smoke.sh I-11 macos"
+      web: "bash scripts/audit_harness_smoke.sh I-11 web"
+      android:
+        skip: true
+        reason: "Android cross-build remains architect-precedent PASS per Phase 1 #17"
+        owner_approved: "2026-05-23"
+
+lower_layer_assumptions:
+  - id: A1
+    claim: "Crystal toolchain is available (crystal-alpha or crystal)"
+    falsifier: "Neither in PATH"
+    verification: "which crystal-alpha || which crystal"
+
+  - id: A2
+    claim: "Phase 6.5 audit harness is shipped — scripts/audit_harness.cr + audit_harness_smoke.sh exist"
+    falsifier: "Either missing"
+    verification: "test -f scripts/audit_harness.cr && test -x scripts/audit_harness_smoke.sh"
+
+  - id: A3
+    claim: "Phase 6 demo baselines exist — 10 PNGs per surface dir × 4 dirs (ios, macos, web-desktop, web-mobile) = 40 total"
+    falsifier: "Any surface dir has fewer than 10 demo PNGs"
+    verification: "test \"$(ls docs/initiative-cross-platform-ui/baselines/ios/demo-*.png | wc -l | tr -d ' ')\" = \"10\" && test \"$(ls docs/initiative-cross-platform-ui/baselines/macos/demo-*.png | wc -l | tr -d ' ')\" = \"10\" && test \"$(ls docs/initiative-cross-platform-ui/baselines/web-desktop/demo-*.png | wc -l | tr -d ' ')\" = \"10\" && test \"$(ls docs/initiative-cross-platform-ui/baselines/web-mobile/demo-*.png | wc -l | tr -d ' ')\" = \"10\""
+
+  - id: A4
+    claim: "Phase 6.x PASS tags exist (Phase 7 baselines against current state)"
+    falsifier: "Any of the 4 tags missing"
+    verification: "git tag --list 'phase-06-pass-2026-05-23' 'phase-06.5-pass-2026-05-23' 'phase-06.8-pass-2026-05-23' 'phase-06.9-pass-2026-05-23' | wc -l | grep -q 4"
+
+  - id: A5
+    claim: "ImageMagick installed (Phase 7 CI workflow runs magick compare for visual diffs)"
+    falsifier: "magick missing"
+    verification: "test -x /opt/homebrew/bin/magick && test -x /opt/homebrew/bin/compare"
+
+  - id: A6
+    claim: "GitHub Actions workflow at .github/workflows/initiative-cross-platform-ui.yml exists (post-Phase-7 — flipped from pre-impl 'does NOT yet exist' after the Implementer landed Deliverable 1)"
+    falsifier: "Workflow missing"
+    verification: "test -f .github/workflows/initiative-cross-platform-ui.yml"
+
+  - id: A7
+    claim: "Verification runbook at docs/initiative-cross-platform-ui/verification-runbook.md exists (post-Phase-7 — flipped from pre-impl 'does NOT yet exist' after the Implementer landed Deliverable 2)"
+    falsifier: "Runbook missing"
+    verification: "test -f docs/initiative-cross-platform-ui/verification-runbook.md"
+
+repo_derived_facts:
+  - fact: "Demo baseline PNG count across 4 surface directories"
+    query: "find docs/initiative-cross-platform-ui/baselines -type f -name 'demo-*.png' | wc -l | tr -d ' '"
+    expected: "40"
+    captured_at_sha: "c93e7d7"
+
+  - fact: "Phase 6 PASS tag exists"
+    query: "git tag --list 'phase-06-pass-2026-05-23' | head -1"
+    expected: "phase-06-pass-2026-05-23"
+    captured_at_sha: "c93e7d7"
+
+  - fact: "Phase 6.5 PASS tag exists"
+    query: "git tag --list 'phase-06.5-pass-2026-05-23' | head -1"
+    expected: "phase-06.5-pass-2026-05-23"
+    captured_at_sha: "c93e7d7"
+
+  - fact: "Audit harness Crystal entry exists"
+    query: "test -f scripts/audit_harness.cr && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "c93e7d7"
+
+  - fact: "Existing .github/workflows directory (already exists for other workflows; Phase 7 adds a new file in it)"
+    query: "test -d .github/workflows && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "c93e7d7"
+
+  - fact: "Initiative workflow file at .github/workflows/initiative-cross-platform-ui.yml (Phase 7 D1 — amended from missing -> exists post-impl)"
+    query: "test -f .github/workflows/initiative-cross-platform-ui.yml && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "c93e7d7"
+    amended_post_impl: true
+
+  - fact: "Verification runbook (Phase 7 D2 — amended from missing -> exists post-impl)"
+    query: "test -f docs/initiative-cross-platform-ui/verification-runbook.md && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "c93e7d7"
+    amended_post_impl: true
+
+  - fact: "scripts/audit_harness_smoke.sh executable + present"
+    query: "test -x scripts/audit_harness_smoke.sh && echo exists || echo missing"
+    expected: "exists"
+    captured_at_sha: "c93e7d7"
+
+pre_dispatch_validation:
+  script_path: "scripts/validate_phase_brief.cr"
+  expected_exit_code: 0

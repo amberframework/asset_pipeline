@@ -1,0 +1,12 @@
+phase-03-button-default-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-button-default-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-button-background-override-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-button-background-override-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-button-square-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-button-square-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-toggle-default-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-toggle-default-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-card-default-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-card-default-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-form-default-light: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}
+phase-03-form-default-dark: {"same_size": true, "a_size": [2400, 1800], "total_px": 4320000, "diff_px": 0, "pct_diff": 0.0, "threshold_pct": 0.5, "passed": true}

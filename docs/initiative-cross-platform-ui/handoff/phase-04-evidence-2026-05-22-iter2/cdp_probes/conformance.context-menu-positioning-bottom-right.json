@@ -1,0 +1,64 @@
+{
+  "check_id": "conformance.context-menu-positioning-bottom-right",
+  "page": "samples/cross_platform/web/dist/phase04_context_menu_demo.html",
+  "selectors": [
+    "[data-testid=ctx-trigger-br]",
+    ".ap-ctx-menu"
+  ],
+  "cdp_methods": [
+    "Emulation.setDeviceMetricsOverride (1280x800)",
+    "Runtime.evaluate (rect capture)",
+    "Input.dispatchMouseEvent (right press/release at trigger center)",
+    "Runtime.evaluate (post-open rect capture)"
+  ],
+  "trusted_input_trace": [
+    "read trigger rect",
+    "right-mouseDown@(1215.0,778.0)",
+    "right-mouseUp@(1215.0,778.0)"
+  ],
+  "expected_state": {
+    "trigger_in_quadrant": true,
+    "menu_on_screen": true,
+    "menu_anchored_within_tolerance_or_repositioned": true
+  },
+  "observed_state": {
+    "click_point": {
+      "x": 1214.953125,
+      "y": 778.0
+    },
+    "trigger_rect": {
+      "left": 1149.90625,
+      "top": 756,
+      "right": 1280,
+      "bottom": 800,
+      "width": 130.09375,
+      "height": 44
+    },
+    "menu_rect": {
+      "left": 1062,
+      "top": 645,
+      "right": 1272,
+      "bottom": 792,
+      "width": 210,
+      "height": 147
+    },
+    "viewport": {
+      "w": 1280,
+      "h": 800
+    },
+    "trigger_in_quadrant": true,
+    "on_screen": true,
+    "anchored_within_tolerance": true,
+    "anchor_tolerance_px": 8.0,
+    "flipped_edge_predicates": {
+      "br_right_inset_ok": true,
+      "br_bottom_inset_ok": true,
+      "br_left_of_click": true,
+      "br_above_click": true
+    }
+  },
+  "pass": true,
+  "artifacts": [
+    "inspections/conformance.context-menu-positioning-bottom-right.json"
+  ]
+}

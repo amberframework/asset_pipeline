@@ -1,0 +1,56 @@
+name: VoyagerDemo
+options:
+  bundleIdPrefix: com.assetpipeline.voyager
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
+targets:
+  VoyagerDemo:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      PRODUCT_BUNDLE_IDENTIFIER: com.assetpipeline.voyager.VoyagerDemo
+      # Phase 6.10 Rem 4 (Item 2A) — INFOPLIST_KEY_UILaunchScreen_Generation
+      # tells Xcode's auto-generated Info.plist to emit a
+      # `UILaunchScreen` dictionary, which is the iOS 14+ recipe for
+      # signaling "this app uses the full device screen". Without it,
+      # iOS 26 letterboxes the app to a smaller frame with black bars
+      # above + below the safe area (the owner's Rem 3 hand-test
+      # complaint: "aspect ratio is clearly wrong").
+      INFOPLIST_KEY_UILaunchScreen_Generation: YES
+      LIBRARY_SEARCH_PATHS:
+        - $(PROJECT_DIR)/build
+        - /tmp/crystal-cross-deps/ios-simulator/lib
+      SWIFT_OBJC_BRIDGING_HEADER: Sources/Voyager-Bridging-Header.h
+      OTHER_LDFLAGS:
+        - -lvoyager
+        - -lgc
+        - -liconv
+        - -Wl,-force_load,$(PROJECT_DIR)/build/swiftkit_simulator.a
+        - -framework SwiftUI
+        - -framework Combine
+        - -framework UIKit
+        - -framework Foundation
+        - -framework UserNotifications
+        - -framework WebKit
+        - -framework MapKit
+        - -framework CoreLocation
+        - -framework AVKit
+        - -framework AVFoundation
+        - -lobjc
+    dependencies: []
+  VoyagerDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      PRODUCT_BUNDLE_IDENTIFIER: com.assetpipeline.voyager.VoyagerDemoUITests
+      TEST_TARGET_NAME: VoyagerDemo
+    dependencies:
+      - target: VoyagerDemo

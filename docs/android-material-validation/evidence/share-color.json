@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T16:28:51Z",
+  "slug": "share-color",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/share-color.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/share-color-android-phone-light.png",
+      "tablet": "../screenshots/share-color-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/share-color-android-phone-dark.png",
+      "tablet": "../screenshots/share-color-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Current phone, tablet, light, and dark captures were refreshed on April 18, 2026.",
+    "Color selection and Android share preview now mount through renderer-backed surfaces instead of placeholder boxes.",
+    "Promotion is still blocked until share-target, quick-action, and cancel callbacks have fresh explicit interaction proof alongside the static matrix captures."
+  ],
+  "errors": [
+
+  ]
+}

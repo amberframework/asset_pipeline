@@ -1,0 +1,14 @@
+=== I10 runtime init points ===
+--- ensure_swiftkit_runtime! in uikit_renderer.cr ---
+159:      # action trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`.
+182:        ensure_swiftkit_runtime!
+213:      # (see `render(...)` / `ensure_swiftkit_runtime!`).
+4568:      # `UI::AppKit::Renderer#ensure_swiftkit_runtime!` — see that method
+4571:      private def ensure_swiftkit_runtime! : Nil
+--- ensure_swiftkit_runtime! in appkit_renderer.cr ---
+139:      # trampoline pointer to AssetPipelineSwiftKit's `APSKRuntime`. The
+165:        ensure_swiftkit_runtime!
+207:      # `render(...)` / `ensure_swiftkit_runtime!`).
+238:        #    APSKRuntime invokes `ap_swiftkit_invoke_action(token, 0.0)` on
+4535:      private def ensure_swiftkit_runtime! : Nil
+--- in samples ---

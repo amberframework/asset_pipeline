@@ -1,0 +1,12 @@
+## JS fallback line counts
+     140 src/ui/web/action_sheet_fallback.js
+     188 src/ui/web/context_menu_fallback.js
+     328 total
+
+## External imports/requires (should be empty):
+(none)
+
+## --amber-* legacy refs in Phase 4 files (should be empty):
+(none)
+
+## --ap-* prefix in src/ui/web/ (first 15):

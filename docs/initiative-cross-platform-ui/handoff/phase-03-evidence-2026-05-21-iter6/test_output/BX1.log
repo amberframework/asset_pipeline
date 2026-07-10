@@ -1,0 +1,46 @@
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX1_buttonTapFiresHandler]' started.
+    t =     0.00s Start Test at 2026-05-21 13:41:24.029
+    t =     0.03s Set Up
+    t =     0.04s Open com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s     Launch com.assetpipeline.hig.CrystalHIGHost
+    t =     0.04s         Terminate com.assetpipeline.hig.CrystalHIGHost:83035
+2026-05-21 13:41:25.083 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-05-21 13:41:25.083 xcodebuild[82596:897021] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     1.27s         Setting up automation session
+    t =     2.08s         Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     3.32s Waiting 10.0s for "hig-component-root" Other to exist
+    t =     4.41s     Checking `Expect predicate `existsNoRetry == 1` for object "hig-component-root" Other`
+    t =     4.41s         Checking existence of `"hig-component-root" Other`
+    t =     4.45s Waiting 5.0s for "tap-probe-button" Button to exist
+    t =     5.53s     Checking `Expect predicate `existsNoRetry == 1` for object "tap-probe-button" Button`
+    t =     5.53s         Checking existence of `"tap-probe-button" Button`
+    t =     5.54s Waiting 3.0s for "tap-probe-counter" StaticText to exist
+    t =     6.61s     Checking `Expect predicate `existsNoRetry == 1` for object "tap-probe-counter" StaticText`
+    t =     6.61s         Checking existence of `"tap-probe-counter" StaticText`
+    t =     6.80s Added attachment named 'BX1-counter-initial.png'
+    t =     6.80s Find the "tap-probe-counter" StaticText
+    t =     6.81s Tap "tap-probe-button" Button
+    t =     6.81s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     6.82s     Find the "tap-probe-button" Button
+    t =     6.83s     Check for interrupting elements affecting "tap-probe-button" Button
+    t =     6.84s     Synthesize event
+    t =     7.13s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     7.40s Find the "tap-probe-counter" StaticText
+    t =     7.41s Tap "tap-probe-button" Button
+    t =     7.41s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     7.41s     Find the "tap-probe-button" Button
+    t =     7.42s     Check for interrupting elements affecting "tap-probe-button" Button
+    t =     7.43s     Synthesize event
+    t =     7.73s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     8.01s Find the "tap-probe-counter" StaticText
+    t =     8.02s Tap "tap-probe-button" Button
+    t =     8.02s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     8.03s     Find the "tap-probe-button" Button
+    t =     8.04s     Check for interrupting elements affecting "tap-probe-button" Button
+    t =     8.06s     Synthesize event
+    t =     8.35s     Wait for com.assetpipeline.hig.CrystalHIGHost to idle
+    t =     8.63s Find the "tap-probe-counter" StaticText
+    t =     8.82s Added attachment named 'BX1-counter-after-3-taps.png'
+    t =     8.82s Added attachment named 'BX1-label-transitions.json'
+    t =     8.82s Tear Down
+Test Case '-[CrystalHIGHostUITests.Phase03BehaviorTests testBX1_buttonTapFiresHandler]' passed (9.108 seconds).

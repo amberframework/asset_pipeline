@@ -1,0 +1,32 @@
+Showing last frame. Use --error-trace for full trace.
+
+In tmp/compile-check/ap_phase4_path_control.cr:2:22
+
+ 2 | pc = UI::PathControl.new
+                          ^--
+Error: UI::PathControl is macOS-only (Tier 3). NSPathControl has no honest
+
+cross-platform analog. This build does not have -Dmacos.
+
+Pick one:
+
+1. Build with -Dmacos:
+     crystal build my_app.cr -Dmacos
+
+2. Use the explicit web-fallback class instead:
+     UI::PathControlWithWebFallback.new(...)
+   which renders a native NSPathControl on -Dmacos and a
+   `<nav aria-label="Breadcrumb"><ol>...</ol></nav>` on every
+   other target.
+
+3. Guard the usage at the call site:
+     {% if flag?(:macos) %}
+       path = UI::PathControl.new(...)
+       # ...
+     {% else %}
+       # alternate UI for this platform
+     {% end %}
+
+See docs/initiative-cross-platform-ui/tier-matrix.md for the full
+tier classification and which widgets require which flags.
+exit: 1

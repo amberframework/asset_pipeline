@@ -1,0 +1,46 @@
+=== swiftkit_overrides.cr default-detection ===
+59:    #   the property differs from its type default. This is the
+60:    #   "default-detection" invariant — implementation.md §11 calls it
+114:      # default — that is the default-detection invariant in §11.
+165:        # Role: :default is the type default; anything else surfaces a
+167:        role_str = view.role == :default ? nil : view.role.to_s
+181:        # Disabled: false is the type default.
+194:        # Label uses LabelRole::Primary as the type default; only emit when
+239:        # No widget-specific overrides today; the SwiftUI SecureField default
+247:        unless view.shows_cancel_button
+284:        # Divider's tint default is hard-coded grey; only surface a colour
+288:        # orientation is :horizontal by default.
+289:        unless view.orientation == :horizontal
+307:        unless view.style == UI::ToggleStyle::Switch
+338:        unless view.style == UI::PickerStyle::Menu
+345:        unless view.mode == UI::DatePickerMode::Date
+393:        unless view.bar_position == :bottom
+407:        unless view.surface_style == :auto
+410:        # Detents — default is [:medium, :large]; only emit when changed.
+411:        default_detents = [:medium, :large]
+412:        unless view.detents == default_detents
+422:        unless view.arrow_edge == :bottom
+435:        unless view.buttons.empty?
+448:        unless view.confirm_label == "Confirm"
+451:        unless view.cancel_label == "Cancel"
+454:        unless view.confirm_style == :default
+463:        unless view.items.empty?
+475:        unless view.sections.empty?
+497:        unless view.alignment == UI::Alignment::Leading
+502:        unless view.children.empty?
+514:        unless view.material == :secondary
+
+=== sample patterns from Button visit (uikit) ===
+9:        #    via the Sender contract. The String target identifier is a
+10:        #    debug aid; the production sender closes over the pointer.
+11:        overrides_ptr = LibSwiftKitBridge.apsk_button_overrides_new
+12:        sender = UI::Native::SwiftKitObjCSender.new(overrides_ptr)
+14:        UI::Native::Populator.populate_button(target_str, view, sender)
+18:        if tap_handler = view.on_tap
+22:        # 3. Build the SwiftUI Button and hand the underlying UIView back.
+25:        #    through to a SwiftUI re-render via APSKButtonState.
+28:        ptr = LibSwiftKitBridge.apsk_make_button_reactive(
+34:        #    so the controller's lifetime tracks the view's.
+36:        unless state_slot.null?
+38:          view.swiftkit_state_handle = state_slot
+41:        native.track_callback_id(action_token) unless action_token == 0_u64

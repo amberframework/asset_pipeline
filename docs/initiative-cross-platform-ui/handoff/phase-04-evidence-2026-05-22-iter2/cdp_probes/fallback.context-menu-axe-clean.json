@@ -1,0 +1,88 @@
+{
+  "check_id": "fallback.context-menu-axe-clean",
+  "page": "samples/cross_platform/web/dist/phase04_context_menu_demo.html",
+  "selectors": [
+    ".ap-ctx-menu[data-presented=true]"
+  ],
+  "cdp_methods": [
+    "Runtime.evaluate (axe-core 4.10.2)",
+    "Runtime.evaluate (axe.run)",
+    "Page.captureScreenshot"
+  ],
+  "trusted_input_trace": [
+    "trigger.focus + dispatchEvent('contextmenu') @ center",
+    "axe.run(document)"
+  ],
+  "expected_state": {
+    "serious_or_critical_violation_count_total": 0
+  },
+  "observed_state": {
+    "results": [
+      {
+        "viewport": "1280-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": false,
+          "context_menu_presented": true,
+          "context_menu_item_count": 12,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [],
+        "incomplete": [],
+        "serious_or_critical_count": 0
+      },
+      {
+        "viewport": "1280-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": false,
+          "context_menu_presented": true,
+          "context_menu_item_count": 12,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [],
+        "incomplete": [],
+        "serious_or_critical_count": 0
+      },
+      {
+        "viewport": "375-light",
+        "scheme": "light",
+        "audit_context": {
+          "action_sheet_presented": false,
+          "context_menu_presented": true,
+          "context_menu_item_count": 12,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [],
+        "incomplete": [],
+        "serious_or_critical_count": 0
+      },
+      {
+        "viewport": "375-dark",
+        "scheme": "dark",
+        "audit_context": {
+          "action_sheet_presented": false,
+          "context_menu_presented": true,
+          "context_menu_item_count": 12,
+          "breadcrumb_present": false,
+          "active_element_tag": "BUTTON"
+        },
+        "violations": [],
+        "incomplete": [],
+        "serious_or_critical_count": 0
+      }
+    ],
+    "failures": []
+  },
+  "pass": true,
+  "artifacts": [
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-1280-light.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-1280-dark.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-375-light.png",
+    "docs/initiative-cross-platform-ui/handoff/phase-04-r1-evidence-2026-05-21/screenshots/phase04_context_menu_demo-375-dark.png",
+    "audits/fallback.context-menu-axe-clean.json"
+  ]
+}

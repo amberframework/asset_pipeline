@@ -1,0 +1,43 @@
+[0;34m[build][0m Target         : arm64-apple-ios-simulator
+[0;34m[build][0m SDK            : /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk
+[0;34m[build][0m Bridge source  : /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/hig_bridge.cr
+[0;34m[build][0m Compiling asset_pipeline ObjC bridge for simulator...
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/src/ui/native/objc_bridge.m:1185:21: warning: 'javaScriptEnabled' is deprecated: first deprecated in iOS 14.0 - Use WKWebpagePreferences.allowsContentJavaScript to disable content JavaScript on a per-navigation basis [-Wdeprecated-declarations]
+ 1185 |         preferences.javaScriptEnabled = (BOOL)allows_scripts;
+      |                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/System/Library/Frameworks/WebKit.framework/Headers/WKPreferences.h:115:28: note: 'javaScriptEnabled' has been explicitly marked deprecated here
+  115 | @property (nonatomic) BOOL javaScriptEnabled API_DEPRECATED("Use WKWebpagePreferences.allowsContentJavaScript to disable content JavaScript on a per-navigation basis", macos(10.10, 11.0), ios(8.0, 14.0));
+      |                            ^
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/src/ui/native/objc_bridge.m:1869:30: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+ 1869 |         window = application.keyWindow;
+      |                              ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+  108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+      |                                                   ^
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/src/ui/native/objc_bridge.m:2409:28: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+ 2409 |         return application.keyWindow;
+      |                            ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+  108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+      |                                                   ^
+3 warnings generated.
+[0;32m[ok][0m    ObjC bridge compiled
+[0;34m[build][0m Compiling AssetPipelineSwiftKit C trampolines for simulator...
+[0;32m[ok][0m    SwiftKit C trampolines compiled
+[0;34m[build][0m Compiling AssetPipelineSwiftKit Swift facade for simulator...
+[0/1] Planning build
+Building for production...
+[0/2] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.32s)
+[0;32m[ok][0m    SwiftKit static library staged at /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/swiftkit_simulator.a
+[0;34m[build][0m Cross-compiling Crystal bridge...
+xcrun --sdk iphonesimulator clang /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/bridge.o -o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/bridge  -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -target aarch64-apple-ios-simulator -L/opt/homebrew/Cellar/agent-crystal/1.20.0-dev-incremental-3/libexec/../../../../lib -lobjc -framework Foundation -L/opt/homebrew/Cellar/bdw-gc/8.2.12/lib -lgc -liconv
+[0;32m[ok][0m    Crystal cross-compilation complete
+[0;34m[build][0m Fixing _main symbol conflict...
+[0;32m[ok][0m    _main symbol hidden
+[0;34m[build][0m Creating static library...
+[0;32m[ok][0m    Static library created: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/libhighost.a
+[0;34m[build][0m Done! Link with: -L/Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build -lhighost
+[0;34m[build][0m Also link: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/samples/cross_platform/ios_host/build/swiftkit_simulator.a (AssetPipelineSwiftKit Swift facade)
+[0;34m[build][0m Frameworks: -framework SwiftUI -framework Combine -framework Foundation -framework UIKit
+[0;34m[build][0m Swift runtime rpath: add /usr/lib/swift to the consuming target's runpath search paths

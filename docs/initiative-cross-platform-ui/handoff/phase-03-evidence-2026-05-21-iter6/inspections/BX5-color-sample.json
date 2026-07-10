@@ -1,0 +1,42 @@
+{
+  "before_size": [
+    434,
+    74
+  ],
+  "after_size": [
+    434,
+    74
+  ],
+  "before_rgb": [
+    180,
+    112,
+    55
+  ],
+  "after_rgb": [
+    187,
+    57,
+    1
+  ],
+  "before_lab": [
+    53.57,
+    21.81,
+    42.0
+  ],
+  "after_lab": [
+    43.5,
+    50.37,
+    54.9
+  ],
+  "pure_red_lab": [
+    53.23,
+    80.11,
+    67.22
+  ],
+  "delta_e_before_to_red": 63.52,
+  "delta_e_after_to_red": 33.64,
+  "thresholds": {
+    "before_must_exceed": 20,
+    "after_must_be_below": 10
+  },
+  "passed": false
+}

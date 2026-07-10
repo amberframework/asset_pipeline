@@ -1,0 +1,9 @@
+[0/1] Planning build
+Building for production...
+[0/4] Write sources
+[1/4] Write swift-version--58304C5D6DBC2206.txt
+[3/5] Compiling AssetPipelineSwiftKit AssetPipelineSwiftKit.swift
+[3/5] Write Objects.LinkFileList
+[4/5] Archiving libAssetPipelineSwiftKit.a
+Build complete! (2.52s)
+-rw-r--r--  1 crimsonknight  staff  4495688 May 21 05:27 /Users/crimsonknight/open_source_coding_projects/asset_pipeline/swift/AssetPipelineSwiftKit/.build/arm64-apple-ios/release/libAssetPipelineSwiftKit.a

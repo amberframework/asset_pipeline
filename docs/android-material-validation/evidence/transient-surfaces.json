@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-18T16:28:51Z",
+  "slug": "transient-surfaces",
+  "validation_state": "captured_pending_review",
+  "report": "../reports/transient-surfaces.md",
+  "screenshots": {
+    "light": {
+      "phone": "../screenshots/transient-surfaces-android-phone-light.png",
+      "tablet": "../screenshots/transient-surfaces-android-tablet-light.png"
+    },
+    "dark": {
+      "phone": "../screenshots/transient-surfaces-android-phone-dark.png",
+      "tablet": "../screenshots/transient-surfaces-android-tablet-dark.png"
+    }
+  },
+  "warnings": [
+    "Current phone, tablet, light, and dark captures were refreshed on April 18, 2026.",
+    "Sheet, popover, and snackbar surfaces are now renderer-backed instead of placeholder containers.",
+    "Promotion is still blocked because the phone composition shows the sheet dominating the frame and the popover/snackbar need a cleaner layered presentation."
+  ],
+  "errors": [
+
+  ]
+}
