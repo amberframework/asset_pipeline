@@ -13,7 +13,7 @@ require "./asset_pipeline/platform"
 
 # Top-level shard namespace housing FrontLoader, import maps, framework registry, and the cross-platform UI surface.
 module AssetPipeline
-  VERSION = "0.36.0"
+  VERSION = "0.37.0"
 
   # Initialize the framework registry with built-in framework support
   FrameworkRegistry.register_builtin_frameworks
