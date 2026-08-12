@@ -2,7 +2,8 @@
 
 Asset Pipeline now covers two related jobs for Crystal applications:
 
-1. a legacy web asset pipeline for import maps, JavaScript, and static assets
+1. a production web asset compiler for import maps, JavaScript, styles, images,
+   fonts, and other application-owned files
 2. a native UI and host-integration layer for Apple platforms, with HIG-driven
    validation for macOS and iOS
 3. a web-first design-system proof with semantic tokens, opinionated
@@ -25,7 +26,7 @@ Add the shard to your `shard.yml`:
 dependencies:
   asset_pipeline:
     github: amberframework/asset_pipeline
-    version: 0.36.0
+    version: 0.37.0
 ```
 
 Then run:
@@ -56,6 +57,35 @@ Current native work includes:
 
 The original FrontLoader flow is still here for import maps and web assets.
 That part of the shard remains useful, but it is no longer the whole story.
+
+### Application Static Assets
+
+Amber V2 applications author files under `app/assets/` and compile them into
+`public/assets/`. Every emitted file is named from its SHA-256 content digest,
+including images, fonts, documents, WebAssembly, and other static files. CSS
+and JavaScript references to local dependencies are rewritten to the compiled
+URLs, and compressible files receive deterministic `.gz` siblings.
+
+```crystal
+require "asset_pipeline"
+
+compiler = AssetPipeline::StaticAssets::Compiler.new(
+  source_root: "app/assets",
+  output_root: "public/assets",
+  public_path: "/assets"
+)
+
+manifest = compiler.build
+puts manifest.path("images/logo.svg")
+puts manifest.integrity("stylesheets/app.css")
+```
+
+The manifest is written last, so a failed build cannot replace the last valid
+release contract. Use `compiler.check` (or
+`AssetPipeline::StaticAssets::Compiler.check(output_root: "public/assets")`)
+in deployment validation to detect missing, modified, or incorrectly
+precompressed output. Only files named by the prior manifest are pruned;
+unrelated files beneath `public/` are not deleted.
 
 ### Web Design System
 

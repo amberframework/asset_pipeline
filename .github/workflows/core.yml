@@ -1,0 +1,61 @@
+name: Core library
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Web (${{ matrix.os }}, Crystal ${{ matrix.crystal }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        crystal:
+          - "1.10.1"
+          - latest
+
+    steps:
+      - name: Check out the library
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+
+      - name: Run the complete web suite
+        run: make test-web
+
+      - name: Confirm tests did not change tracked files
+        run: git diff --exit-code
+
+  windows-static-assets:
+    name: Static assets (Windows, Crystal latest)
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the library
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Run the static asset compiler contract
+        run: crystal spec spec/web/asset_pipeline/static_assets_spec.cr

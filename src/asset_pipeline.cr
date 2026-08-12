@@ -3,6 +3,7 @@
 
 require "digest/sha256"
 require "file_utils"
+require "./asset_pipeline/static_assets"
 require "./import_map/import_map"
 require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
@@ -12,7 +13,7 @@ require "./asset_pipeline/platform"
 
 # Top-level shard namespace housing FrontLoader, import maps, framework registry, and the cross-platform UI surface.
 module AssetPipeline
-  VERSION = "0.36.0"
+  VERSION = "0.37.0"
 
   # Initialize the framework registry with built-in framework support
   FrameworkRegistry.register_builtin_frameworks
