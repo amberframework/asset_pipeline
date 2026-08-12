@@ -3,6 +3,7 @@
 
 require "digest/sha256"
 require "file_utils"
+require "./asset_pipeline/static_assets"
 require "./import_map/import_map"
 require "./asset_pipeline/dependency_analyzer"
 require "./asset_pipeline/script_renderer"
