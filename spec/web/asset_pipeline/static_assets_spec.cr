@@ -1,4 +1,5 @@
-require "../spec_helper"
+require "spec"
+require "file_utils"
 require "../../../src/asset_pipeline/static_assets"
 
 private def with_static_asset_fixture(&)

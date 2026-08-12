@@ -43,3 +43,19 @@ jobs:
 
       - name: Confirm tests did not change tracked files
         run: git diff --exit-code
+
+  windows-static-assets:
+    name: Static assets (Windows, Crystal latest)
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the library
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Run the static asset compiler contract
+        run: crystal spec spec/web/asset_pipeline/static_assets_spec.cr

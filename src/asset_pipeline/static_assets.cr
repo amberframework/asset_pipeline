@@ -378,7 +378,7 @@ module AssetPipeline
         source_real = Path[File.realpath(@source_root)]
         result = {} of String => SourceAsset
 
-        Dir.glob(@source_root.join("**", "*").to_s).sort.each do |file_name|
+        Dir.glob(glob_pattern(@source_root.join("**", "*"))).sort.each do |file_name|
           next if File.directory?(file_name)
 
           file_path = Path[file_name].expand.normalize
@@ -918,10 +918,18 @@ module AssetPipeline
 
       private def remove_empty_directories(root : Path) : Nil
         return unless Dir.exists?(root)
-        directories = Dir.glob(root.join("**", "*").to_s).select { |path| File.directory?(path) }
+        directories = Dir.glob(glob_pattern(root.join("**", "*"))).select { |path| File.directory?(path) }
         directories.sort_by(&.size).reverse_each do |directory|
           Dir.delete(directory) if Dir.empty?(directory)
         end
+      end
+
+      # Crystal's `Path#to_s` uses backslashes on Windows, while `Dir.glob`
+      # expects forward-slash separators in its pattern on every platform.
+      # Normalizing only the glob expression keeps filesystem paths native and
+      # lets generated applications discover their authored assets on Windows.
+      private def glob_pattern(path : Path) : String
+        path.to_s.gsub('\\', '/')
       end
     end
 
