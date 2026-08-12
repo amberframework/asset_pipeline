@@ -2,9 +2,10 @@ require "./spec_helper"
 require "file_utils"
 
 describe AssetPipeline::FrontLoader do
-  Spec.after_each do
+  after_each do
     FileUtils.rm_rf("spec/test_output")
     FileUtils.mkdir("spec/test_output") unless File.exists?("spec/test_output")
+    File.write("spec/test_js/some_js.js", "// Here's some text for the comment\n\nconsole.log('test-modified-1783517887239');")
   end
 
   it "registers the default import map" do
@@ -130,9 +131,9 @@ describe AssetPipeline::FrontLoader do
     tmp_map.add_import("another_js", "another_js_file.js")
 
     front_loader = AssetPipeline::FrontLoader.new(
-      js_source_path: Path["spec/test_js"], 
-      js_output_path: Path["spec/test_output"]  # clear_cache_upon_change defaults to true
-    ) do |import_maps|
+      js_source_path: Path["spec/test_js"],
+      js_output_path: Path["spec/test_output"] # clear_cache_upon_change defaults to true
+) do |import_maps|
       import_maps << tmp_map
     end
 
@@ -156,9 +157,9 @@ describe AssetPipeline::FrontLoader do
 
     # Create new FrontLoader instance and regenerate (simulates cache clearing)
     new_front_loader = AssetPipeline::FrontLoader.new(
-      js_source_path: Path["spec/test_js"], 
-      js_output_path: Path["spec/test_output"]  # clear_cache_upon_change defaults to true
-    ) do |import_maps|
+      js_source_path: Path["spec/test_js"],
+      js_output_path: Path["spec/test_output"] # clear_cache_upon_change defaults to true
+) do |import_maps|
       new_map = AssetPipeline::ImportMap.new
       new_map.add_import("some_js", "some_js.js")
       new_map.add_import("another_js", "another_js_file.js")
@@ -201,10 +202,10 @@ describe AssetPipeline::FrontLoader do
     tmp_map.add_import("another_js", "another_js_file.js")
 
     front_loader = AssetPipeline::FrontLoader.new(
-      js_source_path: Path["spec/test_js"], 
+      js_source_path: Path["spec/test_js"],
       js_output_path: Path["spec/test_output"],
-      clear_cache_upon_change: false  # Disable cache clearing
-    ) do |import_maps|
+      clear_cache_upon_change: false # Disable cache clearing
+) do |import_maps|
       import_maps << tmp_map
     end
 
@@ -228,10 +229,10 @@ describe AssetPipeline::FrontLoader do
 
     # Create new FrontLoader instance and regenerate (without cache clearing)
     new_front_loader = AssetPipeline::FrontLoader.new(
-      js_source_path: Path["spec/test_js"], 
+      js_source_path: Path["spec/test_js"],
       js_output_path: Path["spec/test_output"],
-      clear_cache_upon_change: false  # Disable cache clearing
-    ) do |import_maps|
+      clear_cache_upon_change: false # Disable cache clearing
+) do |import_maps|
       new_map = AssetPipeline::ImportMap.new
       new_map.add_import("some_js", "some_js.js")
       new_map.add_import("another_js", "another_js_file.js")
@@ -253,10 +254,10 @@ describe AssetPipeline::FrontLoader do
 
     # Find files for the changed source
     some_js_files = final_files.select { |f| f.includes?("some_js-") }
-    
+
     # Should have at least the original file, possibly a new one if content changed enough to create new fingerprint
     some_js_files.size.should be >= 1
-    
+
     # The unchanged file should still only have one version (same fingerprint, no new generation needed)
     another_js_files = final_files.select { |f| f.includes?("another_js_file-") }
     another_js_files.size.should eq(1)
