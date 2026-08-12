@@ -157,8 +157,10 @@ module Components
               @children.each do |child|
                 case child
                 when Component
-                  content_div << child.render
+                  content_div << child.render.to_s
                 when Elements::HTMLElement
+                  content_div << child
+                when Elements::RawHTML
                   content_div << child
                 when String
                   content_div << child

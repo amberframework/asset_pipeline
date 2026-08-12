@@ -37,7 +37,7 @@ module Components
       private def fieldset(legend : String, body : String) : String
         component = Components::DesignSystem::Fieldset.new(legend: legend)
         component << Components::Elements::RawHTML.new(body)
-        component.render
+        component.render.to_s
       end
     end
   end

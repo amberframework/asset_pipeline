@@ -64,7 +64,7 @@ describe "HTML Element Integration" do
           head << Components::Elements::Meta.viewport
           head << Components::Elements::Title.new << "Test Page"
           head << Components::Elements::Link.stylesheet("/css/app.css")
-          head << Components::Elements::Style.new("body { margin: 0; }")
+          head << Components::Elements::Style.css("body { margin: 0; }", reason: "spec: static CSS literal")
         end
         
         doc << Components::Elements::Body.new.build do |body|
@@ -111,7 +111,7 @@ describe "HTML Element Integration" do
             footer << Components::Elements::P.new << "© 2025 Test Site"
           end
           
-          body << Components::Elements::Script.new("console.log('Page loaded');")
+          body << Components::Elements::Script.static("console.log('Page loaded');", reason: "spec: static JS literal")
         end
       end
       
@@ -309,14 +309,14 @@ describe "HTML Element Integration" do
       pre << "  Line 1\n  Line 2"
       pre.render.should contain("  Line 1\n  Line 2")
       
-      # Style doesn't escape CSS
-      style = Components::Elements::Style.new
-      style << ".class > div { color: red; }"
+      # Style doesn't escape CSS vouched through the static-CSS door
+      # (SafeHTML v1: a plain String child is banned — see style.cr)
+      style = Components::Elements::Style.css(".class > div { color: red; }", reason: "spec: static CSS literal")
       style.render.should contain(".class > div { color: red; }")
       
-      # Script doesn't escape JavaScript
-      script = Components::Elements::Script.new
-      script << "if (x < 10 && y > 5) { alert('test'); }"
+      # Script doesn't escape JavaScript on the static-JS door (SafeHTML v1:
+      # a plain String child is banned — see script.cr)
+      script = Components::Elements::Script.static("if (x < 10 && y > 5) { alert('test'); }", reason: "spec: static JS literal")
       script.render.should contain("if (x < 10 && y > 5) { alert('test'); }")
     end
   end

@@ -10,16 +10,19 @@ module Components
       property auto_update : Bool = true
       
       # Override render to include reactive data attributes
-      def render : String
+      def render : SafeHTML
         wrapped = Elements::Div.new(
           "data-component-id": component_id,
           "data-component-type": self.class.name
         )
-        
+
         # Add the component content
         wrapped << Elements::RawHTML.new(render_content)
-        
-        wrapped.render
+
+        SafeHTML.unsafe(
+          wrapped.render,
+          reason: "ReactiveComponent wraps its subclass's own render_content output in a data-attributed div — same trust boundary as Component#render's legacy bridge"
+        )
       end
       
       # Register this component with the reactive handler
@@ -38,7 +41,7 @@ module Components
         
         ReactiveHandler.broadcast_update(
           component_id,
-          render,
+          render.to_s,
           state_to_json
         )
         
@@ -74,7 +77,7 @@ module Components
       def broadcast_update : Nil
         ReactiveSocket.update_component(
           component_id,
-          render,
+          render.to_s,
           state_to_json
         )
         

@@ -1,4 +1,5 @@
 require "../base/container_element"
+require "../base/url_attribute_validation"
 
 module Components
   module Elements
@@ -106,21 +107,39 @@ module Components
     
     # Represents the <button> element - clickable button
     class Button < ContainerElement
+      # SafeHTML v1 (docs/SAFE_HTML_V1.md §3.2/§3.10, closed 2026-07-08):
+      # `formaction` (on `type="submit"`/`type="image"` buttons) overrides
+      # the owning `<form>`'s `action` for that one submitter — a
+      # `javascript:` `formaction` is evaluated as a classic script by the
+      # navigation algorithm once the button submits its form, exactly like
+      # `Form#action` already closed. `Button` previously did not `include
+      # UrlAttributeValidation` at all, so `formaction` reached it entirely
+      # unvalidated through both the constructor-kwarg and `#set_attribute`
+      # paths, and the render-time authority (`HTMLElement#render_attributes`,
+      # §3.7) never checked it either, since `url_bearing_attribute?`
+      # defaults to `false`. Declaring it here closes all three paths at
+      # once — see `Object#data` (§3.9) for the identical two-line pattern.
+      include UrlAttributeValidation
+
       def initialize(**attrs)
         super("button", **attrs)
       end
-      
+
       # Convenience constructor
       def self.new(text : String, type : String = "button")
         instance = new(type: type)
         instance << text
         instance
       end
-      
+
+      protected def url_bearing_attribute?(name : String) : Bool
+        name == "formaction"
+      end
+
       # Validate button-specific attributes
       protected def validate_attribute(name : String, value : String?)
         super
-        
+
         case name
         when "type"
           valid_types = ["submit", "reset", "button"]

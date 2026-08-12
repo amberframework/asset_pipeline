@@ -971,4 +971,37 @@ describe UI::Web::Renderer do
       html.should_not contain("<form>")
     end
   end
+
+  describe "UI::WebViewComponent#html -> <iframe srcdoc> (docs/SAFE_HTML_V1.md §3.5)" do
+    it "renders html through the typed/vouched srcdoc path (proves the web_renderer.cr:2106 fix still works end-to-end)" do
+      view = UI::WebViewComponent.new
+      view.html = "<p>Hello</p>"
+      html = render(view)
+
+      html.should contain("<iframe")
+      # Escaped for the outer document exactly like any other attribute
+      # value -- the browser decodes it back before using it as the
+      # nested document's source, so this is the correct, safe rendering,
+      # not a regression.
+      html.should contain(%(srcdoc="&lt;p&gt;Hello&lt;/p&gt;"))
+    end
+
+    it "adversarial: even a <script>-bearing html payload survives only in its escaped, inert form" do
+      view = UI::WebViewComponent.new
+      view.html = "<script>alert(document.cookie)</script>"
+      html = render(view)
+
+      html.should_not contain("<script>alert(document.cookie)</script>")
+      html.should contain("&lt;script&gt;alert(document.cookie)&lt;/script&gt;")
+    end
+
+    it "omits srcdoc entirely when html is nil" do
+      view = UI::WebViewComponent.new("https://example.com")
+      html = render(view)
+
+      html.should contain("<iframe")
+      html.should contain(%(src="https://example.com"))
+      html.should_not contain("srcdoc")
+    end
+  end
 end

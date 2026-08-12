@@ -30,9 +30,9 @@ class DashboardCard < Components::StatelessComponent
         label: "View Details",
         variant: "info",
         size: "small"
-      ).render
+      ).render.to_raw_html
 
-      div << card.render
+      div << card.render.to_raw_html
     end.render
   end
 end
@@ -63,20 +63,20 @@ describe "Phase 2 Verification - Core Component System" do
         subtitle: "Reusable component"
       )
       card << "This card is a reusable component built from elements."
-      main << card.render
+      main << card.render.to_raw_html
 
       # Add multiple button components
       main << Components::Examples::ButtonComponent.new(
         label: "Primary Action",
         variant: "primary"
-      ).render
+      ).render.to_raw_html
 
       main << " "
 
       main << Components::Examples::ButtonComponent.new(
         label: "Secondary Action",
         variant: "secondary"
-      ).render
+      ).render.to_raw_html
     end
 
     rendered = page.render
@@ -89,6 +89,8 @@ describe "Phase 2 Verification - Core Component System" do
     # the brand tone; variant:"secondary" maps to the neutral tone.
     rendered.should contain("am-button am-button--brand")
     rendered.should contain("am-button am-button--neutral")
+    rendered.should contain("Primary Action")
+    rendered.should contain("Secondary Action")
   end
 
   it "shows stateless components are pure functions" do
@@ -139,7 +141,7 @@ describe "Phase 2 Verification - Core Component System" do
 
     # 2. Components are composable
     card = Components::Examples::CardComponent.new(title: "Nested")
-    card << Components::Examples::ButtonComponent.new(label: "Action").render
+    card << Components::Examples::ButtonComponent.new(label: "Action").render.to_raw_html
     card.render.should contain("Action")
 
     # 3. Components use elements, not string templates
@@ -148,7 +150,6 @@ describe "Phase 2 Verification - Core Component System" do
     # counter now emits the design-system `am-counter` selector rather
     # than the legacy `counter-component` class.
     counter.render.should contain("<div class=\"am-counter\">")
-
     # 4. Ready for Phase 3: Caching
     Components::Examples::ButtonComponent.new(label: "test").responds_to?(:cache_key).should be_true
     Components::Examples::ButtonComponent.new(label: "test").responds_to?(:cacheable?).should be_true
