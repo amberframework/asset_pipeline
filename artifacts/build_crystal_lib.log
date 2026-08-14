@@ -1,0 +1,47 @@
+==> Target: Android arm64 (aarch64-linux-android31)
+==> Step 1/2: Crystal cross-compile
+  -> Source:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/android_material_bridge.cr
+  -> Target:  aarch64-linux-android31
+  -> Output:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o
+/opt/homebrew/share/android-commandlinetools/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o -o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host  --target=aarch64-linux-android31 -L/opt/homebrew/Cellar/agent-crystal/HEAD-9c1e8ec/libexec/../../../../lib -lm -L/opt/homebrew/Cellar/bdw-gc/8.2.12/lib -lgc /system/lib64/libdl.so -llog
+  -> Object file produced:
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o: ELF 64-bit LSB relocatable, ARM aarch64, version 1 (SYSV), with debug_info, not stripped
+==> Step 1.5/2: Compiling extra C sources
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/src/ui/native/android_bridge.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_bridge.o
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/src/ui/native/jni_collection_bridge.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/jni_collection_bridge.o
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/android_host_jni.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_host_jni.o
+==> Step 2/2: Linking shared library
+  -> Output:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> Library produced:
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, BuildID[xxHash]=33f6fe48707814d1, with debug_info, not stripped
+-rwxr-xr-x  1 crimsonknight  staff   4.0M Aug 14 12:54 /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> JNI_OnLoad symbol verified present in /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> Crystal-exported symbols (first 20):
+     00000000001a99bc T crystal_android_host_render_slug
+     00000000001736f4 T crystal_cleanup
+     0000000000173704 T crystal_gc_register_thread
+     0000000000173708 T crystal_gc_unregister_thread
+     00000000001736c4 T crystal_init
+     00000000001a1168 T crystal_ui_bool_callback_dispatch
+     00000000001a1048 T crystal_ui_callback_dispatch
+     00000000001a11ac T crystal_ui_float_callback_dispatch
+     00000000001a11e4 T crystal_ui_int_callback_dispatch
+     00000000001a10d8 T crystal_ui_string_bool_callback_dispatch
+     00000000001a1058 T crystal_ui_string_callback_dispatch
+
+Build successful!
+
+  Library: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+
+Android Studio integration:
+  1. Copy /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so to app/src/main/jniLibs/arm64-v8a/
+  2. In Kotlin/Java: System.loadLibrary("android_material_host")
+  3. Declare native methods with 'external' keyword in Kotlin
+     (or 'native' in Java), matching the JNI naming convention:
+     Java_<package_underscored>_<ClassName>_<methodName>
+
+JNI bridge template:
+  samples/cross_platform/android/jni_bridge.c
+
+See CROSS_COMPILE.md for full integration guide.
+Copied libandroid_material_host.so to /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/app/src/main/jniLibs/arm64-v8a

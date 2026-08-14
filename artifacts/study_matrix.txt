@@ -1,0 +1,48 @@
+Android study matrix
+AVD crystal_test (android-35, arm64-v8a, swangle software GL), animations off.
+PASS gate: uiautomator dump contains "Renderer mount live" — the summary text
+MainActivity sets ONLY when CrystalBridge.renderStudy returned a non-null View.
+CRASH gate: "Fatal signal" in logcat. Polled up to 24s per study.
+
+buttons             TIMEOUT  no marker within 24s
+text-fields         PASS     renderer mount live
+cards               PASS     renderer mount live
+dialogs             TIMEOUT  no marker within 24s
+app-bars            PASS     renderer mount live
+interaction-smoke   CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+selection-controls  TIMEOUT  no marker within 24s
+transient-surfaces  CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+share-color         CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+webview             PASS     renderer mount live
+map-view            CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+video-player        CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+chart-view          CRASH    UI::DesignTokens::AndroidRendererNotImplemented in UI::Android::Renderer#theme_color_to_argb
+
+PASS: 4/13   CRASH: 6/13   OTHER: 3/13
+
+Resolution of the three TIMEOUT rows (buttons, dialogs, selection-controls)
+--------------------------------------------------------------------------
+They do not hang and they do not reach the renderer. They sit in a silent
+restart loop: libandroid_material_host.so was observed loading 61 times in one
+cleared logcat window while the pid kept changing, with ZERO "Fatal signal"
+lines and zero exception text.
+
+Cause: an uncaught Crystal exception in a --shared library unwinds to
+__crystal_raise -> exit(). exit() ends the process cleanly, so there is no
+signal, no tombstone, and no Java stack trace; Crystal's own message goes to
+stderr, which Android does not route to logcat. Android then relaunches the
+activity, and the cycle repeats.
+
+The same defect is visible in its louder form on the six CRASH rows, where
+exit() runs __cxa_finalize -> art::Mutex::~Mutex -> abort() and the process
+dies with SIGABRT instead. Same root cause
+(UI::DesignTokens::AndroidRendererNotImplemented raised from
+UI::Android::Renderer#theme_color_to_argb), two different exit paths.
+
+Honest tally: 4 of 13 studies render. The other 9 all fail on the same
+sentinel-colour limitation; 6 were caught red-handed with the exception name
+in a tombstone, 3 exited too quietly to leave one.
+
+Consequence worth flagging: because the process dies at the OS level rather
+than raising, MainActivity's "Renderer mount pending native attach" fallback
+is unreachable in practice. runCatching cannot catch exit() or SIGABRT.

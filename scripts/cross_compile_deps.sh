@@ -26,6 +26,7 @@ set -euo pipefail
 
 BUILD_DIR="${BUILD_DIR:-/tmp/crystal-cross-deps}"
 BDWGC_VERSION="${BDWGC_VERSION:-8.2.6}"
+ATOMIC_OPS_VERSION="${ATOMIC_OPS_VERSION:-7.8.2}"
 PCRE2_VERSION="${PCRE2_VERSION:-10.44}"
 IOS_DEPLOYMENT_TARGET="${IOS_DEPLOYMENT_TARGET:-17.0}"
 ANDROID_API="${ANDROID_API:-31}"
@@ -71,8 +72,11 @@ require_ndk() {
     NDK_TOOLCHAIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$NDK_HOST_TAG/bin"
     NDK_CLANG="$NDK_TOOLCHAIN/aarch64-linux-android${ANDROID_API}-clang"
     NDK_AR="$NDK_TOOLCHAIN/llvm-ar"
+    NDK_RANLIB="$NDK_TOOLCHAIN/llvm-ranlib"
     [[ -x "$NDK_CLANG" ]] \
         || die "NDK clang not found: $NDK_CLANG"
+    [[ -x "$NDK_RANLIB" ]] \
+        || die "NDK ranlib not found: $NDK_RANLIB"
 }
 
 # Clone or update a git repository
@@ -96,10 +100,16 @@ fetch_bdwgc() {
         "https://github.com/ivmai/bdwgc.git" \
         "$BDWGC_SRC" \
         "v${BDWGC_VERSION}"
-    # libatomic_ops is a submodule; bdwgc needs it
+    # bdwgc requires libatomic_ops, but the v8.2.6 tag ships NO .gitmodules --
+    # `git submodule update --init` is a silent no-op there (exits 0 having done
+    # nothing), and configure then dies with "libatomic_ops is required".
+    # Clone it explicitly and pin the version like the other dependencies.
     if [[ ! -d "$BDWGC_SRC/libatomic_ops/src" ]]; then
-        step "Fetching libatomic_ops submodule"
-        (cd "$BDWGC_SRC" && git submodule update --init --depth 1)
+        step "Cloning libatomic_ops v${ATOMIC_OPS_VERSION} -> $BDWGC_SRC/libatomic_ops"
+        rm -rf "$BDWGC_SRC/libatomic_ops"
+        git clone --depth 1 --branch "v${ATOMIC_OPS_VERSION}" \
+            "https://github.com/ivmai/libatomic_ops.git" \
+            "$BDWGC_SRC/libatomic_ops"
     fi
     # Run autoconf if configure doesn't exist
     if [[ ! -f "$BDWGC_SRC/configure" ]]; then
@@ -108,13 +118,33 @@ fetch_bdwgc() {
     fi
 }
 
+# An archive that exists but contains zero members is worse than no archive:
+# every downstream `[[ -f ... ]]` check passes and the failure resurfaces as
+# undefined symbols at final link. Treat empty archives as absent.
+# NOTE: a shredded archive is NOT empty -- it still lists its index member, so a
+# naive `ar t | wc -l` reports 1 and passes. Apple's ranlib leaves behind
+# "__.SYMDEF SORTED"; GNU/LLVM leave "/" and "//". Count only real objects.
+archive_has_members() {
+    local archive="$1"
+    [[ -f "$archive" ]] || return 1
+    local count
+    count="$(ar t "$archive" 2>/dev/null \
+        | grep -cvE '^(/{1,2}|__\.SYMDEF.*)$' || true)"
+    [[ "${count:-0}" -gt 0 ]]
+}
+
 build_bdwgc() {
     local prefix="$1" cc="$2" host="$3" extra_cflags="${4:-}" extra_configure="${5:-}"
     local build_dir="${BUILD_DIR}/build/bdwgc-$(basename "$prefix")"
 
-    if [[ -f "$prefix/lib/libgc.a" ]]; then
+    if archive_has_members "$prefix/lib/libgc.a"; then
         step "libgc already built for $host (skipping)"
         return 0
+    fi
+    if [[ -f "$prefix/lib/libgc.a" ]]; then
+        step "libgc archive at $prefix/lib/libgc.a is empty -- rebuilding"
+        rm -f "$prefix/lib/libgc.a"
+        rm -rf "$build_dir"
     fi
 
     mkdir -p "$build_dir" "$prefix"
@@ -139,6 +169,10 @@ build_bdwgc() {
     make -C "$build_dir" -j"$JOBS"
     step "Installing libgc to $prefix"
     make -C "$build_dir" install
+
+    archive_has_members "$prefix/lib/libgc.a" \
+        || die "libgc.a was installed but contains no object members. This is the
+       host-ranlib-over-ELF failure: ensure RANLIB points at the NDK llvm-ranlib."
 }
 
 # ---------------------------------------------------------------------------
@@ -293,13 +327,18 @@ build_android() {
     local gnu_host="aarch64-linux-android"
 
     # --- libgc ---
+    # RANLIB must be the NDK's llvm-ranlib. Without it, configure falls back to
+    # the host macOS /usr/bin/ranlib, which only understands Mach-O: it "indexes"
+    # the ELF archive llvm-ar just produced by truncating it to an empty 96-byte
+    # stub ("archive member '/' not a mach-o file"). The build still exits 0, so
+    # the breakage only surfaces later as undefined GC_* symbols at link time.
     fetch_bdwgc
     build_bdwgc \
         "$prefix" \
         "$NDK_CLANG" \
         "$gnu_host" \
         "-fPIC" \
-        "AR=$NDK_AR"
+        "AR=$NDK_AR RANLIB=$NDK_RANLIB"
 
     # --- libpcre2 ---
     # Android NDK provides its own CMake toolchain file

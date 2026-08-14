@@ -1,0 +1,53 @@
+08-14 12:55:26.390  3570  3570 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+08-14 12:55:26.765  3570  3570 D nativeloader: Configuring clns-7 for other apk /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/lib/arm64:/data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/dev.assetpipeline.androidhost
+08-14 12:55:27.350  3570  3570 D nativeloader: Load /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk!/lib/arm64-v8a/libandroid_material_host.so using ns clns-7 from class loader (caller=/data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk!classes4.dex): ok
+--------- beginning of crash
+08-14 12:55:27.365  3570  3570 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x18 in tid 3570 (ine.androidhost), pid 3570 (ine.androidhost)
+08-14 12:55:27.493  3604  3604 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+08-14 12:55:27.493  3604  3604 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_arm64/emu64a:15/AE3A.240806.043/12960925:userdebug/dev-keys'
+08-14 12:55:27.493  3604  3604 F DEBUG   : Revision: '0'
+08-14 12:55:27.493  3604  3604 F DEBUG   : ABI: 'arm64'
+08-14 12:55:27.493  3604  3604 F DEBUG   : Timestamp: 2026-08-14 12:55:27.392548025-0400
+08-14 12:55:27.493  3604  3604 F DEBUG   : Process uptime: 3s
+08-14 12:55:27.493  3604  3604 F DEBUG   : Cmdline: dev.assetpipeline.androidhost
+08-14 12:55:27.493  3604  3604 F DEBUG   : pid: 3570, tid: 3570, name: ine.androidhost  >>> dev.assetpipeline.androidhost <<<
+08-14 12:55:27.493  3604  3604 F DEBUG   : uid: 10210
+08-14 12:55:27.493  3604  3604 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+08-14 12:55:27.493  3604  3604 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+08-14 12:55:27.493  3604  3604 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000000000000018
+08-14 12:55:27.493  3604  3604 F DEBUG   : Cause: null pointer dereference
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x0  0000000000000000  x1  00000071cdcf5e40  x2  0000000000800000  x3  0000000000000000
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x4  00000071cdcf5ef0  x5  0000000000000004  x6  2f2f2f2f2f1f6f2c  x7  7f7f7f7f7f7f7f7f
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x8  0000000000000000  x9  00000071cdcf5e40  x10 0000007fdf3f2000  x11 0000000000800000
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x12 0000000000000000  x13 00000000ffffffff  x14 0000000000000001  x15 00000000ffffffa5
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x16 0000006e916cf558  x17 00000071c62f5e80  x18 00000071e0a6c000  x19 0000007fdf3ea638
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x20 00000071df39f968  x21 b4000070e4805010  x22 b400006f54812250  x23 0000007fdf3ea7cc
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x24 b400007044808f50  x25 0000006e916aafe0  x26 b400007064817b00  x27 b400007064817b60
+08-14 12:55:27.493  3604  3604 F DEBUG   :     x28 00000071df98d039  x29 0000007fdf3ea500
+08-14 12:55:27.493  3604  3604 F DEBUG   :     lr  0000006e914c6fc4  sp  0000007fdf3ea150  pc  0000006e914c71ac  pst 0000000000001000
+08-14 12:55:27.493  3604  3604 F DEBUG   : 19 total frames
+08-14 12:55:27.493  3604  3604 F DEBUG   : backtrace:
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #00 pc 00000000000ac1ac  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Thread::LinkedList(Fiber)@Thread::LinkedList(T)#push<Fiber>:Nil+20) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #01 pc 00000000000abfc0  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Fiber#initialize<Pointer(Void), Thread>:Nil+248) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #02 pc 00000000000abeb4  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Fiber::new<Pointer(Void), Thread>:Fiber+108) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #03 pc 00000000000aaed0  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Thread#initialize:Nil+76) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #04 pc 00000000000aae68  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Thread::new:Thread+228) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #05 pc 00000000000aad68  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Crystal::System::Thread::current_thread:Thread+44) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #06 pc 00000000000aad30  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Thread::current:Thread+4) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #07 pc 00000000000aad1c  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Fiber::current:Fiber+4) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #08 pc 00000000001a9b0c  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (*Crystal::once<Pointer(Bool), Pointer(Void)>:Nil+240) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #09 pc 00000000000a3970  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (__crystal_once+48) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #10 pc 00000000000a4564  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (~Process::INITIAL_PWD:const_read+20) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #11 pc 00000000000a445c  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (~Exception::CallStack::CURRENT_DIR:const_init+8) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #12 pc 00000000000a3128  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (__crystal_main+216) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #13 pc 00000000001736e8  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (crystal_init+36) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #14 pc 000000000028fff4  /data/app/~~gK3b80CkwwiwceW9WAZacA==/dev.assetpipeline.androidhost-sQ9d74U-HrJnofoDbPE60w==/base.apk (offset 0xad0000) (JNI_OnLoad+20) (BuildId: 33f6fe48707814d1)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #15 pc 000000000066f800  /apex/com.android.art/lib64/libart.so (art::JavaVMExt::LoadNativeLibrary(_JNIEnv*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, _jobject*, _jclass*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*)+1280) (BuildId: dcb9fe2b5c99aa3f1a682a6008427d08)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #16 pc 0000000000005914  /apex/com.android.art/lib64/libopenjdkjvm.so (JVM_NativeLoad+356) (BuildId: 52e480f4d160d1f919dafa72cae26e8a)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #17 pc 0000000000378f70  /apex/com.android.art/lib64/libart.so (art_quick_generic_jni_trampoline+144) (BuildId: dcb9fe2b5c99aa3f1a682a6008427d08)
+08-14 12:55:27.493  3604  3604 F DEBUG   :       #18 pc 0000000000020788  [anon_shmem:dalvik-jit-code-cache] (offset 0x2000000)
+08-14 12:55:34.329  3633  3633 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+08-14 12:55:34.334  3633  3633 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-14 12:55:34.336  3633  3633 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-14 12:55:34.337  3633  3633 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+08-14 12:55:34.361  3633  3633 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok

@@ -114,14 +114,43 @@ fun crystal_init : Nil
     GC.init
   {% end %}
 
-  # Set up Crystal's internal fiber scheduler state. When the host app is
-  # single-threaded, this is a no-op. When -Dpreview_mt is used, this
-  # initialises the worker thread pool.
+  # Run the Crystal program's top-level initialisation.
+  #
+  # THIS IS NOT OPTIONAL. Without it, GC.init has run but NOTHING else in the
+  # runtime exists: class variables are still zeroed, `Thread`/`Fiber` class
+  # state is null, and the lazy-constant machinery (`Crystal.once`) has no
+  # scheduler to ask for `Fiber.current`. The first lazy constant a caller
+  # touches then dereferences a null `Thread::LinkedList(Fiber)` and the
+  # process dies with SIGSEGV at fault address 0x18 — inside
+  # `Thread::LinkedList(Fiber)#push`, reached via
+  # `Crystal.once -> Thread.current -> Thread#initialize -> Fiber#initialize`.
+  #
+  # This is exactly the crash the Android host hit on the very first
+  # `UI::DesignTokens::Color::SYSTEM_ACCENT` read. A normal Crystal binary gets
+  # this call from the compiler-generated `main`; a `--shared` library has no
+  # `main`, so the host initialiser must make it. `Crystal.main` does the same
+  # two steps in the same order (GC.init, then __crystal_main).
+  #
+  # A SIGSEGV here cannot be caught by the host — not by Kotlin's runCatching,
+  # not by Swift's try — because it is a native signal, not an exception. The
+  # process simply dies, so getting this wrong looks like "the app silently
+  # fails to launch" rather than an error.
   #
   # Note: Fiber.yield inside Crystal code will schedule across Crystal fibers
   # only — it does NOT yield to the iOS/Android run loop. For run-loop
   # integration, use callbacks and platform event sources.
-  nil
+  # Initialise Thread, Fiber and the lazy-constant machinery, in that order.
+  # `Crystal.init_runtime` is what the compiler-generated `main` calls between
+  # `GC.init` and `__crystal_main` (see `Crystal.main` in crystal/main.cr), and
+  # its own comment explains why the order is not negotiable: `__crystal_once`
+  # depends on `Fiber` and `Thread`, so their class vars must exist before any
+  # lazy constant is read. `__crystal_main` reads one almost immediately
+  # (`Exception::CallStack::CURRENT_DIR` -> `Process::INITIAL_PWD`), so
+  # skipping this line crashes before any user code runs.
+  Crystal.init_runtime
+
+  # Now run the program's top-level initialisation.
+  LibCrystalMain.__crystal_main(0, Pointer(Pointer(UInt8)).null)
 end
 
 # ---------------------------------------------------------------------------

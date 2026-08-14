@@ -1,0 +1,112 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Task :app:buildCrystalBridge
+==> Target: Android arm64 (aarch64-linux-android31)
+==> Step 1/2: Crystal cross-compile
+  -> Source:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/android_material_bridge.cr
+  -> Target:  aarch64-linux-android31
+  -> Output:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o
+/opt/homebrew/share/android-commandlinetools/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o -o /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host  --target=aarch64-linux-android31 -L/opt/homebrew/Cellar/agent-crystal/HEAD-9c1e8ec/libexec/../../../../lib -lm -L/opt/homebrew/Cellar/bdw-gc/8.2.12/lib -lgc /system/lib64/libdl.so -llog
+  -> Object file produced:
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_material_host.o: ELF 64-bit LSB relocatable, ARM aarch64, version 1 (SYSV), with debug_info, not stripped
+==> Step 1.5/2: Compiling extra C sources
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/src/ui/native/android_bridge.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_bridge.o
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/src/ui/native/jni_collection_bridge.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/jni_collection_bridge.o
+  -> Compiling: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/android_host_jni.c -> /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/android_host_jni.o
+==> Step 2/2: Linking shared library
+  -> Output:  /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> Library produced:
+/Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so: ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, BuildID[xxHash]=a87076828ef0f39d, with debug_info, not stripped
+-rwxr-xr-x  1 crimsonknight  staff   4.0M Aug 14 12:56 /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> JNI_OnLoad symbol verified present in /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+  -> Crystal-exported symbols (first 20):
+     00000000001a99c0 T crystal_android_host_render_slug
+     00000000001736f8 T crystal_cleanup
+     0000000000173708 T crystal_gc_register_thread
+     000000000017370c T crystal_gc_unregister_thread
+     00000000001736c4 T crystal_init
+     00000000001a116c T crystal_ui_bool_callback_dispatch
+     00000000001a104c T crystal_ui_callback_dispatch
+     00000000001a11b0 T crystal_ui_float_callback_dispatch
+     00000000001a11e8 T crystal_ui_int_callback_dispatch
+     00000000001a10dc T crystal_ui_string_bool_callback_dispatch
+     00000000001a105c T crystal_ui_string_callback_dispatch
+
+Build successful!
+
+  Library: /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so
+
+Android Studio integration:
+  1. Copy /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/build/android-arm64/libandroid_material_host.so to app/src/main/jniLibs/arm64-v8a/
+  2. In Kotlin/Java: System.loadLibrary("android_material_host")
+  3. Declare native methods with 'external' keyword in Kotlin
+     (or 'native' in Java), matching the JNI naming convention:
+     Java_<package_underscored>_<ClassName>_<methodName>
+
+JNI bridge template:
+  samples/cross_platform/android/jni_bridge.c
+
+See CROSS_COMPILE.md for full integration guide.
+Copied libandroid_material_host.so to /Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/app/src/main/jniLibs/arm64-v8a
+
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeDebugNativeLibs
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroid_material_host.so.
+
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+
+[Incubating] Problems report is available at: file:///Users/crimsonknight/open_source_coding_projects/asset_pipeline/.claude/worktrees/android-validation/samples/cross_platform/android_host/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 11s
+39 actionable tasks: 5 executed, 34 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.3.1/userguide/configuration_cache_enabling.html

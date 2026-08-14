@@ -24,9 +24,19 @@ module AndroidMaterialHost
     @@palette_color_value : UI::Color? = nil
     @@activity_note_value : String? = nil
 
+    # The Crystal runtime is brought up exactly once, by `crystal_init()` from
+    # `JNI_OnLoad` in android_host_jni.c. Android's linker runs `JNI_OnLoad`
+    # during `System.loadLibrary`, before any native method on this class can
+    # be dispatched, so by the time we get here the runtime is already live.
+    #
+    # This method must NOT call `crystal_init` itself. `crystal_init` runs
+    # `__crystal_main`, and running that a second time re-executes every
+    # top-level initialiser in the program — its own contract is "must be
+    # called exactly once". The `@@runtime_initialized` guard cannot prevent
+    # that second call either: the flag lives in a class variable that is
+    # itself only zeroed until `__crystal_main` runs, so it always reads false
+    # on the path that would re-enter.
     def self.initialize_runtime : Nil
-      return if @@runtime_initialized
-      crystal_init
       @@runtime_initialized = true
     end
 
