@@ -1,5 +1,11 @@
 # Theming an Asset Pipeline UI app
 
+## Contents
+
+| Start | Build | Finish |
+| --- | --- | --- |
+| [1. Short answer](#1-the-short-answer) · [2. File by file](#2-what-you-change-file-by-file) · [3. Layer map](#3-layer-map) | [4. Checklist](#4-step-by-step-checklist) · [5. Minimal example](#5-minimal-complete-skin-example) · [6. Worked reference](#6-worked-reference-agentc_mac_ui) | [7. Rules](#7-rules-for-a-good-skin) · [8. Known gaps](#8-known-gaps) · [9. Verification](#9-how-to-verify-a-skin) |
+
 ## 1. The short answer
 
 - A skin is a separate consumer shard; this commit has no `UI::Skin` registry or global style singleton.
@@ -10,7 +16,91 @@
 - `UI::App.design_tokens` stores an app token value, but this commit does not wire it into renderer instances automatically.
 - A full skin therefore combines app tokens with screen helpers; native window chrome and several iOS/Android styles remain system-owned or unsupported.
 
-## 2. Layer map
+## 2. What you change, file by file
+
+A full skin changes files in the skin shard, the app bootstrap, and every screen builder.
+
+### In the skin shard
+
+| File | What goes in it | One-line example |
+| --- | --- | --- |
+| `shard.yml` | Package metadata and the exact `asset_pipeline` commit dependency only; keep skin and app configuration out of the manifest. | `asset_pipeline: { github: crimson-knight/asset_pipeline, commit: "0e5a33bc26d23805a531f3e2c0a42b69271c76a4" }` |
+| `shard.lock` | Generated dependency revisions and archive checksums; create it while `lib/` is empty, then verify it frozen. | `shards-alpha install --frozen` |
+| `src/<skin>.cr` | Public entry point; require the UI API and each skin module. | `require "./agentc_mac_ui/brand"` |
+| `src/<skin>/brand.cr` | `UI::DesignTokens::Brand` subclass with both `override_color_light` and `override_color_dark`. | `palette.copy_with(brand_primary: ..., surface_canvas: ...)` |
+| `src/<skin>/fonts.cr`, `fonts/*.ttf`, `fonts/CHECKSUMS.sha256`, and font license files | List bundled files, register them, record upstream commit provenance, hash fonts and licenses, and test the inventory. | `LIST_OF_FONT_FILE_NAMES = {"Michroma-Regular.ttf", ...}` |
+| `src/<skin>/components.cr` | Reusable helpers for sections, screen surfaces, typography, and controls; take appearance when a primitive needs a literal light/dark color. | `AgentcMacUi.build_title_label("Settings", appearance: appearance)` |
+| `src/<skin>/errors.cr` | Skin-owned error types for invalid helper input or font registration failures. | `class Error < Exception` |
+| `spec/` | Palette and helper behavior, font checksums/file inventory, and consumer-side contrast checks. | `tokens.colors_dark.brand_primary.should eq(expected_color)` |
+
+### In the app
+
+| File or location | What goes in it | One-line example |
+| --- | --- | --- |
+| App `shard.yml` | Add the skin shard as an app dependency. | `agentc_mac_ui: { path: "../agentc_mac_ui" }` |
+| App startup | Register fonts before constructing screens, then report any failed filenames with the skin's named error. | `failed_font_file_names = AgentcMacUi.register_fonts` |
+| Renderer creation/bootstrap | Before first render, assign `renderer.design_tokens`; assign `renderer.theme` too when legacy web `--md-sys-*` CSS is still used. | `renderer.design_tokens = MyApp.app_design_tokens` |
+| `UI::App` subclass (optional) | Declare the token value once with `design_tokens do ... end`; the app still assigns `app_design_tokens` to each renderer. | `design_tokens do |tokens| tokens.with_brand(ExampleSkin::Brand.new) end` |
+
+Use this startup pattern to report font failures. `register_fonts` returns failed names; `errors.cr` defines the app's skin-owned `Error` type:
+
+```crystal
+failed_font_file_names = AgentcMacUi.register_fonts
+unless failed_font_file_names.empty?
+  raise AgentcMacUi::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
+end
+```
+
+When legacy web CSS needs the skin, set the renderer's `theme` separately from its canonical tokens:
+
+```crystal
+renderer.design_tokens = MyApp.app_design_tokens
+renderer.theme = UI::Theme.from_design_tokens(
+  renderer.design_tokens,
+  font_family: "Fira Sans",
+  body_size: 15.0,
+  title_size: 22.0,
+  headline_size: 28.0,
+  caption_size: 12.0,
+  corner_small: 4.0,
+  corner_medium: 8.0,
+  corner_large: 16.0,
+)
+```
+
+### In each screen or view builder
+
+Replace literal colors and fonts, plus raw `Form#add_section`, `UI::Toggle`, `UI::Keycap`, `UI::ColorSwatchPicker`, and `UI::Button` construction with the matching skin helpers. The worked reference provides `add_folder_section`, `build_slide_switch`, `build_keycaps`, `build_recording_color_picker`, `build_secondary_button`, and `build_primary_action_button`.
+
+| File or pattern | What you change | One-line example |
+| --- | --- | --- |
+| Each screen/view builder file in the app | Replace local presentation decisions and direct control construction with the skin's appearance-aware helpers. | `AgentcMacUi.build_recording_color_picker { |index| save_recording_color(index) }` |
+
+```crystal
+# Before
+title.font = UI::Font.new(family: "Michroma", size: 18.0)
+screen.background_fill_color = UI::Color.new(r: 0.94, g: 0.92, b: 0.88)
+section = form.add_section("Storage")
+switch = UI::Toggle.new("Launch at Login", false)
+
+# After
+title = AgentcMacUi.build_title_label("Storage", appearance: appearance)
+AgentcMacUi.apply_screen_surface(screen, appearance: appearance)
+section = AgentcMacUi.add_folder_section(form, "Storage", icon: "folder", appearance: appearance)
+switch = AgentcMacUi.build_slide_switch("Launch at Login", initial_is_on: false, appearance: appearance) { |is_on| save_setting(is_on) }
+```
+
+**Not changeable today:** See [Known gaps](#8-known-gaps) for window chrome colors/fonts, tab typography, duotone tab icons, macOS Button feedback, and incomplete iOS/Android styling.
+
+### Order of work
+
+1. Build the shard: pin and lock the dependency, add both palettes, fonts, helpers, and specs.
+2. Activate it in the app: register fonts, then assign renderer tokens and any legacy web theme.
+3. Convert screen builders, then verify light/dark appearance, checksums, contrast, and accessibility behavior.
+
+## 3. Layer map
+
+This map shows which parts of a skin live in shared tokens and which you set on each view.
 
 Use tokens for shared app identity and a skin helper for each view that needs a specific treatment. The `Brand` hooks return a new `Tokens`; omitted fields keep their defaults. This guide covers `UI::DesignTokens::Tokens` and the generic `UI` view layer. The web renderer also emits compatibility CSS from `UI::Theme`; that adapter and `Components::CSS::Tokens::Theme` do not automatically follow a renderer's custom tokens. Source paths below are relative to this repository at commit `0e5a33bc26d23805a531f3e2c0a42b69271c76a4`.
 
@@ -85,7 +175,9 @@ Every role is a `ColorPalette` field at [src/ui/design_tokens.cr:350](../src/ui/
 
 The surface implementation matrix is also summarized in [Surface craft primitives](components/surface-craft.md#platform-coverage).
 
-## 3. Step-by-step checklist
+## 4. Step-by-step checklist
+
+Use these steps in order: build and pin the skin shard, activate it in the app, convert screen builders, then verify.
 
 1. **Create a skin shard.** Keep package code under `src/<skin_name>/`, export it from `src/<skin_name>.cr`, keep fonts under `fonts/`, and add consumer-owned specs under `spec/`. `shard.yml` is only package metadata and dependency declarations; do not put palette, appearance, font, or app config keys there.
 
@@ -98,19 +190,20 @@ The surface implementation matrix is also summarized in [Surface craft primitive
        commit: 0e5a33bc26d23805a531f3e2c0a42b69271c76a4
    ```
 
-   Then run `shards-alpha install` to create `shard.lock` and the checksum from that empty `lib/`, commit the generated lock, and verify it with `shards-alpha install --frozen`. Do not hand-edit the lock or skip checksum verification. The read-only `agentc_mac_ui` reference currently records checksum `sha256:3e35f6710763898312d82ed52e24e2480891ef21e69a5ee460266a0bdbe9b00d` for this Asset Pipeline commit.
+   Run `shards-alpha install` to create `shard.lock` and its checksum from that empty `lib/`, commit the generated lock, then verify with `shards-alpha install --frozen`. A clean install of Asset Pipeline commit `0e5a33bc26d23805a531f3e2c0a42b69271c76a4` produces `sha256:3e35f6710763898312d82ed52e24e2480891ef21e69a5ee460266a0bdbe9b00d`. A different value means `lib/` was dirty: stop and investigate; never re-lock to silence the mismatch.
 
 3. **Implement a Brand subclass.** Override `override_color_light` and `override_color_dark` using `palette.copy_with(...)`. Override `override_type`, `override_spacing`, or other scale hooks only for values the app will consume. Keep light and dark decisions in their own palettes.
 
-4. **Vendor fonts with provenance.** Copy exact font files and their license files from a pinned upstream source commit. Record the source commit in the skin shard, create `fonts/CHECKSUMS.sha256` with SHA-256 entries, and add a spec that checks every listed file and rejects unexpected files. Verify with `shasum -a 256 -c fonts/CHECKSUMS.sha256`. Register the bundled TTF/OTF files before building views that name their PostScript family:
+4. **Vendor and register fonts.** Copy exact font files and license files from a pinned upstream commit. Record that commit, list the files in `<skin>/fonts.cr`, check every font and license in `fonts/CHECKSUMS.sha256`, and add a spec that rejects missing or unexpected files. Verify with `shasum -a 256 -c fonts/CHECKSUMS.sha256`. Register the bundled `.ttf`/`.otf` files before building views that name their PostScript family. The worked reference includes `Michroma-Regular.ttf`; its `register_fonts` helper returns failed filenames for the app to report:
 
    ```crystal
-   unless UI::FontRegistry.register_bundled_font_file("fonts/Michroma-Regular.otf")
-     raise "Could not register Michroma"
+   failed_font_file_names = AgentcMacUi.register_fonts
+   unless failed_font_file_names.empty?
+     raise AgentcMacUi::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
    end
    ```
 
-   This registrar is macOS-only. A non-macOS result is `false`.
+   `register_fonts` should call `UI::FontRegistry.register_bundled_font_file` for each listed path, such as `fonts/Michroma-Regular.ttf`. The registrar is macOS-only and returns `false` on non-macOS builds; keep the error type in the skin's `errors.cr`.
 
 5. **Add view helpers.** Have section helpers pass `tab_shape`, `tab_icon`, `panel_style`, and `tab_style` to `Form#add_section`. Have toggle, keycap, picker, and button helpers set their exact view properties. Put literal light/dark colors in the skin helper layer and choose them from the active appearance when a native role cannot resolve the palette.
 
@@ -134,9 +227,11 @@ The surface implementation matrix is also summarized in [Surface craft primitive
 
 7. **Convert each screen.** Replace local font/color literals with skin helpers. Use palette-backed roles where the renderer follows tokens; use the skin's appearance-aware helper for native literal-color surfaces. Add helpers for recurring control treatments so each screen uses the same choices.
 
-8. **Verify the result.** Run the skin shard's specs and checksum spec, capture light and dark appearances, exercise controls through accessibility behavior specs, and calculate contrast for every rendered text/background pair. The checklist in section 8 has the repository commands.
+8. **Verify the result.** Run the skin shard's palette, helper, checksum, and contrast specs; capture light and dark appearances; and exercise controls through accessibility behavior specs. See section 9 for the repository commands.
 
-## 4. Minimal complete skin example
+## 5. Minimal complete skin example
+
+This small example shows the minimum Brand and view-helper code the skin shard needs.
 
 The snippet is the body of [samples/theming/example_skin.cr](../samples/theming/example_skin.cr); that file has one repository-local `require "../../src/ui"` line before this module. [spec/web/docs/theming_example_spec.cr](../spec/web/docs/theming_example_spec.cr) requires the same file and asserts that both palettes resolve and each helper returns the chosen primitives.
 
@@ -194,9 +289,9 @@ end
 
 Activate it on a renderer with `Tokens.default.with_brand(ExampleSkin::Brand.new)`. The sample overrides the primary family in both palettes; all other roles keep Asset Pipeline defaults.
 
-## 5. Worked reference: `agentc_mac_ui`
+## 6. Worked reference: `agentc_mac_ui`
 
-The read-only local consumer at `~/agentc_coding_projects/agentc_mac_ui` is the fuller example. Its Brand uses navy `#23293A`, warm taupe surfaces/text, and brass `#DAB56E`; helper colors also distinguish light and dark appearances. Titles use Michroma; body and helper text use Fira Sans; shortcut keycaps use Fira Mono. Its fonts come from `google/fonts` commit `23e54b51ddffbc7713c583748e3bd86f62b1fa4a`; `fonts/CHECKSUMS.sha256` covers the font and OFL license files, and its checksum spec rejects missing or extra files.
+The local AgentC consumer shows the full combination of Brand, fonts, and per-view helpers. Its Brand uses navy `#23293A`, warm taupe surfaces/text, and brass `#DAB56E`; helper colors also distinguish light and dark appearances. Titles use Michroma; body and helper text use Fira Sans; shortcut keycaps use Fira Mono. Its fonts come from `google/fonts` commit `23e54b51ddffbc7713c583748e3bd86f62b1fa4a`; `fonts/CHECKSUMS.sha256` covers the font and OFL license files, and its checksum spec rejects missing or extra files.
 
 Its `README.md` shows `Brand`, `register_fonts`, `add_folder_section`, `apply_screen_surface`, `build_slide_switch`, `build_keycaps`, `build_recording_color_picker`, and its button/menu helpers working together. Surface helpers take an explicit appearance because several pinned macOS controls need literal colors. The current consumer checkout is unpublished and has no Git remote; its README uses a local path dependency for the skin itself and pins Asset Pipeline to the commit above.
 
@@ -208,7 +303,9 @@ The reference verifies three macOS limits that are also visible in this source:
 
 A skin for the default Amber V2 app path is planned on the same separate-shard pattern. This guide does not design that skin.
 
-## 6. Rules for a good skin
+## 7. Rules for a good skin
+
+Keep the system's native behavior while adding a small, consistent set of brand choices.
 
 - Keep Apple controls native by default. Add brand character through explicit override knobs and reusable helpers.
 - Use one accent signal per screen. Keep brass or another high-attention color for the single most important action or state.
@@ -217,7 +314,9 @@ A skin for the default Amber V2 app path is planned on the same separate-shard p
 - Keep color decisions in tokens or skin styles/helpers. Do not hardcode colors in screen/view builders.
 - Use platform dynamic label roles for ordinary Apple text unless the skin helper deliberately opts into a brand color.
 
-## 7. Known gaps
+## 8. Known gaps
+
+These are the parts a skin cannot fully control yet and must leave to the system or handle per view.
 
 | Gap | Verified in source | Where support belongs |
 | --- | --- | --- |
@@ -233,7 +332,9 @@ A skin for the default Amber V2 app path is planned on the same separate-shard p
 | iOS/Android do not implement the macOS/web SurfaceCraft set; Android has no token generator and can reject a system-accent sentinel when a fixed color is required. | `swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/FormFacade.swift:28`, `swift/AssetPipelineSwiftKit/Sources/AssetPipelineSwiftKit/Facades/ToggleFacade.swift:111`, `src/ui/design_tokens.cr:42`, `src/ui/renderers/android_renderer.cr:3464` | Add equivalent UIKit/Android view renderers and token serialization before claiming full-skin parity on those platforms. |
 | There is no generic native skin contrast checker. | `src/ui/design_tokens.cr:67` defines color values but no contrast-ratio API. The web design-system browser audit targets its own demo pages. | Keep contrast assertions in the consumer skin spec until a general token contrast tool is added under `src/ui/design_tokens/`. |
 
-## 8. How to verify a skin
+## 9. How to verify a skin
+
+Verify the actual light and dark renderings, control behavior, and text contrast before calling the skin complete.
 
 1. Run the consumer checksum spec and skin behavior specs, then run this guide's example spec:
 
