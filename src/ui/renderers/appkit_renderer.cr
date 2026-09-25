@@ -69,6 +69,10 @@
       # Focus management via the view's host window.
       fun ap_view_become_first_responder(view : Void*) : Int32
       fun ap_view_resign_first_responder(view : Void*) : Int32
+      # Apply generic gradient, shadow, and cached texture modifiers to raw
+      # AppKit views that do not pass through a SwiftUI facade.
+      fun appkit_view_apply_surface_craft(view : Void*, json : UInt8*) : Void
+      fun appkit_view_has_surface_layer(view : Void*, name : UInt8*) : Int32
 
       # --- Section 4: Convenience helpers ---
       fun nsstring_from_cstr(str : UInt8*) : Void*
@@ -520,29 +524,33 @@
         LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
         layer_ptr = LibObjCBridge.objc_send(ptr, sel("layer"))
         unless layer_ptr.null?
-          explicit_bg = view.background
-          bg_ns = if c = explicit_bg
-                    # View has an explicit background — use it. Alpha=0 means transparent.
-                    LibObjCBridge.nscolor_rgba(c.r, c.g, c.b, c.a)
-                  else
-                    # No explicit background. The bake policy (pure, unit-tested in
-                    # UI::StackBake) keeps the LIVE app TRANSPARENT so the parent's
-                    # background shows through — matching HStack/ZStack, which never
-                    # bake a fill. The opaque legibility fix (gaps.md iter-21) applies
-                    # ONLY in the offscreen capture path, and backdrop captures stay
-                    # transparent for the glass compositor. Capture mode is detected
-                    # from a screenshot-OUTPUT env var (consistent with this file's
-                    # other HIG_SCREENSHOT_PATH checks) — NOT HIG_APPEARANCE, which is
-                    # an appearance knob set for live windows too. Baking opaque white
-                    # in the live app turned nested background-less containers into
-                    # solid white blocks (My Affirmations regression).
-                    capturing = UI::StackBake.capturing?(UI::StackBake::CAPTURE_PATH_ENV_KEYS.map { |k| ENV[k]? })
-                    r, g, b, a = UI::StackBake.fallback_rgba(ENV["HIG_BACKDROP_PATH"]?, ENV["HIG_APPEARANCE"]?, capturing)
-                    LibObjCBridge.nscolor_rgba(r, g, b, a)
-                  end
-          unless bg_ns.null?
-            cg_bg = LibObjCBridge.objc_send(bg_ns, sel("CGColor"))
-            LibObjCBridge.objc_send_void_id(layer_ptr, sel("setBackgroundColor:"), cg_bg) unless cg_bg.null?
+          # Surface craft fills are installed by apply_common_properties above.
+          # Do not let the legacy stack-capture background policy overwrite one.
+          unless view.background_fill_color || view.linear_gradient
+            explicit_bg = view.background
+            bg_ns = if c = explicit_bg
+                      # View has an explicit background — use it. Alpha=0 means transparent.
+                      LibObjCBridge.nscolor_rgba(c.r, c.g, c.b, c.a)
+                    else
+                      # No explicit background. The bake policy (pure, unit-tested in
+                      # UI::StackBake) keeps the LIVE app TRANSPARENT so the parent's
+                      # background shows through — matching HStack/ZStack, which never
+                      # bake a fill. The opaque legibility fix (gaps.md iter-21) applies
+                      # ONLY in the offscreen capture path, and backdrop captures stay
+                      # transparent for the glass compositor. Capture mode is detected
+                      # from a screenshot-OUTPUT env var (consistent with this file's
+                      # other HIG_SCREENSHOT_PATH checks) — NOT HIG_APPEARANCE, which is
+                      # an appearance knob set for live windows too. Baking opaque white
+                      # in the live app turned nested background-less containers into
+                      # solid white blocks (My Affirmations regression).
+                      capturing = UI::StackBake.capturing?(UI::StackBake::CAPTURE_PATH_ENV_KEYS.map { |k| ENV[k]? })
+                      r, g, b, a = UI::StackBake.fallback_rgba(ENV["HIG_BACKDROP_PATH"]?, ENV["HIG_APPEARANCE"]?, capturing)
+                      LibObjCBridge.nscolor_rgba(r, g, b, a)
+                    end
+            unless bg_ns.null?
+              cg_bg = LibObjCBridge.objc_send(bg_ns, sel("CGColor"))
+              LibObjCBridge.objc_send_void_id(layer_ptr, sel("setBackgroundColor:"), cg_bg) unless cg_bg.null?
+            end
           end
         end
 
@@ -4708,6 +4716,10 @@
       #   - minimum_width / minimum_height -> NSLayoutConstraint (width/height >= x)
       #   - maximum_width / maximum_height -> NSLayoutConstraint (width/height <= x)
       private def apply_common_properties(ptr : Void*, view : UI::View) : Nil
+        if surface_craft = view.surface_craft_json
+          LibObjCBridge.appkit_view_apply_surface_craft(ptr, surface_craft.to_unsafe)
+        end
+
         # Hidden
         if view.hidden
           LibObjCBridge.objc_send_bool(ptr, sel("setHidden:"), 1)
@@ -4722,12 +4734,14 @@
         # setWantsLayer:YES tells AppKit to create a CALayer, then we
         # set the layer's backgroundColor to the CGColor representation.
         if bg = view.background
-          LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
-          layer = LibObjCBridge.objc_send(ptr, sel("layer"))
-          unless layer.null?
-            bg_nscolor = resolve_color(bg)
-            cg_color = LibObjCBridge.objc_send(bg_nscolor, sel("CGColor"))
-            LibObjCBridge.objc_send_id(layer, sel("setBackgroundColor:"), cg_color)
+          unless view.background_fill_color
+            LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
+            layer = LibObjCBridge.objc_send(ptr, sel("layer"))
+            unless layer.null?
+              bg_nscolor = resolve_color(bg)
+              cg_color = LibObjCBridge.objc_send(bg_nscolor, sel("CGColor"))
+              LibObjCBridge.objc_send_id(layer, sel("setBackgroundColor:"), cg_color)
+            end
           end
         end
 

@@ -50,7 +50,11 @@ module UI
     record FormSection,
       header : String? = nil,
       fields : Array(Field) = [] of Field,
-      footer : String? = nil
+      footer : String? = nil,
+      tab_shape : TabShape? = nil,
+      tab_icon : String? = nil,
+      panel_style : SurfaceStyle = SurfaceStyle.new,
+      tab_style : SurfaceStyle = SurfaceStyle.new
 
     # Section groupings within the view.
     property sections : Array(FormSection) = [] of FormSection
@@ -92,8 +96,23 @@ module UI
     end
 
     # Appends a section and returns the newly-created section.
-    def add_section(header : String? = nil, footer : String? = nil) : FormSection
-      section = FormSection.new(header: header, footer: footer)
+    def add_section(
+      header : String? = nil,
+      footer : String? = nil,
+      *,
+      tab_shape : TabShape? = nil,
+      tab_icon : String? = nil,
+      panel_style : SurfaceStyle = SurfaceStyle.new,
+      tab_style : SurfaceStyle = SurfaceStyle.new,
+    ) : FormSection
+      section = FormSection.new(
+        header: header,
+        footer: footer,
+        tab_shape: tab_shape,
+        tab_icon: tab_icon,
+        panel_style: panel_style,
+        tab_style: tab_style,
+      )
       @sections << section
       section
     end

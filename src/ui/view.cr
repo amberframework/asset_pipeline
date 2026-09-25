@@ -1,6 +1,8 @@
 # Defines `UI::View`, the abstract base for every cross-platform view, plus the
 # `RenderContext` and `RenderError` types used by the platform-visitor renderers.
 
+require "json"
+
 module UI
   # Phase 6.11 iter-3 — Raised by a platform visitor when a child view
   # cannot be rendered to its native handle. The previous behavior emitted
@@ -152,6 +154,228 @@ module UI
     g : Float64,
     b : Float64,
     a : Float64 = 1.0
+
+  # Semantic color roles accepted by reusable surface overrides.
+  enum ColorRole
+    BrandPrimary
+    BrandAccent
+    SurfaceCanvas
+    SurfaceElevated
+    SurfacePanel
+    SurfaceSunken
+    SurfaceInverse
+    TextPrimary
+    TextInverse
+    Warning
+  end
+
+  # A literal color or a semantic design-token role.
+  alias SurfaceColor = Color | ColorRole
+
+  # One color and normalized position in a linear gradient.
+  record GradientStop,
+    stop_color : SurfaceColor,
+    stop_position : Float64
+
+  # A linear gradient in clockwise degrees, with at least two ordered stops.
+  struct LinearGradient
+    getter list_of_stops : Array(GradientStop)
+    getter gradient_angle : Float64
+
+    def initialize(@list_of_stops : Array(GradientStop), @gradient_angle : Float64 = 0.0)
+      raise ArgumentError.new("A linear gradient requires at least two stops") if @list_of_stops.size < 2
+      previous_position = -1.0
+      @list_of_stops.each do |stop|
+        unless stop.stop_position >= 0.0 && stop.stop_position <= 1.0
+          raise ArgumentError.new("Gradient stop positions must be between 0 and 1")
+        end
+        if stop.stop_position < previous_position
+          raise ArgumentError.new("Gradient stop positions must be in ascending order")
+        end
+        previous_position = stop.stop_position
+      end
+    end
+  end
+
+  # Shared drop-shadow value used by view surface overrides.
+  record DropShadow,
+    shadow_color : SurfaceColor,
+    offset_x : Float64 = 0.0,
+    offset_y : Float64 = 0.0,
+    blur_radius : Float64 = 0.0
+
+  # Inset shadow drawn inside a view's bounds.
+  record InnerShadow,
+    shadow_color : SurfaceColor,
+    offset_x : Float64 = 0.0,
+    offset_y : Float64 = 0.0,
+    blur_radius : Float64 = 0.0
+
+  # Procedural texture rendered over a surface.
+  enum TextureKind
+    Noise
+    Brushed
+  end
+
+  # Generated texture kind and alpha, with opacity validation at construction.
+  struct TextureOverlay
+    getter texture_kind : TextureKind
+    getter texture_opacity : Float64
+
+    def initialize(@texture_kind : TextureKind, @texture_opacity : Float64)
+      unless @texture_opacity >= 0.0 && @texture_opacity <= 1.0
+        raise ArgumentError.new("Texture opacity must be between 0 and 1")
+      end
+    end
+  end
+
+  # Optional tactile surface properties for a panel or its tab.
+  record SurfaceStyle,
+    background_fill_color : SurfaceColor? = nil,
+    linear_gradient : LinearGradient? = nil,
+    list_of_inner_shadows : Array(InnerShadow) = [] of InnerShadow,
+    list_of_drop_shadows : Array(DropShadow) = [] of DropShadow,
+    texture_overlay : TextureOverlay? = nil
+
+  # Hover and press response used by buttons and rows.
+  enum InteractionFeedback
+    None
+    Sink
+    Lift
+    Edge
+  end
+
+  # Folder-like tab silhouette used by Form sections.
+  enum TabShape
+    Angled
+    Rounded
+    Notched
+    Flush
+  end
+
+  # Explicit appearance options for UI::Toggle. Native remains the default.
+  enum ToggleAppearance
+    Native
+    Pill
+    Rocker
+    Slide
+    LampPill
+  end
+
+  # Keycap treatment for UI::Keycap.
+  enum KeycapStyle
+    Outlined
+    Sculpted
+    Inset
+    Text
+  end
+
+  # Visual treatment for UI::ColorSwatchPicker.
+  enum ColorSwatchPickerStyle
+    SwatchButton
+    SwatchRow
+    NamedPopup
+    BezelLamp
+  end
+
+  # A named color choice in a swatch picker.
+  record ColorSwatch,
+    color_name : String,
+    swatch_color : SurfaceColor
+
+  # Converts typed surface values into the compact payload shared with SwiftUI.
+  module SurfaceCraftEncoding
+    def self.color_value(color : SurfaceColor) : String
+      case color
+      when Color
+        "rgba(#{(color.r * 255).round},#{(color.g * 255).round},#{(color.b * 255).round},#{color.a})"
+      when ColorRole
+        "role:#{color.to_s.underscore.gsub('_', '-')}"
+      else
+        raise ArgumentError.new("Unsupported surface color")
+      end
+    end
+
+    def self.style_json(style : SurfaceStyle) : String
+      JSON.build do |json|
+        json.object do
+          if fill = style.background_fill_color
+            json.field "fill", color_value(fill)
+          end
+          if gradient = style.linear_gradient
+            write_gradient(json, gradient)
+          end
+          write_shadows(json, style.list_of_inner_shadows, style.list_of_drop_shadows)
+          if texture = style.texture_overlay
+            write_texture(json, texture)
+          end
+        end
+      end
+    end
+
+    def self.write_gradient(json : JSON::Builder, gradient : LinearGradient) : Nil
+      json.field "gradient" do
+        json.object do
+          json.field "angle", gradient.gradient_angle
+          json.field "stops" do
+            json.array do
+              gradient.list_of_stops.each do |stop|
+                json.object do
+                  json.field "color", color_value(stop.stop_color)
+                  json.field "position", stop.stop_position
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def self.write_shadows(json : JSON::Builder, inner : Array(InnerShadow), drop : Array(DropShadow)) : Nil
+      unless inner.empty?
+        json.field "innerShadows" do
+          json.array do
+            inner.each do |shadow|
+              write_shadow(json, shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
+            end
+          end
+        end
+      end
+      unless drop.empty?
+        json.field "dropShadows" do
+          json.array do
+            drop.each do |shadow|
+              write_shadow(json, shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
+            end
+          end
+        end
+      end
+    end
+
+    def self.write_shadow(
+      json : JSON::Builder,
+      color : SurfaceColor,
+      offset_x : Float64,
+      offset_y : Float64,
+      blur : Float64,
+    ) : Nil
+      json.object do
+        json.field "color", color_value(color)
+        json.field "x", offset_x
+        json.field "y", offset_y
+        json.field "blur", blur
+      end
+    end
+
+    def self.write_texture(json : JSON::Builder, texture : TextureOverlay) : Nil
+      json.field "texture" do
+        json.object do
+          json.field "kind", texture.texture_kind.to_s.downcase
+          json.field "opacity", texture.texture_opacity
+        end
+      end
+    end
+  end
 
   # Value type representing a font specification
   record Font,
@@ -474,6 +698,24 @@ module UI
     # Background color, nil means transparent/inherited
     property background : Color? = nil
 
+    # Optional brand fill; when present it replaces the plain background fill.
+    property background_fill_color : SurfaceColor? = nil
+
+    # Optional two-or-more-stop background gradient.
+    property linear_gradient : LinearGradient? = nil
+
+    # Additional inset and drop shadows. The legacy single shadow properties
+    # remain supported and are combined with these values by each renderer.
+    property list_of_inner_shadows : Array(InnerShadow) = [] of InnerShadow
+    property list_of_drop_shadows : Array(DropShadow) = [] of DropShadow
+
+    # Optional generated surface grain.
+    property texture_overlay : TextureOverlay? = nil
+
+    # Opt-in hover and press treatment. The default leaves native/web behavior
+    # unchanged.
+    property interaction_feedback : InteractionFeedback = InteractionFeedback::None
+
     # Whether the view is hidden from display
     property hidden : Bool = false
 
@@ -497,6 +739,32 @@ module UI
     property shadow_color : Color? = nil
     property shadow_offset_x : Float64 = 0.0
     property shadow_offset_y : Float64 = 0.0
+
+    # Serialize only explicitly selected surface-craft modifiers for the
+    # shared SwiftUI facade path. A nil result preserves the facade defaults.
+    def surface_craft_json : String?
+      return nil if background_fill_color.nil? && linear_gradient.nil? &&
+                    list_of_inner_shadows.empty? && list_of_drop_shadows.empty? &&
+                    texture_overlay.nil? && interaction_feedback == InteractionFeedback::None
+
+      JSON.build do |json|
+        json.object do
+          if fill = background_fill_color
+            json.field "fill", SurfaceCraftEncoding.color_value(fill)
+          end
+          if gradient = linear_gradient
+            SurfaceCraftEncoding.write_gradient(json, gradient)
+          end
+          SurfaceCraftEncoding.write_shadows(json, list_of_inner_shadows, list_of_drop_shadows)
+          if texture = texture_overlay
+            SurfaceCraftEncoding.write_texture(json, texture)
+          end
+          unless interaction_feedback == InteractionFeedback::None
+            json.field "feedback", interaction_feedback.to_s.underscore
+          end
+        end
+      end
+    end
 
     # Border modifier
     property border_width : Float64 = 0.0

@@ -19,6 +19,10 @@ public class FormOverrides: ViewOverrides {
     @objc public var sectionFooters: [String] = []
     @objc public var sectionFieldCounts: [NSNumber] = []
     @objc public var sectionFieldLabels: [String] = []
+    @objc public var sectionTabShapes: [String] = []
+    @objc public var sectionTabIcons: [String] = []
+    @objc public var sectionPanelStyles: [String] = []
+    @objc public var sectionTabStyles: [String] = []
 
     @objc public override init() { super.init() }
 }

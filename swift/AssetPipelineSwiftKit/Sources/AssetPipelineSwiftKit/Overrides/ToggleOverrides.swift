@@ -11,6 +11,7 @@ import Foundation
 @objc(APSKToggleOverrides)
 public class ToggleOverrides: ViewOverrides {
     @objc public var toggleStyle: String? = nil
+    @objc public var surfaceCraftToggleSpec: String? = nil
     @objc public var disabled: NSNumber? = nil
 
     @objc public override init() { super.init() }

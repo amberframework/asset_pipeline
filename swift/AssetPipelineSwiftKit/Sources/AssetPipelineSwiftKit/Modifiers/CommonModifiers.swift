@@ -24,8 +24,9 @@ import SwiftUI
 enum CommonModifiers {
     static func apply<V: View>(_ view: V, overrides: ViewOverrides) -> AnyView {
         var current = AnyView(view)
+        let hasSurfaceFill = SurfaceCraftModifiers.hasSurfaceFill(overrides.apskSurfaceCraftSpec)
 
-        if let bg = overrides.backgroundColor {
+        if let bg = overrides.backgroundColor, !hasSurfaceFill {
             current = AnyView(current.background(swiftColor(bg)))
         }
         if let fg = overrides.foregroundColor {
@@ -275,6 +276,17 @@ enum CommonModifiers {
             // No-op at the modifier layer — the UIView-level helper
             // handles focus request.
         }
+
+        #if os(macOS)
+        if overrides.apskSurfaceCraftSpec != nil || overrides.apskSurfaceCraftKeycapStyle != nil {
+            current = SurfaceCraftModifiers.apply(
+                current,
+                spec: overrides.apskSurfaceCraftSpec,
+                keycapStyle: overrides.apskSurfaceCraftKeycapStyle,
+                cornerRadius: overrides.cornerRadius
+            )
+        }
+        #endif
 
         return current
     }

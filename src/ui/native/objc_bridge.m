@@ -29,6 +29,7 @@
 #include <TargetConditionals.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if TARGET_OS_OSX
   #import <AppKit/AppKit.h>
@@ -4946,3 +4947,239 @@ int objc_attach_long_press_gesture(void *view_ptr, unsigned long long token, dou
 
     return 1;
 }
+
+// ------------------------------------------------------------------
+// appkit_view_apply_surface_craft — CALayer-backed surface overrides for
+// AppKit views that are rendered without an NSHostingView facade (for
+// example, raw NSStackView rows). SwiftUI facades apply the same typed
+// payload in SurfaceCraftModifiers.swift.
+// ------------------------------------------------------------------
+#if TARGET_OS_OSX
+static NSColor *ap_surface_color(NSString *value) {
+    if ([value hasPrefix:@"rgba("] && [value hasSuffix:@")"]) {
+        NSString *components = [[value substringFromIndex:5] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@")"]];
+        NSArray<NSString *> *parts = [components componentsSeparatedByString:@","];
+        if (parts.count == 4) {
+            CGFloat r = parts[0].doubleValue / 255.0;
+            CGFloat g = parts[1].doubleValue / 255.0;
+            CGFloat b = parts[2].doubleValue / 255.0;
+            CGFloat a = parts[3].doubleValue;
+            return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+        }
+    }
+    if (![value hasPrefix:@"role:"]) return NSColor.clearColor;
+    NSString *role = [value substringFromIndex:5];
+    if ([role isEqualToString:@"brand-primary"]) return NSColor.controlAccentColor;
+    if ([role isEqualToString:@"brand-accent"]) return NSColor.systemTealColor;
+    if ([role isEqualToString:@"surface-canvas"]) return NSColor.windowBackgroundColor;
+    if ([role isEqualToString:@"surface-elevated"]) return NSColor.controlBackgroundColor;
+    if ([role isEqualToString:@"surface-panel"]) return NSColor.underPageBackgroundColor;
+    if ([role isEqualToString:@"surface-sunken"]) return NSColor.textBackgroundColor;
+    if ([role isEqualToString:@"surface-inverse"]) return NSColor.textColor;
+    if ([role isEqualToString:@"text-primary"]) return NSColor.labelColor;
+    if ([role isEqualToString:@"text-inverse"]) return NSColor.windowBackgroundColor;
+    if ([role isEqualToString:@"warning"]) return NSColor.systemOrangeColor;
+    return NSColor.clearColor;
+}
+
+static CGImageRef ap_surface_texture_tile(NSString *kind) {
+    static CGImageRef noise = NULL;
+    static CGImageRef brushed = NULL;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+        for (int variant = 0; variant < 2; variant++) {
+            CGContextRef context = CGBitmapContextCreate(NULL, 64, 64, 8, 0, space,
+                kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+            if (!context) continue;
+            for (int y = 0; y < 64; y++) {
+                for (int x = 0; x < 64; x++) {
+                    double u = (double)x / 64.0;
+                    double v = (double)y / 64.0;
+                    CGFloat value = 0.0;
+                    if (variant == 0) {
+                        double sum = 0.0;
+                        double total_weight = 0.0;
+                        for (int octave = 0; octave < 5; octave++) {
+                            double frequency = (double)(2 << octave);
+                            double phase = (double)octave * 1.73;
+                            double first = sin(2.0 * M_PI * (frequency * u + frequency * 3.0 * v) + phase);
+                            double second = cos(2.0 * M_PI * (frequency * 2.0 * u - frequency * v) + phase * 1.91);
+                            double weight = 1.0 / sqrt(frequency);
+                            sum += (first + second) * 0.5 * weight;
+                            total_weight += weight;
+                        }
+                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + sum / total_weight * 0.32));
+                    } else {
+                        double lengthwise = sin(2.0 * M_PI * (16.0 * u + 0.08 * v) + 0.7);
+                        double variation = cos(2.0 * M_PI * (32.0 * u - 0.12 * v) + 2.1);
+                        double banding = sin(2.0 * M_PI * (2.0 * v + 0.03 * u) + 1.2);
+                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + lengthwise * 0.12 + variation * 0.07 + banding * 0.04));
+                    }
+                    CGContextSetRGBFillColor(context, value, value, value, 1.0);
+                    CGContextFillRect(context, CGRectMake(x, y, 1, 1));
+                }
+            }
+            CGImageRef image = CGBitmapContextCreateImage(context);
+            if (variant == 0) noise = image; else brushed = image;
+            CGContextRelease(context);
+        }
+        CGColorSpaceRelease(space);
+    });
+    return [kind isEqualToString:@"brushed"] ? brushed : noise;
+}
+
+static NSArray<CALayer *> *ap_surface_layers_named(CALayer *root, NSString *name) {
+    NSMutableArray<CALayer *> *matches = [NSMutableArray array];
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name isEqualToString:name]) [matches addObject:layer];
+    }
+    return matches;
+}
+
+static void ap_surface_remove_layers_with_prefix(CALayer *root, NSString *prefix) {
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name hasPrefix:prefix]) [layer removeFromSuperlayer];
+    }
+}
+
+void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
+    if (!view_ptr || !json || json[0] == '\0') return;
+    @autoreleasepool {
+        NSData *data = [[NSString stringWithUTF8String:json] dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *values = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if (![values isKindOfClass:[NSDictionary class]]) return;
+        NSView *view = (__bridge NSView *)view_ptr;
+        view.wantsLayer = YES;
+        CALayer *root = view.layer;
+        if (!root) return;
+
+        NSString *fill = values[@"fill"];
+        if ([fill isKindOfClass:[NSString class]]) {
+            root.backgroundColor = ap_surface_color(fill).CGColor;
+        }
+
+        for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.gradient")) [old removeFromSuperlayer];
+        NSDictionary *gradient = values[@"gradient"];
+        NSArray *stops = gradient[@"stops"];
+        if ([stops isKindOfClass:[NSArray class]] && stops.count >= 2) {
+            NSMutableArray *colors = [NSMutableArray array];
+            NSMutableArray *locations = [NSMutableArray array];
+            for (NSDictionary *stop in stops) {
+                NSString *color = stop[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                [colors addObject:(id)ap_surface_color(color).CGColor];
+                [locations addObject:@([stop[@"position"] doubleValue])];
+            }
+            if (colors.count >= 2) {
+                double radians = [gradient[@"angle"] doubleValue] * 3.141592653589793 / 180.0;
+                CAGradientLayer *layer = [CAGradientLayer layer];
+                layer.name = @"ap.surfaceCraft.gradient";
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                layer.colors = colors;
+                layer.locations = locations;
+                layer.startPoint = CGPointMake(0.5 - sin(radians) * 0.5, 0.5 - cos(radians) * 0.5);
+                layer.endPoint = CGPointMake(0.5 + sin(radians) * 0.5, 0.5 + cos(radians) * 0.5);
+                [root insertSublayer:layer atIndex:0];
+            }
+        }
+
+        for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.texture")) [old removeFromSuperlayer];
+        NSDictionary *texture = values[@"texture"];
+        NSString *kind = texture[@"kind"];
+        CGImageRef tile = [kind isKindOfClass:[NSString class]] ? ap_surface_texture_tile(kind) : NULL;
+        if (tile) {
+            CAReplicatorLayer *vertical = [CAReplicatorLayer layer];
+            vertical.name = @"ap.surfaceCraft.texture";
+            vertical.frame = root.bounds;
+            vertical.instanceCount = 128;
+            vertical.instanceTransform = CATransform3DMakeTranslation(0, 64, 0);
+            vertical.opacity = (float)[texture[@"opacity"] doubleValue];
+            CAReplicatorLayer *row = [CAReplicatorLayer layer];
+            row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), 64);
+            row.instanceCount = 128;
+            row.instanceTransform = CATransform3DMakeTranslation(64, 0, 0);
+            CALayer *image = [CALayer layer];
+            image.frame = CGRectMake(0, 0, 64, 64);
+            image.contents = (__bridge id)tile;
+            image.contentsGravity = kCAGravityResize;
+            image.compositingFilter = @"multiplyBlendMode";
+            [row addSublayer:image];
+            [vertical addSublayer:row];
+            [root insertSublayer:vertical atIndex:(unsigned)MIN(1, root.sublayers.count)];
+        }
+
+        ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.drop.");
+        NSArray *drops = values[@"dropShadows"];
+        if ([drops isKindOfClass:[NSArray class]]) {
+            NSUInteger shadow_index = 0;
+            for (NSDictionary *shadow in drops) {
+                NSString *color = shadow[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                CALayer *layer = [CALayer layer];
+                layer.name = [NSString stringWithFormat:@"ap.surfaceCraft.drop.%lu", (unsigned long)shadow_index++];
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                CGPathRef shadow_path = CGPathCreateWithRoundedRect(root.bounds, root.cornerRadius, root.cornerRadius, NULL);
+                layer.shadowPath = shadow_path;
+                CGPathRelease(shadow_path);
+                layer.shadowColor = ap_surface_color(color).CGColor;
+                layer.shadowOpacity = 1.0;
+                layer.shadowRadius = [shadow[@"blur"] doubleValue];
+                layer.shadowOffset = CGSizeMake([shadow[@"x"] doubleValue], [shadow[@"y"] doubleValue]);
+                [root insertSublayer:layer atIndex:0];
+            }
+        }
+
+        ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.inner.");
+        NSArray *inner = values[@"innerShadows"];
+        if ([inner isKindOfClass:[NSArray class]]) {
+            NSUInteger shadow_index = 0;
+            for (NSDictionary *shadow in inner) {
+                NSString *color = shadow[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                CAShapeLayer *layer = [CAShapeLayer layer];
+                layer.name = [NSString stringWithFormat:@"ap.surfaceCraft.inner.%lu", (unsigned long)shadow_index++];
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                CGRect inset = CGRectInset(root.bounds, 1, 1);
+                CGPathRef inner_path = CGPathCreateWithRoundedRect(inset, root.cornerRadius, root.cornerRadius, NULL);
+                layer.path = inner_path;
+                CGPathRelease(inner_path);
+                layer.fillColor = NSColor.clearColor.CGColor;
+                layer.strokeColor = ap_surface_color(color).CGColor;
+                layer.lineWidth = MAX(1, [shadow[@"blur"] doubleValue] * 2);
+                layer.shadowColor = ap_surface_color(color).CGColor;
+                layer.shadowOpacity = 0.55;
+                layer.shadowRadius = [shadow[@"blur"] doubleValue];
+                layer.shadowOffset = CGSizeMake([shadow[@"x"] doubleValue], [shadow[@"y"] doubleValue]);
+                layer.masksToBounds = YES;
+                [root addSublayer:layer];
+            }
+        }
+    }
+}
+
+int appkit_view_has_surface_layer(void *view_ptr, const char *name) {
+    if (!view_ptr || !name) return 0;
+    NSView *view = (__bridge NSView *)view_ptr;
+    NSString *target = [NSString stringWithUTF8String:name];
+    for (CALayer *layer in view.layer.sublayers) {
+        if ([layer.name isEqualToString:target]) return 1;
+        if ([layer isKindOfClass:[CAReplicatorLayer class]]) {
+            for (CALayer *child in layer.sublayers) {
+                if ([child.name isEqualToString:target]) return 1;
+            }
+        }
+    }
+    return 0;
+}
+#else
+void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
+    (void)view_ptr; (void)json;
+}
+int appkit_view_has_surface_layer(void *view_ptr, const char *name) {
+    (void)view_ptr; (void)name; return 0;
+}
+#endif

@@ -36,6 +36,7 @@ COL_BRIDGE_SRC := src/ui/native/collection_bridge.m
 
 SWIFTKIT_DIR  := swift/AssetPipelineSwiftKit
 SWIFTKIT_LIB  := $(SWIFTKIT_DIR)/.build/release/libAssetPipelineSwiftKit.a
+SWIFT_RUNTIME_LIB_DIR := $(shell xcrun --sdk macosx --show-sdk-path 2>/dev/null)/usr/lib/swift
 
 MACOS_FRAMEWORKS := \
 	-framework AppKit -framework Foundation \
@@ -51,6 +52,11 @@ MACOS_LINK_FLAGS := \
 	$(abspath $(AP_BRIDGE_OBJ)) $(abspath $(SK_BRIDGE_OBJ)) $(abspath $(COL_BRIDGE_OBJ)) \
 	-Wl,-force_load,$(abspath $(SWIFTKIT_LIB)) \
 	$(MACOS_FRAMEWORKS) \
+	-L$(SWIFT_RUNTIME_LIB_DIR) \
+	-lswiftCore -lswiftCoreFoundation -lswiftCoreImage -lswiftDispatch \
+	-lswiftFoundation -lswiftIOKit -lswiftMetal -lswiftOSLog \
+	-lswiftObjectiveC -lswiftQuartzCore -lswiftSpatial \
+	-lswiftUniformTypeIdentifiers -lswiftXPC -lswiftos -lswiftsimd \
 	-Wl,-rpath,/usr/lib/swift
 
 .PHONY: test-web test-macos test-ios test-android test-all lint clean-bridges

@@ -9,6 +9,7 @@ import Foundation
 @objc(APSKPickerOverrides)
 public class PickerOverrides: ViewOverrides {
     @objc public var pickerStyle: String? = nil
+    @objc public var surfaceCraftSwatchSpec: String? = nil
 
     @objc public override init() { super.init() }
 }

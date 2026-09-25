@@ -32,6 +32,13 @@ module UI
     property label : String = ""
     # Visual style variant applied to the control.
     property style : ToggleStyle = ToggleStyle::Switch
+    # Explicit appearance override. Native keeps the platform switch default.
+    property appearance : ToggleAppearance = ToggleAppearance::Native
+    # Colors used by the opt-in machined toggle appearances.
+    property track_color : SurfaceColor? = nil
+    property knob_color : SurfaceColor? = nil
+    property on_color : SurfaceColor? = nil
+    property lamp_color : SurfaceColor? = nil
     # Tint applied to platform-native chrome (button highlight, selection, etc).
     property tint_color : Color? = nil
     # Invoked when the user changes the control's value.
@@ -41,6 +48,29 @@ module UI
     property disabled : Bool = false
 
     def initialize(@label : String = "", @is_on : Bool = false)
+    end
+
+    # JSON-encode the explicit custom appearance settings for the SwiftUI facade.
+    def surface_craft_toggle_json : String?
+      return nil if appearance == ToggleAppearance::Native && track_color.nil? && knob_color.nil? && on_color.nil? && lamp_color.nil?
+
+      JSON.build do |json|
+        json.object do
+          json.field "appearance", appearance.to_s.underscore
+          if color = track_color
+            json.field "track", SurfaceCraftEncoding.color_value(color)
+          end
+          if color = knob_color
+            json.field "knob", SurfaceCraftEncoding.color_value(color)
+          end
+          if color = on_color
+            json.field "on", SurfaceCraftEncoding.color_value(color)
+          end
+          if color = lamp_color
+            json.field "lamp", SurfaceCraftEncoding.color_value(color)
+          end
+        end
+      end
     end
 
     def initialize(@label : String = "", @is_on : Bool = false, &block : Bool -> Nil)
