@@ -8,6 +8,30 @@ require "../view"
 
 # Top-level namespace for the asset_pipeline cross-platform UI system.
 module UI
+  # Typed appearance payload consumed by the SwiftUI toggle facade.
+  struct SurfaceCraftTogglePayload
+    include JSON::Serializable
+
+    property appearance : String
+    @[JSON::Field(emit_null: false)]
+    property track : String? = nil
+    @[JSON::Field(emit_null: false)]
+    property knob : String? = nil
+    @[JSON::Field(emit_null: false)]
+    property on : String? = nil
+    @[JSON::Field(emit_null: false)]
+    property lamp : String? = nil
+
+    def initialize(
+      @appearance : String,
+      @track : String? = nil,
+      @knob : String? = nil,
+      @on : String? = nil,
+      @lamp : String? = nil,
+    )
+    end
+  end
+
   # Toggle — On / off toggle switch with optional label.
   class Toggle < View
     # Whether the control is in the on / checked state.
@@ -50,31 +74,34 @@ module UI
     def initialize(@label : String = "", @is_on : Bool = false)
     end
 
+    def initialize(@label : String = "", @is_on : Bool = false, &block : Bool -> Nil)
+      @on_change = block
+    end
+
     # JSON-encode the explicit custom appearance settings for the SwiftUI facade.
     def surface_craft_toggle_json : String?
       return nil if appearance == ToggleAppearance::Native && track_color.nil? && knob_color.nil? && on_color.nil? && lamp_color.nil?
 
-      JSON.build do |json|
-        json.object do
-          json.field "appearance", appearance.to_s.underscore
-          if color = track_color
-            json.field "track", SurfaceCraftEncoding.color_value(color)
-          end
-          if color = knob_color
-            json.field "knob", SurfaceCraftEncoding.color_value(color)
-          end
-          if color = on_color
-            json.field "on", SurfaceCraftEncoding.color_value(color)
-          end
-          if color = lamp_color
-            json.field "lamp", SurfaceCraftEncoding.color_value(color)
-          end
-        end
-      end
-    end
+      track = if color = track_color
+                SurfaceCraftEncoding.color_value(color)
+              end
+      knob = if color = knob_color
+               SurfaceCraftEncoding.color_value(color)
+             end
+      on = if color = on_color
+             SurfaceCraftEncoding.color_value(color)
+           end
+      lamp = if color = lamp_color
+               SurfaceCraftEncoding.color_value(color)
+             end
 
-    def initialize(@label : String = "", @is_on : Bool = false, &block : Bool -> Nil)
-      @on_change = block
+      SurfaceCraftTogglePayload.new(
+        appearance: appearance.to_s.underscore,
+        track: track,
+        knob: knob,
+        on: on,
+        lamp: lamp,
+      ).to_json
     end
 
     def accept(visitor : PlatformVisitor)

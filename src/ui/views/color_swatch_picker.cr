@@ -3,10 +3,42 @@
 require "./picker"
 
 module UI
+  # One named color in the serialized palette passed to the SwiftUI facade.
+  struct SurfaceCraftSwatchPayload
+    include JSON::Serializable
+
+    @[JSON::Field(key: "name")]
+    property color_name : String
+    @[JSON::Field(key: "color")]
+    property swatch_color : String
+
+    def initialize(@color_name : String, @swatch_color : String)
+    end
+  end
+
+  # Typed palette and appearance payload consumed by the SwiftUI facade.
+  struct SurfaceCraftSwatchPickerPayload
+    include JSON::Serializable
+
+    property appearance : String
+    property swatches : Array(SurfaceCraftSwatchPayload)
+    @[JSON::Field(key: "selectionRing")]
+    property selection_ring_color : String
+
+    def initialize(
+      @appearance : String,
+      @swatches : Array(SurfaceCraftSwatchPayload),
+      @selection_ring_color : String,
+    )
+    end
+  end
+
   # Color choice control that reuses Picker's selected-index callback contract.
   class ColorSwatchPicker < Picker
     property list_of_color_swatches : Array(ColorSwatch)
     property appearance : ColorSwatchPickerStyle = ColorSwatchPickerStyle::SwatchButton
+    # Color used for the selected swatch ring. Defaults to semantic text ink.
+    property selection_ring_color : SurfaceColor = ColorRole::TextPrimary
 
     def initialize(
       @list_of_color_swatches : Array(ColorSwatch),
@@ -37,21 +69,18 @@ module UI
 
     # JSON-encode the palette metadata consumed by the native Picker facade.
     def surface_craft_picker_json : String
-      JSON.build do |json|
-        json.object do
-          json.field "appearance", appearance.to_s.underscore
-          json.field "swatches" do
-            json.array do
-              list_of_color_swatches.each do |swatch|
-                json.object do
-                  json.field "name", swatch.color_name
-                  json.field "color", SurfaceCraftEncoding.color_value(swatch.swatch_color)
-                end
-              end
-            end
-          end
-        end
+      swatches = list_of_color_swatches.map do |swatch|
+        SurfaceCraftSwatchPayload.new(
+          color_name: swatch.color_name,
+          swatch_color: SurfaceCraftEncoding.color_value(swatch.swatch_color),
+        )
       end
+
+      SurfaceCraftSwatchPickerPayload.new(
+        appearance: appearance.to_s.underscore,
+        swatches: swatches,
+        selection_ring_color: SurfaceCraftEncoding.color_value(selection_ring_color),
+      ).to_json
     end
 
     def accept(visitor : PlatformVisitor)

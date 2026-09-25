@@ -2815,7 +2815,10 @@ module UI
         option.set_attribute("data-ap-change-index", index.to_s) if view.on_change
         option.add_style("display: flex; align-items: center; gap: 8px; padding: 5px; border: 0; background: transparent; cursor: pointer")
         chip = swatch_chip(swatch, false, rounded: rounded)
-        chip.add_style("outline: 2px solid var(--ap-color-brand-primary); outline-offset: 2px") if index == view.selected_index
+        if index == view.selected_index
+          ring_color = surface_color_css(view.selection_ring_color)
+          chip.add_style("outline: 2px solid #{ring_color}; outline-offset: 2px")
+        end
         option.add_child(chip)
         if !rounded
           name = Components::Elements::Span.new

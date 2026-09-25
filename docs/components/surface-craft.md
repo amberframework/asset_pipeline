@@ -92,7 +92,7 @@ shortcut = UI::Keycap.new("⌥ S", style: UI::KeycapStyle::Sculpted)
 
 ## Named color swatches
 
-UI::ColorSwatchPicker takes named UI::ColorSwatch values and a selected index. Its on_change callback follows UI::Picker's index callback contract. Styles are SwatchButton (swatch, chevron, and eyedropper glyph with a menu), SwatchRow (round swatches with a selected ring), NamedPopup, and BezelLamp.
+UI::ColorSwatchPicker takes named UI::ColorSwatch values and a selected index. Its on_change callback follows UI::Picker's index callback contract. Styles are SwatchButton (square swatch, chevron, and eyedropper glyph with a palette), SwatchRow (round swatches with a selected ring), NamedPopup, and BezelLamp (a 22pt color lamp inside a bezel ring). The selected SwatchRow ring uses `selection_ring_color`, which defaults to `UI::ColorRole::TextPrimary` and accepts a literal color or any color role.
 
 ~~~crystal
 swatches = [
@@ -107,7 +107,10 @@ picker = UI::ColorSwatchPicker.new(
   # Persist the selected palette index here.
   index
 end
+picker.selection_ring_color = UI::ColorRole::TextPrimary
 ~~~
+
+SwatchButton and BezelLamp open a native palette popover on macOS. The selected swatch value is displayed in the button, and choosing a palette item dispatches its index through `on_change`.
 
 ## Hover and press feedback
 

@@ -77,18 +77,32 @@ public class FormFacade: NSObject {
                                 ForEach(0..<cnt, id: \.self) { fIdx in
                                     let absIdx = off + fIdx
                                     let lbl = absIdx < labels.count ? labels[absIdx] : ""
-                                    if !lbl.isEmpty {
-                                        LabeledContent(lbl) {
-                                            APSKHostedChild(view: childViews[absIdx])
+                                    HStack(alignment: .center, spacing: 12) {
+                                        if !lbl.isEmpty {
+                                            Text(lbl)
+                                            Spacer(minLength: 12)
                                         }
-                                    } else {
                                         APSKHostedChild(view: childViews[absIdx])
                                     }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 8)
+                                    .overlay(alignment: .bottom) {
+                                        if fIdx + 1 < cnt {
+                                            Rectangle()
+                                                .fill(Color.primary.opacity(0.14))
+                                                .frame(height: 0.5)
+                                        }
+                                    }
+                                    .accessibilityElement(children: .contain)
+                                    .accessibilityIdentifier("surface-craft-form-row-\(sIdx)-\(fIdx)")
                                 }
                             }
                             let panelContent = VStack(alignment: .leading, spacing: 0) {
                                 if shape == "flush", !header.isEmpty {
-                                    APSKTabbedHeader(title: header, icon: icon, shape: shape, style: tabStyle)
+                                    APSKTabbedHeader(
+                                        title: header, icon: icon, shape: shape, style: tabStyle,
+                                        identifier: "surface-craft-tab-\(sIdx)"
+                                    )
                                 }
                                 rows
                             }
@@ -102,7 +116,10 @@ public class FormFacade: NSObject {
                                 .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
                         } header: {
                             if !header.isEmpty, shape != "flush" {
-                                let label = APSKTabbedHeader(title: header, icon: icon, shape: shape, style: tabStyle)
+                                let label = APSKTabbedHeader(
+                                    title: header, icon: icon, shape: shape, style: tabStyle,
+                                    identifier: "surface-craft-tab-\(sIdx)"
+                                )
                                 label
                             }
                         } footer: {
@@ -140,12 +157,17 @@ private struct APSKTabbedHeader: View {
     let icon: String
     let shape: String
     let style: String
+    let identifier: String
 
     var body: some View {
         let content = HStack(spacing: 7) {
             if !icon.isEmpty { Image(systemName: icon).accessibilityHidden(true) }
-            Text(title).font(.system(size: 12, weight: .semibold))
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
+        .fixedSize(horizontal: true, vertical: false)
         .padding(.leading, shape == "flush" ? 0 : 13)
         .padding(.trailing, shape == "angled" ? 24 : (shape == "flush" ? 0 : 13))
         .padding(.vertical, shape == "flush" ? 6 : 7)
@@ -153,12 +175,14 @@ private struct APSKTabbedHeader: View {
             AnyView(content), spec: style, keycapStyle: nil, cornerRadius: 7
         )
         styled
+            .fixedSize(horizontal: true, vertical: false)
             .clipShape(TabbedTabShape(style: shape))
             .overlay(alignment: .bottom) {
                 if shape == "flush" {
                     Rectangle().fill(Color(nsColor: .separatorColor)).frame(height: 0.5)
                 }
             }
+            .accessibilityIdentifier(identifier)
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
     }
@@ -180,8 +204,8 @@ private struct TabbedTabShape: Shape {
             path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
             path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + 7))
             path.addQuadCurve(to: CGPoint(x: rect.minX + 7, y: rect.minY), control: CGPoint(x: rect.minX, y: rect.minY))
-            path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.56, y: rect.minY))
-            path.addQuadCurve(to: CGPoint(x: rect.minX + rect.width * 0.56 + 7, y: rect.minY + 7), control: CGPoint(x: rect.minX + rect.width * 0.56 + 2, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX - 7, y: rect.minY))
+            path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.minY + 7), control: CGPoint(x: rect.maxX, y: rect.minY))
             path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
             path.closeSubpath()
         case "notched":
@@ -207,6 +231,7 @@ private struct APSKTabbedHeader: View {
     let icon: String
     let shape: String
     let style: String
+    let identifier: String
 
     var body: some View { Text(title) }
 }

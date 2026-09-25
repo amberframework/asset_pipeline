@@ -3,7 +3,8 @@
 require "../../src/ui"
 
 {% if flag?(:macos) %}
-  APPEARANCE = ENV["SURFACE_CRAFT_APPEARANCE"]? || "light"
+  APPEARANCE   = ENV["SURFACE_CRAFT_APPEARANCE"]? || "light"
+  AX_TEST_MODE = ENV["SURFACE_CRAFT_AX_TEST"]? == "1"
 
   def sample_color(light_color : UI::Color, dark_color : UI::Color) : UI::Color
     APPEARANCE == "dark" ? dark_color : light_color
@@ -106,19 +107,29 @@ require "../../src/ui"
     )
     case index
     when 0
-      toggle = UI::Toggle.new("Launch at sign in", true)
+      initial_slide_value = !AX_TEST_MODE
+      toggle = UI::Toggle.new("Launch", initial_slide_value)
+      toggle.test_id = "surface-craft-slide-toggle"
       toggle.appearance = UI::ToggleAppearance::Slide
       toggle.track_color = sample_color(UI::Color.new(r: 0.847, g: 0.812, b: 0.749), UI::Color.new(r: 0.09, g: 0.106, b: 0.153))
       toggle.knob_color = sample_color(UI::Color.new(r: 1.0, g: 0.992, b: 0.973), UI::Color.new(r: 0.224, g: 0.255, b: 0.353))
       toggle.on_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
       toggle.lamp_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
-      section.fields << UI::Form::Field.new(label: "Startup", content: toggle)
-      pill = UI::Toggle.new("Sound cues", false)
+      slide_result = UI::Label.new("Slide value: #{initial_slide_value}")
+      slide_result.test_id = "surface-craft-slide-result"
+      toggle.on_change = ->(is_on : Bool) { slide_result.text = "Slide value: #{is_on}" }
+      pill = UI::Toggle.new("Audio", false)
       pill.appearance = UI::ToggleAppearance::Pill
       pill.track_color = sample_color(UI::Color.new(r: 0.847, g: 0.812, b: 0.749), UI::Color.new(r: 0.09, g: 0.106, b: 0.153))
       pill.knob_color = sample_color(UI::Color.new(r: 1.0, g: 0.992, b: 0.973), UI::Color.new(r: 0.224, g: 0.255, b: 0.353))
       pill.on_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
-      section.fields << UI::Form::Field.new(label: "Audio", content: pill)
+      switch_examples = UI::HStack.new(spacing: 12.0)
+      switch_examples << toggle
+      switch_examples << pill
+      section.fields << UI::Form::Field.new(label: "Switch styles", content: switch_examples)
+      if AX_TEST_MODE
+        section.fields << UI::Form::Field.new(label: "AX result", content: slide_result)
+      end
     when 1
       rocker = UI::Toggle.new("Hardware mode", true)
       rocker.appearance = UI::ToggleAppearance::Rocker
@@ -133,16 +144,27 @@ require "../../src/ui"
       lamp.on_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
       lamp.lamp_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
       section.fields << UI::Form::Field.new(label: "Status", content: lamp)
+      auto_save = UI::Toggle.new("Automatic saving", true)
+      auto_save.appearance = UI::ToggleAppearance::LampPill
+      auto_save.on_color = UI::Color.new(r: 0.855, g: 0.710, b: 0.431)
+      section.fields << UI::Form::Field.new(label: "Save", content: auto_save)
     when 2
+      keycap_examples = UI::HStack.new(spacing: 8.0)
       [UI::KeycapStyle::Outlined, UI::KeycapStyle::Sculpted, UI::KeycapStyle::Inset, UI::KeycapStyle::Text].each do |style|
-        section.fields << UI::Form::Field.new(label: style.to_s, content: UI::Keycap.new("⌥ S", style: style))
+        keycap_examples << UI::Keycap.new("⌥ S", style: style)
       end
+      section.fields << UI::Form::Field.new(label: "Keycap styles", content: keycap_examples)
     when 3
       swatches = [
         UI::ColorSwatch.new(color_name: "Ocean", swatch_color: UI::Color.new(r: 0.12, g: 0.42, b: 0.72)),
         UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::Color.new(r: 0.78, g: 0.56, b: 0.24)),
         UI::ColorSwatch.new(color_name: "Graphite", swatch_color: UI::ColorRole::TextPrimary),
       ]
+      bezel_result = UI::Label.new("Bezel selection: 1: Brass")
+      bezel_result.test_id = "surface-craft-bezel-result"
+      row_result = UI::Label.new("Swatch row selection: 1: Brass")
+      row_result.test_id = "surface-craft-row-result"
+      swatch_examples = UI::HStack.new(spacing: 8.0)
       [
         UI::ColorSwatchPickerStyle::SwatchButton,
         UI::ColorSwatchPickerStyle::SwatchRow,
@@ -152,10 +174,23 @@ require "../../src/ui"
         picker = UI::ColorSwatchPicker.new(list_of_color_swatches: swatches, selected_index: 1, appearance: style) do |_index|
           nil
         end
-        section.fields << UI::Form::Field.new(label: style.to_s, content: picker)
+        if style == UI::ColorSwatchPickerStyle::BezelLamp
+          picker.test_id = "surface-craft-bezel-picker"
+          picker.on_change = ->(index : Int32) { bezel_result.text = "Bezel selection: #{index}: #{swatches[index].color_name}" }
+        elsif style == UI::ColorSwatchPickerStyle::SwatchRow
+          picker.test_id = "surface-craft-row-picker"
+          picker.on_change = ->(index : Int32) { row_result.text = "Swatch row selection: #{index}: #{swatches[index].color_name}" }
+        end
+        swatch_examples << picker
+      end
+      section.fields << UI::Form::Field.new(label: "Swatch styles", content: swatch_examples)
+      if AX_TEST_MODE
+        section.fields << UI::Form::Field.new(label: "AX bezel result", content: bezel_result)
+        section.fields << UI::Form::Field.new(label: "AX row result", content: row_result)
       end
     end
   end
+  form.minimum_width = 620.0
 
   feedback_row = UI::HStack.new(spacing: 10.0)
   [UI::InteractionFeedback::Sink, UI::InteractionFeedback::Lift, UI::InteractionFeedback::Edge, UI::InteractionFeedback::None].each do |feedback|

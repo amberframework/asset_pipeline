@@ -18,7 +18,7 @@ describe "surface-craft UI primitives" do
 
     it "rejects fewer than two stops and positions outside the normalized range" do
       one_stop = [UI::GradientStop.new(stop_color: UI::ColorRole::BrandPrimary, stop_position: 0.0)]
-      expect_raises(ArgumentError, "A linear gradient requires at least two stops") do
+      expect_raises(UI::SurfaceCraftError, "A linear gradient requires at least two stops") do
         UI::LinearGradient.new(list_of_stops: one_stop)
       end
 
@@ -26,7 +26,7 @@ describe "surface-craft UI primitives" do
         UI::GradientStop.new(stop_color: UI::ColorRole::BrandPrimary, stop_position: 0.0),
         UI::GradientStop.new(stop_color: UI::ColorRole::BrandAccent, stop_position: 1.2),
       ]
-      expect_raises(ArgumentError, "Gradient stop positions must be between 0 and 1") do
+      expect_raises(UI::SurfaceCraftError, "Gradient stop positions must be between 0 and 1") do
         UI::LinearGradient.new(list_of_stops: invalid_stops)
       end
     end
@@ -36,7 +36,7 @@ describe "surface-craft UI primitives" do
         UI::GradientStop.new(stop_color: UI::ColorRole::BrandPrimary, stop_position: 0.8),
         UI::GradientStop.new(stop_color: UI::ColorRole::BrandAccent, stop_position: 0.2),
       ]
-      expect_raises(ArgumentError, "Gradient stop positions must be in ascending order") do
+      expect_raises(UI::SurfaceCraftError, "Gradient stop positions must be in ascending order") do
         UI::LinearGradient.new(list_of_stops: descending_stops)
       end
     end
@@ -44,12 +44,56 @@ describe "surface-craft UI primitives" do
 
   describe UI::TextureOverlay do
     it "rejects opacity outside the inclusive zero-to-one range" do
-      expect_raises(ArgumentError, "Texture opacity must be between 0 and 1") do
+      expect_raises(UI::SurfaceCraftError, "Texture opacity must be between 0 and 1") do
         UI::TextureOverlay.new(texture_kind: UI::TextureKind::Noise, texture_opacity: -0.1)
       end
-      expect_raises(ArgumentError, "Texture opacity must be between 0 and 1") do
+      expect_raises(UI::SurfaceCraftError, "Texture opacity must be between 0 and 1") do
         UI::TextureOverlay.new(texture_kind: UI::TextureKind::Brushed, texture_opacity: 1.1)
       end
+    end
+  end
+
+  describe UI::SurfaceCraftEncoding do
+    it "serializes one typed payload shape for section styles and view overrides" do
+      style = UI::SurfaceStyle.new(
+        background_fill_color: UI::ColorRole::SurfacePanel,
+        linear_gradient: UI::LinearGradient.new(
+          list_of_stops: [
+            UI::GradientStop.new(stop_color: UI::ColorRole::BrandPrimary, stop_position: 0.0),
+            UI::GradientStop.new(stop_color: UI::ColorRole::SurfaceElevated, stop_position: 1.0),
+          ],
+          gradient_angle: 135.0,
+        ),
+        list_of_inner_shadows: [
+          UI::InnerShadow.new(shadow_color: UI::ColorRole::TextInverse, offset_y: 1.0, blur_radius: 2.0),
+        ],
+        list_of_drop_shadows: [
+          UI::DropShadow.new(shadow_color: UI::ColorRole::TextPrimary, offset_y: 3.0, blur_radius: 8.0),
+        ],
+        texture_overlay: UI::TextureOverlay.new(texture_kind: UI::TextureKind::Brushed, texture_opacity: 0.08),
+      )
+
+      style_json = UI::SurfaceCraftEncoding.style_json(style)
+      style_json.should contain(%("fill":"role:surface-panel"))
+      style_json.should contain(%("angle":135.0))
+      style_json.should contain(%("innerShadows":[{"color":"role:text-inverse","x":0.0,"y":1.0,"blur":2.0}]))
+      style_json.should contain(%("dropShadows":[{"color":"role:text-primary","x":0.0,"y":3.0,"blur":8.0}]))
+      style_json.should contain(%("texture":{"kind":"brushed","opacity":0.08}))
+
+      view = UI::VStack.new
+      view.background_fill_color = UI::ColorRole::SurfacePanel
+      view.list_of_inner_shadows = style.list_of_inner_shadows
+      view.interaction_feedback = UI::InteractionFeedback::Sink
+      view_json = view.surface_craft_json
+      if payload = view_json
+        payload.should contain(%("fill":"role:surface-panel"))
+        payload.should contain(%("innerShadows"))
+        payload.should contain(%("feedback":"sink"))
+      else
+        fail "surface-craft view payload was not emitted"
+      end
+
+      UI::SurfaceCraftEncoding.style_json(UI::SurfaceStyle.new).should eq("{}")
     end
   end
 
@@ -203,6 +247,56 @@ describe "surface-craft UI primitives" do
         html.should contain("Ink")
         html.should contain("--ap-color-text-primary")
       end
+    end
+
+    it "uses the text-ink role for the swatch-row ring by default and accepts an override" do
+      swatches = [
+        UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::ColorRole::Warning),
+        UI::ColorSwatch.new(color_name: "Ink", swatch_color: UI::ColorRole::TextPrimary),
+      ]
+      picker = UI::ColorSwatchPicker.new(
+        list_of_color_swatches: swatches,
+        selected_index: 1,
+        appearance: UI::ColorSwatchPickerStyle::SwatchRow,
+      )
+
+      html = UI::Web::Renderer.new.render(picker)
+      html.should contain("outline: 2px solid var(--ap-color-text-primary)")
+      html.should_not contain("outline: 2px solid var(--ap-color-brand-primary)")
+
+      picker.selection_ring_color = UI::ColorRole::BrandAccent
+      html = UI::Web::Renderer.new.render(picker)
+      html.should contain("outline: 2px solid var(--ap-color-brand-accent)")
+    end
+
+    it "emits typed toggle and named swatch payloads with the Swift facade's camel-case keys" do
+      toggle = UI::Toggle.new("Enable")
+      toggle.appearance = UI::ToggleAppearance::Slide
+      toggle.track_color = UI::ColorRole::SurfaceSunken
+      toggle.lamp_color = UI::ColorRole::Warning
+
+      toggle_json = toggle.surface_craft_toggle_json
+      if payload = toggle_json
+        payload.should contain(%("appearance":"slide"))
+        payload.should contain(%("track":"role:surface-sunken"))
+        payload.should contain(%("lamp":"role:warning"))
+        payload.should_not contain(%("on":null))
+      else
+        fail "custom toggle payload was not emitted"
+      end
+
+      picker = UI::ColorSwatchPicker.new(
+        list_of_color_swatches: [
+          UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::ColorRole::Warning),
+        ],
+      )
+      picker_json = picker.surface_craft_picker_json
+      picker_json.should contain(%("appearance":"swatch_button"))
+      picker_json.should contain(%("name":"Brass","color":"role:warning"))
+      picker_json.should contain(%("selectionRing":"role:text-primary"))
+
+      picker.selection_ring_color = UI::ColorRole::BrandAccent
+      picker.surface_craft_picker_json.should contain(%("selectionRing":"role:brand-accent"))
     end
 
     it "emits opt-in feedback hooks and a reduced-motion rule" do

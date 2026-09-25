@@ -14,6 +14,10 @@ module UI
   class RenderError < Exception
   end
 
+  # Raised when a surface-craft value does not meet its construction contract.
+  class SurfaceCraftError < RenderError
+  end
+
   # Phase 8A — Renderer-scoped per-request context threaded through
   # `UI::Web::Renderer#render(view, render_context:)`. Carries values
   # the web visit methods need but that don't belong on the view tree
@@ -183,14 +187,14 @@ module UI
     getter gradient_angle : Float64
 
     def initialize(@list_of_stops : Array(GradientStop), @gradient_angle : Float64 = 0.0)
-      raise ArgumentError.new("A linear gradient requires at least two stops") if @list_of_stops.size < 2
+      raise SurfaceCraftError.new("A linear gradient requires at least two stops") if @list_of_stops.size < 2
       previous_position = -1.0
       @list_of_stops.each do |stop|
         unless stop.stop_position >= 0.0 && stop.stop_position <= 1.0
-          raise ArgumentError.new("Gradient stop positions must be between 0 and 1")
+          raise SurfaceCraftError.new("Gradient stop positions must be between 0 and 1")
         end
         if stop.stop_position < previous_position
-          raise ArgumentError.new("Gradient stop positions must be in ascending order")
+          raise SurfaceCraftError.new("Gradient stop positions must be in ascending order")
         end
         previous_position = stop.stop_position
       end
@@ -224,7 +228,7 @@ module UI
 
     def initialize(@texture_kind : TextureKind, @texture_opacity : Float64)
       unless @texture_opacity >= 0.0 && @texture_opacity <= 1.0
-        raise ArgumentError.new("Texture opacity must be between 0 and 1")
+        raise SurfaceCraftError.new("Texture opacity must be between 0 and 1")
       end
     end
   end
@@ -283,6 +287,83 @@ module UI
     color_name : String,
     swatch_color : SurfaceColor
 
+  # Typed payload for a single gradient stop crossing the SwiftUI bridge.
+  struct SurfaceCraftGradientStopPayload
+    include JSON::Serializable
+
+    property color : String
+    property position : Float64
+
+    def initialize(@color : String, @position : Float64)
+    end
+  end
+
+  # Typed gradient payload crossing the SwiftUI bridge.
+  struct SurfaceCraftGradientPayload
+    include JSON::Serializable
+
+    property angle : Float64
+    property stops : Array(SurfaceCraftGradientStopPayload)
+
+    def initialize(@angle : Float64, @stops : Array(SurfaceCraftGradientStopPayload))
+    end
+  end
+
+  # Typed shadow payload shared by inner and drop shadows.
+  struct SurfaceCraftShadowPayload
+    include JSON::Serializable
+
+    property color : String
+    @[JSON::Field(key: "x")]
+    property offset_x : Float64
+    @[JSON::Field(key: "y")]
+    property offset_y : Float64
+    @[JSON::Field(key: "blur")]
+    property blur_radius : Float64
+
+    def initialize(@color : String, @offset_x : Float64, @offset_y : Float64, @blur_radius : Float64)
+    end
+  end
+
+  # Typed texture payload crossing the SwiftUI bridge.
+  struct SurfaceCraftTexturePayload
+    include JSON::Serializable
+
+    property kind : String
+    property opacity : Float64
+
+    def initialize(@kind : String, @opacity : Float64)
+    end
+  end
+
+  # Shared typed payload for view and section surface modifiers.
+  struct SurfaceCraftPayload
+    include JSON::Serializable
+
+    @[JSON::Field(emit_null: false)]
+    property fill : String? = nil
+    @[JSON::Field(emit_null: false)]
+    property gradient : SurfaceCraftGradientPayload? = nil
+    @[JSON::Field(key: "innerShadows", emit_null: false)]
+    property list_of_inner_shadows : Array(SurfaceCraftShadowPayload)? = nil
+    @[JSON::Field(key: "dropShadows", emit_null: false)]
+    property list_of_drop_shadows : Array(SurfaceCraftShadowPayload)? = nil
+    @[JSON::Field(emit_null: false)]
+    property texture : SurfaceCraftTexturePayload? = nil
+    @[JSON::Field(emit_null: false)]
+    property feedback : String? = nil
+
+    def initialize(
+      @fill : String? = nil,
+      @gradient : SurfaceCraftGradientPayload? = nil,
+      @list_of_inner_shadows : Array(SurfaceCraftShadowPayload)? = nil,
+      @list_of_drop_shadows : Array(SurfaceCraftShadowPayload)? = nil,
+      @texture : SurfaceCraftTexturePayload? = nil,
+      @feedback : String? = nil,
+    )
+    end
+  end
+
   # Converts typed surface values into the compact payload shared with SwiftUI.
   module SurfaceCraftEncoding
     def self.color_value(color : SurfaceColor) : String
@@ -292,88 +373,83 @@ module UI
       when ColorRole
         "role:#{color.to_s.underscore.gsub('_', '-')}"
       else
-        raise ArgumentError.new("Unsupported surface color")
+        raise SurfaceCraftError.new("Unsupported surface color")
       end
     end
 
-    def self.style_json(style : SurfaceStyle) : String
-      JSON.build do |json|
-        json.object do
-          if fill = style.background_fill_color
-            json.field "fill", color_value(fill)
-          end
-          if gradient = style.linear_gradient
-            write_gradient(json, gradient)
-          end
-          write_shadows(json, style.list_of_inner_shadows, style.list_of_drop_shadows)
-          if texture = style.texture_overlay
-            write_texture(json, texture)
-          end
-        end
-      end
+    def self.style_json(style : SurfaceStyle, interaction_feedback : InteractionFeedback = InteractionFeedback::None) : String
+      surface_payload(style, interaction_feedback).to_json
     end
 
-    def self.write_gradient(json : JSON::Builder, gradient : LinearGradient) : Nil
-      json.field "gradient" do
-        json.object do
-          json.field "angle", gradient.gradient_angle
-          json.field "stops" do
-            json.array do
-              gradient.list_of_stops.each do |stop|
-                json.object do
-                  json.field "color", color_value(stop.stop_color)
-                  json.field "position", stop.stop_position
+    def self.surface_payload(style : SurfaceStyle, interaction_feedback : InteractionFeedback = InteractionFeedback::None) : SurfaceCraftPayload
+      fill = if color = style.background_fill_color
+               color_value(color)
+             end
+      gradient = if value = style.linear_gradient
+                   gradient_payload(value)
+                 end
+      inner_shadows = if style.list_of_inner_shadows.empty?
+                        nil
+                      else
+                        style.list_of_inner_shadows.map { |shadow| shadow_payload(shadow) }
+                      end
+      drop_shadows = if style.list_of_drop_shadows.empty?
+                       nil
+                     else
+                       style.list_of_drop_shadows.map { |shadow| shadow_payload(shadow) }
+                     end
+      texture = if value = style.texture_overlay
+                  texture_payload(value)
                 end
-              end
-            end
-          end
-        end
-      end
+      feedback = if interaction_feedback == InteractionFeedback::None
+                   nil
+                 else
+                   interaction_feedback.to_s.underscore
+                 end
+
+      SurfaceCraftPayload.new(
+        fill: fill,
+        gradient: gradient,
+        list_of_inner_shadows: inner_shadows,
+        list_of_drop_shadows: drop_shadows,
+        texture: texture,
+        feedback: feedback,
+      )
     end
 
-    def self.write_shadows(json : JSON::Builder, inner : Array(InnerShadow), drop : Array(DropShadow)) : Nil
-      unless inner.empty?
-        json.field "innerShadows" do
-          json.array do
-            inner.each do |shadow|
-              write_shadow(json, shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
-            end
-          end
-        end
+    private def self.gradient_payload(gradient : LinearGradient) : SurfaceCraftGradientPayload
+      stops = gradient.list_of_stops.map do |stop|
+        SurfaceCraftGradientStopPayload.new(
+          color: color_value(stop.stop_color),
+          position: stop.stop_position,
+        )
       end
-      unless drop.empty?
-        json.field "dropShadows" do
-          json.array do
-            drop.each do |shadow|
-              write_shadow(json, shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
-            end
-          end
-        end
-      end
+      SurfaceCraftGradientPayload.new(angle: gradient.gradient_angle, stops: stops)
     end
 
-    def self.write_shadow(
-      json : JSON::Builder,
-      color : SurfaceColor,
-      offset_x : Float64,
-      offset_y : Float64,
-      blur : Float64,
-    ) : Nil
-      json.object do
-        json.field "color", color_value(color)
-        json.field "x", offset_x
-        json.field "y", offset_y
-        json.field "blur", blur
-      end
+    private def self.shadow_payload(shadow : InnerShadow) : SurfaceCraftShadowPayload
+      SurfaceCraftShadowPayload.new(
+        color: color_value(shadow.shadow_color),
+        offset_x: shadow.offset_x,
+        offset_y: shadow.offset_y,
+        blur_radius: shadow.blur_radius,
+      )
     end
 
-    def self.write_texture(json : JSON::Builder, texture : TextureOverlay) : Nil
-      json.field "texture" do
-        json.object do
-          json.field "kind", texture.texture_kind.to_s.downcase
-          json.field "opacity", texture.texture_opacity
-        end
-      end
+    private def self.shadow_payload(shadow : DropShadow) : SurfaceCraftShadowPayload
+      SurfaceCraftShadowPayload.new(
+        color: color_value(shadow.shadow_color),
+        offset_x: shadow.offset_x,
+        offset_y: shadow.offset_y,
+        blur_radius: shadow.blur_radius,
+      )
+    end
+
+    private def self.texture_payload(texture : TextureOverlay) : SurfaceCraftTexturePayload
+      SurfaceCraftTexturePayload.new(
+        kind: texture.texture_kind.to_s.downcase,
+        opacity: texture.texture_opacity,
+      )
     end
   end
 
@@ -747,23 +823,14 @@ module UI
                     list_of_inner_shadows.empty? && list_of_drop_shadows.empty? &&
                     texture_overlay.nil? && interaction_feedback == InteractionFeedback::None
 
-      JSON.build do |json|
-        json.object do
-          if fill = background_fill_color
-            json.field "fill", SurfaceCraftEncoding.color_value(fill)
-          end
-          if gradient = linear_gradient
-            SurfaceCraftEncoding.write_gradient(json, gradient)
-          end
-          SurfaceCraftEncoding.write_shadows(json, list_of_inner_shadows, list_of_drop_shadows)
-          if texture = texture_overlay
-            SurfaceCraftEncoding.write_texture(json, texture)
-          end
-          unless interaction_feedback == InteractionFeedback::None
-            json.field "feedback", interaction_feedback.to_s.underscore
-          end
-        end
-      end
+      style = SurfaceStyle.new(
+        background_fill_color: background_fill_color,
+        linear_gradient: linear_gradient,
+        list_of_inner_shadows: list_of_inner_shadows,
+        list_of_drop_shadows: list_of_drop_shadows,
+        texture_overlay: texture_overlay,
+      )
+      SurfaceCraftEncoding.style_json(style, interaction_feedback)
     end
 
     # Border modifier
