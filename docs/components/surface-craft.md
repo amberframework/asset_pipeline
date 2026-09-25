@@ -4,6 +4,8 @@ The surface-craft API adds optional visual overrides to generic UI views. It giv
 
 On macOS, SwiftUI facades render gradients, custom toggle styles, keycaps, swatches, and tabbed Form sections. Raw AppKit views use CAGradientLayer and cached texture tiles. On the web, gradients use CSS linear-gradient, grain uses an inline SVG filter, and colors use design-token variables. iOS and Android compile the same view types and keep their current plain rendering; custom styling on those platforms is a documented gap.
 
+For app-wide palettes, fonts, control helpers, window-chrome limits, and per-platform skin coverage, see the [theming guide](../theming.md).
+
 ## Surface fills and shadows
 
 UI::View exposes these optional properties:
