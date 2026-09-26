@@ -126,6 +126,12 @@ module UI
       def self.populate_view_common(target : String, view : UI::View, sender : Sender)
         sender.set_color(target, :setBackgroundColor, view.background)
         sender.set_string(target, :setApskSurfaceCraftSpec, view.surface_craft_json)
+        preview_state = if view.preview_state == UI::PreviewState::None
+                          nil
+                        else
+                          view.preview_state.to_s.underscore
+                        end
+        sender.set_string(target, :setApskPreviewState, preview_state)
 
         cr = view.corner_radius
         sender.set_number(target, :setCornerRadius, cr == 0.0 ? nil : cr)

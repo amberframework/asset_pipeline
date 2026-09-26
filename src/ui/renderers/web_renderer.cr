@@ -2845,11 +2845,19 @@ module UI
         [data-ap-feedback="sink"]{transition:transform 100ms ease,filter 100ms ease}
         [data-ap-feedback="sink"]:hover{filter:brightness(1.04)}
         [data-ap-feedback="sink"]:active{transform:translateY(1px)}
+        [data-ap-feedback="sink"][data-ap-preview-state="hover"]{filter:brightness(1.04)}
+        [data-ap-feedback="sink"][data-ap-preview-state="pressed"]{transform:translateY(1px)}
         [data-ap-feedback="lift"]{transition:transform 140ms ease,box-shadow 140ms ease}
         [data-ap-feedback="lift"]:hover{transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.18)}
+        [data-ap-feedback="lift"][data-ap-preview-state="hover"]{transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.18)}
+        [data-ap-feedback="lift"][data-ap-preview-state="pressed"]{transform:translateY(1px);box-shadow:0 2px 5px rgba(0,0,0,.16)}
         [data-ap-feedback="edge"]{position:relative;transition:background-color 120ms ease}
         [data-ap-feedback="edge"]::before{content:"";position:absolute;inset:4px auto 4px 0;width:2px;background:transparent;border-radius:2px}
         [data-ap-feedback="edge"]:hover::before{background:var(--ap-color-brand-primary)}
+        [data-ap-feedback="edge"][data-ap-preview-state="hover"]::before,
+        [data-ap-feedback="edge"][data-ap-preview-state="focus"]::before{background:var(--ap-color-brand-primary)}
+        [data-ap-preview-state="focus"]:not([data-ap-feedback="edge"]){outline:2px solid var(--ap-color-border-focus);outline-offset:3px}
+        [data-ap-feedback="edge"][data-ap-preview-state="focus"]{outline:2px solid var(--ap-color-brand-primary);outline-offset:3px}
         .ap-toggle[data-ap-toggle-appearance="pill"] input:checked+[data-ap-toggle-track]{background-color:var(--ap-toggle-on)}
         .ap-toggle input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(14px)}
         .ap-toggle[data-ap-toggle-appearance="rocker"] input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(18px);background:var(--ap-toggle-on);color:var(--ap-color-surface-inverse)}
@@ -2864,7 +2872,7 @@ module UI
         [data-ap-icon="eyedropper"]{position:relative;display:inline-block;width:8px;height:4px;border:1px solid currentColor;border-radius:2px;transform:rotate(-45deg);margin:0 2px}
         [data-ap-icon="eyedropper"]::before{content:"";position:absolute;right:-3px;top:0;width:2px;height:4px;background:currentColor}
         [data-ap-icon="eyedropper"]::after{content:"";position:absolute;left:-3px;top:1px;width:2px;height:2px;background:currentColor}
-        @media (prefers-reduced-motion: reduce){[data-ap-feedback]{transition:none!important;transform:none!important}.ap-toggle [data-ap-toggle-track],.ap-toggle [data-ap-toggle-knob]{transition:none!important}}
+        @media (prefers-reduced-motion: reduce){[data-ap-feedback]{transition:none!important;transform:none!important}[data-ap-feedback="sink"][data-ap-preview-state="pressed"]{filter:brightness(.94)}[data-ap-feedback="lift"][data-ap-preview-state="pressed"]{filter:brightness(.94)}.ap-toggle [data-ap-toggle-track],.ap-toggle [data-ap-toggle-knob]{transition:none!important}}
         CSS
       end
 
@@ -2971,6 +2979,10 @@ module UI
 
         unless view.interaction_feedback == UI::InteractionFeedback::None
           el.set_attribute("data-ap-feedback", view.interaction_feedback.to_s.underscore)
+        end
+
+        unless view.preview_state == UI::PreviewState::None
+          el.set_attribute("data-ap-preview-state", view.preview_state.to_s.underscore)
         end
 
         # Size constraints. `fluid_width` / `fluid_height` take precedence

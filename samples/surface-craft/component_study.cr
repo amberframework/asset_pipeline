@@ -4,7 +4,10 @@ require "../../src/ui"
 
 {% if flag?(:macos) %}
   APPEARANCE   = ENV["SURFACE_CRAFT_APPEARANCE"]? || "light"
-  AX_TEST_MODE = ENV["SURFACE_CRAFT_AX_TEST"]? == "1"
+  AX_TEST_MODE = ENV["SURFACE_CRAFT_AX_TEST"]? == "1" || {{ flag?(:surface_craft_ax_test) }}
+  {% if flag?(:surface_craft_ax_test) %}
+    ENV["HIG_INTERACTIVE"] = "1"
+  {% end %}
 
   def sample_color(light_color : UI::Color, dark_color : UI::Color) : UI::Color
     APPEARANCE == "dark" ? dark_color : light_color
@@ -216,6 +219,23 @@ require "../../src/ui"
   content << title
   content << form
   content << feedback_row
+  if AX_TEST_MODE
+    preview_row = UI::HStack.new(spacing: 8.0)
+    [
+      {"Hover", UI::PreviewState::Hover, UI::InteractionFeedback::Sink, "hover"},
+      {"Pressed", UI::PreviewState::Pressed, UI::InteractionFeedback::Sink, "pressed"},
+      {"Focus", UI::PreviewState::Focus, UI::InteractionFeedback::None, "focus"},
+      {"Edge focus", UI::PreviewState::Focus, UI::InteractionFeedback::Edge, "edge-focus"},
+      {"Default", UI::PreviewState::None, UI::InteractionFeedback::None, "default"},
+    ].each do |label, preview_state, feedback, identifier|
+      button = UI::Button.new(label)
+      button.preview_state = preview_state
+      button.interaction_feedback = feedback
+      button.test_id = "surface-craft-preview-#{identifier}"
+      preview_row << button
+    end
+    content << preview_row
+  end
 
   ENV["HIG_APPEARANCE"] = APPEARANCE
   renderer = UI::AppKit::Renderer.new

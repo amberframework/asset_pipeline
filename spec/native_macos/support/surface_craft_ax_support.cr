@@ -4,7 +4,7 @@
   module SurfaceCraftAX
     extend self
 
-    SAMPLE_BINARY = File.expand_path("../../../samples/surface-craft/bin/surface-craft-study", __DIR__)
+    SAMPLE_BINARY = File.expand_path("../../../samples/surface-craft/bin/surface-craft-study-spec", __DIR__)
     NO_WINDOW     = "Surface craft AX checks need a live, on-screen window registered with macOS Accessibility."
 
     def with_sample(&)

@@ -262,28 +262,25 @@ enum CommonModifiers {
         }
         #endif
 
-        // Phase 10B.2b — Focus management. SwiftUI requires a
-        // `@FocusState` binding to call `.accessibilityFocused`, which
-        // we cannot synthesise from outside the facade. We rely on the
-        // ObjC-side `ap_view_become_first_responder` helper (called by
-        // the AppKit / UIKit renderer's apply_common_properties) to
-        // request focus on the resolved native view. The Swift side
-        // therefore intentionally does NOT attach a `.focused()`
-        // modifier here; the slot is read so the populator's wiring
-        // remains symmetric. Future SwiftKit facades that own their
-        // own `@FocusState` may consume this property directly.
-        if let _ = overrides.apskFocused {
-            // No-op at the modifier layer — the UIView-level helper
-            // handles focus request.
+        // SwiftUI views have no AppKit child view corresponding to each
+        // accessibility target. Apply the actual focus request from an
+        // on-appear FocusState binding; preview focus uses the separate
+        // SurfaceCraft path below and never enters this branch.
+        #if os(macOS)
+        if overrides.apskFocused?.boolValue == true {
+            current = AnyView(current.modifier(DeferredFocusRequestModifier()))
         }
+        #endif
 
         #if os(macOS)
-        if overrides.apskSurfaceCraftSpec != nil || overrides.apskSurfaceCraftKeycapStyle != nil {
+        if overrides.apskSurfaceCraftSpec != nil || overrides.apskSurfaceCraftKeycapStyle != nil
+            || overrides.apskPreviewState != nil {
             current = SurfaceCraftModifiers.apply(
                 current,
                 spec: overrides.apskSurfaceCraftSpec,
                 keycapStyle: overrides.apskSurfaceCraftKeycapStyle,
-                cornerRadius: overrides.cornerRadius
+                cornerRadius: overrides.cornerRadius,
+                previewState: overrides.apskPreviewState
             )
         }
         #endif
@@ -303,3 +300,16 @@ enum CommonModifiers {
         #endif
     }
 }
+
+#if os(macOS)
+private struct DeferredFocusRequestModifier: ViewModifier {
+    @FocusState private var isFocused: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .focusable()
+            .focused($isFocused)
+            .onAppear { isFocused = true }
+    }
+}
+#endif

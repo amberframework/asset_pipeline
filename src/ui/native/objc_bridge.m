@@ -57,6 +57,37 @@
   typedef CGRect      BridgeRect;
 #endif
 
+#if TARGET_OS_OSX
+static char apsk_pending_focus_key;
+static char apsk_focus_result_key;
+
+@interface NSView (APSKDeferredFirstResponder)
+- (void)apsk_deferred_view_did_move_to_window;
+@end
+
+@implementation NSView (APSKDeferredFirstResponder)
++ (void)load {
+    Method original = class_getInstanceMethod(self, @selector(viewDidMoveToWindow));
+    Method replacement = class_getInstanceMethod(self, @selector(apsk_deferred_view_did_move_to_window));
+    if (original != NULL && replacement != NULL) {
+        method_exchangeImplementations(original, replacement);
+    }
+}
+
+- (void)apsk_deferred_view_did_move_to_window {
+    [self apsk_deferred_view_did_move_to_window];
+
+    NSNumber *is_pending = objc_getAssociatedObject(self, &apsk_pending_focus_key);
+    NSWindow *window = self.window;
+    if (!is_pending.boolValue || window == nil) return;
+
+    BOOL succeeded = [window makeFirstResponder:(NSResponder *)self];
+    objc_setAssociatedObject(self, &apsk_pending_focus_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &apsk_focus_result_key, @(succeeded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+@end
+#endif
+
 // ============================================================
 // Section 1: Basic message sends (integer / pointer arguments)
 // ============================================================
@@ -3786,14 +3817,13 @@ int ap_view_add_key_command(void *view_ptr, const char *input, unsigned long lon
     return 1;
 }
 
-// Request first-responder status (focus). Returns 1 if the message was sent.
-int ap_view_become_first_responder(void *view_ptr) {
+// Request first-responder status (focus). Returns whether focus succeeded.
+BOOL ap_view_become_first_responder(void *view_ptr) {
     if (view_ptr == NULL) return 0;
     id receiver = (__bridge id)view_ptr;
     SEL sel = @selector(becomeFirstResponder);
     if (![receiver respondsToSelector:sel]) return 0;
-    ((void (*)(id, SEL))objc_msgSend)(receiver, sel);
-    return 1;
+    return ((BOOL (*)(id, SEL))objc_msgSend)(receiver, sel);
 }
 
 // Resign first-responder status (blur).
@@ -4234,14 +4264,29 @@ int ap_view_add_key_command(void *view_ptr, const char *input, unsigned long lon
     return 1;
 }
 
-// AppKit "become first responder": route through the view's window.
-int ap_view_become_first_responder(void *view_ptr) {
+// AppKit "become first responder": queue detached views and report the
+// result once they have a window. A queued request returns YES to indicate
+// that the request was accepted; attached views return makeFirstResponder:.
+BOOL ap_view_become_first_responder(void *view_ptr) {
     if (view_ptr == NULL) return 0;
     NSView *view = (__bridge NSView *)view_ptr;
     NSWindow *win = view.window;
-    if (win == nil) return 0;
-    [win makeFirstResponder:view];
-    return 1;
+    if (win == nil) {
+        objc_setAssociatedObject(view, &apsk_focus_result_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(view, &apsk_pending_focus_key, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        return YES;
+    }
+    BOOL succeeded = [win makeFirstResponder:(NSResponder *)view];
+    objc_setAssociatedObject(view, &apsk_pending_focus_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(view, &apsk_focus_result_key, @(succeeded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return succeeded;
+}
+
+// Read the result of an immediate or deferred first-responder request.
+BOOL ap_view_focus_request_succeeded(void *view_ptr) {
+    if (view_ptr == NULL) return NO;
+    NSNumber *result = objc_getAssociatedObject((__bridge id)view_ptr, &apsk_focus_result_key);
+    return result.boolValue;
 }
 
 // Resign first responder by asking the window to take the responder spot back.

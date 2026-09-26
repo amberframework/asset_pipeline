@@ -118,6 +118,18 @@ SwatchButton and BezelLamp open a native palette popover on macOS. The selected 
 
 Set view.interaction_feedback on a button or row to Sink, Lift, Edge, or None. The default is None. Web feedback uses neutral data-ap-feedback hooks and honors prefers-reduced-motion: reduce: movement stops while hover color changes remain. macOS uses SwiftUI hover and press state and reads the system Reduce Motion setting.
 
+## Previewing states
+
+Set `UI::View#preview_state` when a workbench or review needs to display a state without moving the pointer or making the control first responder. `None` is the default and leaves the platform's event-driven appearance unchanged. `Hover` and `Pressed` display the configured `interaction_feedback`; `Focus` draws the system focus ring, or the SurfaceCraft accent edge when `InteractionFeedback::Edge` is set. A preview focus never requests keyboard focus.
+
+On macOS this works for Button, Toggle, MenuButton, Picker, ColorSwatchPicker, and Keycap through their SwiftUI facades. On web, common view rendering emits `data-ap-preview-state="hover|pressed|focus"` and the feedback CSS uses it. Hover and Pressed need a non-None `interaction_feedback` style to have a visible SurfaceCraft response. UIKit and Android keep their current native/plain control rendering.
+
+~~~crystal
+button = UI::Button.new("Save")
+button.interaction_feedback = UI::InteractionFeedback::Lift
+button.preview_state = UI::PreviewState::Hover
+~~~
+
 ## Font registration
 
 Register an app-bundled font at startup before creating views that name it by PostScript family name. Registration is process-scoped on macOS and returns false for a missing or invalid file. This repository does not bundle fonts.
@@ -182,7 +194,7 @@ The captured [light appearance](surface-craft-light.png) and [dark appearance](s
 
 | Platform | Behavior |
 |---|---|
-| Web | CSS gradients, inline SVG grain, combined shadows, tab shapes, custom toggles, keycaps, swatches, and feedback hooks |
-| macOS | SwiftUI facades for controls and Forms; CAGradientLayer and cached grain tiles for raw AppKit views; process font registration |
+| Web | CSS gradients, inline SVG grain, combined shadows, tab shapes, custom toggles, keycaps, swatches, feedback hooks, and preview-state hooks |
+| macOS | SwiftUI facades for controls and Forms, SurfaceCraft feedback and preview states; CAGradientLayer and cached grain tiles for raw AppKit views; process font registration |
 | iOS | Compiles and keeps the existing plain Form, native switch, and Picker rendering; custom surface styling is a gap |
 | Android | Keeps existing plain Form, Toggle, and Picker rendering; custom surface styling and font registration are gaps. The macOS-hosted Android compile remains blocked by the Crystal stdlib's missing `c/sys/epoll`; validation needs a Linux-targeted Crystal and Android NDK. |

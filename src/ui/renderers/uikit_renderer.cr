@@ -68,7 +68,7 @@
       fun ap_view_add_key_command(view : Void*, input : UInt8*,
                                   modifier_mask : UInt64, token : UInt64) : Int32
       # Focus management.
-      fun ap_view_become_first_responder(view : Void*) : Int32
+      fun ap_view_become_first_responder(view : Void*) : Bool
       fun ap_view_resign_first_responder(view : Void*) : Int32
       # ComboBox value-drop fix — wire a raw UITextField's editing events
       # (EditingChanged | EditingDidEnd) to the Crystal string callback

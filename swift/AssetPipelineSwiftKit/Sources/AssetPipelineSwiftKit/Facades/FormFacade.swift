@@ -108,7 +108,7 @@ public class FormFacade: NSObject {
                             }
                             let styledPanel = SurfaceCraftModifiers.apply(
                                 AnyView(panelContent.padding(8)), spec: panelStyle,
-                                keycapStyle: nil, cornerRadius: 8
+                                keycapStyle: nil, cornerRadius: 8, previewState: nil
                             )
                             styledPanel
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -172,7 +172,8 @@ private struct APSKTabbedHeader: View {
         .padding(.trailing, shape == "angled" ? 24 : (shape == "flush" ? 0 : 13))
         .padding(.vertical, shape == "flush" ? 6 : 7)
         let styled = SurfaceCraftModifiers.apply(
-            AnyView(content), spec: style, keycapStyle: nil, cornerRadius: 7
+            AnyView(content), spec: style, keycapStyle: nil, cornerRadius: 7,
+            previewState: nil
         )
         styled
             .fixedSize(horizontal: true, vertical: false)

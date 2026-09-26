@@ -14,6 +14,8 @@
 
 # Build artifacts
 src/ui/native/*.o
+/.crystal-cache/
+samples/surface-craft/bin/
 samples/cross_platform/ios_host/build/
 samples/cross_platform/macos_host/bin/
 samples/cross_platform/macos_host/*.o

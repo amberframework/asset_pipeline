@@ -64,6 +64,7 @@ describe UI::Native::Populator, "#populate_button" do
       FakeLibObjCBridge.refute_sent(:setAccessibilityIdentifier)
       # Renamed selector — see ViewOverrides.swift / swiftkit_overrides.cr.
       FakeLibObjCBridge.refute_sent(:setApskAccessibilityLabel)
+      FakeLibObjCBridge.refute_sent(:setApskPreviewState)
 
       # Button-specific defaults — role=:default, style=Default,
       # disabled=false, symbol=nil — all skipped.
@@ -82,6 +83,16 @@ describe UI::Native::Populator, "#populate_button" do
       FakeLibObjCBridge.refute_sent(:setFillHorizontal)
       # foreground_color default (system blue) → not seeded; keep system label.
       FakeLibObjCBridge.refute_sent(:setForegroundColor)
+    end
+
+    it "emits the explicit preview state through the shared ViewOverrides slot" do
+      view = UI::Button.new("Preview")
+      view.preview_state = UI::PreviewState::Pressed
+      target = FakeLibObjCBridge.next_sentinel_pointer
+
+      UI::Native::Populator.populate_button(target, view, RecordingSender.new)
+
+      FakeLibObjCBridge.assert_sent(:setApskPreviewState, times: 1, args: [target, "pressed"])
     end
 
     it "seeds setForegroundColor when foreground_color is explicitly set" do

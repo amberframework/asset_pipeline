@@ -10,7 +10,7 @@ require "./support/surface_craft_ax_support"
       end
       ready ? "" : SurfaceCraftAX::NO_WINDOW
     else
-      "Surface craft sample is not built; run make -C samples/surface-craft build CRYSTAL=crystal-alpha."
+      "Surface craft spec host is not built; run make -C samples/surface-craft build-spec CRYSTAL=crystal-alpha."
     end
   rescue exception : Exception
     "Surface craft AX host could not register a queryable window: #{exception.message}"
@@ -18,6 +18,29 @@ require "./support/surface_craft_ax_support"
 
   describe "surface-craft macOS layout through AX" do
     if SURFACE_CRAFT_AX_READINESS.empty?
+      it "displays forced Button hover, pressed, and focus phases without changing the default" do
+        SurfaceCraftAX.with_sample do |app|
+          window = SurfaceCraftAX.window(app)
+          raise SurfaceCraftAX::NO_WINDOW unless window
+
+          {
+            {"surface-craft-preview-hover", "hover"},
+            {"surface-craft-preview-pressed", "pressed"},
+            {"surface-craft-preview-focus", "focus:system-ring"},
+            {"surface-craft-preview-edge-focus", "focus:edge"},
+          }.each do |identifier, expected_phase|
+            button = SurfaceCraftAX.find_required(window, identifier)
+            SurfaceCraftAX.display_text(button).should eq(expected_phase)
+          end
+
+          default_button = SurfaceCraftAX.find_required(window, "surface-craft-preview-default")
+          default_button.value.should be_nil
+          default_button.focused?.should be_false
+          focus_preview = SurfaceCraftAX.find_required(window, "surface-craft-preview-focus")
+          focus_preview.focused?.should be_false
+        end
+      end
+
       it "sizes rounded and notched tabs to their full titles, icons, and insets" do
         SurfaceCraftAX.with_sample do |app|
           window = SurfaceCraftAX.window(app)

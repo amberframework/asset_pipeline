@@ -249,6 +249,14 @@ module UI
     Edge
   end
 
+  # A forced interaction phase used by component previews and review workbenches.
+  enum PreviewState
+    None
+    Hover
+    Pressed
+    Focus
+  end
+
   # Folder-like tab silhouette used by Form sections.
   enum TabShape
     Angled
@@ -352,6 +360,8 @@ module UI
     property texture : SurfaceCraftTexturePayload? = nil
     @[JSON::Field(emit_null: false)]
     property feedback : String? = nil
+    @[JSON::Field(key: "previewState", emit_null: false)]
+    property preview_state : String? = nil
 
     def initialize(
       @fill : String? = nil,
@@ -360,6 +370,7 @@ module UI
       @list_of_drop_shadows : Array(SurfaceCraftShadowPayload)? = nil,
       @texture : SurfaceCraftTexturePayload? = nil,
       @feedback : String? = nil,
+      @preview_state : String? = nil,
     )
     end
   end
@@ -377,11 +388,19 @@ module UI
       end
     end
 
-    def self.style_json(style : SurfaceStyle, interaction_feedback : InteractionFeedback = InteractionFeedback::None) : String
-      surface_payload(style, interaction_feedback).to_json
+    def self.style_json(
+      style : SurfaceStyle,
+      interaction_feedback : InteractionFeedback = InteractionFeedback::None,
+      preview_state : PreviewState = PreviewState::None,
+    ) : String
+      surface_payload(style, interaction_feedback, preview_state).to_json
     end
 
-    def self.surface_payload(style : SurfaceStyle, interaction_feedback : InteractionFeedback = InteractionFeedback::None) : SurfaceCraftPayload
+    def self.surface_payload(
+      style : SurfaceStyle,
+      interaction_feedback : InteractionFeedback = InteractionFeedback::None,
+      preview_state : PreviewState = PreviewState::None,
+    ) : SurfaceCraftPayload
       fill = if color = style.background_fill_color
                color_value(color)
              end
@@ -406,6 +425,11 @@ module UI
                  else
                    interaction_feedback.to_s.underscore
                  end
+      preview_state_value = if preview_state == PreviewState::None
+                              nil
+                            else
+                              preview_state.to_s.underscore
+                            end
 
       SurfaceCraftPayload.new(
         fill: fill,
@@ -414,6 +438,7 @@ module UI
         list_of_drop_shadows: drop_shadows,
         texture: texture,
         feedback: feedback,
+        preview_state: preview_state_value,
       )
     end
 
@@ -792,6 +817,10 @@ module UI
     # unchanged.
     property interaction_feedback : InteractionFeedback = InteractionFeedback::None
 
+    # Forces the displayed interaction phase for component previews. None keeps
+    # platform event handling and focus behavior unchanged.
+    property preview_state : PreviewState = PreviewState::None
+
     # Whether the view is hidden from display
     property hidden : Bool = false
 
@@ -821,7 +850,8 @@ module UI
     def surface_craft_json : String?
       return nil if background_fill_color.nil? && linear_gradient.nil? &&
                     list_of_inner_shadows.empty? && list_of_drop_shadows.empty? &&
-                    texture_overlay.nil? && interaction_feedback == InteractionFeedback::None
+                    texture_overlay.nil? && interaction_feedback == InteractionFeedback::None &&
+                    preview_state == PreviewState::None
 
       style = SurfaceStyle.new(
         background_fill_color: background_fill_color,
@@ -830,7 +860,7 @@ module UI
         list_of_drop_shadows: list_of_drop_shadows,
         texture_overlay: texture_overlay,
       )
-      SurfaceCraftEncoding.style_json(style, interaction_feedback)
+      SurfaceCraftEncoding.style_json(style, interaction_feedback, preview_state)
     end
 
     # Border modifier

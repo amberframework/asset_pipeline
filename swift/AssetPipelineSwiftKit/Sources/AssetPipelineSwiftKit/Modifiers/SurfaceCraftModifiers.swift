@@ -17,7 +17,8 @@ enum SurfaceCraftModifiers {
         _ view: AnyView,
         spec: String?,
         keycapStyle: String?,
-        cornerRadius: NSNumber?
+        cornerRadius: NSNumber?,
+        previewState: String?
     ) -> AnyView {
         var current = view
         let values = dictionary(from: spec)
@@ -102,8 +103,13 @@ enum SurfaceCraftModifiers {
         if let style = keycapStyle {
             current = applyKeycap(current, style: style, shape: shape)
         }
-        if let feedback = values["feedback"] as? String {
-            current = AnyView(current.modifier(SurfaceCraftFeedbackModifier(style: feedback)))
+        let feedback = values["feedback"] as? String
+        if feedback != nil || previewState != nil {
+            current = AnyView(current.modifier(SurfaceCraftFeedbackModifier(
+                style: feedback,
+                previewState: previewState,
+                cornerRadius: radius
+            )))
         }
         return current
     }
@@ -222,26 +228,76 @@ enum SurfaceCraftModifiers {
 }
 
 private struct SurfaceCraftFeedbackModifier: ViewModifier {
+    private enum DisplayedPhase: String {
+        case idle
+        case hover
+        case pressed
+        case focus
+    }
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovering = false
     @State private var isPressed = false
-    let style: String
+    let style: String?
+    let previewState: String?
+    let cornerRadius: CGFloat
+
+    private var displayedPhase: DisplayedPhase {
+        if let previewState {
+            switch previewState {
+            case "hover": return .hover
+            case "pressed": return .pressed
+            case "focus": return .focus
+            default: break
+            }
+        }
+        if isPressed { return .pressed }
+        return isHovering ? .hover : .idle
+    }
+
+    private var usesSurfaceCraftFocusStyle: Bool {
+        displayedPhase == .focus && style == "edge"
+    }
+
+    private var focusRingRadius: CGFloat {
+        cornerRadius > 0 ? cornerRadius : 5
+    }
+
+    #if DEBUG
+    private var accessibilityPhase: String {
+        switch displayedPhase {
+        case .focus: return usesSurfaceCraftFocusStyle ? "focus:edge" : "focus:system-ring"
+        case .idle, .hover, .pressed: return displayedPhase.rawValue
+        }
+    }
+    #endif
 
     func body(content: Content) -> some View {
         content
-            .background(isHovering ? Color.primary.opacity(0.035) : Color.clear)
+            .background(displayedPhase == .hover ? Color.primary.opacity(0.035) : Color.clear)
             .overlay(alignment: .leading) {
-                if style == "edge" && isHovering {
+                if style == "edge" && (displayedPhase == .hover || usesSurfaceCraftFocusStyle) {
                     Capsule().fill(Color.accentColor).frame(width: 2).padding(.vertical, 4)
                 }
             }
-            .offset(y: reduceMotion ? 0 : (style == "sink" && isPressed ? 1 : (style == "lift" && isHovering ? -2 : 0)))
-            .shadow(color: style == "lift" && isHovering ? .black.opacity(0.16) : .clear,
-                    radius: style == "lift" && isHovering ? 7 : 0, x: 0, y: 3)
+            .overlay {
+                if displayedPhase == .focus && !usesSurfaceCraftFocusStyle {
+                    RoundedRectangle(cornerRadius: focusRingRadius)
+                        .stroke(Color(nsColor: .keyboardFocusIndicatorColor), lineWidth: 2)
+                        .padding(-3)
+                        .allowsHitTesting(false)
+                }
+            }
+            .offset(y: reduceMotion ? 0 : (style == "sink" && displayedPhase == .pressed ? 1 : (style == "lift" && displayedPhase == .hover ? -2 : 0)))
+            .shadow(color: style == "lift" && displayedPhase == .hover ? .black.opacity(0.16) : .clear,
+                    radius: style == "lift" && displayedPhase == .hover ? 7 : 0, x: 0, y: 3)
             .onHover { isHovering = $0 }
             .simultaneousGesture(DragGesture(minimumDistance: 0)
                 .onChanged { _ in isPressed = true }
                 .onEnded { _ in isPressed = false })
+            #if DEBUG
+            .accessibilityValue(Text(accessibilityPhase))
+            #endif
     }
 }
 #endif
@@ -256,7 +312,8 @@ enum SurfaceCraftModifiers {
         _ view: AnyView,
         spec: String?,
         keycapStyle: String?,
-        cornerRadius: NSNumber?
+        cornerRadius: NSNumber?,
+        previewState: String?
     ) -> AnyView {
         view
     }

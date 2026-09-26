@@ -67,7 +67,8 @@
       fun ap_view_add_key_command(view : Void*, input : UInt8*,
                                   modifier_mask : UInt64, token : UInt64) : Int32
       # Focus management via the view's host window.
-      fun ap_view_become_first_responder(view : Void*) : Int32
+      fun ap_view_become_first_responder(view : Void*) : Bool
+      fun ap_view_focus_request_succeeded(view : Void*) : Bool
       fun ap_view_resign_first_responder(view : Void*) : Int32
       # Apply generic gradient, shadow, and cached texture modifiers to raw
       # AppKit views that do not pass through a SwiftUI facade.
@@ -4715,7 +4716,9 @@
       #   - accessibility_label -> setAccessibilityLabel:
       #   - minimum_width / minimum_height -> NSLayoutConstraint (width/height >= x)
       #   - maximum_width / maximum_height -> NSLayoutConstraint (width/height <= x)
-      private def apply_common_properties(ptr : Void*, view : UI::View) : Nil
+      private def apply_common_properties(ptr : Void*, view : UI::View) : Bool
+        focus_request_accepted = false
+
         if surface_craft = view.surface_craft_json
           LibObjCBridge.appkit_view_apply_surface_craft(ptr, surface_craft.to_unsafe)
         end
@@ -4937,13 +4940,12 @@
             ptr, ks.key.to_unsafe, ks.appkit_modifier_mask, token)
         end
 
-        # Phase 10B.2b — Focus management. When `focused` is true the
-        # view's host window makes it the first responder. AppKit
-        # routes focus through the window so the call is guarded on a
-        # window being present (it will be by the time the renderer
-        # walks the tree into a host view).
+        # Phase 10B.2b — Focus management. A view can be rendered before
+        # its parent is attached to a window, so the bridge queues this
+        # request until AppKit reports the window attachment. Its Bool
+        # reports an immediate success or an accepted deferred request.
         if view.focused
-          LibObjCBridge.ap_view_become_first_responder(ptr)
+          focus_request_accepted = LibObjCBridge.ap_view_become_first_responder(ptr)
         end
 
         # Phase 10B.2b — Focusability override. AppKit exposes
@@ -4984,6 +4986,8 @@
           token = UI::CallbackRegistry.register(lp)
           LibObjCBridge.objc_attach_long_press_gesture(ptr, token, 0.5_f64)
         end
+
+        focus_request_accepted
       end
 
       # Phase 10B.2a — Translate a Crystal role symbol into the matching

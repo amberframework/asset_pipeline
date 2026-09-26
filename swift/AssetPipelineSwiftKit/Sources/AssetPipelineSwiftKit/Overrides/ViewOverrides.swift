@@ -124,6 +124,8 @@ public class ViewOverrides: NSObject {
     // Compact generic surface modifiers. Nil preserves platform defaults.
     @objc(apskSurfaceCraftSpec) public var apskSurfaceCraftSpec: String? = nil
     @objc(apskSurfaceCraftKeycapStyle) public var apskSurfaceCraftKeycapStyle: String? = nil
+    // Forced preview phase: hover, pressed, or focus. Nil preserves events.
+    @objc(apskPreviewState) public var apskPreviewState: String? = nil
     @objc public var opacity: NSNumber? = nil                      // 0..1; nil = 1
     @objc public var hidden: NSNumber? = nil                       // bool-as-int
     @objc public var minWidth: NSNumber? = nil

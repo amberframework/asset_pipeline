@@ -449,6 +449,9 @@ private func copyViewOverrides(
     dst.shadowColor = src.shadowColor
     dst.shadowOffsetX = src.shadowOffsetX
     dst.shadowOffsetY = src.shadowOffsetY
+    dst.apskSurfaceCraftSpec = src.apskSurfaceCraftSpec
+    dst.apskSurfaceCraftKeycapStyle = src.apskSurfaceCraftKeycapStyle
+    dst.apskPreviewState = src.apskPreviewState
     dst.opacity = src.opacity
     dst.hidden = src.hidden
     dst.minWidth = src.minWidth
