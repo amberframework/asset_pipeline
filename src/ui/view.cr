@@ -215,20 +215,53 @@ module UI
     offset_y : Float64 = 0.0,
     blur_radius : Float64 = 0.0
 
-  # Procedural texture rendered over a surface.
+  # Kind of procedural texture rendered over a surface.
   enum TextureKind
     Noise
     Brushed
   end
 
-  # Generated texture kind and alpha, with opacity validation at construction.
+  # Generated texture kind and alpha, with validated Noise parameters.
+  # Noise parameters use SVG feTurbulence units and defaults. Brushed ignores
+  # these Noise-specific values so its existing appearance remains unchanged.
+  #
+  # ```
+  # UI::TextureOverlay.new(
+  #   texture_kind: UI::TextureKind::Noise,
+  #   texture_opacity: 0.07,
+  #   base_frequency: 0.83,
+  #   octave_count: 3,
+  #   seed: 7,
+  #   tile_size: 128,
+  # )
+  # ```
   struct TextureOverlay
     getter texture_kind : TextureKind
     getter texture_opacity : Float64
+    getter base_frequency : Float64
+    getter octave_count : Int32
+    getter seed : Int32
+    getter tile_size : Int32
 
-    def initialize(@texture_kind : TextureKind, @texture_opacity : Float64)
+    def initialize(
+      @texture_kind : TextureKind,
+      @texture_opacity : Float64,
+      @base_frequency : Float64 = 0.72,
+      @octave_count : Int32 = 3,
+      @seed : Int32 = 4,
+      @tile_size : Int32 = 160,
+    )
       unless @texture_opacity >= 0.0 && @texture_opacity <= 1.0
         raise SurfaceCraftError.new("Texture opacity must be between 0 and 1")
+      end
+      unless @base_frequency.finite? && @base_frequency >= 0.0 && @base_frequency <= 16.0
+        raise SurfaceCraftError.new("Texture base frequency must be between 0 and 16")
+      end
+      unless @octave_count >= 1 && @octave_count <= 8
+        raise SurfaceCraftError.new("Texture octave count must be between 1 and 8")
+      end
+      unless @tile_size >= 1 && @tile_size <= 1024
+        raise SurfaceCraftError.new("Texture tile size must be between 1 and 1024 points")
       end
     end
   end
@@ -339,8 +372,22 @@ module UI
 
     property kind : String
     property opacity : Float64
+    @[JSON::Field(key: "baseFrequency")]
+    property base_frequency : Float64
+    @[JSON::Field(key: "octaveCount")]
+    property octave_count : Int32
+    property seed : Int32
+    @[JSON::Field(key: "tileSize")]
+    property tile_size : Int32
 
-    def initialize(@kind : String, @opacity : Float64)
+    def initialize(
+      @kind : String,
+      @opacity : Float64,
+      @base_frequency : Float64,
+      @octave_count : Int32,
+      @seed : Int32,
+      @tile_size : Int32,
+    )
     end
   end
 
@@ -474,6 +521,10 @@ module UI
       SurfaceCraftTexturePayload.new(
         kind: texture.texture_kind.to_s.downcase,
         opacity: texture.texture_opacity,
+        base_frequency: texture.base_frequency,
+        octave_count: texture.octave_count,
+        seed: texture.seed,
+        tile_size: texture.tile_size,
       )
     end
   end

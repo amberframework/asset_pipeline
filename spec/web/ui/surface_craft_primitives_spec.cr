@@ -51,6 +51,39 @@ describe "surface-craft UI primitives" do
         UI::TextureOverlay.new(texture_kind: UI::TextureKind::Brushed, texture_opacity: 1.1)
       end
     end
+
+    it "defaults and validates SVG turbulence settings" do
+      noise = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+      )
+      noise.base_frequency.should eq(0.72)
+      noise.octave_count.should eq(3)
+      noise.seed.should eq(4)
+      noise.tile_size.should eq(160)
+
+      expect_raises(UI::SurfaceCraftError, "Texture base frequency must be between 0 and 16") do
+        UI::TextureOverlay.new(
+          texture_kind: UI::TextureKind::Noise,
+          texture_opacity: 0.07,
+          base_frequency: -0.01,
+        )
+      end
+      expect_raises(UI::SurfaceCraftError, "Texture octave count must be between 1 and 8") do
+        UI::TextureOverlay.new(
+          texture_kind: UI::TextureKind::Noise,
+          texture_opacity: 0.07,
+          octave_count: 0,
+        )
+      end
+      expect_raises(UI::SurfaceCraftError, "Texture tile size must be between 1 and 1024 points") do
+        UI::TextureOverlay.new(
+          texture_kind: UI::TextureKind::Noise,
+          texture_opacity: 0.07,
+          tile_size: 1025,
+        )
+      end
+    end
   end
 
   describe UI::SurfaceCraftEncoding do
@@ -78,7 +111,7 @@ describe "surface-craft UI primitives" do
       style_json.should contain(%("angle":135.0))
       style_json.should contain(%("innerShadows":[{"color":"role:text-inverse","x":0.0,"y":1.0,"blur":2.0}]))
       style_json.should contain(%("dropShadows":[{"color":"role:text-primary","x":0.0,"y":3.0,"blur":8.0}]))
-      style_json.should contain(%("texture":{"kind":"brushed","opacity":0.08}))
+      style_json.should contain(%("texture":{"kind":"brushed","opacity":0.08,"baseFrequency":0.72,"octaveCount":3,"seed":4,"tileSize":160}))
 
       view = UI::VStack.new
       view.background_fill_color = UI::ColorRole::SurfacePanel
@@ -110,9 +143,39 @@ describe "surface-craft UI primitives" do
                     end
 
       if encoded_svg
-        String.new(Base64.decode(encoded_svg)).should contain(%(baseFrequency="0.72 0.018"))
+        decoded_svg = String.new(Base64.decode(encoded_svg))
+        decoded_svg.should contain(%(baseFrequency="0.72 0.018"))
+        decoded_svg.should contain(%(width="160" height="160"))
+        decoded_svg.should contain(%(numOctaves="3" seed="4"))
       else
         fail "brushed texture data URI was not emitted"
+      end
+    end
+
+    it "emits the configured stitched grayscale Noise tile" do
+      surface = UI::Surface.new(UI::Label.new("Noise panel"))
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+        base_frequency: 0.83,
+        octave_count: 3,
+        seed: 7,
+        tile_size: 128,
+      )
+      html = UI::Web::Renderer.new.render(surface)
+      encoded_svg = if data_uri = html.split("data:image/svg+xml;base64,")[1]?
+                      data_uri.split("&quot;").first?
+                    end
+
+      if encoded_svg
+        decoded_svg = String.new(Base64.decode(encoded_svg))
+        decoded_svg.should contain(%(width="128" height="128"))
+        decoded_svg.should contain(%(color-interpolation-filters="sRGB"))
+        decoded_svg.should contain(%(type="fractalNoise" baseFrequency="0.83" numOctaves="3" seed="7" stitchTiles="stitch"))
+        decoded_svg.should contain(%(opacity="0.07"))
+        decoded_svg.should contain(%(1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1))
+      else
+        fail "Noise texture data URI was not emitted"
       end
     end
 

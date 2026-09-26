@@ -151,7 +151,7 @@ Every role is a `ColorPalette` field at [src/ui/design_tokens.cr:350](../src/ui/
 
 | Layer | What it controls and exact API | Scope and current reach |
 | --- | --- | --- |
-| Surfaces | `SurfaceStyle` holds `background_fill_color`, `linear_gradient`, `list_of_inner_shadows`, `list_of_drop_shadows`, and `texture_overlay`. Other views expose those surface properties individually on `UI::View`; there is no `view.surface_style = ...` property. [src/ui/view.cr:185](../src/ui/view.cr#L185), [src/ui/view.cr:205](../src/ui/view.cr#L205), [src/ui/view.cr:212](../src/ui/view.cr#L212), [src/ui/view.cr:225](../src/ui/view.cr#L225), [src/ui/view.cr:237](../src/ui/view.cr#L237), [src/ui/view.cr:778](../src/ui/view.cr#L778) | Per view. SurfaceStyle is accepted by Form sections; set equivalent view properties on other controls. macOS SwiftUI/AppKit and web render these primitives. |
+| Surfaces | `SurfaceStyle` holds `background_fill_color`, `linear_gradient`, `list_of_inner_shadows`, `list_of_drop_shadows`, and `texture_overlay`. Other views expose those surface properties individually on `UI::View`; there is no `view.surface_style = ...` property. [src/ui/view.cr:238](../src/ui/view.cr#L238), [src/ui/view.cr:270](../src/ui/view.cr#L270), [src/ui/view.cr:854](../src/ui/view.cr#L854), [src/ui/view.cr:865](../src/ui/view.cr#L865), [src/ui/view.cr:901](../src/ui/view.cr#L901) | Per view. SurfaceStyle is accepted by Form sections; set equivalent view properties on other controls. macOS SwiftUI/AppKit and web render these primitives. Noise takes `base_frequency`, `octave_count`, `seed`, and `tile_size`; see [Noise texture parameters](#noise-texture-parameters). |
 | Form sections | `UI::Form#add_section(header, footer, tab_shape:, tab_icon:, panel_style:, tab_style:)` returns a `FormSection`. [src/ui/views/form.cr:50](../src/ui/views/form.cr#L50), [src/ui/views/form.cr:99](../src/ui/views/form.cr#L99) | Per section. `TabShape` is `Angled`, `Rounded`, `Notched`, or `Flush`; `tab_icon` is an SF Symbol name on macOS. iOS and Android keep the plain grouped Form. |
 | Toggles | `UI::Toggle#appearance`, `track_color`, `knob_color`, `on_color`, and `lamp_color`; `ToggleAppearance` is `Native`, `Pill`, `Rocker`, `Slide`, or `LampPill`. [src/ui/views/toggle.cr:36](../src/ui/views/toggle.cr#L36), [src/ui/view.cr:261](../src/ui/view.cr#L261) | Per view. Web and macOS implement the custom appearances; iOS keeps its native switch. |
 | Keycaps | `UI::Keycap#style`; `KeycapStyle` is `Outlined`, `Sculpted`, `Inset`, or `Text`. [src/ui/views/keycap.cr:8](../src/ui/views/keycap.cr#L8), [src/ui/view.cr:270](../src/ui/view.cr#L270) | Per view. macOS and web render the SurfaceCraft treatment; other platforms retain a label. |
@@ -160,6 +160,34 @@ Every role is a `ColorPalette` field at [src/ui/design_tokens.cr:350](../src/ui/
 | Hover and press | `UI::View#interaction_feedback` accepts `None`, `Sink`, `Lift`, or `Edge`. [src/ui/view.cr:245](../src/ui/view.cr#L245), [src/ui/view.cr:793](../src/ui/view.cr#L793) | Per view. Web emits `data-ap-feedback` and honors reduced motion. macOS applies it to Button, Toggle, MenuButton, Picker/ColorSwatchPicker, and Keycap facades. |
 | Preview states | `UI::View#preview_state` accepts `None`, `Hover`, `Pressed`, or `Focus`. [src/ui/view.cr:252](../src/ui/view.cr#L252), [src/ui/view.cr:801](../src/ui/view.cr#L801) | Per view. macOS and web display explicit states for Button, Toggle, MenuButton, Picker/ColorSwatchPicker, Keycap, and a container such as HStack when that container has its own SurfaceCraft face and `interaction_feedback`. The container's face receives the state; children keep their own state unless they set `preview_state` themselves. Hover/Pressed use the selected interaction feedback style; Focus uses the system ring unless `Edge` feedback supplies the accent edge. `None` preserves event-driven behavior. UIKit and Android retain their existing control appearance. |
 | Labels | `UI::Label#font`, `#text_color`, and `#text_color_role`; native labels default to Apple dynamic label colors. [src/ui/views/label.cr:16](../src/ui/views/label.cr#L16), [src/ui/views/label.cr:39](../src/ui/views/label.cr#L39), [src/ui/views/label.cr:70](../src/ui/views/label.cr#L70) | Per view. Set `UI::Font` from your skin helper. On Apple, set `text_color_role = nil` before assigning a literal brand `text_color`; web and Android ignore `LabelRole`. |
+
+#### Noise texture parameters
+
+`UI::TextureOverlay` accepts `base_frequency`, `octave_count`, `seed`, and
+`tile_size` in addition to the texture kind and opacity. Noise defaults match
+the web renderer: frequency `0.72`, 3 octaves, seed `4`, and a 160 point tile.
+Frequency may range from `0` through `16`; octave count from `1` through `8`;
+and tile size from `1` through `1024` points. Seed accepts any `Int32`. Web and
+macOS use the same stitched, grayscale SVG turbulence parameters. On macOS the
+tile is baked at one pixel per device pixel, so a 128 point tile is 256 pixels
+at 2x backing scale. The Brushed texture keeps its existing fixed treatment.
+
+```crystal
+module AcmeSkin
+  def self.build_noise_texture_overlay : UI::TextureOverlay
+    UI::TextureOverlay.new(
+      texture_kind: UI::TextureKind::Noise,
+      texture_opacity: 0.07,
+      base_frequency: 0.83,
+      octave_count: 3,
+      seed: 7,
+      tile_size: 128,
+    )
+  end
+end
+
+panel.texture_overlay = AcmeSkin.build_noise_texture_overlay
+```
 
 ### Window chrome and renderers
 

@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdint.h>
 
 #if TARGET_OS_OSX
   #import <AppKit/AppKit.h>
@@ -60,9 +61,13 @@
 #if TARGET_OS_OSX
 static char apsk_pending_focus_key;
 static char apsk_focus_result_key;
+static char ap_surface_craft_texture_payload_key;
+
+void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
 
 @interface NSView (APSKDeferredFirstResponder)
 - (void)apsk_deferred_view_did_move_to_window;
+- (void)ap_surface_craft_view_did_change_backing_properties;
 @end
 
 @implementation NSView (APSKDeferredFirstResponder)
@@ -71,6 +76,12 @@ static char apsk_focus_result_key;
     Method replacement = class_getInstanceMethod(self, @selector(apsk_deferred_view_did_move_to_window));
     if (original != NULL && replacement != NULL) {
         method_exchangeImplementations(original, replacement);
+    }
+
+    Method backing_original = class_getInstanceMethod(self, @selector(viewDidChangeBackingProperties));
+    Method backing_replacement = class_getInstanceMethod(self, @selector(ap_surface_craft_view_did_change_backing_properties));
+    if (backing_original != NULL && backing_replacement != NULL) {
+        method_exchangeImplementations(backing_original, backing_replacement);
     }
 }
 
@@ -84,6 +95,15 @@ static char apsk_focus_result_key;
     BOOL succeeded = [window makeFirstResponder:(NSResponder *)self];
     objc_setAssociatedObject(self, &apsk_pending_focus_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(self, &apsk_focus_result_key, @(succeeded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)ap_surface_craft_view_did_change_backing_properties {
+    [self ap_surface_craft_view_did_change_backing_properties];
+
+    NSString *surface_craft_json = objc_getAssociatedObject(self, &ap_surface_craft_texture_payload_key);
+    if (surface_craft_json != nil) {
+        appkit_view_apply_surface_craft(self, surface_craft_json.UTF8String);
+    }
 }
 @end
 #endif
@@ -5027,51 +5047,372 @@ static NSColor *ap_surface_color(NSString *value) {
     return NSColor.clearColor;
 }
 
-static CGImageRef ap_surface_texture_tile(NSString *kind) {
-    static CGImageRef noise = NULL;
+static NSColor *ap_surface_srgb_color(NSString *value) {
+    if ([value hasPrefix:@"rgba("] && [value hasSuffix:@")"]) {
+        NSString *components = [[value substringFromIndex:5] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@")"]];
+        NSArray<NSString *> *parts = [components componentsSeparatedByString:@","];
+        if (parts.count == 4) {
+            CGFloat r = parts[0].doubleValue / 255.0;
+            CGFloat g = parts[1].doubleValue / 255.0;
+            CGFloat b = parts[2].doubleValue / 255.0;
+            CGFloat a = parts[3].doubleValue;
+            return [NSColor colorWithSRGBRed:r green:g blue:b alpha:a];
+        }
+    }
+    return ap_surface_color(value);
+}
+
+enum {
+    AP_NOISE_B_SIZE = 0x100,
+    AP_NOISE_B_MASK = 0xff,
+    AP_NOISE_PERLIN_N = 0x1000,
+    AP_NOISE_PERMUTATION_SIZE = AP_NOISE_B_SIZE + AP_NOISE_B_SIZE + 2,
+    AP_NOISE_GRADIENT_CHANNELS = 4,
+};
+
+typedef struct {
+    int lattice_selector[AP_NOISE_PERMUTATION_SIZE];
+    double gradient[AP_NOISE_GRADIENT_CHANNELS][AP_NOISE_PERMUTATION_SIZE][2];
+} APSurfaceNoiseState;
+
+typedef struct {
+    int width;
+    int height;
+    int wrap_x;
+    int wrap_y;
+} APSurfaceNoiseStitchInfo;
+
+static long ap_surface_noise_random(long seed) {
+    const long modulus = 2147483647;
+    const long quotient = 127773;
+    const long remainder = 2836;
+    long result = 16807 * (seed % quotient) - remainder * (seed / quotient);
+    if (result <= 0) result += modulus;
+    return result;
+}
+
+static long ap_surface_noise_setup_seed(long seed) {
+    const long modulus = 2147483647;
+    if (seed <= 0) seed = -(seed % (modulus - 1)) + 1;
+    if (seed > modulus - 1) seed = modulus - 1;
+    return seed;
+}
+
+static void ap_surface_noise_init(APSurfaceNoiseState *state, long seed) {
+    seed = ap_surface_noise_setup_seed(seed);
+    int i = 0;
+    int j = 0;
+    int k = 0;
+
+    for (k = 0; k < AP_NOISE_GRADIENT_CHANNELS; k++) {
+        for (i = 0; i < AP_NOISE_B_SIZE; i++) {
+            state->lattice_selector[i] = i;
+            for (j = 0; j < 2; j++) {
+                seed = ap_surface_noise_random(seed);
+                state->gradient[k][i][j] = (double)((seed % (AP_NOISE_B_SIZE * 2)) - AP_NOISE_B_SIZE) / AP_NOISE_B_SIZE;
+            }
+            double magnitude = sqrt(
+                state->gradient[k][i][0] * state->gradient[k][i][0] +
+                state->gradient[k][i][1] * state->gradient[k][i][1]);
+            if (magnitude == 0.0) {
+                state->gradient[k][i][0] = 1.0;
+                state->gradient[k][i][1] = 0.0;
+            } else {
+                state->gradient[k][i][0] /= magnitude;
+                state->gradient[k][i][1] /= magnitude;
+            }
+        }
+    }
+
+    while (--i) {
+        k = state->lattice_selector[i];
+        seed = ap_surface_noise_random(seed);
+        j = (int)(seed % AP_NOISE_B_SIZE);
+        state->lattice_selector[i] = state->lattice_selector[j];
+        state->lattice_selector[j] = k;
+    }
+
+    for (i = 0; i < AP_NOISE_B_SIZE + 2; i++) {
+        state->lattice_selector[AP_NOISE_B_SIZE + i] = state->lattice_selector[i];
+        for (k = 0; k < AP_NOISE_GRADIENT_CHANNELS; k++) {
+            for (j = 0; j < 2; j++) {
+                state->gradient[k][AP_NOISE_B_SIZE + i][j] = state->gradient[k][i][j];
+            }
+        }
+    }
+}
+
+static double ap_surface_noise_s_curve(double value) {
+    return value * value * (3.0 - 2.0 * value);
+}
+
+static double ap_surface_noise_lerp(double amount, double first, double second) {
+    return first + amount * (second - first);
+}
+
+static double ap_surface_noise_noise2(
+    APSurfaceNoiseState *state,
+    int color_channel,
+    double point[2],
+    APSurfaceNoiseStitchInfo *stitch) {
+    double x = point[0] + AP_NOISE_PERLIN_N;
+    double y = point[1] + AP_NOISE_PERLIN_N;
+    int bx0 = (int)x;
+    int bx1 = bx0 + 1;
+    int by0 = (int)y;
+    int by1 = by0 + 1;
+    double rx0 = x - (int)x;
+    double rx1 = rx0 - 1.0;
+    double ry0 = y - (int)y;
+    double ry1 = ry0 - 1.0;
+
+    if (stitch != NULL) {
+        if (bx0 >= stitch->wrap_x) bx0 -= stitch->width;
+        if (bx1 >= stitch->wrap_x) bx1 -= stitch->width;
+        if (by0 >= stitch->wrap_y) by0 -= stitch->height;
+        if (by1 >= stitch->wrap_y) by1 -= stitch->height;
+    }
+
+    bx0 &= AP_NOISE_B_MASK;
+    bx1 &= AP_NOISE_B_MASK;
+    by0 &= AP_NOISE_B_MASK;
+    by1 &= AP_NOISE_B_MASK;
+    int i = state->lattice_selector[bx0];
+    int j = state->lattice_selector[bx1];
+    int b00 = state->lattice_selector[i + by0];
+    int b10 = state->lattice_selector[j + by0];
+    int b01 = state->lattice_selector[i + by1];
+    int b11 = state->lattice_selector[j + by1];
+    double sx = ap_surface_noise_s_curve(rx0);
+    double sy = ap_surface_noise_s_curve(ry0);
+
+    double *gradient = state->gradient[color_channel][b00];
+    double u = rx0 * gradient[0] + ry0 * gradient[1];
+    gradient = state->gradient[color_channel][b10];
+    double v = rx1 * gradient[0] + ry0 * gradient[1];
+    double a = ap_surface_noise_lerp(sx, u, v);
+
+    gradient = state->gradient[color_channel][b01];
+    u = rx0 * gradient[0] + ry1 * gradient[1];
+    gradient = state->gradient[color_channel][b11];
+    v = rx1 * gradient[0] + ry1 * gradient[1];
+    double b = ap_surface_noise_lerp(sx, u, v);
+    return ap_surface_noise_lerp(sy, a, b);
+}
+
+static double ap_surface_noise_stitched_frequency(double frequency, double tile_size) {
+    if (frequency == 0.0) return 0.0;
+    double low_frequency = floor(tile_size * frequency) / tile_size;
+    double high_frequency = ceil(tile_size * frequency) / tile_size;
+    if (low_frequency == 0.0 || frequency / low_frequency >= high_frequency / frequency) {
+        return high_frequency;
+    }
+    return low_frequency;
+}
+
+static double ap_surface_noise_turbulence(
+    APSurfaceNoiseState *state,
+    int color_channel,
+    double point[2],
+    double base_frequency_x,
+    double base_frequency_y,
+    int octave_count,
+    double tile_size) {
+    base_frequency_x = ap_surface_noise_stitched_frequency(base_frequency_x, tile_size);
+    base_frequency_y = ap_surface_noise_stitched_frequency(base_frequency_y, tile_size);
+
+    APSurfaceNoiseStitchInfo stitch = {
+        (int)(tile_size * base_frequency_x + 0.5),
+        (int)(tile_size * base_frequency_y + 0.5),
+        AP_NOISE_PERLIN_N + (int)(tile_size * base_frequency_x + 0.5),
+        AP_NOISE_PERLIN_N + (int)(tile_size * base_frequency_y + 0.5),
+    };
+    double sample_point[2] = {
+        point[0] * base_frequency_x,
+        point[1] * base_frequency_y,
+    };
+    double sum = 0.0;
+    double ratio = 1.0;
+    for (int octave = 0; octave < octave_count; octave++) {
+        sum += ap_surface_noise_noise2(state, color_channel, sample_point, &stitch) / ratio;
+        sample_point[0] *= 2.0;
+        sample_point[1] *= 2.0;
+        ratio *= 2.0;
+        stitch.width *= 2;
+        stitch.wrap_x = 2 * stitch.wrap_x - AP_NOISE_PERLIN_N;
+        stitch.height *= 2;
+        stitch.wrap_y = 2 * stitch.wrap_y - AP_NOISE_PERLIN_N;
+    }
+    return sum;
+}
+
+static void ap_surface_noise_release_pixels(void *info, const void *data, size_t size) {
+    (void)info;
+    (void)size;
+    free((void *)data);
+}
+
+static CGImageRef ap_surface_noise_generate_tile(
+    double base_frequency,
+    int octave_count,
+    int seed,
+    int tile_size,
+    CGFloat backing_scale) {
+    if (!isfinite(base_frequency) || base_frequency < 0.0 || base_frequency > 16.0 ||
+        octave_count < 1 || octave_count > 8 || tile_size < 1 || tile_size > 1024 ||
+        !isfinite(backing_scale) || backing_scale <= 0.0) return NULL;
+
+    long pixel_size_long = lround((double)tile_size * backing_scale);
+    if (pixel_size_long < 1 || pixel_size_long > 4096) return NULL;
+    size_t pixel_size = (size_t)pixel_size_long;
+    if (pixel_size > SIZE_MAX / pixel_size / 4) return NULL;
+    size_t byte_count = pixel_size * pixel_size * 4;
+    uint8_t *pixel_bytes = calloc(byte_count, 1);
+    if (pixel_bytes == NULL) return NULL;
+
+    APSurfaceNoiseState state;
+    ap_surface_noise_init(&state, seed);
+    for (size_t y = 0; y < pixel_size; y++) {
+        for (size_t x = 0; x < pixel_size; x++) {
+            double point[2] = {
+                (double)x * tile_size / pixel_size,
+                (double)y * tile_size / pixel_size,
+            };
+            double value = (ap_surface_noise_turbulence(
+                &state,
+                0,
+                point,
+                base_frequency,
+                base_frequency,
+                octave_count,
+                tile_size) + 1.0) * 0.5;
+            value = fmin(1.0, fmax(0.0, value));
+            uint8_t gray = (uint8_t)lround(value * 255.0);
+            size_t offset = (y * pixel_size + x) * 4;
+            pixel_bytes[offset] = gray;
+            pixel_bytes[offset + 1] = gray;
+            pixel_bytes[offset + 2] = gray;
+            pixel_bytes[offset + 3] = 255;
+        }
+    }
+
+    CGColorSpaceRef color_space = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    if (color_space == NULL) {
+        free(pixel_bytes);
+        return NULL;
+    }
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, pixel_bytes, byte_count, ap_surface_noise_release_pixels);
+    if (provider == NULL) {
+        CGColorSpaceRelease(color_space);
+        free(pixel_bytes);
+        return NULL;
+    }
+    CGImageRef image = CGImageCreate(
+        pixel_size,
+        pixel_size,
+        8,
+        32,
+        pixel_size * 4,
+        color_space,
+        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big,
+        provider,
+        NULL,
+        false,
+        kCGRenderingIntentDefault);
+    CGDataProviderRelease(provider);
+    CGColorSpaceRelease(color_space);
+    return image;
+}
+
+static NSCache<NSString *, id> *ap_surface_noise_tile_cache(void) {
+    static NSCache<NSString *, id> *cache = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        cache = [[NSCache alloc] init];
+        cache.name = @"ap.surfaceCraft.noiseTiles";
+        cache.countLimit = 128;
+        cache.totalCostLimit = 64 * 1024 * 1024;
+    });
+    return cache;
+}
+
+static CGImageRef ap_surface_noise_tile(
+    double base_frequency,
+    int octave_count,
+    int seed,
+    int tile_size,
+    CGFloat backing_scale) {
+    NSString *key = [NSString stringWithFormat:@"%.17g:%d:%d:%d:%.17g",
+        base_frequency, octave_count, seed, tile_size, (double)backing_scale];
+    NSCache<NSString *, id> *cache = ap_surface_noise_tile_cache();
+    @synchronized(cache) {
+        id cached_value = [cache objectForKey:key];
+        if (cached_value != nil) return CGImageRetain((__bridge CGImageRef)cached_value);
+
+        CGImageRef tile = ap_surface_noise_generate_tile(
+            base_frequency, octave_count, seed, tile_size, backing_scale);
+        if (tile == NULL) return NULL;
+        NSUInteger cost = CGImageGetBytesPerRow(tile) * CGImageGetHeight(tile);
+        [cache setObject:(__bridge id)tile forKey:key cost:cost];
+        return tile;
+    }
+}
+
+void *ap_surface_noise_texture_tile_create(
+    double base_frequency,
+    int octave_count,
+    int seed,
+    int tile_size,
+    double backing_scale) {
+    return (void *)ap_surface_noise_tile(
+        base_frequency, octave_count, seed, tile_size, (CGFloat)backing_scale);
+}
+
+static CGImageRef ap_surface_brushed_texture_tile(void) {
     static CGImageRef brushed = NULL;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-        for (int variant = 0; variant < 2; variant++) {
-            CGContextRef context = CGBitmapContextCreate(NULL, 64, 64, 8, 0, space,
-                kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-            if (!context) continue;
+        CGContextRef context = CGBitmapContextCreate(NULL, 64, 64, 8, 0, space,
+            kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+        if (context != NULL) {
             for (int y = 0; y < 64; y++) {
                 for (int x = 0; x < 64; x++) {
                     double u = (double)x / 64.0;
                     double v = (double)y / 64.0;
-                    CGFloat value = 0.0;
-                    if (variant == 0) {
-                        double sum = 0.0;
-                        double total_weight = 0.0;
-                        for (int octave = 0; octave < 5; octave++) {
-                            double frequency = (double)(2 << octave);
-                            double phase = (double)octave * 1.73;
-                            double first = sin(2.0 * M_PI * (frequency * u + frequency * 3.0 * v) + phase);
-                            double second = cos(2.0 * M_PI * (frequency * 2.0 * u - frequency * v) + phase * 1.91);
-                            double weight = 1.0 / sqrt(frequency);
-                            sum += (first + second) * 0.5 * weight;
-                            total_weight += weight;
-                        }
-                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + sum / total_weight * 0.32));
-                    } else {
-                        double lengthwise = sin(2.0 * M_PI * (16.0 * u + 0.08 * v) + 0.7);
-                        double variation = cos(2.0 * M_PI * (32.0 * u - 0.12 * v) + 2.1);
-                        double banding = sin(2.0 * M_PI * (2.0 * v + 0.03 * u) + 1.2);
-                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + lengthwise * 0.12 + variation * 0.07 + banding * 0.04));
-                    }
+                    double lengthwise = sin(2.0 * M_PI * (16.0 * u + 0.08 * v) + 0.7);
+                    double variation = cos(2.0 * M_PI * (32.0 * u - 0.12 * v) + 2.1);
+                    double banding = sin(2.0 * M_PI * (2.0 * v + 0.03 * u) + 1.2);
+                    CGFloat value = (CGFloat)fmin(1.0, fmax(0.0,
+                        0.5 + lengthwise * 0.12 + variation * 0.07 + banding * 0.04));
                     CGContextSetRGBFillColor(context, value, value, value, 1.0);
                     CGContextFillRect(context, CGRectMake(x, y, 1, 1));
                 }
             }
-            CGImageRef image = CGBitmapContextCreateImage(context);
-            if (variant == 0) noise = image; else brushed = image;
+            brushed = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
         }
         CGColorSpaceRelease(space);
     });
-    return [kind isEqualToString:@"brushed"] ? brushed : noise;
+    return brushed == NULL ? NULL : CGImageRetain(brushed);
+}
+
+static CGImageRef ap_surface_texture_tile(NSString *kind, NSDictionary *texture, CGFloat backing_scale) {
+    if ([kind isEqualToString:@"brushed"]) return ap_surface_brushed_texture_tile();
+
+    id frequency_value = texture[@"baseFrequency"];
+    id octave_value = texture[@"octaveCount"];
+    id seed_value = texture[@"seed"];
+    id tile_size_value = texture[@"tileSize"];
+    double base_frequency = [frequency_value respondsToSelector:@selector(doubleValue)] ?
+        [frequency_value doubleValue] : 0.72;
+    int octave_count = [octave_value respondsToSelector:@selector(intValue)] ?
+        [octave_value intValue] : 3;
+    int seed = [seed_value respondsToSelector:@selector(intValue)] ?
+        [seed_value intValue] : 4;
+    int tile_size = [tile_size_value respondsToSelector:@selector(intValue)] ?
+        [tile_size_value intValue] : 160;
+    return ap_surface_noise_tile(base_frequency, octave_count, seed, tile_size, backing_scale);
 }
 
 static NSArray<CALayer *> *ap_surface_layers_named(CALayer *root, NSString *name) {
@@ -5186,9 +5527,29 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
         CALayer *root = view.layer;
         if (!root) return;
 
+        id texture_value = values[@"texture"];
+        NSDictionary *texture = [texture_value isKindOfClass:[NSDictionary class]] ? texture_value : nil;
+        id kind_value = texture[@"kind"];
+        NSString *kind = [kind_value isKindOfClass:[NSString class]] ? kind_value : nil;
+        BOOL has_noise_texture = [kind isEqualToString:@"noise"];
+        if (has_noise_texture) {
+            // Keep the declarative payload so the tile can be rebaked when AppKit
+            // reports a new backing scale after a window moves between displays.
+            NSString *surface_craft_json = [NSString stringWithUTF8String:json];
+            objc_setAssociatedObject(view, &ap_surface_craft_texture_payload_key,
+                surface_craft_json, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        } else {
+            objc_setAssociatedObject(view, &ap_surface_craft_texture_payload_key,
+                nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        }
+
+        CGFloat backing_scale = view.window != nil ? view.window.backingScaleFactor : root.contentsScale;
+        if (!isfinite(backing_scale) || backing_scale <= 0.0) backing_scale = 1.0;
+        if (has_noise_texture) root.contentsScale = backing_scale;
+
         NSString *fill = values[@"fill"];
         if ([fill isKindOfClass:[NSString class]]) {
-            root.backgroundColor = ap_surface_color(fill).CGColor;
+            root.backgroundColor = (has_noise_texture ? ap_surface_srgb_color(fill) : ap_surface_color(fill)).CGColor;
         }
 
         for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.gradient")) [old removeFromSuperlayer];
@@ -5218,28 +5579,52 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
         }
 
         for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.texture")) [old removeFromSuperlayer];
-        NSDictionary *texture = values[@"texture"];
-        NSString *kind = texture[@"kind"];
-        CGImageRef tile = [kind isKindOfClass:[NSString class]] ? ap_surface_texture_tile(kind) : NULL;
+        CGImageRef tile = kind != nil ? ap_surface_texture_tile(kind, texture, backing_scale) : NULL;
         if (tile) {
             CAReplicatorLayer *vertical = [CAReplicatorLayer layer];
             vertical.name = @"ap.surfaceCraft.texture";
             vertical.frame = root.bounds;
-            vertical.instanceCount = 128;
-            vertical.instanceTransform = CATransform3DMakeTranslation(0, 64, 0);
             vertical.opacity = (float)[texture[@"opacity"] doubleValue];
             CAReplicatorLayer *row = [CAReplicatorLayer layer];
-            row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), 64);
-            row.instanceCount = 128;
-            row.instanceTransform = CATransform3DMakeTranslation(64, 0, 0);
             CALayer *image = [CALayer layer];
-            image.frame = CGRectMake(0, 0, 64, 64);
+
+            if ([kind isEqualToString:@"brushed"]) {
+                // Preserve the existing brushed tile and multiply compositing.
+                vertical.instanceCount = 128;
+                vertical.instanceTransform = CATransform3DMakeTranslation(0, 64, 0);
+                row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), 64);
+                row.instanceCount = 128;
+                row.instanceTransform = CATransform3DMakeTranslation(64, 0, 0);
+                image.frame = CGRectMake(0, 0, 64, 64);
+                image.compositingFilter = @"multiplyBlendMode";
+            } else {
+                id tile_size_value = texture[@"tileSize"];
+                NSInteger tile_size = [tile_size_value respondsToSelector:@selector(integerValue)] ?
+                    [tile_size_value integerValue] : 160;
+                if (tile_size < 1 || tile_size > 1024) tile_size = 160;
+                CGFloat tile_size_points = (CGFloat)tile_size;
+                CGFloat columns = MAX(1, ceil(CGRectGetWidth(root.bounds) / tile_size_points));
+                CGFloat rows = MAX(1, ceil(CGRectGetHeight(root.bounds) / tile_size_points));
+
+                vertical.contentsScale = backing_scale;
+                vertical.instanceCount = (NSUInteger)rows;
+                vertical.instanceTransform = CATransform3DMakeTranslation(0, tile_size_points, 0);
+                row.contentsScale = backing_scale;
+                row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), tile_size_points);
+                row.instanceCount = (NSUInteger)columns;
+                row.instanceTransform = CATransform3DMakeTranslation(tile_size_points, 0, 0);
+                image.frame = CGRectMake(0, 0, tile_size_points, tile_size_points);
+                image.contentsScale = backing_scale;
+                image.minificationFilter = kCAFilterNearest;
+                image.magnificationFilter = kCAFilterNearest;
+            }
+
             image.contents = (__bridge id)tile;
             image.contentsGravity = kCAGravityResize;
-            image.compositingFilter = @"multiplyBlendMode";
             [row addSublayer:image];
             [vertical addSublayer:row];
             [root insertSublayer:vertical atIndex:(unsigned)MIN(1, root.sublayers.count)];
+            CGImageRelease(tile);
         }
 
         ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.drop.");

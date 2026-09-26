@@ -15,6 +15,44 @@ require "../../src/ui"
     fun ap_spec_appkit_view_layer_shadow_opacity(view : Void*) : Float32
   end
 
+  lib NoiseTextureFixtureBridge
+    fun ap_spec_render_surface_craft_json(
+      json : UInt8*,
+      point_width : Float64,
+      point_height : Float64,
+      backing_scale : Float64,
+      pixels : UInt8*,
+      capacity : Int32,
+      pixel_width : Int32*,
+      pixel_height : Int32*,
+      tile_pixel_width : Int32*,
+      tile_pixel_height : Int32*,
+      texture_opacity : Float64*,
+      contents_scale : Float64*,
+      has_compositing_filter : Int32*,
+    ) : Int32
+    fun ap_spec_rebake_noise_surface_on_scale_change(
+      json : UInt8*,
+      point_width : Float64,
+      point_height : Float64,
+      initial_scale : Float64,
+      new_scale : Float64,
+      initial_tile_width : Int32*,
+      initial_tile_height : Int32*,
+      initial_contents_scale : Float64*,
+      new_tile_width : Int32*,
+      new_tile_height : Int32*,
+      new_contents_scale : Float64*,
+    ) : Int32
+    fun ap_spec_copy_png_rgba(
+      path : UInt8*,
+      pixels : UInt8*,
+      capacity : Int32,
+      pixel_width : Int32*,
+      pixel_height : Int32*,
+    ) : Int32
+  end
+
   private def surface_craft_capture_native(native : UI::NativeView) : Int32
     UI::ObjC.autoreleasepool do
       PreviewStateCaptureTestBridge.ap_spec_capture_appkit_view(native.handle.ptr!)
@@ -34,6 +72,23 @@ require "../../src/ui"
     cls = SurfaceCraftObjCRuntime.objc_getClass("NSView")
     allocated = UI::AppKit::LibObjCBridge.objc_send(cls, SurfaceCraftObjCRuntime.sel_registerName("alloc"))
     UI::AppKit::LibObjCBridge.objc_send(allocated, SurfaceCraftObjCRuntime.sel_registerName("init"))
+  end
+
+  private def surface_craft_gray_statistics(pixels : Array(UInt8), pixel_width : Int32, pixel_height : Int32) : {Float64, Float64}
+    pixel_count = pixel_width.to_i64 * pixel_height.to_i64
+    values = Array(Float64).new(pixel_count.to_i32)
+    total = 0.0
+    pixel_count.times do |index|
+      gray_value = pixels[index.to_i32 * 4].to_f64
+      values << gray_value
+      total += gray_value
+    end
+    mean = total / pixel_count
+    sum_of_squared_differences = values.sum do |value|
+      difference = value - mean
+      difference * difference
+    end
+    {mean, Math.sqrt(sum_of_squared_differences / pixel_count)}
   end
 
   describe "surface-craft macOS native rendering" do
@@ -69,6 +124,189 @@ require "../../src/ui"
       UI::AppKit::LibObjCBridge.appkit_view_has_surface_layer(native_view, "ap.surfaceCraft.drop.0").should eq(1)
       UI::AppKit::LibObjCBridge.appkit_view_has_surface_layer(native_view, "ap.surfaceCraft.drop.1").should eq(1)
       UI::AppKit::LibObjCBridge.appkit_view_has_surface_layer(native_view, "ap.surfaceCraft.inner.0").should eq(1)
+    end
+
+    it "keeps the existing fixed brushed tile and multiply compositing" do
+      surface = UI::VStack.new
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Brushed,
+        texture_opacity: 0.08,
+        base_frequency: 0.83,
+        octave_count: 5,
+        seed: 7,
+        tile_size: 128,
+      )
+      json = if payload = surface.surface_craft_json
+               payload
+             else
+               fail "Brushed surface payload was not emitted"
+             end
+      pixels = Array(UInt8).new(32 * 32 * 4, 0_u8)
+      pixel_width = 0
+      pixel_height = 0
+      tile_pixel_width = 0
+      tile_pixel_height = 0
+      texture_opacity = 0.0
+      contents_scale = 0.0
+      has_compositing_filter = 0
+
+      NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
+        json.to_unsafe,
+        32.0,
+        32.0,
+        1.0,
+        pixels.to_unsafe,
+        pixels.size,
+        pointerof(pixel_width),
+        pointerof(pixel_height),
+        pointerof(tile_pixel_width),
+        pointerof(tile_pixel_height),
+        pointerof(texture_opacity),
+        pointerof(contents_scale),
+        pointerof(has_compositing_filter),
+      ).should eq(1)
+
+      tile_pixel_width.should eq(64)
+      tile_pixel_height.should eq(64)
+      (texture_opacity - 0.08).abs.should be <= 0.001
+      has_compositing_filter.should eq(1)
+    end
+
+    it "matches the stitched grayscale SVG turbulence fixture over a flat fill at 2x" do
+      pixel_capacity = 256 * 256 * 4
+      native_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
+      repeated_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
+      reference_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
+      native_pixel_width = 0
+      native_pixel_height = 0
+      reference_pixel_width = 0
+      reference_pixel_height = 0
+      tile_pixel_width = 0
+      tile_pixel_height = 0
+      texture_opacity = 0.0
+      contents_scale = 0.0
+      has_compositing_filter = 0
+      surface = UI::VStack.new
+      surface.background_fill_color = UI::Color.new(r: 128.0 / 255.0, g: 128.0 / 255.0, b: 128.0 / 255.0)
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+        base_frequency: 0.83,
+        octave_count: 3,
+        seed: 7,
+        tile_size: 128,
+      )
+      json = if payload = surface.surface_craft_json
+               payload
+             else
+               fail "Noise surface payload was not emitted"
+             end
+
+      NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
+        json.to_unsafe,
+        128.0,
+        128.0,
+        2.0,
+        native_pixels.to_unsafe,
+        pixel_capacity,
+        pointerof(native_pixel_width),
+        pointerof(native_pixel_height),
+        pointerof(tile_pixel_width),
+        pointerof(tile_pixel_height),
+        pointerof(texture_opacity),
+        pointerof(contents_scale),
+        pointerof(has_compositing_filter),
+      ).should eq(1)
+
+      repeated_pixel_width = 0
+      repeated_pixel_height = 0
+      repeated_tile_pixel_width = 0
+      repeated_tile_pixel_height = 0
+      repeated_opacity = 0.0
+      repeated_contents_scale = 0.0
+      repeated_blend_filter = 0
+      NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
+        json.to_unsafe,
+        128.0,
+        128.0,
+        2.0,
+        repeated_pixels.to_unsafe,
+        pixel_capacity,
+        pointerof(repeated_pixel_width),
+        pointerof(repeated_pixel_height),
+        pointerof(repeated_tile_pixel_width),
+        pointerof(repeated_tile_pixel_height),
+        pointerof(repeated_opacity),
+        pointerof(repeated_contents_scale),
+        pointerof(repeated_blend_filter),
+      ).should eq(1)
+
+      fixture_path = File.expand_path("fixtures/noise-tile/reference.png", __DIR__)
+      NoiseTextureFixtureBridge.ap_spec_copy_png_rgba(
+        fixture_path.to_unsafe,
+        reference_pixels.to_unsafe,
+        pixel_capacity,
+        pointerof(reference_pixel_width),
+        pointerof(reference_pixel_height),
+      ).should eq(1)
+      native_pixel_width.should eq(256)
+      native_pixel_height.should eq(256)
+      reference_pixel_width.should eq(256)
+      reference_pixel_height.should eq(256)
+
+      maximum_pixel_difference = 0
+      pixel_count = native_pixel_width * native_pixel_height
+      pixel_count.times do |index|
+        pixel_offset = index * 4
+        native_gray = native_pixels[pixel_offset]
+        reference_gray = reference_pixels[pixel_offset]
+        (0..2).each do |channel_offset|
+          (native_pixels[pixel_offset + channel_offset].to_i32 - native_gray.to_i32).abs.should be <= 1
+          (reference_pixels[pixel_offset + channel_offset].to_i32 - reference_gray.to_i32).abs.should be <= 1
+        end
+        difference = (native_gray.to_i32 - reference_gray.to_i32).abs
+        maximum_pixel_difference = difference if difference > maximum_pixel_difference
+      end
+
+      native_mean, native_standard_deviation = surface_craft_gray_statistics(native_pixels, native_pixel_width, native_pixel_height)
+      reference_mean, reference_standard_deviation = surface_craft_gray_statistics(reference_pixels, reference_pixel_width, reference_pixel_height)
+      # The fixture is rendered by librsvg and the live layer by Core Animation;
+      # the measured output-channel difference is at most 7/255 at 7% opacity.
+      maximum_pixel_difference.should be <= 7
+      (native_mean - reference_mean).abs.should be <= 0.5
+      (native_standard_deviation - reference_standard_deviation).abs.should be <= 0.5
+      repeated_pixels.should eq(native_pixels)
+      tile_pixel_width.should eq(256)
+      tile_pixel_height.should eq(256)
+      (contents_scale - 2.0).abs.should be <= 0.001
+      (texture_opacity - 0.07).abs.should be <= 0.001
+      has_compositing_filter.should eq(0)
+
+      initial_tile_width = 0
+      initial_tile_height = 0
+      initial_contents_scale = 0.0
+      new_tile_width = 0
+      new_tile_height = 0
+      new_contents_scale = 0.0
+      NoiseTextureFixtureBridge.ap_spec_rebake_noise_surface_on_scale_change(
+        json.to_unsafe,
+        128.0,
+        128.0,
+        2.0,
+        1.0,
+        pointerof(initial_tile_width),
+        pointerof(initial_tile_height),
+        pointerof(initial_contents_scale),
+        pointerof(new_tile_width),
+        pointerof(new_tile_height),
+        pointerof(new_contents_scale),
+      ).should eq(1)
+      initial_tile_width.should eq(256)
+      initial_tile_height.should eq(256)
+      (initial_contents_scale - 2.0).abs.should be <= 0.001
+      new_tile_width.should eq(128)
+      new_tile_height.should eq(128)
+      (new_contents_scale - 1.0).abs.should be <= 0.001
     end
 
     it "renders custom toggle styles, keycaps, swatch pickers, and tabbed sections through SwiftUI hosts" do
