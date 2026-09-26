@@ -40,11 +40,26 @@ describe UI::Web::Renderer, "preview states" do
     html.should_not contain("data-ap-preview-state")
   end
 
+  it "emits the preview hook on an interactive HStack container only" do
+    stack = UI::HStack.new
+    stack.background_fill_color = UI::ColorRole::SurfacePanel
+    stack.interaction_feedback = UI::InteractionFeedback::Edge
+    stack.preview_state = UI::PreviewState::Focus
+    stack << UI::Button.new("Child")
+
+    html = UI::Web::Renderer.new.render(stack)
+
+    html.should contain(%(data-ap-feedback="edge"))
+    html.should contain(%(data-ap-preview-state="focus"))
+    html.scan("data-ap-preview-state").size.should eq(1)
+  end
+
   it "maps preview hover, pressed, and focus to the feedback and focus styles" do
     css = UI::Web::Renderer.new.inject_theme_css
 
     css.should contain(%([data-ap-feedback="sink"][data-ap-preview-state="hover"]))
     css.should contain(%([data-ap-feedback="sink"][data-ap-preview-state="pressed"]))
+    css.should contain(%([data-ap-feedback="edge"][data-ap-preview-state="pressed"]::before))
     css.should contain(%([data-ap-preview-state="focus"]))
   end
 end

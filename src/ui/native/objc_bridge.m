@@ -5088,6 +5088,93 @@ static void ap_surface_remove_layers_with_prefix(CALayer *root, NSString *prefix
     }
 }
 
+static void ap_surface_apply_preview_feedback(CALayer *root, NSDictionary *values) {
+    BOOL had_preview_state = NO;
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name hasPrefix:@"ap.surfaceCraft.preview."]) {
+            had_preview_state = YES;
+            break;
+        }
+    }
+    ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.preview.");
+    if (had_preview_state) {
+        root.transform = CATransform3DIdentity;
+        root.shadowColor = nil;
+        root.shadowOpacity = 0;
+        root.shadowRadius = 0;
+        root.shadowOffset = CGSizeZero;
+    }
+
+    NSString *feedback = [values[@"feedback"] isKindOfClass:[NSString class]] ? values[@"feedback"] : nil;
+    NSString *phase = [values[@"previewState"] isKindOfClass:[NSString class]] ? values[@"previewState"] : nil;
+    if (phase == nil) return;
+
+    BOOL is_hover = [phase isEqualToString:@"hover"];
+    BOOL is_pressed = [phase isEqualToString:@"pressed"];
+    BOOL is_focus = [phase isEqualToString:@"focus"];
+    BOOL uses_edge = [feedback isEqualToString:@"edge"];
+
+    // Mark the root so a later application can undo only the transform and
+    // shadow installed by this preview modifier. The hidden marker also
+    // lets the None path leave a fresh view's existing layer settings alone.
+    CALayer *marker = [CALayer layer];
+    marker.name = @"ap.surfaceCraft.preview.active";
+    marker.hidden = YES;
+    [root addSublayer:marker];
+
+    // Match the SwiftUI SurfaceCraft face tint. It is attached to the
+    // container's own layer, below its arranged children, so a composite's
+    // state never leaks into child controls.
+    if (is_hover) {
+        CALayer *hover = [CALayer layer];
+        hover.name = @"ap.surfaceCraft.preview.hover";
+        hover.frame = root.bounds;
+        hover.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        hover.cornerRadius = root.cornerRadius;
+        hover.backgroundColor = [[NSColor.labelColor colorWithAlphaComponent:0.035] CGColor];
+        [root addSublayer:hover];
+    }
+
+    if ([feedback isEqualToString:@"sink"] && is_pressed) {
+        root.transform = CATransform3DMakeTranslation(0, -1, 0);
+    } else if ([feedback isEqualToString:@"lift"] && is_hover) {
+        root.transform = CATransform3DMakeTranslation(0, 2, 0);
+    } else if (([feedback isEqualToString:@"lift"] || uses_edge) && is_pressed) {
+        root.transform = CATransform3DMakeTranslation(0, -1, 0);
+    }
+
+    if ([feedback isEqualToString:@"lift"] && (is_hover || is_pressed)) {
+        root.shadowColor = NSColor.blackColor.CGColor;
+        root.shadowOpacity = 0.16;
+        root.shadowRadius = is_hover ? 7 : 5;
+        root.shadowOffset = CGSizeMake(0, is_hover ? 3 : 1);
+    }
+
+    if (uses_edge && (is_hover || is_pressed || is_focus)) {
+        CALayer *edge = [CALayer layer];
+        edge.name = @"ap.surfaceCraft.preview.edge";
+        edge.frame = CGRectMake(0, 4, 2, MAX(0, CGRectGetHeight(root.bounds) - 8));
+        edge.autoresizingMask = kCALayerHeightSizable;
+        edge.cornerRadius = 1;
+        edge.backgroundColor = NSColor.controlAccentColor.CGColor;
+        [root addSublayer:edge];
+    }
+
+    // A preview focus ring is drawn directly, without asking AppKit to make
+    // this container first responder. Edge feedback supplies its own accent
+    // indication; other styles use the system keyboard focus color.
+    if (is_focus && !uses_edge) {
+        CALayer *ring = [CALayer layer];
+        ring.name = @"ap.surfaceCraft.preview.focusRing";
+        ring.frame = root.bounds;
+        ring.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        ring.cornerRadius = root.cornerRadius + 2;
+        ring.borderWidth = 2;
+        ring.borderColor = NSColor.keyboardFocusIndicatorColor.CGColor;
+        [root addSublayer:ring];
+    }
+}
+
 void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
     if (!view_ptr || !json || json[0] == '\0') return;
     @autoreleasepool {
@@ -5203,6 +5290,8 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
                 [root addSublayer:layer];
             }
         }
+
+        ap_surface_apply_preview_feedback(root, values);
     }
 }
 

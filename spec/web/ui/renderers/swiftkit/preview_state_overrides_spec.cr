@@ -18,6 +18,24 @@ private class PreviewStateRecordingSender < UI::Native::Populator::Sender
 end
 
 describe UI::Native::Populator, "preview_state propagation" do
+  it "sends preview state and the typed surface payload for an HStack container" do
+    stack = UI::HStack.new
+    stack.background_fill_color = UI::ColorRole::SurfacePanel
+    stack.interaction_feedback = UI::InteractionFeedback::Edge
+    stack.preview_state = UI::PreviewState::Focus
+    target = FakeLibObjCBridge.next_sentinel_pointer
+
+    UI::Native::Populator.populate_view_common(target, stack, PreviewStateRecordingSender.new)
+
+    FakeLibObjCBridge.assert_sent(:setApskPreviewState, args: [target, "focus"])
+    surface_call = FakeLibObjCBridge.calls.find { |call| call.name == :setApskSurfaceCraftSpec }
+    raise "HStack surface payload was not sent" unless surface_call
+    surface_payload = surface_call.args[1]
+    surface_payload.should contain(%("fill":"role:surface-panel"))
+    surface_payload.should contain(%("feedback":"edge"))
+    surface_payload.should contain(%("previewState":"focus"))
+  end
+
   it "reaches Toggle through the shared ViewOverrides path" do
     toggle = UI::Toggle.new("Enable")
     toggle.preview_state = UI::PreviewState::Hover

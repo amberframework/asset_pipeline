@@ -329,27 +329,33 @@
 
       # Convenience: visit a view and return its NativeView.
       def render(view : UI::View) : NativeView
-        # Initialise the SwiftKit runtime and propagate the active brand
-        # tint before traversing the tree. Re-applying the brand tint on
-        # every render entry is what makes
-        # `renderer.design_tokens = Tokens.default.with_brand(...)` flip
-        # the rendered button pixel on the next render — the Option B
-        # cascade contract surfaced by the Architect handoff
-        # `phase-03-stopped-early-2026-05-20.md`.
-        ensure_swiftkit_runtime!
+        # Bound autoreleased AppKit/SwiftKit temporaries to this render pass.
+        # Each NativeHandle owns its returned native object, so the completed
+        # tree remains valid after this pool drains and can be attached and
+        # captured in a later scope.
+        UI::ObjC.autoreleasepool do
+          # Initialise the SwiftKit runtime and propagate the active brand
+          # tint before traversing the tree. Re-applying the brand tint on
+          # every render entry is what makes
+          # `renderer.design_tokens = Tokens.default.with_brand(...)` flip
+          # the rendered button pixel on the next render — the Option B
+          # cascade contract surfaced by the Architect handoff
+          # `phase-03-stopped-early-2026-05-20.md`.
+          ensure_swiftkit_runtime!
 
-        view.accept(self)
-        nv = result
-        # Wire tab order for editable text fields
-        fields = [] of Void*
-        collect_text_fields(nv, fields)
-        if fields.size >= 2
-          fields.each_with_index do |ptr, i|
-            next_ptr = fields[(i + 1) % fields.size]
-            LibObjCBridge.objc_send_void_id(ptr, sel("setNextKeyView:"), next_ptr)
+          view.accept(self)
+          nv = result
+          # Wire tab order for editable text fields
+          fields = [] of Void*
+          collect_text_fields(nv, fields)
+          if fields.size >= 2
+            fields.each_with_index do |ptr, i|
+              next_ptr = fields[(i + 1) % fields.size]
+              LibObjCBridge.objc_send_void_id(ptr, sel("setNextKeyView:"), next_ptr)
+            end
           end
+          nv
         end
-        nv
       end
 
       # -----------------------------------------------------------------
@@ -4719,10 +4725,6 @@
       private def apply_common_properties(ptr : Void*, view : UI::View) : Bool
         focus_request_accepted = false
 
-        if surface_craft = view.surface_craft_json
-          LibObjCBridge.appkit_view_apply_surface_craft(ptr, surface_craft.to_unsafe)
-        end
-
         # Hidden
         if view.hidden
           LibObjCBridge.objc_send_bool(ptr, sel("setHidden:"), 1)
@@ -4771,6 +4773,12 @@
               end
             end
           end
+        end
+
+        # Install SurfaceCraft after the common layer shape is established so
+        # preview overlays and rings inherit the container's corner radius.
+        if surface_craft = view.surface_craft_json
+          LibObjCBridge.appkit_view_apply_surface_craft(ptr, surface_craft.to_unsafe)
         end
 
         # Size constraints via Auto Layout.

@@ -2855,7 +2855,9 @@ module UI
         [data-ap-feedback="edge"]::before{content:"";position:absolute;inset:4px auto 4px 0;width:2px;background:transparent;border-radius:2px}
         [data-ap-feedback="edge"]:hover::before{background:var(--ap-color-brand-primary)}
         [data-ap-feedback="edge"][data-ap-preview-state="hover"]::before,
+        [data-ap-feedback="edge"][data-ap-preview-state="pressed"]::before,
         [data-ap-feedback="edge"][data-ap-preview-state="focus"]::before{background:var(--ap-color-brand-primary)}
+        [data-ap-feedback="edge"][data-ap-preview-state="pressed"]{transform:translateY(1px)}
         [data-ap-preview-state="focus"]:not([data-ap-feedback="edge"]){outline:2px solid var(--ap-color-border-focus);outline-offset:3px}
         [data-ap-feedback="edge"][data-ap-preview-state="focus"]{outline:2px solid var(--ap-color-brand-primary);outline-offset:3px}
         .ap-toggle[data-ap-toggle-appearance="pill"] input:checked+[data-ap-toggle-track]{background-color:var(--ap-toggle-on)}

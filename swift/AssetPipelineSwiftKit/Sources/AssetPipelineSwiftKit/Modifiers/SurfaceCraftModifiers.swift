@@ -263,6 +263,35 @@ private struct SurfaceCraftFeedbackModifier: ViewModifier {
         cornerRadius > 0 ? cornerRadius : 5
     }
 
+    private var feedbackOffset: CGFloat {
+        switch style {
+        case "sink": return displayedPhase == .pressed ? 1 : 0
+        case "lift":
+            if displayedPhase == .hover { return -2 }
+            return previewState == "pressed" && displayedPhase == .pressed ? 1 : 0
+        case "edge": return previewState == "pressed" && displayedPhase == .pressed ? 1 : 0
+        default: return 0
+        }
+    }
+
+    private var liftShadowOpacity: Double {
+        guard style == "lift" else { return 0 }
+        if displayedPhase == .hover { return 0.16 }
+        return previewState == "pressed" && displayedPhase == .pressed ? 0.16 : 0
+    }
+
+    private var liftShadowRadius: CGFloat {
+        guard style == "lift" else { return 0 }
+        if displayedPhase == .hover { return 7 }
+        return previewState == "pressed" && displayedPhase == .pressed ? 5 : 0
+    }
+
+    private var liftShadowOffsetY: CGFloat {
+        guard style == "lift" else { return 0 }
+        if displayedPhase == .hover { return 3 }
+        return previewState == "pressed" && displayedPhase == .pressed ? 1 : 0
+    }
+
     #if DEBUG
     private var accessibilityPhase: String {
         switch displayedPhase {
@@ -276,7 +305,7 @@ private struct SurfaceCraftFeedbackModifier: ViewModifier {
         content
             .background(displayedPhase == .hover ? Color.primary.opacity(0.035) : Color.clear)
             .overlay(alignment: .leading) {
-                if style == "edge" && (displayedPhase == .hover || usesSurfaceCraftFocusStyle) {
+                if style == "edge" && (displayedPhase == .hover || (previewState == "pressed" && displayedPhase == .pressed) || usesSurfaceCraftFocusStyle) {
                     Capsule().fill(Color.accentColor).frame(width: 2).padding(.vertical, 4)
                 }
             }
@@ -288,9 +317,9 @@ private struct SurfaceCraftFeedbackModifier: ViewModifier {
                         .allowsHitTesting(false)
                 }
             }
-            .offset(y: reduceMotion ? 0 : (style == "sink" && displayedPhase == .pressed ? 1 : (style == "lift" && displayedPhase == .hover ? -2 : 0)))
-            .shadow(color: style == "lift" && displayedPhase == .hover ? .black.opacity(0.16) : .clear,
-                    radius: style == "lift" && displayedPhase == .hover ? 7 : 0, x: 0, y: 3)
+            .offset(y: reduceMotion ? 0 : feedbackOffset)
+            .shadow(color: .black.opacity(liftShadowOpacity),
+                    radius: liftShadowRadius, x: 0, y: liftShadowOffsetY)
             .onHover { isHovering = $0 }
             .simultaneousGesture(DragGesture(minimumDistance: 0)
                 .onChanged { _ in isPressed = true }
