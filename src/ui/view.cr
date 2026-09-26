@@ -1,6 +1,8 @@
 # Defines `UI::View`, the abstract base for every cross-platform view, plus the
 # `RenderContext` and `RenderError` types used by the platform-visitor renderers.
 
+require "json"
+
 module UI
   # Phase 6.11 iter-3 — Raised by a platform visitor when a child view
   # cannot be rendered to its native handle. The previous behavior emitted
@@ -10,6 +12,10 @@ module UI
   # and lets call sites that genuinely need a recoverable path opt in via
   # a `begin/rescue` of their own.
   class RenderError < Exception
+  end
+
+  # Raised when a surface-craft value does not meet its construction contract.
+  class SurfaceCraftError < RenderError
   end
 
   # Phase 8A — Renderer-scoped per-request context threaded through
@@ -152,6 +158,325 @@ module UI
     g : Float64,
     b : Float64,
     a : Float64 = 1.0
+
+  # Semantic color roles accepted by reusable surface overrides.
+  enum ColorRole
+    BrandPrimary
+    BrandAccent
+    SurfaceCanvas
+    SurfaceElevated
+    SurfacePanel
+    SurfaceSunken
+    SurfaceInverse
+    TextPrimary
+    TextInverse
+    Warning
+  end
+
+  # A literal color or a semantic design-token role.
+  alias SurfaceColor = Color | ColorRole
+
+  # One color and normalized position in a linear gradient.
+  record GradientStop,
+    stop_color : SurfaceColor,
+    stop_position : Float64
+
+  # A linear gradient in clockwise degrees, with at least two ordered stops.
+  struct LinearGradient
+    getter list_of_stops : Array(GradientStop)
+    getter gradient_angle : Float64
+
+    def initialize(@list_of_stops : Array(GradientStop), @gradient_angle : Float64 = 0.0)
+      raise SurfaceCraftError.new("A linear gradient requires at least two stops") if @list_of_stops.size < 2
+      previous_position = -1.0
+      @list_of_stops.each do |stop|
+        unless stop.stop_position >= 0.0 && stop.stop_position <= 1.0
+          raise SurfaceCraftError.new("Gradient stop positions must be between 0 and 1")
+        end
+        if stop.stop_position < previous_position
+          raise SurfaceCraftError.new("Gradient stop positions must be in ascending order")
+        end
+        previous_position = stop.stop_position
+      end
+    end
+  end
+
+  # Shared drop-shadow value used by view surface overrides.
+  record DropShadow,
+    shadow_color : SurfaceColor,
+    offset_x : Float64 = 0.0,
+    offset_y : Float64 = 0.0,
+    blur_radius : Float64 = 0.0
+
+  # Inset shadow drawn inside a view's bounds.
+  record InnerShadow,
+    shadow_color : SurfaceColor,
+    offset_x : Float64 = 0.0,
+    offset_y : Float64 = 0.0,
+    blur_radius : Float64 = 0.0
+
+  # Procedural texture rendered over a surface.
+  enum TextureKind
+    Noise
+    Brushed
+  end
+
+  # Generated texture kind and alpha, with opacity validation at construction.
+  struct TextureOverlay
+    getter texture_kind : TextureKind
+    getter texture_opacity : Float64
+
+    def initialize(@texture_kind : TextureKind, @texture_opacity : Float64)
+      unless @texture_opacity >= 0.0 && @texture_opacity <= 1.0
+        raise SurfaceCraftError.new("Texture opacity must be between 0 and 1")
+      end
+    end
+  end
+
+  # Optional tactile surface properties for a panel or its tab.
+  record SurfaceStyle,
+    background_fill_color : SurfaceColor? = nil,
+    linear_gradient : LinearGradient? = nil,
+    list_of_inner_shadows : Array(InnerShadow) = [] of InnerShadow,
+    list_of_drop_shadows : Array(DropShadow) = [] of DropShadow,
+    texture_overlay : TextureOverlay? = nil
+
+  # Hover and press response used by buttons and rows.
+  enum InteractionFeedback
+    None
+    Sink
+    Lift
+    Edge
+  end
+
+  # A forced interaction phase used by component previews and review workbenches.
+  enum PreviewState
+    None
+    Hover
+    Pressed
+    Focus
+  end
+
+  # Folder-like tab silhouette used by Form sections.
+  enum TabShape
+    Angled
+    Rounded
+    Notched
+    Flush
+  end
+
+  # Explicit appearance options for UI::Toggle. Native remains the default.
+  enum ToggleAppearance
+    Native
+    Pill
+    Rocker
+    Slide
+    LampPill
+  end
+
+  # Keycap treatment for UI::Keycap.
+  enum KeycapStyle
+    Outlined
+    Sculpted
+    Inset
+    Text
+  end
+
+  # Visual treatment for UI::ColorSwatchPicker.
+  enum ColorSwatchPickerStyle
+    SwatchButton
+    SwatchRow
+    NamedPopup
+    BezelLamp
+  end
+
+  # A named color choice in a swatch picker.
+  record ColorSwatch,
+    color_name : String,
+    swatch_color : SurfaceColor
+
+  # Typed payload for a single gradient stop crossing the SwiftUI bridge.
+  struct SurfaceCraftGradientStopPayload
+    include JSON::Serializable
+
+    property color : String
+    property position : Float64
+
+    def initialize(@color : String, @position : Float64)
+    end
+  end
+
+  # Typed gradient payload crossing the SwiftUI bridge.
+  struct SurfaceCraftGradientPayload
+    include JSON::Serializable
+
+    property angle : Float64
+    property stops : Array(SurfaceCraftGradientStopPayload)
+
+    def initialize(@angle : Float64, @stops : Array(SurfaceCraftGradientStopPayload))
+    end
+  end
+
+  # Typed shadow payload shared by inner and drop shadows.
+  struct SurfaceCraftShadowPayload
+    include JSON::Serializable
+
+    property color : String
+    @[JSON::Field(key: "x")]
+    property offset_x : Float64
+    @[JSON::Field(key: "y")]
+    property offset_y : Float64
+    @[JSON::Field(key: "blur")]
+    property blur_radius : Float64
+
+    def initialize(@color : String, @offset_x : Float64, @offset_y : Float64, @blur_radius : Float64)
+    end
+  end
+
+  # Typed texture payload crossing the SwiftUI bridge.
+  struct SurfaceCraftTexturePayload
+    include JSON::Serializable
+
+    property kind : String
+    property opacity : Float64
+
+    def initialize(@kind : String, @opacity : Float64)
+    end
+  end
+
+  # Shared typed payload for view and section surface modifiers.
+  struct SurfaceCraftPayload
+    include JSON::Serializable
+
+    @[JSON::Field(emit_null: false)]
+    property fill : String? = nil
+    @[JSON::Field(emit_null: false)]
+    property gradient : SurfaceCraftGradientPayload? = nil
+    @[JSON::Field(key: "innerShadows", emit_null: false)]
+    property list_of_inner_shadows : Array(SurfaceCraftShadowPayload)? = nil
+    @[JSON::Field(key: "dropShadows", emit_null: false)]
+    property list_of_drop_shadows : Array(SurfaceCraftShadowPayload)? = nil
+    @[JSON::Field(emit_null: false)]
+    property texture : SurfaceCraftTexturePayload? = nil
+    @[JSON::Field(emit_null: false)]
+    property feedback : String? = nil
+    @[JSON::Field(key: "previewState", emit_null: false)]
+    property preview_state : String? = nil
+
+    def initialize(
+      @fill : String? = nil,
+      @gradient : SurfaceCraftGradientPayload? = nil,
+      @list_of_inner_shadows : Array(SurfaceCraftShadowPayload)? = nil,
+      @list_of_drop_shadows : Array(SurfaceCraftShadowPayload)? = nil,
+      @texture : SurfaceCraftTexturePayload? = nil,
+      @feedback : String? = nil,
+      @preview_state : String? = nil,
+    )
+    end
+  end
+
+  # Converts typed surface values into the compact payload shared with SwiftUI.
+  module SurfaceCraftEncoding
+    def self.color_value(color : SurfaceColor) : String
+      case color
+      when Color
+        "rgba(#{(color.r * 255).round},#{(color.g * 255).round},#{(color.b * 255).round},#{color.a})"
+      when ColorRole
+        "role:#{color.to_s.underscore.gsub('_', '-')}"
+      else
+        raise SurfaceCraftError.new("Unsupported surface color")
+      end
+    end
+
+    def self.style_json(
+      style : SurfaceStyle,
+      interaction_feedback : InteractionFeedback = InteractionFeedback::None,
+      preview_state : PreviewState = PreviewState::None,
+    ) : String
+      surface_payload(style, interaction_feedback, preview_state).to_json
+    end
+
+    def self.surface_payload(
+      style : SurfaceStyle,
+      interaction_feedback : InteractionFeedback = InteractionFeedback::None,
+      preview_state : PreviewState = PreviewState::None,
+    ) : SurfaceCraftPayload
+      fill = if color = style.background_fill_color
+               color_value(color)
+             end
+      gradient = if value = style.linear_gradient
+                   gradient_payload(value)
+                 end
+      inner_shadows = if style.list_of_inner_shadows.empty?
+                        nil
+                      else
+                        style.list_of_inner_shadows.map { |shadow| shadow_payload(shadow) }
+                      end
+      drop_shadows = if style.list_of_drop_shadows.empty?
+                       nil
+                     else
+                       style.list_of_drop_shadows.map { |shadow| shadow_payload(shadow) }
+                     end
+      texture = if value = style.texture_overlay
+                  texture_payload(value)
+                end
+      feedback = if interaction_feedback == InteractionFeedback::None
+                   nil
+                 else
+                   interaction_feedback.to_s.underscore
+                 end
+      preview_state_value = if preview_state == PreviewState::None
+                              nil
+                            else
+                              preview_state.to_s.underscore
+                            end
+
+      SurfaceCraftPayload.new(
+        fill: fill,
+        gradient: gradient,
+        list_of_inner_shadows: inner_shadows,
+        list_of_drop_shadows: drop_shadows,
+        texture: texture,
+        feedback: feedback,
+        preview_state: preview_state_value,
+      )
+    end
+
+    private def self.gradient_payload(gradient : LinearGradient) : SurfaceCraftGradientPayload
+      stops = gradient.list_of_stops.map do |stop|
+        SurfaceCraftGradientStopPayload.new(
+          color: color_value(stop.stop_color),
+          position: stop.stop_position,
+        )
+      end
+      SurfaceCraftGradientPayload.new(angle: gradient.gradient_angle, stops: stops)
+    end
+
+    private def self.shadow_payload(shadow : InnerShadow) : SurfaceCraftShadowPayload
+      SurfaceCraftShadowPayload.new(
+        color: color_value(shadow.shadow_color),
+        offset_x: shadow.offset_x,
+        offset_y: shadow.offset_y,
+        blur_radius: shadow.blur_radius,
+      )
+    end
+
+    private def self.shadow_payload(shadow : DropShadow) : SurfaceCraftShadowPayload
+      SurfaceCraftShadowPayload.new(
+        color: color_value(shadow.shadow_color),
+        offset_x: shadow.offset_x,
+        offset_y: shadow.offset_y,
+        blur_radius: shadow.blur_radius,
+      )
+    end
+
+    private def self.texture_payload(texture : TextureOverlay) : SurfaceCraftTexturePayload
+      SurfaceCraftTexturePayload.new(
+        kind: texture.texture_kind.to_s.downcase,
+        opacity: texture.texture_opacity,
+      )
+    end
+  end
 
   # Value type representing a font specification
   record Font,
@@ -474,6 +799,28 @@ module UI
     # Background color, nil means transparent/inherited
     property background : Color? = nil
 
+    # Optional brand fill; when present it replaces the plain background fill.
+    property background_fill_color : SurfaceColor? = nil
+
+    # Optional two-or-more-stop background gradient.
+    property linear_gradient : LinearGradient? = nil
+
+    # Additional inset and drop shadows. The legacy single shadow properties
+    # remain supported and are combined with these values by each renderer.
+    property list_of_inner_shadows : Array(InnerShadow) = [] of InnerShadow
+    property list_of_drop_shadows : Array(DropShadow) = [] of DropShadow
+
+    # Optional generated surface grain.
+    property texture_overlay : TextureOverlay? = nil
+
+    # Opt-in hover and press treatment. The default leaves native/web behavior
+    # unchanged.
+    property interaction_feedback : InteractionFeedback = InteractionFeedback::None
+
+    # Forces the displayed interaction phase for component previews. None keeps
+    # platform event handling and focus behavior unchanged.
+    property preview_state : PreviewState = PreviewState::None
+
     # Whether the view is hidden from display
     property hidden : Bool = false
 
@@ -484,11 +831,37 @@ module UI
     property corner_radius : Float64 = 0.0
     property clip_to_bounds : Bool = false
 
+    # When true this view (and its subtree) is invisible to hit-testing:
+    # UIKit gets userInteractionEnabled=false, web gets pointer-events:none.
+    # For informational overlays (badges, ribbons) stacked over interactive
+    # content — a full-screen overlay view otherwise SWALLOWS every touch on
+    # native platforms even though clicks pass through in a browser (root
+    # cause of the 2026-07-23 dead-tap bug in the demo shell).
+    property touch_passthrough : Bool = false
+
     # Shadow modifier
     property shadow_radius : Float64 = 0.0
     property shadow_color : Color? = nil
     property shadow_offset_x : Float64 = 0.0
     property shadow_offset_y : Float64 = 0.0
+
+    # Serialize only explicitly selected surface-craft modifiers for the
+    # shared SwiftUI facade path. A nil result preserves the facade defaults.
+    def surface_craft_json : String?
+      return nil if background_fill_color.nil? && linear_gradient.nil? &&
+                    list_of_inner_shadows.empty? && list_of_drop_shadows.empty? &&
+                    texture_overlay.nil? && interaction_feedback == InteractionFeedback::None &&
+                    preview_state == PreviewState::None
+
+      style = SurfaceStyle.new(
+        background_fill_color: background_fill_color,
+        linear_gradient: linear_gradient,
+        list_of_inner_shadows: list_of_inner_shadows,
+        list_of_drop_shadows: list_of_drop_shadows,
+        texture_overlay: texture_overlay,
+      )
+      SurfaceCraftEncoding.style_json(style, interaction_feedback, preview_state)
+    end
 
     # Border modifier
     property border_width : Float64 = 0.0

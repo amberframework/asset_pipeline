@@ -129,6 +129,18 @@ public class TextFieldFacade: NSObject {
             #endif
         }
 
+        // Enter-to-send: when the consumer set on_submit (submitToken), attach
+        // `.onSubmit` so bare Return fires the string-valued trampoline with the
+        // current text. Mirrors SearchField's on_submit. (Shift+Return newline is
+        // a multi-line-composer / TextArea concern and is not implied here — a
+        // single-line TextField submits on Return.)
+        if let st = overrides.submitToken, st.uint64Value != 0 {
+            let submitToken = st.uint64Value
+            content = AnyView(content.onSubmit {
+                CallbackBridge.fireString(token: submitToken, value: storage.text)
+            })
+        }
+
         #if canImport(UIKit) && !os(watchOS)
         if let kt = overrides.keyboardType {
             switch kt {

@@ -2,6 +2,7 @@
 # UIView hierarchy (UIStackView, UIButton, UILabel, UIVisualEffectView, ...).
 
 {% if flag?(:ios) %}
+  require "base64"
   require "../platform_visitor"
   require "../native/native_handle"
   require "../native/native_view"
@@ -67,7 +68,7 @@
       fun ap_view_add_key_command(view : Void*, input : UInt8*,
                                   modifier_mask : UInt64, token : UInt64) : Int32
       # Focus management.
-      fun ap_view_become_first_responder(view : Void*) : Int32
+      fun ap_view_become_first_responder(view : Void*) : Bool
       fun ap_view_resign_first_responder(view : Void*) : Int32
       # ComboBox value-drop fix — wire a raw UITextField's editing events
       # (EditingChanged | EditingDidEnd) to the Crystal string callback
@@ -646,6 +647,14 @@
                         else                        3_i64
                         end
         LibObjCBridge.objc_send_long(ptr, sel("setAlignment:"), alignment_val)
+
+        # Equal-width cells (tab bar / equal button row). UIStackView's default
+        # Fill distribution stretches ONE child by hugging priority, cramming
+        # the rest to their intrinsic size — FillEqually (1) splits N evenly.
+        # (Mirrors the appkit_renderer; was silently ignored on iOS.)
+        if view.fill_equally
+          LibObjCBridge.objc_send_long(ptr, sel("setDistribution:"), 1_i64)
+        end
 
         # Common properties
         apply_common_properties(ptr, view)
@@ -2372,6 +2381,35 @@
       # arranged by an inner pinned UIStackView.
       # -----------------------------------------------------------------
       def visit(view : UI::Card)
+        # A Card whose content holds an interactive control (Button /
+        # IconButton / Toggle / ...) MUST render as a raw UIKit container, not
+        # a SwiftUI UIHostingController. The SwiftUI card (`_swiftui_card`)
+        # re-hosts its content through `APSKHostedChild` (a UIViewRepresentable)
+        # inside its own UIHostingController — so every interactive child, which
+        # is itself a UIHostingController, becomes a UIHostingController NESTED
+        # inside another one. A SwiftUI Button nested across that second hosting
+        # boundary never receives the tap: the child VC parents correctly (Path
+        # A), the button is hit-testable, but the outer hosting layer's gesture
+        # arbitration swallows the touch, so the button's action never fires.
+        # This dead-tapped the play-circle inside every tracks/home/onboarding
+        # card on iOS (HappyCoach testAudioPlayerPlayPauseSmoke).
+        #
+        # The raw-UIKit body adds the content through the normal visit path, so
+        # an interactive child is a direct UIStackView arranged subview whose
+        # own hosting controller's responder chain reaches the root view
+        # controller — taps fire exactly like a button in a plain HStack (the
+        # affirmation-review cards, which never wrap their buttons in a Card,
+        # prove this path works). It also renders the Card's explicit
+        # background/corner/border verbatim via apply_common_properties instead
+        # of layering SwiftUI's `.regularMaterial` over the requested colour.
+        render_uikit_card(view)
+      end
+
+      # SwiftUI-hosted Card body (material / Liquid-Glass chrome). Retained for
+      # non-iOS surfaces / reference; NOT used on iOS because it re-hosts content
+      # through a nested UIHostingController and dead-taps interactive children
+      # (see visit(UI::Card)).
+      private def _swiftui_card(view : UI::Card)
         overrides_ptr = LibSwiftKitBridge.apsk_card_overrides_new
         sender = UI::Native::SwiftKitObjCSender.new(overrides_ptr)
         target_str = overrides_ptr.address.to_s(16)
@@ -2394,8 +2432,12 @@
         push_native(native)
       end
 
-      # Legacy UIKit Card body, retained for reference.
-      private def _legacy_card(view : UI::Card)
+      # Raw-UIKit Card body: an outer UIView (rounded background + exact width,
+      # not stretched by an ancestor UIStackView Fill) with an inner pinned
+      # UIStackView that arranges the content via the normal visit path. This is
+      # the active iOS Card renderer — it keeps interactive children tappable by
+      # not introducing a second SwiftUI hosting boundary (see visit(UI::Card)).
+      private def render_uikit_card(view : UI::Card)
         outer = alloc_init("UIView")
         inner = alloc_init("UIStackView")
         # Vertical axis (UILayoutConstraintAxisVertical = 1).
@@ -2574,6 +2616,42 @@
 
       def visit(view : UI::AsyncImage)
         ptr = alloc_init("UIImageView")
+        # No async URL loader exists on this path; callers that want a real
+        # picture pre-fetch the bytes into `preloaded_data` (see the demo
+        # shell's ImageCache) and we decode them synchronously here. Bytes ride
+        # in as base64 because the ObjC bridge has no (ptr, len) send — NSData
+        # base64EncodedString + UIImage imageWithData: cover it.
+        if data = view.preloaded_data
+          b64 = Base64.strict_encode(data)
+          ns_b64 = LibObjCBridge.nsstring_from_cstr(b64.to_unsafe)
+          nsdata_cls = LibObjCBridge.objc_getClass("NSData")
+          nsdata = LibObjCBridge.objc_send_id_long(
+            LibObjCBridge.objc_send(nsdata_cls, sel("alloc")),
+            sel("initWithBase64EncodedString:options:"), ns_b64, 1_i64) # 1 = ignore unknown chars
+          unless nsdata.null?
+            uiimage_cls = LibObjCBridge.objc_getClass("UIImage")
+            img = LibObjCBridge.objc_send_id(uiimage_cls, sel("imageWithData:"), nsdata)
+            LibObjCBridge.objc_send_void_id(ptr, sel("setImage:"), img) unless img.null?
+          end
+        end
+        # ContentMode: 1 = scaleAspectFit, 2 = scaleAspectFill.
+        mode = view.content_mode == UI::ContentMode::Fill ? 2_i64 : 1_i64
+        LibObjCBridge.objc_send_long(ptr, sel("setContentMode:"), mode)
+        LibObjCBridge.objc_send_bool(ptr, sel("setClipsToBounds:"), 1)
+        # A UIImageView's intrinsic content size is the BITMAP size — a 1920px
+        # photo blows out the whole layout unless the frame is pinned. An exact
+        # height + aspect-fill + clips gives the web `<img object-fit: cover>`
+        # behavior.
+        if h = view.maximum_height
+          LibObjCBridge.objc_constrain_height(ptr, h)
+        end
+        if w = view.maximum_width
+          LibObjCBridge.objc_constrain_required_width(ptr, w)
+        end
+        if view.corner_radius > 0
+          layer = LibObjCBridge.objc_send(ptr, sel("layer"))
+          LibObjCBridge.objc_send_1d(layer, sel("setCornerRadius:"), view.corner_radius) unless layer.null?
+        end
         apply_common_properties(ptr, view)
         emit(ptr, "UIImageView[async]")
       end
@@ -5151,6 +5229,13 @@
         # and inner UIStackViews report intrinsicContentSize of CGSizeZero,
         # collapsing to zero height in any parent UIStackView.
         LibObjCBridge.objc_send_bool(ptr, sel("setTranslatesAutoresizingMaskIntoConstraints:"), 0)
+
+        # Informational overlays opt out of hit-testing entirely — otherwise a
+        # full-screen overlay (the demo "Demo only" ribbon) swallows every
+        # touch aimed at the interactive content beneath it.
+        if view.touch_passthrough
+          LibObjCBridge.objc_send_bool(ptr, sel("setUserInteractionEnabled:"), 0)
+        end
 
         # Hidden
         if view.hidden

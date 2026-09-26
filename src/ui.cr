@@ -66,6 +66,7 @@ require "./ui/native/jni_collections"
 # rule without -Dmacos / -Dios.
 require "./ui/native/swiftkit_bridge"
 require "./ui/native/swiftkit_overrides"
+require "./ui/font_registry"
 
 # Phase 12.A — Interaction-contracts marker emitter. See
 # docs/initiative-cross-platform-ui/architecture/interaction-contracts-harness.md.

@@ -27,6 +27,11 @@ public class TextFieldOverrides: ViewOverrides {
     // PromptOverlayField uses this color literally so a brand placeholder
     // (e.g. #bec2c2 over a photo hero) renders exactly.
     @objc public var placeholderColor: APSKPlatformColor? = nil
+    // Submit callback token (Crystal `text_field.on_submit`). When non-nil, the
+    // facade attaches `.onSubmit` so bare Return fires the string-valued
+    // trampoline with the current text — the Enter-to-send contract. nil = no
+    // submit handler (Return does nothing, the prior behavior).
+    @objc public var submitToken: NSNumber? = nil
 
     @objc public override init() { super.init() }
 }

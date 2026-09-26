@@ -47,7 +47,11 @@ describe UI::Web::Renderer do
       label = UI::Label.new("Styled")
       label.font = UI::Font.new(family: "Helvetica", size: 14.0)
       html = render(label)
-      html.should contain("font-family: Helvetica")
+      # Family names are quoted so multi-word names (e.g. "Helvetica Neue")
+      # are valid CSS and don't silently fall back to the base sans-serif.
+      # The quotes are HTML-attribute-escaped to &quot; in the serialized
+      # style attribute (browsers decode them back to " when parsing).
+      html.should contain("font-family: &quot;Helvetica&quot;")
       html.should contain("font-size: 14.0px")
     end
 

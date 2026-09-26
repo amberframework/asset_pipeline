@@ -59,6 +59,12 @@ module UI
     # Receives the new text string.
     property on_change : Proc(String, Nil)? = nil
 
+    # Callback invoked when the user submits the field (bare Return / Enter).
+    # Receives the current text. Mirrors SearchField#on_submit; on macOS/iOS the
+    # facade attaches SwiftUI `.onSubmit`. nil = Return does nothing (the prior
+    # behavior). This is the Enter-to-send primitive.
+    property on_submit : Proc(String, Nil)? = nil
+
     # Construct a TextField. `text:` pre-populates the value (useful
     # when re-rendering a form after a failed submit). `name:` sets the
     # HTML form-input name for web POST submission.

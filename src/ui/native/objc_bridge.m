@@ -29,6 +29,7 @@
 #include <TargetConditionals.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #if TARGET_OS_OSX
   #import <AppKit/AppKit.h>
@@ -54,6 +55,37 @@
   typedef UIButton    BridgeButton;
   #define BRIDGE_RECT_MAKE(r) CGRectMake((r).x, (r).y, (r).width, (r).height)
   typedef CGRect      BridgeRect;
+#endif
+
+#if TARGET_OS_OSX
+static char apsk_pending_focus_key;
+static char apsk_focus_result_key;
+
+@interface NSView (APSKDeferredFirstResponder)
+- (void)apsk_deferred_view_did_move_to_window;
+@end
+
+@implementation NSView (APSKDeferredFirstResponder)
++ (void)load {
+    Method original = class_getInstanceMethod(self, @selector(viewDidMoveToWindow));
+    Method replacement = class_getInstanceMethod(self, @selector(apsk_deferred_view_did_move_to_window));
+    if (original != NULL && replacement != NULL) {
+        method_exchangeImplementations(original, replacement);
+    }
+}
+
+- (void)apsk_deferred_view_did_move_to_window {
+    [self apsk_deferred_view_did_move_to_window];
+
+    NSNumber *is_pending = objc_getAssociatedObject(self, &apsk_pending_focus_key);
+    NSWindow *window = self.window;
+    if (!is_pending.boolValue || window == nil) return;
+
+    BOOL succeeded = [window makeFirstResponder:(NSResponder *)self];
+    objc_setAssociatedObject(self, &apsk_pending_focus_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &apsk_focus_result_key, @(succeeded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+@end
 #endif
 
 // ============================================================
@@ -811,6 +843,77 @@ void objc_set_horizontal_fill_priority(void *view) {
 #else
     [v setContentHuggingPriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
     [v setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+#endif
+}
+
+// Make a view claim the flexible (extra) space along the VERTICAL axis of an
+// enclosing stack. Used for a scroll view that must fill the remaining window
+// height and reflow on resize rather than sit at a fixed point height: with the
+// lowest vertical hugging priority in the stack it is the arranged view the
+// stack stretches to absorb leftover height. Compression resistance stays low
+// too so the stack may shrink it below its content when the window is small.
+void objc_set_vertical_fill_priority(void *view) {
+    BridgeView *v = (BridgeView *)view;
+#if TARGET_OS_OSX
+    v.translatesAutoresizingMaskIntoConstraints = NO;
+    [v setContentHuggingPriority:1 forOrientation:NSLayoutConstraintOrientationVertical];
+    [v setContentCompressionResistancePriority:1 forOrientation:NSLayoutConstraintOrientationVertical];
+#else
+    v.translatesAutoresizingMaskIntoConstraints = NO;
+    [v setContentHuggingPriority:1 forAxis:UILayoutConstraintAxisVertical];
+    [v setContentCompressionResistancePriority:1 forAxis:UILayoutConstraintAxisVertical];
+#endif
+}
+
+// Scroll an NSScrollView so its newest (bottom) content is visible — the
+// "stick to bottom while streaming" primitive. The document view is top-anchored
+// and grows downward (chat transcript: oldest at top, newest at bottom). A
+// single scrollPoint to the far edge, clamped by the clip view, reveals the
+// bottom in both flipped and non-flipped document coordinate systems.
+void nsscrollview_scroll_to_end(void *scroll_view) {
+#if TARGET_OS_OSX
+    NSScrollView *sv = (NSScrollView *)scroll_view;
+    if (sv == nil) return;
+    NSClipView *clip = sv.contentView;
+    NSView *doc = sv.documentView;
+    if (clip == nil || doc == nil) return;
+    CGFloat docH = doc.bounds.size.height;
+    CGFloat clipH = clip.bounds.size.height;
+    NSPoint p;
+    if (doc.isFlipped) {
+        CGFloat y = docH - clipH;
+        p = NSMakePoint(0.0, y > 0 ? y : 0.0);
+    } else {
+        p = NSMakePoint(0.0, 0.0);  // non-flipped: bottom edge is y == 0
+    }
+    [clip scrollToPoint:p];
+    [sv reflectScrolledClipView:clip];
+#endif
+}
+
+// 1 when the scroll view is within `tolerance` points of its bottom edge (the
+// newest content), else 0 — used to decide whether streaming should keep
+// auto-pinning (re-arm) or leave the user's scroll position alone (they scrolled
+// up to read). Returns 1 when the content is shorter than the viewport (there is
+// no "up" to scroll to) so a short transcript always stays pinned.
+int nsscrollview_is_at_bottom(void *scroll_view, double tolerance) {
+#if TARGET_OS_OSX
+    NSScrollView *sv = (NSScrollView *)scroll_view;
+    if (sv == nil) return 1;
+    NSClipView *clip = sv.contentView;
+    NSView *doc = sv.documentView;
+    if (clip == nil || doc == nil) return 1;
+    CGFloat docH = doc.bounds.size.height;
+    CGFloat clipH = clip.bounds.size.height;
+    if (docH <= clipH + tolerance) return 1;  // nothing to scroll
+    NSRect vis = clip.documentVisibleRect;
+    if (doc.isFlipped) {
+        return (NSMaxY(vis) >= docH - tolerance) ? 1 : 0;
+    } else {
+        return (NSMinY(vis) <= tolerance) ? 1 : 0;
+    }
+#else
+    return 1;
 #endif
 }
 
@@ -3714,14 +3817,13 @@ int ap_view_add_key_command(void *view_ptr, const char *input, unsigned long lon
     return 1;
 }
 
-// Request first-responder status (focus). Returns 1 if the message was sent.
-int ap_view_become_first_responder(void *view_ptr) {
+// Request first-responder status (focus). Returns whether focus succeeded.
+BOOL ap_view_become_first_responder(void *view_ptr) {
     if (view_ptr == NULL) return 0;
     id receiver = (__bridge id)view_ptr;
     SEL sel = @selector(becomeFirstResponder);
     if (![receiver respondsToSelector:sel]) return 0;
-    ((void (*)(id, SEL))objc_msgSend)(receiver, sel);
-    return 1;
+    return ((BOOL (*)(id, SEL))objc_msgSend)(receiver, sel);
 }
 
 // Resign first-responder status (blur).
@@ -4162,14 +4264,29 @@ int ap_view_add_key_command(void *view_ptr, const char *input, unsigned long lon
     return 1;
 }
 
-// AppKit "become first responder": route through the view's window.
-int ap_view_become_first_responder(void *view_ptr) {
+// AppKit "become first responder": queue detached views and report the
+// result once they have a window. A queued request returns YES to indicate
+// that the request was accepted; attached views return makeFirstResponder:.
+BOOL ap_view_become_first_responder(void *view_ptr) {
     if (view_ptr == NULL) return 0;
     NSView *view = (__bridge NSView *)view_ptr;
     NSWindow *win = view.window;
-    if (win == nil) return 0;
-    [win makeFirstResponder:view];
-    return 1;
+    if (win == nil) {
+        objc_setAssociatedObject(view, &apsk_focus_result_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(view, &apsk_pending_focus_key, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        return YES;
+    }
+    BOOL succeeded = [win makeFirstResponder:(NSResponder *)view];
+    objc_setAssociatedObject(view, &apsk_pending_focus_key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(view, &apsk_focus_result_key, @(succeeded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return succeeded;
+}
+
+// Read the result of an immediate or deferred first-responder request.
+BOOL ap_view_focus_request_succeeded(void *view_ptr) {
+    if (view_ptr == NULL) return NO;
+    NSNumber *result = objc_getAssociatedObject((__bridge id)view_ptr, &apsk_focus_result_key);
+    return result.boolValue;
 }
 
 // Resign first responder by asking the window to take the responder spot back.
@@ -4875,3 +4992,328 @@ int objc_attach_long_press_gesture(void *view_ptr, unsigned long long token, dou
 
     return 1;
 }
+
+// ------------------------------------------------------------------
+// appkit_view_apply_surface_craft — CALayer-backed surface overrides for
+// AppKit views that are rendered without an NSHostingView facade (for
+// example, raw NSStackView rows). SwiftUI facades apply the same typed
+// payload in SurfaceCraftModifiers.swift.
+// ------------------------------------------------------------------
+#if TARGET_OS_OSX
+static NSColor *ap_surface_color(NSString *value) {
+    if ([value hasPrefix:@"rgba("] && [value hasSuffix:@")"]) {
+        NSString *components = [[value substringFromIndex:5] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@")"]];
+        NSArray<NSString *> *parts = [components componentsSeparatedByString:@","];
+        if (parts.count == 4) {
+            CGFloat r = parts[0].doubleValue / 255.0;
+            CGFloat g = parts[1].doubleValue / 255.0;
+            CGFloat b = parts[2].doubleValue / 255.0;
+            CGFloat a = parts[3].doubleValue;
+            return [NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+        }
+    }
+    if (![value hasPrefix:@"role:"]) return NSColor.clearColor;
+    NSString *role = [value substringFromIndex:5];
+    if ([role isEqualToString:@"brand-primary"]) return NSColor.controlAccentColor;
+    if ([role isEqualToString:@"brand-accent"]) return NSColor.systemTealColor;
+    if ([role isEqualToString:@"surface-canvas"]) return NSColor.windowBackgroundColor;
+    if ([role isEqualToString:@"surface-elevated"]) return NSColor.controlBackgroundColor;
+    if ([role isEqualToString:@"surface-panel"]) return NSColor.underPageBackgroundColor;
+    if ([role isEqualToString:@"surface-sunken"]) return NSColor.textBackgroundColor;
+    if ([role isEqualToString:@"surface-inverse"]) return NSColor.textColor;
+    if ([role isEqualToString:@"text-primary"]) return NSColor.labelColor;
+    if ([role isEqualToString:@"text-inverse"]) return NSColor.windowBackgroundColor;
+    if ([role isEqualToString:@"warning"]) return NSColor.systemOrangeColor;
+    return NSColor.clearColor;
+}
+
+static CGImageRef ap_surface_texture_tile(NSString *kind) {
+    static CGImageRef noise = NULL;
+    static CGImageRef brushed = NULL;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+        for (int variant = 0; variant < 2; variant++) {
+            CGContextRef context = CGBitmapContextCreate(NULL, 64, 64, 8, 0, space,
+                kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+            if (!context) continue;
+            for (int y = 0; y < 64; y++) {
+                for (int x = 0; x < 64; x++) {
+                    double u = (double)x / 64.0;
+                    double v = (double)y / 64.0;
+                    CGFloat value = 0.0;
+                    if (variant == 0) {
+                        double sum = 0.0;
+                        double total_weight = 0.0;
+                        for (int octave = 0; octave < 5; octave++) {
+                            double frequency = (double)(2 << octave);
+                            double phase = (double)octave * 1.73;
+                            double first = sin(2.0 * M_PI * (frequency * u + frequency * 3.0 * v) + phase);
+                            double second = cos(2.0 * M_PI * (frequency * 2.0 * u - frequency * v) + phase * 1.91);
+                            double weight = 1.0 / sqrt(frequency);
+                            sum += (first + second) * 0.5 * weight;
+                            total_weight += weight;
+                        }
+                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + sum / total_weight * 0.32));
+                    } else {
+                        double lengthwise = sin(2.0 * M_PI * (16.0 * u + 0.08 * v) + 0.7);
+                        double variation = cos(2.0 * M_PI * (32.0 * u - 0.12 * v) + 2.1);
+                        double banding = sin(2.0 * M_PI * (2.0 * v + 0.03 * u) + 1.2);
+                        value = (CGFloat)fmin(1.0, fmax(0.0, 0.5 + lengthwise * 0.12 + variation * 0.07 + banding * 0.04));
+                    }
+                    CGContextSetRGBFillColor(context, value, value, value, 1.0);
+                    CGContextFillRect(context, CGRectMake(x, y, 1, 1));
+                }
+            }
+            CGImageRef image = CGBitmapContextCreateImage(context);
+            if (variant == 0) noise = image; else brushed = image;
+            CGContextRelease(context);
+        }
+        CGColorSpaceRelease(space);
+    });
+    return [kind isEqualToString:@"brushed"] ? brushed : noise;
+}
+
+static NSArray<CALayer *> *ap_surface_layers_named(CALayer *root, NSString *name) {
+    NSMutableArray<CALayer *> *matches = [NSMutableArray array];
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name isEqualToString:name]) [matches addObject:layer];
+    }
+    return matches;
+}
+
+static void ap_surface_remove_layers_with_prefix(CALayer *root, NSString *prefix) {
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name hasPrefix:prefix]) [layer removeFromSuperlayer];
+    }
+}
+
+static void ap_surface_apply_preview_feedback(CALayer *root, NSDictionary *values) {
+    BOOL had_preview_state = NO;
+    for (CALayer *layer in root.sublayers) {
+        if ([layer.name hasPrefix:@"ap.surfaceCraft.preview."]) {
+            had_preview_state = YES;
+            break;
+        }
+    }
+    ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.preview.");
+    if (had_preview_state) {
+        root.transform = CATransform3DIdentity;
+        root.shadowColor = nil;
+        root.shadowOpacity = 0;
+        root.shadowRadius = 0;
+        root.shadowOffset = CGSizeZero;
+    }
+
+    NSString *feedback = [values[@"feedback"] isKindOfClass:[NSString class]] ? values[@"feedback"] : nil;
+    NSString *phase = [values[@"previewState"] isKindOfClass:[NSString class]] ? values[@"previewState"] : nil;
+    if (phase == nil) return;
+
+    BOOL is_hover = [phase isEqualToString:@"hover"];
+    BOOL is_pressed = [phase isEqualToString:@"pressed"];
+    BOOL is_focus = [phase isEqualToString:@"focus"];
+    BOOL uses_edge = [feedback isEqualToString:@"edge"];
+
+    // Mark the root so a later application can undo only the transform and
+    // shadow installed by this preview modifier. The hidden marker also
+    // lets the None path leave a fresh view's existing layer settings alone.
+    CALayer *marker = [CALayer layer];
+    marker.name = @"ap.surfaceCraft.preview.active";
+    marker.hidden = YES;
+    [root addSublayer:marker];
+
+    // Match the SwiftUI SurfaceCraft face tint. It is attached to the
+    // container's own layer, below its arranged children, so a composite's
+    // state never leaks into child controls.
+    if (is_hover) {
+        CALayer *hover = [CALayer layer];
+        hover.name = @"ap.surfaceCraft.preview.hover";
+        hover.frame = root.bounds;
+        hover.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        hover.cornerRadius = root.cornerRadius;
+        hover.backgroundColor = [[NSColor.labelColor colorWithAlphaComponent:0.035] CGColor];
+        [root addSublayer:hover];
+    }
+
+    if ([feedback isEqualToString:@"sink"] && is_pressed) {
+        root.transform = CATransform3DMakeTranslation(0, -1, 0);
+    } else if ([feedback isEqualToString:@"lift"] && is_hover) {
+        root.transform = CATransform3DMakeTranslation(0, 2, 0);
+    } else if (([feedback isEqualToString:@"lift"] || uses_edge) && is_pressed) {
+        root.transform = CATransform3DMakeTranslation(0, -1, 0);
+    }
+
+    if ([feedback isEqualToString:@"lift"] && (is_hover || is_pressed)) {
+        root.shadowColor = NSColor.blackColor.CGColor;
+        root.shadowOpacity = 0.16;
+        root.shadowRadius = is_hover ? 7 : 5;
+        root.shadowOffset = CGSizeMake(0, is_hover ? 3 : 1);
+    }
+
+    if (uses_edge && (is_hover || is_pressed || is_focus)) {
+        CALayer *edge = [CALayer layer];
+        edge.name = @"ap.surfaceCraft.preview.edge";
+        edge.frame = CGRectMake(0, 4, 2, MAX(0, CGRectGetHeight(root.bounds) - 8));
+        edge.autoresizingMask = kCALayerHeightSizable;
+        edge.cornerRadius = 1;
+        edge.backgroundColor = NSColor.controlAccentColor.CGColor;
+        [root addSublayer:edge];
+    }
+
+    // A preview focus ring is drawn directly, without asking AppKit to make
+    // this container first responder. Edge feedback supplies its own accent
+    // indication; other styles use the system keyboard focus color.
+    if (is_focus && !uses_edge) {
+        CALayer *ring = [CALayer layer];
+        ring.name = @"ap.surfaceCraft.preview.focusRing";
+        ring.frame = root.bounds;
+        ring.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+        ring.cornerRadius = root.cornerRadius + 2;
+        ring.borderWidth = 2;
+        ring.borderColor = NSColor.keyboardFocusIndicatorColor.CGColor;
+        [root addSublayer:ring];
+    }
+}
+
+void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
+    if (!view_ptr || !json || json[0] == '\0') return;
+    @autoreleasepool {
+        NSData *data = [[NSString stringWithUTF8String:json] dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *values = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if (![values isKindOfClass:[NSDictionary class]]) return;
+        NSView *view = (__bridge NSView *)view_ptr;
+        view.wantsLayer = YES;
+        CALayer *root = view.layer;
+        if (!root) return;
+
+        NSString *fill = values[@"fill"];
+        if ([fill isKindOfClass:[NSString class]]) {
+            root.backgroundColor = ap_surface_color(fill).CGColor;
+        }
+
+        for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.gradient")) [old removeFromSuperlayer];
+        NSDictionary *gradient = values[@"gradient"];
+        NSArray *stops = gradient[@"stops"];
+        if ([stops isKindOfClass:[NSArray class]] && stops.count >= 2) {
+            NSMutableArray *colors = [NSMutableArray array];
+            NSMutableArray *locations = [NSMutableArray array];
+            for (NSDictionary *stop in stops) {
+                NSString *color = stop[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                [colors addObject:(id)ap_surface_color(color).CGColor];
+                [locations addObject:@([stop[@"position"] doubleValue])];
+            }
+            if (colors.count >= 2) {
+                double radians = [gradient[@"angle"] doubleValue] * 3.141592653589793 / 180.0;
+                CAGradientLayer *layer = [CAGradientLayer layer];
+                layer.name = @"ap.surfaceCraft.gradient";
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                layer.colors = colors;
+                layer.locations = locations;
+                layer.startPoint = CGPointMake(0.5 - sin(radians) * 0.5, 0.5 - cos(radians) * 0.5);
+                layer.endPoint = CGPointMake(0.5 + sin(radians) * 0.5, 0.5 + cos(radians) * 0.5);
+                [root insertSublayer:layer atIndex:0];
+            }
+        }
+
+        for (CALayer *old in ap_surface_layers_named(root, @"ap.surfaceCraft.texture")) [old removeFromSuperlayer];
+        NSDictionary *texture = values[@"texture"];
+        NSString *kind = texture[@"kind"];
+        CGImageRef tile = [kind isKindOfClass:[NSString class]] ? ap_surface_texture_tile(kind) : NULL;
+        if (tile) {
+            CAReplicatorLayer *vertical = [CAReplicatorLayer layer];
+            vertical.name = @"ap.surfaceCraft.texture";
+            vertical.frame = root.bounds;
+            vertical.instanceCount = 128;
+            vertical.instanceTransform = CATransform3DMakeTranslation(0, 64, 0);
+            vertical.opacity = (float)[texture[@"opacity"] doubleValue];
+            CAReplicatorLayer *row = [CAReplicatorLayer layer];
+            row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), 64);
+            row.instanceCount = 128;
+            row.instanceTransform = CATransform3DMakeTranslation(64, 0, 0);
+            CALayer *image = [CALayer layer];
+            image.frame = CGRectMake(0, 0, 64, 64);
+            image.contents = (__bridge id)tile;
+            image.contentsGravity = kCAGravityResize;
+            image.compositingFilter = @"multiplyBlendMode";
+            [row addSublayer:image];
+            [vertical addSublayer:row];
+            [root insertSublayer:vertical atIndex:(unsigned)MIN(1, root.sublayers.count)];
+        }
+
+        ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.drop.");
+        NSArray *drops = values[@"dropShadows"];
+        if ([drops isKindOfClass:[NSArray class]]) {
+            NSUInteger shadow_index = 0;
+            for (NSDictionary *shadow in drops) {
+                NSString *color = shadow[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                CALayer *layer = [CALayer layer];
+                layer.name = [NSString stringWithFormat:@"ap.surfaceCraft.drop.%lu", (unsigned long)shadow_index++];
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                CGPathRef shadow_path = CGPathCreateWithRoundedRect(root.bounds, root.cornerRadius, root.cornerRadius, NULL);
+                layer.shadowPath = shadow_path;
+                CGPathRelease(shadow_path);
+                layer.shadowColor = ap_surface_color(color).CGColor;
+                layer.shadowOpacity = 1.0;
+                layer.shadowRadius = [shadow[@"blur"] doubleValue];
+                layer.shadowOffset = CGSizeMake([shadow[@"x"] doubleValue], [shadow[@"y"] doubleValue]);
+                [root insertSublayer:layer atIndex:0];
+            }
+        }
+
+        ap_surface_remove_layers_with_prefix(root, @"ap.surfaceCraft.inner.");
+        NSArray *inner = values[@"innerShadows"];
+        if ([inner isKindOfClass:[NSArray class]]) {
+            NSUInteger shadow_index = 0;
+            for (NSDictionary *shadow in inner) {
+                NSString *color = shadow[@"color"];
+                if (![color isKindOfClass:[NSString class]]) continue;
+                CAShapeLayer *layer = [CAShapeLayer layer];
+                layer.name = [NSString stringWithFormat:@"ap.surfaceCraft.inner.%lu", (unsigned long)shadow_index++];
+                layer.frame = root.bounds;
+                layer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+                CGRect inset = CGRectInset(root.bounds, 1, 1);
+                CGPathRef inner_path = CGPathCreateWithRoundedRect(inset, root.cornerRadius, root.cornerRadius, NULL);
+                layer.path = inner_path;
+                CGPathRelease(inner_path);
+                layer.fillColor = NSColor.clearColor.CGColor;
+                layer.strokeColor = ap_surface_color(color).CGColor;
+                layer.lineWidth = MAX(1, [shadow[@"blur"] doubleValue] * 2);
+                layer.shadowColor = ap_surface_color(color).CGColor;
+                layer.shadowOpacity = 0.55;
+                layer.shadowRadius = [shadow[@"blur"] doubleValue];
+                layer.shadowOffset = CGSizeMake([shadow[@"x"] doubleValue], [shadow[@"y"] doubleValue]);
+                layer.masksToBounds = YES;
+                [root addSublayer:layer];
+            }
+        }
+
+        ap_surface_apply_preview_feedback(root, values);
+    }
+}
+
+int appkit_view_has_surface_layer(void *view_ptr, const char *name) {
+    if (!view_ptr || !name) return 0;
+    NSView *view = (__bridge NSView *)view_ptr;
+    NSString *target = [NSString stringWithUTF8String:name];
+    for (CALayer *layer in view.layer.sublayers) {
+        if ([layer.name isEqualToString:target]) return 1;
+        if ([layer isKindOfClass:[CAReplicatorLayer class]]) {
+            for (CALayer *child in layer.sublayers) {
+                if ([child.name isEqualToString:target]) return 1;
+            }
+        }
+    }
+    return 0;
+}
+#else
+void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
+    (void)view_ptr; (void)json;
+}
+int appkit_view_has_surface_layer(void *view_ptr, const char *name) {
+    (void)view_ptr; (void)name; return 0;
+}
+#endif

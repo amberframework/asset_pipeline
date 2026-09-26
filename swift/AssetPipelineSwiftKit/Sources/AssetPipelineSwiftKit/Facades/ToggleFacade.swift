@@ -27,6 +27,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if os(macOS)
+import AppKit
+#endif
 
 // watchOS: ENABLED (Phase D Bucket-2 P1 port, 2026-06-02). watchOS has no UISwitch
 // (`@available(watchOS, unavailable)`), so the watch uses the SwiftUI `Toggle` path
@@ -108,21 +111,24 @@ private struct ToggleHost: View {
         #else
         // ----- macOS + watchOS path: SwiftUI Toggle (BX3 is iOS-only; watchOS has
         // no UISwitch, so SwiftUI Toggle is the native control there) -----
-        var content: AnyView = AnyView(
-            Toggle(label, isOn: $storage.value)
-                .onChange(of: storage.value) { newValue in
-                    if storage.suppressNextFire {
-                        storage.suppressNextFire = false
-                        return
-                    }
-                    CallbackBridge.fire(
-                        token: storage.token,
-                        value: newValue ? 1.0 : 0.0
-                    )
+        let toggle = Toggle(label, isOn: $storage.value)
+            .onChange(of: storage.value) { newValue in
+                if storage.suppressNextFire {
+                    storage.suppressNextFire = false
+                    return
                 }
-                .contentShape(Rectangle())
-        )
+                CallbackBridge.fire(
+                    token: storage.token,
+                    value: newValue ? 1.0 : 0.0
+                )
+            }
+            .contentShape(Rectangle())
 
+        #if os(macOS)
+        var content = machinedToggleContent(toggle, specification: overrides.surfaceCraftToggleSpec)
+            ?? nativeMacToggleContent(toggle, style: overrides.toggleStyle)
+        #else
+        var content: AnyView = AnyView(toggle)
         switch overrides.toggleStyle {
         case "button":   content = AnyView(content.toggleStyle(.button))
         #if !os(watchOS)
@@ -130,18 +136,14 @@ private struct ToggleHost: View {
         // both `@available(watchOS, unavailable)`.
         case "switch":   content = AnyView(content.toggleStyle(.switch))
         case "checkbox": content = AnyView(content.toggleStyle(.checkbox))
-        // nil / unspecified → `.switch` (pill). UI::Toggle IS the switch control
-        // (UI::Checkbox is the dedicated checkbox component, and the Crystal
-        // populator omits the style for the default Switch — see ToggleOverrides
-        // "nil = .switch"). Without this, SwiftUI's macOS Toggle defaults to a
-        // CHECKBOX, making UI::Toggle indistinguishable from UI::Checkbox.
-        default:         content = AnyView(content.toggleStyle(.switch))
+        default: break
         #else
         // watchOS: .switch/.checkbox are unavailable; the default Toggle is
         // already switch-like there, so leave it unstyled.
         default: break
         #endif
         }
+        #endif
 
         if let disabled = overrides.disabled, disabled.boolValue {
             content = AnyView(content.disabled(true))
@@ -150,7 +152,54 @@ private struct ToggleHost: View {
         return CommonModifiers.apply(content, overrides: overrides)
         #endif
     }
+
+    #if os(macOS)
+    private func machinedToggleContent<T: View>(_ toggle: T, specification: String?) -> AnyView? {
+        guard let specification,
+              let data = specification.data(using: .utf8),
+              let values = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let appearance = values["appearance"] as? String else {
+            return nil
+        }
+
+        let track = machinedColor(values["track"] as? String, fallback: Color(nsColor: .controlBackgroundColor))
+        let knob = machinedColor(values["knob"] as? String, fallback: Color(nsColor: .controlBackgroundColor))
+        let on = machinedColor(values["on"] as? String, fallback: Color.accentColor)
+        let lamp = machinedColor(values["lamp"] as? String, fallback: Color.orange)
+        switch appearance {
+        case "pill":
+            return AnyView(toggle.toggleStyle(PillToggleStyle(track: track, knob: knob, on: on, lamp: lamp)))
+        case "rocker":
+            return AnyView(toggle.toggleStyle(RockerToggleStyle(track: track, knob: knob, on: on, lamp: lamp)))
+        case "slide":
+            return AnyView(toggle.toggleStyle(SlideToggleStyle(track: track, knob: knob, on: on, lamp: lamp)))
+        case "lamp_pill":
+            return AnyView(toggle.toggleStyle(LampPillToggleStyle(track: track, knob: knob, on: on, lamp: lamp)))
+        default:
+            return nil
+        }
+    }
+
+    private func nativeMacToggleContent<T: View>(_ toggle: T, style: String?) -> AnyView {
+        switch style {
+        case "button":
+            return AnyView(toggle.toggleStyle(.button))
+        case "checkbox":
+            return AnyView(toggle.toggleStyle(.checkbox))
+        default:
+            // UI::Toggle's native default remains the macOS switch.
+            return AnyView(toggle.toggleStyle(.switch))
+        }
+    }
+    #endif
 }
+
+#if os(macOS)
+private func machinedColor(_ value: String?, fallback: Color) -> Color {
+    guard let value else { return fallback }
+    return SurfaceCraftModifiers.color(from: value)
+}
+#endif
 
 #if canImport(UIKit) && !os(watchOS)
 // APSKToggleRepresentable — wraps a UIKit `UISwitch` so XCUIElement.tap()

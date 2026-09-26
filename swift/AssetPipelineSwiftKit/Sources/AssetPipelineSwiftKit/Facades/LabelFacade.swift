@@ -79,7 +79,11 @@ private struct APSKLabelHost: View {
             // PostScript name for an exact weight/face. Size: the explicit
             // fontSize, else SwiftUI body default (~17).
             let sz = (overrides.fontSize?.doubleValue).flatMap { $0 > 0 ? $0 : nil } ?? 17.0
-            content = AnyView(content.font(.custom(fam, size: CGFloat(sz))))
+            if fam == "monospace" {
+                content = AnyView(content.font(.system(size: CGFloat(sz), weight: .regular, design: .monospaced)))
+            } else {
+                content = AnyView(content.font(.custom(fam, size: CGFloat(sz))))
+            }
         } else if let sz = overrides.fontSize, sz.doubleValue > 0 {
             let weight: Font.Weight
             if let w = overrides.fontWeight {

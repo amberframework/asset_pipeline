@@ -94,7 +94,10 @@ describe UI::Web::Renderer do
     it "TextArea" do
       html = render(UI::TextArea.new)
       html.should match(/min-width:\s*44(?:\.0)?px/)
-      html.should match(/min-height:\s*44(?:\.0)?px/)
+      # TextArea ships an explicit min-height of 80px (a multi-line input is taller
+      # than the bare 44px floor). The touch-target floor must SATISFY 44 without
+      # SHRINKING the larger explicit value, so the effective min-height stays 80.
+      html.should match(/min-height:\s*80(?:\.0)?px/)
     end
 
     it "NavigationLink" do

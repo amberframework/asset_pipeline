@@ -79,6 +79,14 @@ module UI
     # (fill_horizontal) container.
     property number_of_lines : Int32 = 1
 
+    # Horizontal alignment of the label text. Defaults to `Center` — the
+    # conventional CTA presentation and the browser's native `<button>` default.
+    # Set `Leading`/`Trailing` for content buttons whose label is body text that
+    # should read left/right-aligned (e.g. a wrapping tappable affirmation/thought
+    # card, matching the Expo design's left-aligned Pressable text). Web emits
+    # `text-align`; native button renderers currently treat the label as centered.
+    property text_alignment : Alignment = Alignment::Center
+
     # Whether the button is disabled (non-interactive).
     #
     # Reactive: after the renderer has emitted the SwiftUI hosting view,

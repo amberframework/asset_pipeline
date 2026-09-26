@@ -9,6 +9,10 @@ module UI
   class AsyncImage < View
     # URL the view points at.
     property url : String = ""
+    # Pre-fetched image bytes. Native renderers without an async URL loader
+    # (UIKit) display these synchronously when present; web renderers keep
+    # using `url`. Populated by callers that fetch ahead of render time.
+    property preloaded_data : Bytes? = nil
     # Placeholder text shown when the field is empty.
     property placeholder : View? = nil
     # How the content is scaled / aligned within its frame (e.g. `:fit`, `:fill`, `:center`).

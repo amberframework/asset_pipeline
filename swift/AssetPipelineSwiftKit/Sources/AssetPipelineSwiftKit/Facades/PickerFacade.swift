@@ -19,6 +19,13 @@ public class PickerFacade: NSObject {
     ) -> APSKPlatformView {
         let storage = IntStorage(initial: selectedIndex, token: actionToken)
 
+        #if os(macOS)
+        if let swatchSpec = overrides.surfaceCraftSwatchSpec {
+            let content = SwatchPickerHost(storage: storage, specification: swatchSpec)
+            return HostingHelpers.host(CommonModifiers.apply(AnyView(content), overrides: overrides))
+        }
+        #endif
+
         var content: AnyView = AnyView(
             Picker(label, selection: storage.binding) {
                 ForEach(Array(options.enumerated()), id: \.offset) { idx, opt in

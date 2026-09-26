@@ -125,6 +125,13 @@ module UI
       # default — that is the default-detection invariant in §11.
       def self.populate_view_common(target : String, view : UI::View, sender : Sender)
         sender.set_color(target, :setBackgroundColor, view.background)
+        sender.set_string(target, :setApskSurfaceCraftSpec, view.surface_craft_json)
+        preview_state = if view.preview_state == UI::PreviewState::None
+                          nil
+                        else
+                          view.preview_state.to_s.underscore
+                        end
+        sender.set_string(target, :setApskPreviewState, preview_state)
 
         cr = view.corner_radius
         sender.set_number(target, :setCornerRadius, cr == 0.0 ? nil : cr)
@@ -408,6 +415,10 @@ module UI
         # reserves the correct multi-line height (fixes the wrapping-label
         # height under-reservation / overlap). set_number no-ops on nil.
         sender.set_number(target, :setPreferredMaxLayoutWidth, view.preferred_max_layout_width)
+
+        if keycap = view.as?(UI::Keycap)
+          sender.set_string(target, :setApskSurfaceCraftKeycapStyle, keycap.style.to_s.underscore)
+        end
       end
 
       # Map a Crystal `UI::Font.weight` Symbol to the SwiftUI
@@ -557,6 +568,7 @@ module UI
 
       def self.populate_toggle(target : String, view : UI::Toggle, sender : Sender)
         populate_view_common(target, view, sender)
+        sender.set_string(target, :setSurfaceCraftToggleSpec, view.surface_craft_toggle_json)
         sender.set_color(target, :setForegroundColor, view.tint_color)
         sender.set_bool(target, :setDisabled, view.disabled ? true : nil)
         unless view.style == UI::ToggleStyle::Switch
@@ -590,6 +602,9 @@ module UI
 
       def self.populate_picker(target : String, view : UI::Picker, sender : Sender)
         populate_view_common(target, view, sender)
+        if color_picker = view.as?(UI::ColorSwatchPicker)
+          sender.set_string(target, :setSurfaceCraftSwatchSpec, color_picker.surface_craft_picker_json)
+        end
         unless view.style == UI::PickerStyle::Menu
           sender.set_string(target, :setPickerStyle, view.style.to_s.downcase)
         end
@@ -785,6 +800,17 @@ module UI
             s.fields.each { |f| all_labels << f.label }
           end
           sender.set_string_array(target, :setSectionFieldLabels, all_labels)
+
+          if view.sections.any? { |section| !section.tab_shape.nil? }
+            sender.set_string_array(target, :setSectionTabShapes,
+              view.sections.map { |section| section.tab_shape.try(&.to_s.underscore) || "" })
+            sender.set_string_array(target, :setSectionTabIcons,
+              view.sections.map { |section| section.tab_icon || "" })
+            sender.set_string_array(target, :setSectionPanelStyles,
+              view.sections.map { |section| SurfaceCraftEncoding.style_json(section.panel_style) })
+            sender.set_string_array(target, :setSectionTabStyles,
+              view.sections.map { |section| SurfaceCraftEncoding.style_json(section.tab_style) })
+          end
         end
       end
 

@@ -67,8 +67,13 @@
       fun ap_view_add_key_command(view : Void*, input : UInt8*,
                                   modifier_mask : UInt64, token : UInt64) : Int32
       # Focus management via the view's host window.
-      fun ap_view_become_first_responder(view : Void*) : Int32
+      fun ap_view_become_first_responder(view : Void*) : Bool
+      fun ap_view_focus_request_succeeded(view : Void*) : Bool
       fun ap_view_resign_first_responder(view : Void*) : Int32
+      # Apply generic gradient, shadow, and cached texture modifiers to raw
+      # AppKit views that do not pass through a SwiftUI facade.
+      fun appkit_view_apply_surface_craft(view : Void*, json : UInt8*) : Void
+      fun appkit_view_has_surface_layer(view : Void*, name : UInt8*) : Int32
 
       # --- Section 4: Convenience helpers ---
       fun nsstring_from_cstr(str : UInt8*) : Void*
@@ -107,7 +112,10 @@
       fun objc_layout_now(view : Void*) : Void
       fun objc_constrain_fluid_width(view : Void*, min_w : Float64, max_w : Float64) : Void
       fun objc_set_horizontal_fill_priority(view : Void*) : Void
+      fun objc_set_vertical_fill_priority(view : Void*) : Void
       fun objc_constrain_height(view : Void*, h : Float64) : Void
+      fun nsscrollview_scroll_to_end(scroll_view : Void*) : Void
+      fun nsscrollview_is_at_bottom(scroll_view : Void*, tolerance : Float64) : Int32
       # ComboBox value-drop fix (macOS) — wire an NSComboBox's text +
       # selection changes (controlTextDidChange: / comboBoxSelectionDidChange:)
       # to the Crystal string callback `token` via a CrystalComboBoxDelegate.
@@ -321,27 +329,33 @@
 
       # Convenience: visit a view and return its NativeView.
       def render(view : UI::View) : NativeView
-        # Initialise the SwiftKit runtime and propagate the active brand
-        # tint before traversing the tree. Re-applying the brand tint on
-        # every render entry is what makes
-        # `renderer.design_tokens = Tokens.default.with_brand(...)` flip
-        # the rendered button pixel on the next render — the Option B
-        # cascade contract surfaced by the Architect handoff
-        # `phase-03-stopped-early-2026-05-20.md`.
-        ensure_swiftkit_runtime!
+        # Bound autoreleased AppKit/SwiftKit temporaries to this render pass.
+        # Each NativeHandle owns its returned native object, so the completed
+        # tree remains valid after this pool drains and can be attached and
+        # captured in a later scope.
+        UI::ObjC.autoreleasepool do
+          # Initialise the SwiftKit runtime and propagate the active brand
+          # tint before traversing the tree. Re-applying the brand tint on
+          # every render entry is what makes
+          # `renderer.design_tokens = Tokens.default.with_brand(...)` flip
+          # the rendered button pixel on the next render — the Option B
+          # cascade contract surfaced by the Architect handoff
+          # `phase-03-stopped-early-2026-05-20.md`.
+          ensure_swiftkit_runtime!
 
-        view.accept(self)
-        nv = result
-        # Wire tab order for editable text fields
-        fields = [] of Void*
-        collect_text_fields(nv, fields)
-        if fields.size >= 2
-          fields.each_with_index do |ptr, i|
-            next_ptr = fields[(i + 1) % fields.size]
-            LibObjCBridge.objc_send_void_id(ptr, sel("setNextKeyView:"), next_ptr)
+          view.accept(self)
+          nv = result
+          # Wire tab order for editable text fields
+          fields = [] of Void*
+          collect_text_fields(nv, fields)
+          if fields.size >= 2
+            fields.each_with_index do |ptr, i|
+              next_ptr = fields[(i + 1) % fields.size]
+              LibObjCBridge.objc_send_void_id(ptr, sel("setNextKeyView:"), next_ptr)
+            end
           end
+          nv
         end
-        nv
       end
 
       # -----------------------------------------------------------------
@@ -517,29 +531,33 @@
         LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
         layer_ptr = LibObjCBridge.objc_send(ptr, sel("layer"))
         unless layer_ptr.null?
-          explicit_bg = view.background
-          bg_ns = if c = explicit_bg
-                    # View has an explicit background — use it. Alpha=0 means transparent.
-                    LibObjCBridge.nscolor_rgba(c.r, c.g, c.b, c.a)
-                  else
-                    # No explicit background. The bake policy (pure, unit-tested in
-                    # UI::StackBake) keeps the LIVE app TRANSPARENT so the parent's
-                    # background shows through — matching HStack/ZStack, which never
-                    # bake a fill. The opaque legibility fix (gaps.md iter-21) applies
-                    # ONLY in the offscreen capture path, and backdrop captures stay
-                    # transparent for the glass compositor. Capture mode is detected
-                    # from a screenshot-OUTPUT env var (consistent with this file's
-                    # other HIG_SCREENSHOT_PATH checks) — NOT HIG_APPEARANCE, which is
-                    # an appearance knob set for live windows too. Baking opaque white
-                    # in the live app turned nested background-less containers into
-                    # solid white blocks (My Affirmations regression).
-                    capturing = UI::StackBake.capturing?(UI::StackBake::CAPTURE_PATH_ENV_KEYS.map { |k| ENV[k]? })
-                    r, g, b, a = UI::StackBake.fallback_rgba(ENV["HIG_BACKDROP_PATH"]?, ENV["HIG_APPEARANCE"]?, capturing)
-                    LibObjCBridge.nscolor_rgba(r, g, b, a)
-                  end
-          unless bg_ns.null?
-            cg_bg = LibObjCBridge.objc_send(bg_ns, sel("CGColor"))
-            LibObjCBridge.objc_send_void_id(layer_ptr, sel("setBackgroundColor:"), cg_bg) unless cg_bg.null?
+          # Surface craft fills are installed by apply_common_properties above.
+          # Do not let the legacy stack-capture background policy overwrite one.
+          unless view.background_fill_color || view.linear_gradient
+            explicit_bg = view.background
+            bg_ns = if c = explicit_bg
+                      # View has an explicit background — use it. Alpha=0 means transparent.
+                      LibObjCBridge.nscolor_rgba(c.r, c.g, c.b, c.a)
+                    else
+                      # No explicit background. The bake policy (pure, unit-tested in
+                      # UI::StackBake) keeps the LIVE app TRANSPARENT so the parent's
+                      # background shows through — matching HStack/ZStack, which never
+                      # bake a fill. The opaque legibility fix (gaps.md iter-21) applies
+                      # ONLY in the offscreen capture path, and backdrop captures stay
+                      # transparent for the glass compositor. Capture mode is detected
+                      # from a screenshot-OUTPUT env var (consistent with this file's
+                      # other HIG_SCREENSHOT_PATH checks) — NOT HIG_APPEARANCE, which is
+                      # an appearance knob set for live windows too. Baking opaque white
+                      # in the live app turned nested background-less containers into
+                      # solid white blocks (My Affirmations regression).
+                      capturing = UI::StackBake.capturing?(UI::StackBake::CAPTURE_PATH_ENV_KEYS.map { |k| ENV[k]? })
+                      r, g, b, a = UI::StackBake.fallback_rgba(ENV["HIG_BACKDROP_PATH"]?, ENV["HIG_APPEARANCE"]?, capturing)
+                      LibObjCBridge.nscolor_rgba(r, g, b, a)
+                    end
+            unless bg_ns.null?
+              cg_bg = LibObjCBridge.objc_send(bg_ns, sel("CGColor"))
+              LibObjCBridge.objc_send_void_id(layer_ptr, sel("setBackgroundColor:"), cg_bg) unless cg_bg.null?
+            end
           end
         end
 
@@ -776,6 +794,15 @@
           action_token = UI::CallbackRegistry.register_string(wrapped_handler)
         end
 
+        # Enter-to-send: register the on_submit handler on the string channel and
+        # thread its token through the overrides so the facade attaches
+        # `.onSubmit` (bare Return fires it with the current text).
+        submit_token = 0_u64
+        if submit_handler = view.on_submit
+          submit_token = UI::CallbackRegistry.register_string(submit_handler)
+          sender.set_number(target_str, :setSubmitToken, submit_token.to_f64)
+        end
+
         ptr = LibSwiftKitBridge.apsk_make_text_field(
           view.placeholder.to_unsafe, view.text.to_unsafe,
           overrides_ptr, action_token,
@@ -783,6 +810,7 @@
         handle = ObjC.owned(ptr, label: "NSHostingView[TextField]")
         native = NativeView.new(handle)
         native.track_callback_id(action_token) unless action_token == 0_u64
+        native.track_callback_id(submit_token) unless submit_token == 0_u64
         push_native(native)
       end
 
@@ -809,7 +837,12 @@
         # scroll view's intrinsicContentSize from its (arbitrarily tall) content.
         # Use objc_constrain_height (height-only) when only height is specified;
         # use objc_constrain_size when both axes are explicitly set.
-        if view.frame_width > 0.0 && view.frame_height > 0.0
+        if view.fill_vertical
+          # Flexible height: claim the enclosing stack's leftover vertical space
+          # and reflow on resize instead of pinning a fixed point height. Width
+          # comes from fill_horizontal / the stack; the vertical axis is free.
+          LibObjCBridge.objc_set_vertical_fill_priority(ptr)
+        elsif view.frame_width > 0.0 && view.frame_height > 0.0
           LibObjCBridge.objc_constrain_size(ptr, view.frame_width, view.frame_height)
         elsif view.frame_height > 0.0
           LibObjCBridge.objc_constrain_height(ptr, view.frame_height)
@@ -845,6 +878,11 @@
             end
           end
         end
+
+        # Store the live NSScrollView pointer so the ScrollView can drive its own
+        # scroll position after render (scroll_to_end / at_bottom? — the
+        # streaming stick-to-bottom path).
+        view.native_handle = ptr
 
         push_native(native)
       end
@@ -4684,7 +4722,9 @@
       #   - accessibility_label -> setAccessibilityLabel:
       #   - minimum_width / minimum_height -> NSLayoutConstraint (width/height >= x)
       #   - maximum_width / maximum_height -> NSLayoutConstraint (width/height <= x)
-      private def apply_common_properties(ptr : Void*, view : UI::View) : Nil
+      private def apply_common_properties(ptr : Void*, view : UI::View) : Bool
+        focus_request_accepted = false
+
         # Hidden
         if view.hidden
           LibObjCBridge.objc_send_bool(ptr, sel("setHidden:"), 1)
@@ -4699,13 +4739,46 @@
         # setWantsLayer:YES tells AppKit to create a CALayer, then we
         # set the layer's backgroundColor to the CGColor representation.
         if bg = view.background
-          LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
-          layer = LibObjCBridge.objc_send(ptr, sel("layer"))
-          unless layer.null?
-            bg_nscolor = resolve_color(bg)
-            cg_color = LibObjCBridge.objc_send(bg_nscolor, sel("CGColor"))
-            LibObjCBridge.objc_send_id(layer, sel("setBackgroundColor:"), cg_color)
+          unless view.background_fill_color
+            LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
+            layer = LibObjCBridge.objc_send(ptr, sel("layer"))
+            unless layer.null?
+              bg_nscolor = resolve_color(bg)
+              cg_color = LibObjCBridge.objc_send(bg_nscolor, sel("CGColor"))
+              LibObjCBridge.objc_send_id(layer, sel("setBackgroundColor:"), cg_color)
+            end
           end
+        end
+
+        # Corner radius + border on the base View. Applied to any layer-backed
+        # NSView (stacks, containers) so a caller can round/rim a plain
+        # VStack/HStack surface without reaching for a shape widget. Gated on
+        # non-default values so views that set neither are byte-for-byte
+        # unchanged. CALayer.cornerRadius rounds the backgroundColor + border
+        # fill directly (masksToBounds only affects sublayer clipping, which we
+        # leave off so a rounded fill never clips hosted SwiftUI content).
+        if view.corner_radius > 0.0 || view.border_width > 0.0
+          LibObjCBridge.objc_send_bool(ptr, sel("setWantsLayer:"), 1)
+          rb_layer = LibObjCBridge.objc_send(ptr, sel("layer"))
+          unless rb_layer.null?
+            if view.corner_radius > 0.0
+              LibObjCBridge.objc_send_1d(rb_layer, sel("setCornerRadius:"), view.corner_radius)
+            end
+            if view.border_width > 0.0
+              LibObjCBridge.objc_send_1d(rb_layer, sel("setBorderWidth:"), view.border_width)
+              if bc = view.border_color
+                bc_nscolor = resolve_color(bc)
+                bc_cg = LibObjCBridge.objc_send(bc_nscolor, sel("CGColor"))
+                LibObjCBridge.objc_send_id(rb_layer, sel("setBorderColor:"), bc_cg)
+              end
+            end
+          end
+        end
+
+        # Install SurfaceCraft after the common layer shape is established so
+        # preview overlays and rings inherit the container's corner radius.
+        if surface_craft = view.surface_craft_json
+          LibObjCBridge.appkit_view_apply_surface_craft(ptr, surface_craft.to_unsafe)
         end
 
         # Size constraints via Auto Layout.
@@ -4875,13 +4948,12 @@
             ptr, ks.key.to_unsafe, ks.appkit_modifier_mask, token)
         end
 
-        # Phase 10B.2b — Focus management. When `focused` is true the
-        # view's host window makes it the first responder. AppKit
-        # routes focus through the window so the call is guarded on a
-        # window being present (it will be by the time the renderer
-        # walks the tree into a host view).
+        # Phase 10B.2b — Focus management. A view can be rendered before
+        # its parent is attached to a window, so the bridge queues this
+        # request until AppKit reports the window attachment. Its Bool
+        # reports an immediate success or an accepted deferred request.
         if view.focused
-          LibObjCBridge.ap_view_become_first_responder(ptr)
+          focus_request_accepted = LibObjCBridge.ap_view_become_first_responder(ptr)
         end
 
         # Phase 10B.2b — Focusability override. AppKit exposes
@@ -4922,6 +4994,8 @@
           token = UI::CallbackRegistry.register(lp)
           LibObjCBridge.objc_attach_long_press_gesture(ptr, token, 0.5_f64)
         end
+
+        focus_request_accepted
       end
 
       # Phase 10B.2a — Translate a Crystal role symbol into the matching

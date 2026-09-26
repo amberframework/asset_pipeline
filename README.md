@@ -128,6 +128,7 @@ puts notifications.export_swift_scaffold
 ## Where To Look
 
 - Native UI source: `src/ui`
+- UI skinning and theming guide: `docs/theming.md`
 - macOS host showcase: `samples/cross_platform/macos_host/hig_showcase.cr`
 - iOS host showcase: `samples/cross_platform/ios_host/hig_bridge.cr`
 - Validation dashboard: `docs/apple-native-validation/index.html`

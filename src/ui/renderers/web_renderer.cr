@@ -3,10 +3,12 @@
 
 require "../platform_visitor"
 require "../../components"
+require "../../components/elements/interactive/interactive_elements"
 require "../design_tokens"
 require "../design_tokens/generators/web_generator"
 require "json"
 require "html"
+require "base64"
 
 module UI
   module Web
@@ -72,6 +74,18 @@ module UI
           io << "<style>\n"
           io << t.to_css_custom_properties
           io << UI::DesignTokens::WebGenerator.generate(@design_tokens)
+          # Base reset so the document root renders like the native platforms:
+          # no default 8px body margin, and no serif (Times) fallback for any
+          # element that doesn't set its own font. App typography is set per-view.
+          io << "html,body{margin:0;padding:0}\n"
+          io << "body{font-family:system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif}\n"
+          # border-box globally — padding/border live INSIDE an element's declared
+          # width/height, exactly as the native layout engines (AppKit/UIKit Auto
+          # Layout, Android) and react-native-web compute size. Without this, a view
+          # with an explicit width + padding overflows its box by the padding, and any
+          # centered children land off-center by that amount. Matches the golden.
+          io << "*,*::before,*::after{box-sizing:border-box}\n"
+          io << surface_craft_css
           io << "</style>\n"
         end
       end
@@ -127,7 +141,11 @@ module UI
       # ---------------------------------------------------------------
 
       def visit(view : UI::Label)
-        el = Components::Elements::Span.new
+        el = if keycap = view.as?(UI::Keycap)
+               Components::Elements::Kbd.new
+             else
+               Components::Elements::Span.new
+             end
         el << view.text
 
         # Font styles
@@ -137,7 +155,14 @@ module UI
         if role = view.text_color_role
           el.add_style("color: #{label_role_css(role)}")
         else
-          el.add_style("color: #{color_css(view.text_color, default_token: "var(--ap-color-text-primary)")}")
+          # text_color_role == nil means the consumer EXPLICITLY opted into a
+          # raw RGBA color via `UI::Label#text_color=` (the setter nulls the
+          # role). Honor it verbatim — do NOT pass a default_token. Passing one
+          # made color_css treat a deliberate pure-black (0,0,0) label as
+          # "unset" and swap in var(--ap-color-text-primary), which resolves to
+          # the near-white primary in a dark theme — silently erasing an
+          # explicit black label (e.g. black body text on a light card).
+          el.add_style("color: #{color_css(view.text_color)}")
         end
 
         # Text alignment
@@ -153,6 +178,20 @@ module UI
         # standard CSS `text-decoration: line-through`.
         if view.strikethrough
           el.add_style("text-decoration: line-through")
+        end
+
+        if keycap = view.as?(UI::Keycap)
+          el.set_attribute("data-ap-keycap-style", keycap.style.to_s.underscore)
+          case keycap.style
+          when UI::KeycapStyle::Outlined
+            el.add_style("display: inline-block; padding: 2px 6px; border: 1px solid var(--ap-color-border-default); border-radius: 4px; background: var(--ap-color-surface-panel)")
+          when UI::KeycapStyle::Sculpted
+            el.add_style("display: inline-block; padding: 2px 6px; border: 1px solid var(--ap-color-border-default); border-top-color: var(--ap-color-text-inverse); border-bottom: 2px solid var(--ap-color-border-strong); border-radius: 4px; background: var(--ap-color-surface-panel); box-shadow: 0 1px 1px rgba(0,0,0,.16)")
+          when UI::KeycapStyle::Inset
+            el.add_style("display: inline-block; padding: 2px 6px; border: 1px solid var(--ap-color-border-default); border-radius: 4px; background: var(--ap-color-surface-sunken); box-shadow: inset 0 1px 3px rgba(0,0,0,.35)")
+          when UI::KeycapStyle::Text
+            # Text style intentionally adds no key-shaped chrome.
+          end
         end
 
         apply_common_styles(el, view)
@@ -184,6 +223,13 @@ module UI
 
         # Font styles
         apply_font_styles(el, view.font, emit_defaults: false)
+
+        # Label alignment. The browser's native `<button>` default is center, so we
+        # only emit when the view opts into a non-center alignment (keeps existing
+        # CTA output byte-identical; content buttons can read left/right-aligned).
+        unless view.text_alignment == UI::Alignment::Center
+          el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
+        end
 
         # Foreground color
         c = view.foreground_color
@@ -382,6 +428,11 @@ module UI
       end
 
       def visit(view : UI::Toggle)
+        if view.appearance != UI::ToggleAppearance::Native
+          visit_surface_toggle(view)
+          return
+        end
+
         # Render as a label with a checkbox input styled as a switch
         el = Components::Elements::Div.new
         el.add_style("display: flex; align-items: center; gap: 8px")
@@ -749,6 +800,11 @@ module UI
       end
 
       def visit(view : UI::Picker)
+        if color_picker = view.as?(UI::ColorSwatchPicker)
+          visit_color_swatch_picker(color_picker)
+          return
+        end
+
         el = Components::Elements::Div.new
         el.add_style("display: flex; flex-direction: column; gap: 4px")
 
@@ -1181,10 +1237,52 @@ module UI
           section_el = Components::Elements::Div.new
           section_el.add_style("display: flex; flex-direction: column; gap: 8px")
 
+          if shape = section.tab_shape
+            section_el.set_attribute("data-component", "tabbed-panel")
+            section_el.set_attribute("data-ap-tab-shape", shape.to_s.underscore)
+            section_el.set_attribute("role", "group")
+            if header = section.header
+              section_el.set_attribute("aria-label", header)
+            end
+            apply_surface_style(section_el, section.panel_style)
+          end
+
           if header = section.header
-            header_el = Components::Elements::Span.new
-            header_el << header
-            header_el.add_style("font-size: 13px; font-weight: 600; color: var(--ap-color-text-muted); text-transform: uppercase; padding: 0 16px")
+            header_el = Components::Elements::Div.new
+            if shape = section.tab_shape
+              header_el.set_attribute("data-ap-tab-shape", shape.to_s.underscore)
+              header_el.set_attribute("data-ap-tab-icon", section.tab_icon || "")
+              header_el.add_style("display: flex; align-items: center; gap: 7px; width: fit-content; padding: 7px 14px; font-weight: 600; color: var(--ap-color-text-primary)")
+              if shape == UI::TabShape::Flush
+                header_el.add_style("width: 100%; padding: 5px 0 8px; border-bottom: 1px solid var(--ap-color-border-subtle); border-radius: 0")
+              else
+                header_el.add_style("border-radius: 7px 7px 0 0; transform: translateY(3px)")
+                case shape
+                when UI::TabShape::Angled
+                  header_el.add_style("clip-path: polygon(0 0, 88% 0, 100% 100%, 0 100%)")
+                when UI::TabShape::Rounded
+                  header_el.add_style("border-radius: 7px 10px 0 0")
+                when UI::TabShape::Notched
+                  header_el.add_style("clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 8px calc(100% - 8px), 8px 8px)")
+                when UI::TabShape::Flush
+                  # The flush treatment is styled above.
+                end
+              end
+              apply_surface_style(header_el, section.tab_style)
+              if icon = section.tab_icon
+                icon_el = Components::Elements::Span.new
+                icon_el.set_attribute("aria-hidden", "true")
+                icon_el << icon
+                header_el.add_child(icon_el)
+              end
+              label_el = Components::Elements::Span.new
+              label_el << header
+              header_el.add_child(label_el)
+            else
+              header_el = Components::Elements::Span.new
+              header_el << header
+              header_el.add_style("font-size: 13px; font-weight: 600; color: var(--ap-color-text-muted); text-transform: uppercase; padding: 0 16px")
+            end
             section_el.add_child(header_el)
           end
 
@@ -1654,6 +1752,10 @@ module UI
           img = Components::Elements::Img.new
           img.set_attribute("src", view.url)
           img.set_attribute("loading", "lazy")
+          # Fill the view's box; object-fit governs how the bitmap sits inside it.
+          # Without this the raw <img> renders at natural size and a large photo
+          # just shows its top-left corner in a clipped container.
+          img.add_style("width: 100%; height: 100%; display: block")
           case view.content_mode
           when UI::ContentMode::Fit     then img.add_style("object-fit: contain")
           when UI::ContentMode::Fill    then img.add_style("object-fit: cover")
@@ -2503,13 +2605,304 @@ module UI
         end
       end
 
+      private def surface_color_css(color : UI::SurfaceColor) : String
+        case color
+        when UI::Color
+          color_css(color)
+        when UI::ColorRole
+          token = color.to_s.underscore.gsub('_', '-')
+          "var(--ap-color-#{token})"
+        else
+          raise ArgumentError.new("Unsupported surface color")
+        end
+      end
+
+      private def gradient_css(gradient : UI::LinearGradient) : String
+        stops = gradient.list_of_stops.map do |stop|
+          "#{surface_color_css(stop.stop_color)} #{stop.stop_position * 100}%"
+        end
+        "linear-gradient(#{gradient.gradient_angle}deg, #{stops.join(", ")})"
+      end
+
+      private def texture_data_uri(texture : UI::TextureOverlay) : String
+        frequencies = case texture.texture_kind
+                      when UI::TextureKind::Noise   then "0.72"
+                      when UI::TextureKind::Brushed then "0.72 0.018"
+                      end
+        turbulence_type = texture.texture_kind == UI::TextureKind::Noise ? "fractalNoise" : "turbulence"
+        svg = %(<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="grain"><feTurbulence type="#{turbulence_type}" baseFrequency="#{frequencies}" numOctaves="3" seed="4" stitchTiles="stitch"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 #{texture.texture_opacity} 0"/></filter><rect width="100%" height="100%" filter="url(%23grain)" opacity="1"/></svg>)
+        "data:image/svg+xml;base64,#{Base64.strict_encode(svg)}"
+      end
+
+      private def css_number(value : Float64) : String
+        value == value.to_i ? value.to_i.to_s : value.to_s
+      end
+
+      private def shadow_css(color : UI::SurfaceColor, x : Float64, y : Float64, blur : Float64) : String
+        "#{css_number(x)}px #{css_number(y)}px #{css_number(blur)}px #{surface_color_css(color)}"
+      end
+
+      private def surface_color_css_or(color : UI::SurfaceColor?, fallback : String) : String
+        if resolved = color
+          surface_color_css(resolved)
+        else
+          fallback
+        end
+      end
+
+      private def apply_surface_style(element : Components::Elements::HTMLElement, style : UI::SurfaceStyle) : Nil
+        if fill = style.background_fill_color
+          element.add_style("background-color: #{surface_color_css(fill)}")
+        end
+        images = [] of String
+        if texture = style.texture_overlay
+          images << "url(\"#{texture_data_uri(texture)}\")"
+        end
+        if gradient = style.linear_gradient
+          images << gradient_css(gradient)
+        end
+        element.add_style("background-image: #{images.join(", ")}") unless images.empty?
+        shadows = [] of String
+        style.list_of_drop_shadows.each do |shadow|
+          shadows << shadow_css(shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
+        end
+        style.list_of_inner_shadows.each do |shadow|
+          shadows << "inset #{shadow_css(shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)}"
+        end
+        element.add_style("box-shadow: #{shadows.join(", ")}") unless shadows.empty?
+      end
+
+      private def visit_surface_toggle(view : UI::Toggle) : Nil
+        wrapper = Components::Elements::Label.new
+        wrapper.add_class("ap-toggle")
+        wrapper.add_class("ap-toggle--#{view.appearance.to_s.underscore}")
+        wrapper.set_attribute("data-ap-toggle-appearance", view.appearance.to_s.underscore)
+        wrapper.add_style("display: inline-flex; align-items: center; gap: 8px; position: relative")
+        wrapper.add_style("--ap-toggle-track: #{surface_color_css_or(view.track_color, "var(--ap-color-surface-sunken)")}; --ap-toggle-knob: #{surface_color_css_or(view.knob_color, "var(--ap-color-surface-panel)")}; --ap-toggle-on: #{surface_color_css_or(view.on_color, "var(--ap-color-brand-primary)")}; --ap-toggle-lamp: #{surface_color_css_or(view.lamp_color, "var(--ap-color-warning)")}")
+        wrapper.set_attribute("aria-label", view.label) unless view.label.empty?
+
+        input = Components::Elements::Input.new
+        input.set_attribute("type", "checkbox")
+        input.set_attribute("role", "switch")
+        input.set_attribute("aria-checked", view.is_on.to_s)
+        input.set_attribute("checked", "checked") if view.is_on
+        input.set_attribute("disabled", "disabled") if view.disabled
+        input.set_attribute("data-ap-toggle-input", "true")
+        input.add_style("position: absolute; width: 48px; height: 28px; margin: 0; opacity: 0; cursor: pointer; z-index: 1")
+        if view.on_change
+          input.set_attribute("data-action", "change")
+          input.set_attribute("data-ap-change", "toggle")
+        end
+        enforce_touch_target(input)
+        wrapper.add_child(input)
+
+        track = Components::Elements::Span.new
+        track.set_attribute("data-ap-toggle-track", "true")
+        track.set_attribute("aria-hidden", "true")
+        track.add_style("display: inline-flex; align-items: center; justify-content: flex-start; position: relative; width: 34px; height: 20px; padding: 2px; border-radius: 999px; background: var(--ap-toggle-track); transition: background-color 120ms ease")
+        knob = Components::Elements::Span.new
+        knob.set_attribute("data-ap-toggle-knob", "true")
+        knob.add_style("position: absolute; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: var(--ap-toggle-knob); box-shadow: 0 1px 2px rgba(0,0,0,.24); transition: transform 120ms ease")
+
+        case view.appearance
+        when UI::ToggleAppearance::Pill, UI::ToggleAppearance::LampPill
+          track.add_style("border-radius: 999px")
+          if view.appearance == UI::ToggleAppearance::LampPill
+            lamp = Components::Elements::Span.new
+            lamp.set_attribute("data-ap-toggle-lamp", "true")
+            lamp_color = view.is_on ? "var(--ap-toggle-lamp)" : "var(--ap-color-border-default)"
+            lamp.add_style("position: absolute; left: 7px; width: 8px; height: 8px; border-radius: 50%; background: #{lamp_color}")
+            track.add_child(lamp)
+            track.add_style("width: 50px")
+            knob.add_style("left: 20px; width: 16px; height: 16px")
+          end
+          track.add_child(knob)
+        when UI::ToggleAppearance::Rocker
+          track.add_style("width: 40px; height: 20px; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,.45)")
+          knob.add_style("left: 2px; top: 2px; width: 18px; height: 16px; border-radius: 3px; display: grid; place-items: center; font: 600 8px ui-monospace, monospace; color: var(--ap-color-text-secondary)")
+          knob.set_attribute("data-ap-toggle-symbol", "true")
+          track.add_child(knob)
+        when UI::ToggleAppearance::Slide
+          track.add_style("width: 38px; height: 14px; border-radius: 7px; box-shadow: inset 0 1px 3px rgba(0,0,0,.5)")
+          lamp = Components::Elements::Span.new
+          lamp.set_attribute("data-ap-toggle-lamp", "true")
+          lamp.add_style("position: absolute; left: 5px; top: 5px; width: 4px; height: 4px; border-radius: 50%; background: var(--ap-color-border-default)")
+          track.add_child(lamp)
+          knob.add_style("left: -1px; width: 20px; height: 20px; border-radius: 4px; background: var(--ap-toggle-knob); box-shadow: inset 0 1px rgba(255,255,255,.8), 0 1px 2px rgba(0,0,0,.28)")
+          track.add_child(knob)
+        when UI::ToggleAppearance::Native
+          # Native appearance is handled before this helper is called.
+        end
+        wrapper.add_child(track)
+        unless view.label.empty?
+          caption = Components::Elements::Span.new
+          caption << view.label
+          wrapper.add_child(caption)
+        end
+        apply_common_styles(wrapper, view)
+        wrapper.set_attribute("role", "group")
+        push_element(wrapper)
+      end
+
+      private def visit_color_swatch_picker(view : UI::ColorSwatchPicker) : Nil
+        wrapper = Components::Elements::Div.new
+        wrapper.set_attribute("data-ap-swatch-style", view.appearance.to_s.underscore)
+        wrapper.add_style("display: inline-flex; flex-direction: column; gap: 6px")
+        unless view.label.empty?
+          label = Components::Elements::Span.new
+          label << view.label
+          wrapper.add_child(label)
+        end
+
+        if view.appearance == UI::ColorSwatchPickerStyle::SwatchRow
+          row = Components::Elements::Div.new
+          row.add_style("display: flex; align-items: center; gap: 8px")
+          view.list_of_color_swatches.each_with_index do |swatch, index|
+            option = swatch_option(view, swatch, index, rounded: true)
+            row.add_child(option)
+          end
+          wrapper.add_child(row)
+        else
+          details = Components::Elements::Details.new
+          details.add_class("ap-swatch-picker")
+          summary = Components::Elements::Summary.new
+          summary.set_attribute("data-ap-swatch-trigger", "true")
+          summary.set_attribute("aria-label", view.selected_swatch.try(&.color_name) || "Choose color")
+          summary.add_style("display: inline-flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; padding: 6px 9px; border: 1px solid var(--ap-color-border-default); border-radius: 7px; background: var(--ap-color-surface-panel)")
+          if selected = view.selected_swatch
+            chip = swatch_chip(
+              selected,
+              view.appearance == UI::ColorSwatchPickerStyle::BezelLamp,
+              rounded: false,
+            )
+            summary.add_child(chip)
+            if view.appearance == UI::ColorSwatchPickerStyle::NamedPopup
+              name = Components::Elements::Span.new
+              name << selected.color_name
+              summary.add_child(name)
+            end
+          end
+          if view.appearance == UI::ColorSwatchPickerStyle::SwatchButton
+            chevron = Components::Elements::Span.new
+            chevron.set_attribute("aria-hidden", "true")
+            chevron << "⌄"
+            summary.add_child(chevron)
+            eyedropper = Components::Elements::Span.new
+            eyedropper.set_attribute("aria-hidden", "true")
+            eyedropper.set_attribute("data-ap-icon", "eyedropper")
+            summary.add_child(eyedropper)
+          end
+          details.add_child(summary)
+          menu = Components::Elements::Div.new
+          menu.set_attribute("role", "menu")
+          menu.add_style("display: grid; gap: 4px; padding: 6px; border: 1px solid var(--ap-color-border-default); border-radius: 7px; background: var(--ap-color-surface-panel)")
+          view.list_of_color_swatches.each_with_index do |swatch, index|
+            menu.add_child(swatch_option(view, swatch, index, rounded: false))
+          end
+          details.add_child(menu)
+          wrapper.add_child(details)
+        end
+        apply_common_styles(wrapper, view)
+        push_element(wrapper)
+      end
+
+      private def swatch_option(view : UI::ColorSwatchPicker, swatch : UI::ColorSwatch, index : Int32, rounded : Bool) : Components::Elements::Button
+        option = Components::Elements::Button.new(type: "button")
+        option.set_attribute("role", rounded ? "radio" : "menuitemradio")
+        option.set_attribute("aria-checked", (index == view.selected_index).to_s)
+        option.set_attribute("aria-label", swatch.color_name)
+        option.set_attribute("data-ap-swatch-index", index.to_s)
+        option.set_attribute("data-ap-change-index", index.to_s) if view.on_change
+        option.add_style("display: flex; align-items: center; gap: 8px; padding: 5px; border: 0; background: transparent; cursor: pointer")
+        chip = swatch_chip(swatch, false, rounded: rounded)
+        if index == view.selected_index
+          ring_color = surface_color_css(view.selection_ring_color)
+          chip.add_style("outline: 2px solid #{ring_color}; outline-offset: 2px")
+        end
+        option.add_child(chip)
+        if !rounded
+          name = Components::Elements::Span.new
+          name << swatch.color_name
+          option.add_child(name)
+        end
+        option
+      end
+
+      private def swatch_chip(swatch : UI::ColorSwatch, bezel : Bool, rounded : Bool = false) : Components::Elements::Span
+        chip = Components::Elements::Span.new
+        chip.set_attribute("data-ap-swatch-color", swatch.color_name)
+        chip.set_attribute("aria-hidden", "true")
+        radius = bezel ? "6px" : (rounded ? "50%" : "3px")
+        chip.add_style("display: inline-block; flex: none; width: #{bezel ? 22 : 18}px; height: #{bezel ? 22 : 18}px; border-radius: #{radius}; background: #{surface_color_css(swatch.swatch_color)}; border: 1px solid rgba(0,0,0,.18)")
+        if bezel
+          chip.add_style("box-shadow: 0 0 0 3px var(--ap-color-surface-elevated), 0 0 0 5px var(--ap-color-border-strong)")
+        end
+        chip
+      end
+
+      private def surface_craft_css : String
+        <<-CSS
+        [data-ap-feedback="sink"]{transition:transform 100ms ease,filter 100ms ease}
+        [data-ap-feedback="sink"]:hover{filter:brightness(1.04)}
+        [data-ap-feedback="sink"]:active{transform:translateY(1px)}
+        [data-ap-feedback="sink"][data-ap-preview-state="hover"]{filter:brightness(1.04)}
+        [data-ap-feedback="sink"][data-ap-preview-state="pressed"]{transform:translateY(1px)}
+        [data-ap-feedback="lift"]{transition:transform 140ms ease,box-shadow 140ms ease}
+        [data-ap-feedback="lift"]:hover{transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.18)}
+        [data-ap-feedback="lift"][data-ap-preview-state="hover"]{transform:translateY(-2px);box-shadow:0 5px 12px rgba(0,0,0,.18)}
+        [data-ap-feedback="lift"][data-ap-preview-state="pressed"]{transform:translateY(1px);box-shadow:0 2px 5px rgba(0,0,0,.16)}
+        [data-ap-feedback="edge"]{position:relative;transition:background-color 120ms ease}
+        [data-ap-feedback="edge"]::before{content:"";position:absolute;inset:4px auto 4px 0;width:2px;background:transparent;border-radius:2px}
+        [data-ap-feedback="edge"]:hover::before{background:var(--ap-color-brand-primary)}
+        [data-ap-feedback="edge"][data-ap-preview-state="hover"]::before,
+        [data-ap-feedback="edge"][data-ap-preview-state="pressed"]::before,
+        [data-ap-feedback="edge"][data-ap-preview-state="focus"]::before{background:var(--ap-color-brand-primary)}
+        [data-ap-feedback="edge"][data-ap-preview-state="pressed"]{transform:translateY(1px)}
+        [data-ap-preview-state="focus"]:not([data-ap-feedback="edge"]){outline:2px solid var(--ap-color-border-focus);outline-offset:3px}
+        [data-ap-feedback="edge"][data-ap-preview-state="focus"]{outline:2px solid var(--ap-color-brand-primary);outline-offset:3px}
+        .ap-toggle[data-ap-toggle-appearance="pill"] input:checked+[data-ap-toggle-track]{background-color:var(--ap-toggle-on)}
+        .ap-toggle input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(14px)}
+        .ap-toggle[data-ap-toggle-appearance="rocker"] input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(18px);background:var(--ap-toggle-on);color:var(--ap-color-surface-inverse)}
+        .ap-toggle[data-ap-toggle-appearance="rocker"] [data-ap-toggle-symbol]::after{content:"O"}
+        .ap-toggle[data-ap-toggle-appearance="rocker"] input:checked+[data-ap-toggle-track] [data-ap-toggle-symbol]::after{content:"I"}
+        .ap-toggle[data-ap-toggle-appearance="slide"] input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(19px)}
+        .ap-toggle[data-ap-toggle-appearance="slide"] input:checked+[data-ap-toggle-track] [data-ap-toggle-lamp]{background:var(--ap-toggle-on)}
+        .ap-toggle[data-ap-toggle-appearance="lamp_pill"] input:checked+[data-ap-toggle-track] [data-ap-toggle-knob]{transform:translateX(12px)}
+        .ap-toggle[data-ap-toggle-appearance="lamp_pill"] input:checked+[data-ap-toggle-track] [data-ap-toggle-lamp]{background:var(--ap-toggle-lamp)}
+        .ap-toggle input:focus-visible+[data-ap-toggle-track]{outline:2px solid var(--ap-color-border-focus);outline-offset:3px}
+        .ap-swatch-picker[open] [data-ap-swatch-trigger]{border-color:var(--ap-color-brand-primary)}
+        [data-ap-icon="eyedropper"]{position:relative;display:inline-block;width:8px;height:4px;border:1px solid currentColor;border-radius:2px;transform:rotate(-45deg);margin:0 2px}
+        [data-ap-icon="eyedropper"]::before{content:"";position:absolute;right:-3px;top:0;width:2px;height:4px;background:currentColor}
+        [data-ap-icon="eyedropper"]::after{content:"";position:absolute;left:-3px;top:1px;width:2px;height:2px;background:currentColor}
+        @media (prefers-reduced-motion: reduce){[data-ap-feedback]{transition:none!important;transform:none!important}[data-ap-feedback="sink"][data-ap-preview-state="pressed"]{filter:brightness(.94)}[data-ap-feedback="lift"][data-ap-preview-state="pressed"]{filter:brightness(.94)}.ap-toggle [data-ap-toggle-track],.ap-toggle [data-ap-toggle-knob]{transition:none!important}}
+        CSS
+      end
+
       # Apply common View base-class styles to any element.
       private def apply_common_styles(el : Components::Elements::HTMLElement, view : UI::View)
-        # UI::View#fill_horizontal — flex-grow primitive. In a flex row the element grows
-        # to fill the remaining space beside fixed-size siblings (the web analog of the
-        # AppKit/UIKit low-content-hugging fill).
+        # UI::View#fill_horizontal — "occupy all available horizontal space",
+        # the web analog of the AppKit/UIKit low-content-hugging fill. Which CSS
+        # achieves that depends on the parent's flex MAIN axis, because
+        # `flex-grow` only expands along the main axis:
+        #   * row parent    -> horizontal IS the main axis -> `flex: 1 1 0%`.
+        #   * column parent -> horizontal is the CROSS axis. `flex` would only
+        #       grow HEIGHT and (with the stack's `align-items: center`) the
+        #       child shrink-wraps and centers instead of filling width. The
+        #       correct primitive is `align-self: stretch`, which overrides the
+        #       parent's cross-axis alignment for this child and stretches it to
+        #       full width.
+        #   * unknown/none  -> preserve the historical `flex: 1 1 0%`.
+        # Without this, every fill_horizontal Label/card inside a VStack
+        # (the common screen layout) rendered shrink-wrapped and centered
+        # rather than left-aligned full-width, diverging from the native
+        # renderers which fill correctly.
         if view.fill_horizontal
-          el.add_style("flex: 1 1 0%")
+          case parent_flex_axis
+          when :column
+            el.add_style("align-self: stretch")
+          else
+            el.add_style("flex: 1 1 0%")
+          end
         end
 
         # Padding
@@ -2522,6 +2915,18 @@ module UI
         if bg = view.background
           el.add_style("background-color: rgba(#{to_rgb_int(bg.r)}, #{to_rgb_int(bg.g)}, #{to_rgb_int(bg.b)}, #{bg.a})")
         end
+
+        if fill = view.background_fill_color
+          el.add_style("background-color: #{surface_color_css(fill)}")
+        end
+        images = [] of String
+        if texture = view.texture_overlay
+          images << "url(\"#{texture_data_uri(texture)}\")"
+        end
+        if gradient = view.linear_gradient
+          images << gradient_css(gradient)
+        end
+        el.add_style("background-image: #{images.join(", ")}") unless images.empty?
 
         # Hidden
         if view.hidden
@@ -2543,8 +2948,22 @@ module UI
           el.add_style("overflow: hidden")
         end
 
-        # Shadow
-        if view.shadow_radius > 0
+        # Preserve the legacy single-shadow output exactly unless new shadow
+        # values are present, in which case all effects share one CSS list.
+        if !view.list_of_inner_shadows.empty? || !view.list_of_drop_shadows.empty?
+          shadows = [] of String
+          if view.shadow_radius > 0
+            legacy = view.shadow_color || UI::Color.new(r: 0.0, g: 0.0, b: 0.0, a: 0.3)
+            shadows << shadow_css(legacy, view.shadow_offset_x, view.shadow_offset_y, view.shadow_radius)
+          end
+          view.list_of_drop_shadows.each do |shadow|
+            shadows << shadow_css(shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)
+          end
+          view.list_of_inner_shadows.each do |shadow|
+            shadows << "inset #{shadow_css(shadow.shadow_color, shadow.offset_x, shadow.offset_y, shadow.blur_radius)}"
+          end
+          el.add_style("box-shadow: #{shadows.join(", ")}")
+        elsif view.shadow_radius > 0
           sc = view.shadow_color || UI::Color.new(r: 0.0, g: 0.0, b: 0.0, a: 0.3)
           el.add_style("box-shadow: #{view.shadow_offset_x}px #{view.shadow_offset_y}px #{view.shadow_radius}px rgba(#{to_rgb_int(sc.r)}, #{to_rgb_int(sc.g)}, #{to_rgb_int(sc.b)}, #{sc.a})")
         end
@@ -2558,6 +2977,14 @@ module UI
         # Blur
         if view.blur_radius > 0
           el.add_style("filter: blur(#{view.blur_radius}px)")
+        end
+
+        unless view.interaction_feedback == UI::InteractionFeedback::None
+          el.set_attribute("data-ap-feedback", view.interaction_feedback.to_s.underscore)
+        end
+
+        unless view.preview_state == UI::PreviewState::None
+          el.set_attribute("data-ap-preview-state", view.preview_state.to_s.underscore)
         end
 
         # Size constraints. `fluid_width` / `fluid_height` take precedence
@@ -2824,7 +3251,14 @@ module UI
         end
 
         unless font.family == "system"
-          el.add_style("font-family: #{font.family}")
+          # Quote so multi-word / digit-leading family names (e.g. RN-web's
+          # "Alegreya Sans_medium", or "Helvetica Neue", "Times New Roman")
+          # are valid CSS. An unquoted family containing a space is invalid
+          # and the browser silently falls back to the base sans-serif, which
+          # changes glyph metrics and therefore rendered text bounds/position.
+          # Quotes are valid around any single-token name too, so this is
+          # lossless for existing hyphenated families.
+          el.add_style(%(font-family: "#{font.family}"))
         end
 
         case font.weight
@@ -2925,6 +3359,30 @@ module UI
         end
       end
 
+      # Best-effort read of the flex MAIN axis the immediate parent container
+      # establishes for the element currently being styled. Inspects the
+      # parent element's already-emitted inline `style` (the flex-direction is
+      # set before its children are visited), so it always reflects the TRUE
+      # immediate parent regardless of which visit method pushed it — no
+      # parallel stack to keep in sync. Returns `:row`, `:column`, or `:none`.
+      private def parent_flex_axis : Symbol
+        parent = @element_stack.last?
+        return :none unless parent
+        style = parent["style"]
+        return :none unless style
+        # Only flex containers establish a main axis for align-self to act on.
+        return :none unless style.includes?("display: flex")
+        if style.includes?("flex-direction: column")
+          :column
+        elsif style.includes?("flex-direction: row")
+          :row
+        else
+          # CSS default flex-direction is `row` when display:flex is set with
+          # no explicit direction.
+          :row
+        end
+      end
+
       # Build a `clamp(min_px, ideal_vw, max_px)` literal from numeric pixel
       # floor/ceiling and a vw curve. Used by widget visit methods to migrate
       # away from hard-coded pixel sizing without surfacing UI::Fluid records
@@ -2947,8 +3405,19 @@ module UI
       # styled label / thumb), not a decorative wrapper.
       private def enforce_touch_target(el : Components::Elements::HTMLElement)
         min = @design_tokens.touch_target_minimum_px
-        el.add_style("min-width: #{min}px")
-        el.add_style("min-height: #{min}px")
+        el.add_style("min-width: #{effective_touch_min(el, "min-width", min)}px")
+        el.add_style("min-height: #{effective_touch_min(el, "min-height", min)}px")
+      end
+
+      # The touch-target floor must never SHRINK a larger explicit min the view
+      # already set (e.g. a fixed-width CTA: minimum_width = 334). enforce_touch_target
+      # runs after apply_common_styles, and CSS takes the last declaration, so a blind
+      # `min-width: 44px` would clobber the author's 334. Honor max(floor, explicit).
+      private def effective_touch_min(el : Components::Elements::HTMLElement, prop : String, floor : Float64) : Float64
+        style = el["style"]
+        return floor unless style
+        biggest = style.scan(Regex.new("#{prop}:\\s*([0-9.]+)px")).compact_map(&.[1].to_f?).max?
+        biggest && biggest > floor ? biggest : floor
       end
 
       # Phase 4 — Tier 3 stub on -Dios builds only. The web renderer is
