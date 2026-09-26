@@ -251,7 +251,7 @@ describe "surface-craft UI primitives" do
 
     it "uses the text-ink role for the swatch-row ring by default and accepts an override" do
       swatches = [
-        UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::ColorRole::Warning),
+        UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::ColorRole::Warning),
         UI::ColorSwatch.new(color_name: "Ink", swatch_color: UI::ColorRole::TextPrimary),
       ]
       picker = UI::ColorSwatchPicker.new(
@@ -287,12 +287,12 @@ describe "surface-craft UI primitives" do
 
       picker = UI::ColorSwatchPicker.new(
         list_of_color_swatches: [
-          UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::ColorRole::Warning),
+          UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::ColorRole::Warning),
         ],
       )
       picker_json = picker.surface_craft_picker_json
       picker_json.should contain(%("appearance":"swatch_button"))
-      picker_json.should contain(%("name":"Brass","color":"role:warning"))
+      picker_json.should contain(%("name":"Copper","color":"role:warning"))
       picker_json.should contain(%("selectionRing":"role:text-primary"))
 
       picker.selection_ring_color = UI::ColorRole::BrandAccent

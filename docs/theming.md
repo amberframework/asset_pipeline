@@ -4,7 +4,7 @@
 
 | Start | Build | Finish |
 | --- | --- | --- |
-| [1. Short answer](#1-the-short-answer) · [2. File by file](#2-what-you-change-file-by-file) · [3. Layer map](#3-layer-map) | [4. Checklist](#4-step-by-step-checklist) · [5. Minimal example](#5-minimal-complete-skin-example) · [6. Worked reference](#6-worked-reference-agentc_mac_ui) | [7. Rules](#7-rules-for-a-good-skin) · [8. Known gaps](#8-known-gaps) · [9. Verification](#9-how-to-verify-a-skin) |
+| [1. Short answer](#1-the-short-answer) · [2. File by file](#2-what-you-change-file-by-file) · [3. Layer map](#3-layer-map) | [4. Checklist](#4-step-by-step-checklist) · [5. Minimal example](#5-minimal-complete-skin-example) · [6. Worked reference](#6-worked-reference-acme_skin) | [7. Rules](#7-rules-for-a-good-skin) · [8. Known gaps](#8-known-gaps) · [9. Verification](#9-how-to-verify-a-skin) |
 
 ## 1. The short answer
 
@@ -24,30 +24,30 @@ A full skin changes files in the skin shard, the app bootstrap, and every screen
 
 | File | What goes in it | One-line example |
 | --- | --- | --- |
-| `shard.yml` | Package metadata and the exact `asset_pipeline` commit dependency only; keep skin and app configuration out of the manifest. | `asset_pipeline: { github: crimson-knight/asset_pipeline, commit: "0e5a33bc26d23805a531f3e2c0a42b69271c76a4" }` |
+| `shard.yml` | Package metadata and the exact `asset_pipeline` commit dependency only; keep skin and app configuration out of the manifest. | `asset_pipeline: { github: amberframework/asset_pipeline, commit: "0e5a33bc26d23805a531f3e2c0a42b69271c76a4" }` |
 | `shard.lock` | Generated dependency revisions and archive checksums; create it while `lib/` is empty, then verify it frozen. | `shards-alpha install --frozen` |
-| `src/<skin>.cr` | Public entry point; require the UI API and each skin module. | `require "./agentc_mac_ui/brand"` |
-| `src/<skin>/brand.cr` | `UI::DesignTokens::Brand` subclass with both `override_color_light` and `override_color_dark`. | `palette.copy_with(brand_primary: ..., surface_canvas: ...)` |
-| `src/<skin>/fonts.cr`, `fonts/*.ttf`, `fonts/CHECKSUMS.sha256`, and font license files | List bundled files, register them, record upstream commit provenance, hash fonts and licenses, and test the inventory. | `LIST_OF_FONT_FILE_NAMES = {"Michroma-Regular.ttf", ...}` |
-| `src/<skin>/components.cr` | Reusable helpers for sections, screen surfaces, typography, and controls; take appearance when a primitive needs a literal light/dark color. | `AgentcMacUi.build_title_label("Settings", appearance: appearance)` |
-| `src/<skin>/errors.cr` | Skin-owned error types for invalid helper input or font registration failures. | `class Error < Exception` |
+| `src/acme_skin.cr` | Public entry point; require the UI API and each skin module. | `require "./acme_skin/brand"` |
+| `src/acme_skin/brand.cr` | `UI::DesignTokens::Brand` subclass with both `override_color_light` and `override_color_dark`. | `palette.copy_with(brand_primary: ..., surface_canvas: ...)` |
+| `src/acme_skin/fonts.cr`, `fonts/*.ttf`, `fonts/CHECKSUMS.sha256`, and font license files | List bundled files, register them, record upstream commit provenance, hash fonts and licenses, and test the inventory. | `LIST_OF_FONT_FILE_NAMES = {"NotoSans[wdth,wght].ttf", ...}` |
+| `src/acme_skin/components.cr` | Reusable helpers for sections, screen surfaces, typography, and controls; take appearance when a primitive needs a literal light/dark color. | `AcmeSkin.build_title_label("Settings", appearance: appearance)` |
+| `src/acme_skin/errors.cr` | Skin-owned error types for invalid helper input or font registration failures. | `class Error < Exception` |
 | `spec/` | Palette and helper behavior, font checksums/file inventory, and consumer-side contrast checks. | `tokens.colors_dark.brand_primary.should eq(expected_color)` |
 
 ### In the app
 
 | File or location | What goes in it | One-line example |
 | --- | --- | --- |
-| App `shard.yml` | Add the skin shard as an app dependency. | `agentc_mac_ui: { path: "../agentc_mac_ui" }` |
-| App startup | Register fonts before constructing screens, then report any failed filenames with the skin's named error. | `failed_font_file_names = AgentcMacUi.register_fonts` |
+| App `shard.yml` | Add the skin shard as an app dependency with a reviewed GitHub commit pin. | `acme_skin: { github: example-org/acme_skin, commit: "<reviewed-commit-sha>" }` |
+| App startup | Register fonts before constructing screens, then report any failed filenames with the skin's named error. | `failed_font_file_names = AcmeSkin.register_fonts` |
 | Renderer creation/bootstrap | Before first render, assign `renderer.design_tokens`; assign `renderer.theme` too when legacy web `--md-sys-*` CSS is still used. | `renderer.design_tokens = MyApp.app_design_tokens` |
-| `UI::App` subclass (optional) | Declare the token value once with `design_tokens do ... end`; the app still assigns `app_design_tokens` to each renderer. | `design_tokens do |tokens| tokens.with_brand(ExampleSkin::Brand.new) end` |
+| `UI::App` subclass (optional) | Declare the token value once with `design_tokens do ... end`; the app still assigns `app_design_tokens` to each renderer. | `design_tokens do |tokens| tokens.with_brand(AcmeSkin::Brand.new) end` |
 
 Use this startup pattern to report font failures. `register_fonts` returns failed names; `errors.cr` defines the app's skin-owned `Error` type:
 
 ```crystal
-failed_font_file_names = AgentcMacUi.register_fonts
+failed_font_file_names = AcmeSkin.register_fonts
 unless failed_font_file_names.empty?
-  raise AgentcMacUi::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
+  raise AcmeSkin::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
 end
 ```
 
@@ -57,7 +57,7 @@ When legacy web CSS needs the skin, set the renderer's `theme` separately from i
 renderer.design_tokens = MyApp.app_design_tokens
 renderer.theme = UI::Theme.from_design_tokens(
   renderer.design_tokens,
-  font_family: "Fira Sans",
+  font_family: "Noto Sans",
   body_size: 15.0,
   title_size: 22.0,
   headline_size: 28.0,
@@ -74,20 +74,19 @@ Replace literal colors and fonts, plus raw `Form#add_section`, `UI::Toggle`, `UI
 
 | File or pattern | What you change | One-line example |
 | --- | --- | --- |
-| Each screen/view builder file in the app | Replace local presentation decisions and direct control construction with the skin's appearance-aware helpers. | `AgentcMacUi.build_recording_color_picker { |index| save_recording_color(index) }` |
+| Each screen/view builder file in the app | Replace local presentation decisions and direct control construction with the skin's appearance-aware helpers. | `AcmeSkin.add_settings_section(form, "Storage")` |
 
 ```crystal
 # Before
-title.font = UI::Font.new(family: "Michroma", size: 18.0)
+title.font = UI::Font.new(family: "Noto Sans", size: 18.0)
 screen.background_fill_color = UI::Color.new(r: 0.94, g: 0.92, b: 0.88)
 section = form.add_section("Storage")
 switch = UI::Toggle.new("Launch at Login", false)
 
 # After
-title = AgentcMacUi.build_title_label("Storage", appearance: appearance)
-AgentcMacUi.apply_screen_surface(screen, appearance: appearance)
-section = AgentcMacUi.add_folder_section(form, "Storage", icon: "folder", appearance: appearance)
-switch = AgentcMacUi.build_slide_switch("Launch at Login", initial_is_on: false, appearance: appearance) { |is_on| save_setting(is_on) }
+title.font = UI::Font.new(family: "Noto Sans", size: 18.0)
+section = AcmeSkin.add_settings_section(form, "Storage")
+switch = AcmeSkin.build_switch("Launch at Login", is_on: false)
 ```
 
 **Not changeable today:** See [Known gaps](#8-known-gaps) for window chrome colors/fonts, tab typography, duotone tab icons, macOS Button feedback, and incomplete iOS/Android styling.
@@ -180,14 +179,14 @@ The surface implementation matrix is also summarized in [Surface craft primitive
 
 Use these steps in order: build and pin the skin shard, activate it in the app, convert screen builders, then verify.
 
-1. **Create a skin shard.** Keep package code under `src/<skin_name>/`, export it from `src/<skin_name>.cr`, keep fonts under `fonts/`, and add consumer-owned specs under `spec/`. `shard.yml` is only package metadata and dependency declarations; do not put palette, appearance, font, or app config keys there.
+1. **Create a skin shard.** Keep package code under `src/acme_skin/`, export it from `src/acme_skin.cr`, keep fonts under `fonts/`, and add consumer-owned specs under `spec/`. `shard.yml` is only package metadata and dependency declarations; do not put palette, appearance, font, or app config keys there.
 
 2. **Pin Asset Pipeline and generate the lock from a clean install.** For the surface API in this guide, use the reviewed commit. Start with a fresh consumer checkout whose `lib/` is empty:
 
    ```yaml
    dependencies:
      asset_pipeline:
-       github: crimson-knight/asset_pipeline
+       github: amberframework/asset_pipeline
        commit: 0e5a33bc26d23805a531f3e2c0a42b69271c76a4
    ```
 
@@ -195,30 +194,30 @@ Use these steps in order: build and pin the skin shard, activate it in the app, 
 
 3. **Implement a Brand subclass.** Override `override_color_light` and `override_color_dark` using `palette.copy_with(...)`. Override `override_type`, `override_spacing`, or other scale hooks only for values the app will consume. Keep light and dark decisions in their own palettes.
 
-4. **Vendor and register fonts.** Copy exact font files and license files from a pinned upstream commit. Record that commit, list the files in `<skin>/fonts.cr`, check every font and license in `fonts/CHECKSUMS.sha256`, and add a spec that rejects missing or unexpected files. Verify with `shasum -a 256 -c fonts/CHECKSUMS.sha256`. Register the bundled `.ttf`/`.otf` files before building views that name their PostScript family. The worked reference includes `Michroma-Regular.ttf`; its `register_fonts` helper returns failed filenames for the app to report:
+4. **Vendor and register fonts.** Copy exact font files and license files from a pinned upstream commit. Record that commit, list the files in `src/acme_skin/fonts.cr`, check every font and license in `fonts/CHECKSUMS.sha256`, and add a spec that rejects missing or unexpected files. Verify with `shasum -a 256 -c fonts/CHECKSUMS.sha256`. Register the bundled `.ttf`/`.otf` files before building views that name their PostScript family. For an OFL-licensed example family such as Noto Sans, its `register_fonts` helper returns failed filenames for the app to report:
 
    ```crystal
-   failed_font_file_names = AgentcMacUi.register_fonts
+   failed_font_file_names = AcmeSkin.register_fonts
    unless failed_font_file_names.empty?
-     raise AgentcMacUi::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
+     raise AcmeSkin::Error.new("Could not register fonts: #{failed_font_file_names.join(", ")}")
    end
    ```
 
-   `register_fonts` should call `UI::FontRegistry.register_bundled_font_file` for each listed path, such as `fonts/Michroma-Regular.ttf`. The registrar is macOS-only and returns `false` on non-macOS builds; keep the error type in the skin's `errors.cr`.
+   `register_fonts` should call `UI::FontRegistry.register_bundled_font_file` for each listed path, such as `fonts/NotoSans[wdth,wght].ttf`. The registrar is macOS-only and returns `false` on non-macOS builds; keep the error type in `src/acme_skin/errors.cr`.
 
 5. **Add view helpers.** Have section helpers pass `tab_shape`, `tab_icon`, `panel_style`, and `tab_style` to `Form#add_section`. Have toggle, keycap, picker, and button helpers set their exact view properties. Put literal light/dark colors in the skin helper layer and choose them from the active appearance when a native role cannot resolve the palette.
 
 6. **Activate tokens in the app.** With a renderer instance, assign the brand result before its first render:
 
    ```crystal
-   renderer.design_tokens = UI::DesignTokens::Tokens.default.with_brand(ExampleSkin::Brand.new)
+   renderer.design_tokens = UI::DesignTokens::Tokens.default.with_brand(AcmeSkin::Brand.new)
    ```
 
    If the app subclasses `UI::App`, it can define the token value in the class body and feed the getter to the renderer:
 
    ```crystal
    design_tokens do |tokens|
-     tokens.with_brand(ExampleSkin::Brand.new)
+     tokens.with_brand(AcmeSkin::Brand.new)
    end
 
    renderer.design_tokens = MyApp.app_design_tokens
@@ -237,7 +236,7 @@ This small example shows the minimum Brand and view-helper code the skin shard n
 The snippet is the body of [samples/theming/example_skin.cr](../samples/theming/example_skin.cr); that file has one repository-local `require "../../src/ui"` line before this module. [spec/web/docs/theming_example_spec.cr](../spec/web/docs/theming_example_spec.cr) requires the same file and asserts that both palettes resolve and each helper returns the chosen primitives.
 
 ```crystal
-module ExampleSkin
+module AcmeSkin
   LIGHT_PRIMARY = UI::DesignTokens::Color.hex("#316C73")
   DARK_PRIMARY  = UI::DesignTokens::Color.hex("#A5D4CF")
 
@@ -288,15 +287,40 @@ module ExampleSkin
 end
 ```
 
-Activate it on a renderer with `Tokens.default.with_brand(ExampleSkin::Brand.new)`. The sample overrides the primary family in both palettes; all other roles keep Asset Pipeline defaults.
+Activate it on a renderer with `Tokens.default.with_brand(AcmeSkin::Brand.new)`. The sample overrides the primary family in both palettes; all other roles keep Asset Pipeline defaults.
 
-## 6. Worked reference: `agentc_mac_ui`
+## 6. Worked reference: `acme_skin`
 
-The local AgentC consumer shows the full combination of Brand, fonts, and per-view helpers. Its Brand uses navy `#23293A`, warm taupe surfaces/text, and brass `#DAB56E`; helper colors also distinguish light and dark appearances. Titles use Michroma; body and helper text use Fira Sans; shortcut keycaps use Fira Mono. Its fonts come from `google/fonts` commit `23e54b51ddffbc7713c583748e3bd86f62b1fa4a`; `fonts/CHECKSUMS.sha256` covers the font and OFL license files, and its checksum spec rejects missing or extra files.
+The `AcmeSkin` example combines a `Brand`, an OFL-licensed font family such as Noto Sans, and per-view helpers. Use neutral swatch names such as Copper, Slate, and Moss in picker examples. The minimal implementation is in [samples/theming/example_skin.cr](../samples/theming/example_skin.cr), with behavior checks in [spec/web/docs/theming_example_spec.cr](../spec/web/docs/theming_example_spec.cr).
 
-Its `README.md` shows `Brand`, `register_fonts`, `add_folder_section`, `apply_screen_surface`, `build_slide_switch`, `build_keycaps`, `build_recording_color_picker`, and its button/menu helpers working together. Surface helpers take an explicit appearance because several pinned macOS controls need literal colors. The current consumer checkout is unpublished and has no Git remote; its README uses a local path dependency for the skin itself and pins Asset Pipeline to the commit above.
+```crystal
+list_of_color_swatches = [
+  UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::Color.new(r: 0.72, g: 0.39, b: 0.22)),
+  UI::ColorSwatch.new(color_name: "Slate", swatch_color: UI::Color.new(r: 0.34, g: 0.39, b: 0.47)),
+  UI::ColorSwatch.new(color_name: "Moss", swatch_color: UI::Color.new(r: 0.34, g: 0.45, b: 0.30)),
+]
+```
 
-The reference verifies three macOS limits that are also visible in this source:
+In a consumer app, pin the skin shard to a reviewed GitHub commit. These values are illustrative; use the actual commit and checksum generated for the package you review:
+
+```yaml
+# shard.yml
+dependencies:
+  acme_skin:
+    github: example-org/acme_skin
+    commit: "<reviewed-40-character-commit-sha>"
+```
+
+```yaml
+# shard.lock excerpt, generated by shards-alpha
+acme_skin:
+  commit: "<same-reviewed-commit-sha>"
+  checksum: "sha256:<64-character-archive-checksum>"
+```
+
+Run `shards-alpha install --frozen` to verify the generated lock checksum. Keep the `AcmeSkin` source under `src/acme_skin/`, export it through `src/acme_skin.cr`, and keep font licenses beside the vendored font files.
+
+The current macOS implementation has three relevant limits:
 
 - Tab labels use a hardcoded 12-point system semibold font and have no tracking field. `FormFacade` accepts shape/style/icon arrays only; see `FormOverrides.swift:22` and `FormFacade.swift:164`.
 - Tab icons use a monochrome `Image(systemName:)`; there are no separate fill/stroke color fields. See `FormFacade.swift:164`.
@@ -309,7 +333,7 @@ A skin for the default Amber V2 app path is planned on the same separate-shard p
 Keep the system's native behavior while adding a small, consistent set of brand choices.
 
 - Keep Apple controls native by default. Add brand character through explicit override knobs and reusable helpers.
-- Use one accent signal per screen. Keep brass or another high-attention color for the single most important action or state.
+- Use one accent signal per screen. Keep a high-attention color for the single most important action or state.
 - Keep text contrast at or above 4.5:1 against its actual background. Do not place light accent text on a light ground.
 - Supply and review both light and dark palettes every time.
 - Keep color decisions in tokens or skin styles/helpers. Do not hardcode colors in screen/view builders.

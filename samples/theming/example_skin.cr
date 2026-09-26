@@ -1,6 +1,6 @@
 require "../../src/ui"
 
-module ExampleSkin
+module AcmeSkin
   LIGHT_PRIMARY = UI::DesignTokens::Color.hex("#316C73")
   DARK_PRIMARY  = UI::DesignTokens::Color.hex("#A5D4CF")
 

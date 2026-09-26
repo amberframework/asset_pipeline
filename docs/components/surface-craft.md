@@ -98,8 +98,9 @@ UI::ColorSwatchPicker takes named UI::ColorSwatch values and a selected index. I
 
 ~~~crystal
 swatches = [
-  UI::ColorSwatch.new(color_name: "Ocean", swatch_color: UI::Color.new(r: 0.17, g: 0.42, b: 0.69)),
-  UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::Color.new(r: 0.78, g: 0.56, b: 0.24)),
+  UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::Color.new(r: 0.72, g: 0.39, b: 0.22)),
+  UI::ColorSwatch.new(color_name: "Slate", swatch_color: UI::Color.new(r: 0.34, g: 0.39, b: 0.47)),
+  UI::ColorSwatch.new(color_name: "Moss", swatch_color: UI::Color.new(r: 0.34, g: 0.45, b: 0.30)),
 ]
 picker = UI::ColorSwatchPicker.new(
   list_of_color_swatches: swatches,
@@ -135,14 +136,16 @@ button.preview_state = UI::PreviewState::Hover
 Register an app-bundled font at startup before creating views that name it by PostScript family name. Registration is process-scoped on macOS and returns false for a missing or invalid file. This repository does not bundle fonts.
 
 ~~~crystal
-unless UI::FontRegistry.register_bundled_font_file("Resources/Michroma-Regular.otf")
-  raise "Could not register Michroma"
+unless UI::FontRegistry.register_bundled_font_file("Resources/NotoSans[wdth,wght].ttf")
+  raise "Could not register Noto Sans"
 end
 
-heading.font = UI::Font.new(family: "Michroma", size: 22.0)
+heading.font = UI::Font.new(family: "Noto Sans", size: 22.0)
 ~~~
 
-## Scribe-style settings example
+Noto Sans is an example OFL-licensed font family.
+
+## Complete settings example
 
 This combines a folder-tab section, machined panel, slide toggle, sculpted shortcut keycap, and named swatch menu:
 
@@ -172,8 +175,9 @@ audio.fields << UI::Form::Field.new(label: "Shortcut", content: shortcut)
 
 palette = UI::ColorSwatchPicker.new(
   list_of_color_swatches: [
-    UI::ColorSwatch.new(color_name: "Ocean", swatch_color: UI::Color.new(r: 0.17, g: 0.42, b: 0.69)),
-    UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::Color.new(r: 0.78, g: 0.56, b: 0.24)),
+    UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::Color.new(r: 0.72, g: 0.39, b: 0.22)),
+    UI::ColorSwatch.new(color_name: "Slate", swatch_color: UI::Color.new(r: 0.34, g: 0.39, b: 0.47)),
+    UI::ColorSwatch.new(color_name: "Moss", swatch_color: UI::Color.new(r: 0.34, g: 0.45, b: 0.30)),
   ],
   appearance: UI::ColorSwatchPickerStyle::SwatchButton,
 ) { |_index| nil }

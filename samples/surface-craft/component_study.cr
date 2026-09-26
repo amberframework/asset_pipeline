@@ -159,13 +159,13 @@ require "../../src/ui"
       section.fields << UI::Form::Field.new(label: "Keycap styles", content: keycap_examples)
     when 3
       swatches = [
-        UI::ColorSwatch.new(color_name: "Ocean", swatch_color: UI::Color.new(r: 0.12, g: 0.42, b: 0.72)),
-        UI::ColorSwatch.new(color_name: "Brass", swatch_color: UI::Color.new(r: 0.78, g: 0.56, b: 0.24)),
-        UI::ColorSwatch.new(color_name: "Graphite", swatch_color: UI::ColorRole::TextPrimary),
+        UI::ColorSwatch.new(color_name: "Copper", swatch_color: UI::Color.new(r: 0.72, g: 0.39, b: 0.22)),
+        UI::ColorSwatch.new(color_name: "Slate", swatch_color: UI::Color.new(r: 0.34, g: 0.39, b: 0.47)),
+        UI::ColorSwatch.new(color_name: "Moss", swatch_color: UI::Color.new(r: 0.34, g: 0.45, b: 0.30)),
       ]
-      bezel_result = UI::Label.new("Bezel selection: 1: Brass")
+      bezel_result = UI::Label.new("Bezel selection: 1: Slate")
       bezel_result.test_id = "surface-craft-bezel-result"
-      row_result = UI::Label.new("Swatch row selection: 1: Brass")
+      row_result = UI::Label.new("Swatch row selection: 1: Slate")
       row_result.test_id = "surface-craft-row-result"
       swatch_examples = UI::HStack.new(spacing: 8.0)
       [
@@ -206,7 +206,7 @@ require "../../src/ui"
   title.font = UI::Font.new(size: 24.0, weight: :semibold)
   if font_path = ENV["SURFACE_CRAFT_FONT"]?
     if UI::FontRegistry.register_bundled_font_file(font_path)
-      title.font = UI::Font.new(family: "Michroma", size: 24.0)
+      title.font = UI::Font.new(family: "Noto Sans", size: 24.0)
     end
   end
 
