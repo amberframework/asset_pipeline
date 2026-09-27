@@ -134,18 +134,18 @@ require "../../src/ui"
     {mean, Math.sqrt(sum_of_squared_differences / pixel_count)}
   end
 
-  private def surface_craft_luma_statistics(pixels : Array(UInt8), pixel_width : Int32, pixel_height : Int32) : {Float64, Float64}
+  private def surface_craft_measure_luma_statistics(pixels : Array(UInt8), pixel_width : Int32, pixel_height : Int32) : {Float64, Float64}
     pixel_count = pixel_width.to_i64 * pixel_height.to_i64
-    values = Array(Float64).new(pixel_count.to_i32)
+    list_of_luma_values = Array(Float64).new(pixel_count.to_i32)
     pixel_count.times do |index|
       offset = index.to_i32 * 4
       red = pixels[offset].to_f64
       green = pixels[offset + 1].to_f64
       blue = pixels[offset + 2].to_f64
-      values << red * 0.2126 + green * 0.7152 + blue * 0.0722
+      list_of_luma_values << red * 0.2126 + green * 0.7152 + blue * 0.0722
     end
-    mean = values.sum / pixel_count
-    sum_of_squared_differences = values.sum do |value|
+    mean = list_of_luma_values.sum / pixel_count
+    sum_of_squared_differences = list_of_luma_values.sum do |value|
       difference = value - mean
       difference * difference
     end
@@ -440,13 +440,13 @@ require "../../src/ui"
     end
 
     it "matches browser RGBA Noise compositing over light and dark fills at 2x" do
-      fixture_cases = [
+      list_of_fixture_cases = [
         {fill: UI::Color.new(r: 251.0 / 255.0, g: 248.0 / 255.0, b: 242.0 / 255.0), file: "light-reference.png"},
         {fill: UI::Color.new(r: 43.0 / 255.0, g: 50.0 / 255.0, b: 69.0 / 255.0), file: "dark-reference.png"},
       ]
       pixel_capacity = 256 * 256 * 4
 
-      fixture_cases.each do |fixture_case|
+      list_of_fixture_cases.each do |fixture_case|
         surface = UI::VStack.new
         surface.background_fill_color = fixture_case[:fill]
         surface.texture_overlay = UI::TextureOverlay.new(
@@ -499,8 +499,8 @@ require "../../src/ui"
         native_pixel_height.should eq(256)
         reference_pixel_width.should eq(256)
         reference_pixel_height.should eq(256)
-        native_mean, native_standard_deviation = surface_craft_luma_statistics(native_pixels, native_pixel_width, native_pixel_height)
-        reference_mean, reference_standard_deviation = surface_craft_luma_statistics(reference_pixels, reference_pixel_width, reference_pixel_height)
+        native_mean, native_standard_deviation = surface_craft_measure_luma_statistics(native_pixels, native_pixel_width, native_pixel_height)
+        reference_mean, reference_standard_deviation = surface_craft_measure_luma_statistics(reference_pixels, reference_pixel_width, reference_pixel_height)
 
         # The mean allows one 8-bit level for compositor rounding. The tighter
         # standard-deviation bound catches a doubled or missing layer opacity.
