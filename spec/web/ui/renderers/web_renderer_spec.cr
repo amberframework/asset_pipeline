@@ -437,6 +437,43 @@ describe UI::Web::Renderer do
       html.should contain("font-size: 14.0px")
     end
 
+    it "emits an assigned text_color as the value color" do
+      field = UI::TextField.new(placeholder: "Project", text: "Cedar")
+      field.text_color = UI::Color.new(r: 0x23 / 255.0, g: 0x29 / 255.0, b: 0x3A / 255.0)
+      render(field).should contain("color: rgba(35, 41, 58, 1.0)")
+    end
+
+    it "keeps an explicitly assigned black text_color instead of the theme token" do
+      field = UI::TextField.new
+      field.text_color = UI::Color.new(r: 0.0, g: 0.0, b: 0.0)
+      html = render(field)
+      html.should contain("color: rgba(0, 0, 0, 1.0)")
+      html.should_not contain("color: var(--ap-color-text-primary)")
+    end
+
+    it "uses the primary text token when text_color is never assigned" do
+      render(UI::TextField.new).should contain("color: var(--ap-color-text-primary)")
+    end
+
+    it "emits placeholder_color as the placeholder tint" do
+      field = UI::TextField.new("Project")
+      field.placeholder_color = UI::Color.new(r: 0x7A / 255.0, g: 0x2E / 255.0, b: 0x1F / 255.0)
+      html = render(field)
+      html.should contain("ap-placeholder-tint")
+      html.should contain("--ap-placeholder-color: rgba(122, 46, 31, 1.0)")
+    end
+
+    it "leaves the placeholder untinted when placeholder_color is nil" do
+      html = render(UI::TextField.new("Project"))
+      html.should_not contain("ap-placeholder-tint")
+      html.should_not contain("--ap-placeholder-color")
+    end
+
+    it "ships the placeholder tint rule in the theme stylesheet" do
+      UI::Web::Renderer.new.inject_theme_css.should contain(
+        ".ap-placeholder-tint::placeholder{color:var(--ap-placeholder-color);opacity:1}")
+    end
+
     it "is a self-closing tag (void element)" do
       field = UI::TextField.new
       html = render(field)
@@ -486,6 +523,19 @@ describe UI::Web::Renderer do
       field = UI::SecureField.new("Password")
       field.text_alignment = UI::Alignment::Trailing
       render(field).should contain("text-align: end")
+    end
+
+    it "emits an assigned text_color and placeholder_color" do
+      field = UI::SecureField.new(placeholder: "Password", text: "secret")
+      field.text_color = UI::Color.new(r: 0x23 / 255.0, g: 0x29 / 255.0, b: 0x3A / 255.0)
+      field.placeholder_color = UI::Color.new(r: 0x7A / 255.0, g: 0x2E / 255.0, b: 0x1F / 255.0)
+      html = render(field)
+      html.should contain("color: rgba(35, 41, 58, 1.0)")
+      html.should contain("--ap-placeholder-color: rgba(122, 46, 31, 1.0)")
+    end
+
+    it "uses the primary text token when text_color is never assigned" do
+      render(UI::SecureField.new("Password")).should contain("color: var(--ap-color-text-primary)")
     end
 
     it "renders type=\"password\"" do
