@@ -30,6 +30,10 @@ module UI
     # Placeholder text shown when empty
     property placeholder : String = ""
 
+    # Horizontal alignment of the value and placeholder inside the field.
+    # Leading and Trailing follow the platform's natural reading direction.
+    property text_alignment : Alignment = Alignment::Leading
+
     # Name attribute for web POST submission. When non-nil and the
     # field renders into a `<form>` (UI::Form), the web renderer emits
     # `name="..."` so the browser includes this field in the form-encoded

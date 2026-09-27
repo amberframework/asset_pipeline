@@ -7,6 +7,9 @@ import Foundation
 
 @objc(APSKSecureFieldOverrides)
 public class SecureFieldOverrides: ViewOverrides {
+    // Crystal `text_alignment`: logical leading / center / trailing placement
+    // for both the value and the custom placeholder overlay.
+    @objc public var textAlignment: String? = nil
     // Font: point size, raw Font.Weight intValue, custom family / PostScript
     // name. nil = SwiftUI default. Mirrors TextFieldOverrides.
     @objc public var fontSize: NSNumber? = nil

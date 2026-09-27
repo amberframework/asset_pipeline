@@ -21,6 +21,7 @@ public class SecureFieldFacade: NSObject {
         actionToken: UInt64
     ) -> APSKPlatformView {
         let storage = TextStorage(initial: initialText, token: actionToken)
+        let alignment = swiftUITextFieldAlignment(overrides.textAlignment)
         // Phase 6.11 Iter 4 — Item 2 (placeholder contrast).
         //
         // SwiftUI's bare `SecureField(placeholder, text:)` renders its
@@ -31,7 +32,7 @@ public class SecureFieldFacade: NSObject {
         // the placeholderText semantic.
         //
         // Solution (shared with TextFieldFacade): render the SecureField
-        // with an empty placeholder + a leading-aligned overlay Text at
+        // with an empty placeholder + a logically aligned overlay Text at
         // `Color.primary.opacity(0.5)`. That composites to ~127,127,127
         // on white and ~127,127,127 on black — ~4.6:1 contrast in both
         // appearances, comfortably above WCAG AA's 3:1 floor for UI text.
@@ -41,7 +42,8 @@ public class SecureFieldFacade: NSObject {
             PromptOverlayField(
                 storage: storage,
                 placeholder: placeholder,
-                isSecure: true
+                isSecure: true,
+                textAlignment: alignment
             )
         )
         // Custom font cascade (mirrors TextFieldFacade): custom registered

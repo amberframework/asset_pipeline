@@ -57,10 +57,16 @@ public class FormFacade: NSObject {
                                 let lbl = absIdx < labels.count ? labels[absIdx] : ""
                                 if !lbl.isEmpty {
                                     LabeledContent(lbl) {
+                                        // LabeledContent positions its hosted value at the
+                                        // trailing side of the column. Expand the child slot
+                                        // so text fields can place glyphs at the value column's
+                                        // leading edge instead of at the row's trailing edge.
                                         APSKHostedChild(view: childViews[absIdx])
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                 } else {
                                     APSKHostedChild(view: childViews[absIdx])
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
                         } header: {
@@ -83,6 +89,7 @@ public class FormFacade: NSObject {
                                             Spacer(minLength: 12)
                                         }
                                         APSKHostedChild(view: childViews[absIdx])
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.vertical, 8)

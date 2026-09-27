@@ -10,6 +10,9 @@ import Foundation
 
 @objc(APSKTextFieldOverrides)
 public class TextFieldOverrides: ViewOverrides {
+    // Crystal `text_alignment`: logical leading / center / trailing placement
+    // for both the value and the custom placeholder overlay.
+    @objc public var textAlignment: String? = nil
     @objc public var secureEntry: NSNumber? = nil
     @objc public var keyboardType: String? = nil
     // Font: point size, raw Font.Weight intValue, custom family / PostScript
