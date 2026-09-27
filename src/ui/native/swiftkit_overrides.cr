@@ -480,9 +480,7 @@ module UI
         end
         emit_font(target, view.font, sender)
 
-        # Placeholder tint — nil by default (set_color no-ops on nil), so the
-        # kit's contrast-safe placeholder stays unless the consumer overrides.
-        sender.set_color(target, :setPlaceholderColor, view.placeholder_color)
+        emit_text_colors(target, view, sender)
 
         # Visual chrome — emit only when non-default (RoundedBorder) so existing
         # fields keep their boxed style. "underline" = bottom-rule only (Expo
@@ -499,6 +497,20 @@ module UI
         # only the brand font flows through (so a password field matches its
         # sibling text fields). UI::SecureField#font was previously dropped.
         emit_font(target, view.font, sender)
+        emit_text_colors(target, view, sender)
+      end
+
+      # Emit the value and placeholder colors shared by TextField and
+      # SecureField. The value color goes out only when the consumer assigned
+      # `text_color`, so an untouched field keeps the appearance-tracking label
+      # color instead of the model's black placeholder value. The placeholder
+      # tint is nil by default (set_color skips nil), which keeps the kit's
+      # contrast-safe placeholder.
+      def self.emit_text_colors(target : String, view : UI::TextField | UI::SecureField, sender : Sender)
+        if view.has_explicit_text_color?
+          sender.set_color(target, :setTextColor, view.text_color)
+        end
+        sender.set_color(target, :setPlaceholderColor, view.placeholder_color)
       end
 
       def self.populate_search_field(target : String, view : UI::SearchField, sender : Sender)
