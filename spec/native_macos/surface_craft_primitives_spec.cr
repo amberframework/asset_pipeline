@@ -207,6 +207,9 @@ require "../../src/ui"
         seed: 7,
         tile_size: 128,
       )
+      surface.list_of_drop_shadows = [
+        UI::DropShadow.new(shadow_color: UI::ColorRole::TextPrimary, offset_y: 2.0, blur_radius: 5.0),
+      ]
       native = UI::AppKit::Renderer.new.render(surface)
       initial_tile_width = 0
       initial_tile_height = 0

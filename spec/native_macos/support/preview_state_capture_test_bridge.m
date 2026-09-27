@@ -1,6 +1,7 @@
 #import <AppKit/AppKit.h>
 #import <ImageIO/ImageIO.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdint.h>
 
 extern void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
@@ -80,37 +81,50 @@ static int32_t ap_spec_attach_view_to_offscreen_window(
         if (window == nil) return 0;
         [window setReleasedWhenClosed:NO];
         window.specBackingScaleFactor = initial_scale;
-        [view setFrame:frame];
-        [window setContentView:view];
-        [window orderOut:nil];
-        [window layoutIfNeeded];
-        [view layoutSubtreeIfNeeded];
-        [window displayIfNeeded];
-        [view displayIfNeeded];
-        if (initial_tile_width != NULL && initial_tile_height != NULL) {
-            ap_spec_texture_tile_pixel_size(view, initial_tile_width, initial_tile_height);
-        }
-
-        if (should_change_scale) {
-            window.specBackingScaleFactor = changed_scale;
-            [view viewDidChangeBackingProperties];
+        int32_t result = 1;
+        @try {
+            [view setFrame:frame];
+            [window setContentView:view];
+            [window orderOut:nil];
             [window layoutIfNeeded];
             [view layoutSubtreeIfNeeded];
             [window displayIfNeeded];
             [view displayIfNeeded];
-            if (changed_tile_width != NULL && changed_tile_height != NULL) {
-                ap_spec_texture_tile_pixel_size(view, changed_tile_width, changed_tile_height);
+            if (initial_tile_width != NULL && initial_tile_height != NULL) {
+                ap_spec_texture_tile_pixel_size(view, initial_tile_width, initial_tile_height);
             }
+
+            if (should_change_scale) {
+                window.specBackingScaleFactor = changed_scale;
+                [view viewDidChangeBackingProperties];
+                [window layoutIfNeeded];
+                [view layoutSubtreeIfNeeded];
+                [window displayIfNeeded];
+                [view displayIfNeeded];
+                if (changed_tile_width != NULL && changed_tile_height != NULL) {
+                    ap_spec_texture_tile_pixel_size(view, changed_tile_width, changed_tile_height);
+                }
+            }
+        } @catch (NSException *exception) {
+            fprintf(stderr, "SurfaceCraft attach exception: %s: %s\n",
+                exception.name.UTF8String, exception.reason.UTF8String);
+            result = 2;
         }
 
-        if (should_hold_window) {
+        if (should_hold_window && result == 1) {
             ap_spec_held_window = window;
         } else {
-            [window setContentView:nil];
-            [window close];
+            @try {
+                [window setContentView:nil];
+                [window close];
+            } @catch (NSException *exception) {
+                fprintf(stderr, "SurfaceCraft window cleanup exception: %s: %s\n",
+                    exception.name.UTF8String, exception.reason.UTF8String);
+                result = 2;
+            }
             [window release];
         }
-        return 1;
+        return result;
     }
 }
 
