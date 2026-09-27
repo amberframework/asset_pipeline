@@ -2,7 +2,7 @@
 #
 # Targets:
 #   test-web       — runs the default web spec lane with plain `crystal`.
-#   test-macos     — runs the macOS native spec lane with `acrystal -Dmacos`
+#   test-macos     — runs the macOS native spec lane with `acrystal -Dmacos -Dwithout_mt`
 #                    + ObjC bridge + AppKit/ApplicationServices framework
 #                    link flags. Requires the macOS SwiftKit static lib
 #                    (built via `swift build -c release`).
@@ -65,13 +65,20 @@ MACOS_LINK_FLAGS := \
 	-lswiftUniformTypeIdentifiers -lswiftXPC -lswiftos -lswiftsimd \
 	-Wl,-rpath,/usr/lib/swift
 
+# AppKit must run on the main thread, and the native specs call it from the
+# main fiber. Under Crystal's execution-context runtime (the default since
+# 1.21) the monitor thread can move the main fiber to a pool thread after any
+# blocking syscall (File.open, getaddrinfo), and the next AppKit call then
+# traps (SIGTRAP). -Dwithout_mt keeps the main fiber on the main thread.
+MACOS_SPEC_FLAGS := -Dmacos -Dwithout_mt
+
 .PHONY: test-web test-macos test-ios test-android test-all lint clean-bridges
 
 test-web:
 	$(CRYSTAL) spec spec/web/
 
 test-macos: $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ) $(SWIFTKIT_LIB)
-	$(ACRYSTAL) spec spec/native_macos/ -Dmacos \
+	$(ACRYSTAL) spec spec/native_macos/ $(MACOS_SPEC_FLAGS) \
 		--link-flags="$(MACOS_LINK_FLAGS)"
 
 test-ios:
