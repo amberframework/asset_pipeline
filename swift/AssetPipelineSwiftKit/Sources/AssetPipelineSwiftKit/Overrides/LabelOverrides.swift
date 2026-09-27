@@ -26,6 +26,7 @@ public class LabelOverrides: ViewOverrides {
     @objc public var labelRole: String? = nil
     @objc public var textAlignment: String? = nil
     @objc public var numberOfLines: NSNumber? = nil
+    @objc public var selectable: NSNumber? = nil
     @objc public var fontSize: NSNumber? = nil
     @objc public var fontWeight: NSNumber? = nil
     // Custom font family / PostScript name for `.font(.custom(name, size:))`.

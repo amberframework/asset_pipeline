@@ -208,6 +208,28 @@ module UI::AXTest
       err == LibAX::AXErrorSuccess
     end
 
+    # --- Text Selection ---
+
+    # The selected character range (kAXSelectedTextRangeAttribute), or nil
+    # when the element exposes no text selection.
+    def selected_text_range : NamedTuple(location: Int64, length: Int64)?
+      attr_cf = cfstring("AXSelectedTextRange")
+      value_ref = Pointer(Void).null
+      err = LibAX.AXUIElementCopyAttributeValue(@ref, attr_cf, pointerof(value_ref))
+      LibCF.CFRelease(attr_cf)
+      return nil unless err == LibAX::AXErrorSuccess && !value_ref.null?
+
+      range = CFRange.new
+      ok = LibAX.AXValueGetValue(value_ref, LibAX::AXValueCFRangeType, pointerof(range).as(Void*))
+      LibCF.CFRelease(value_ref)
+      ok != 0 ? {location: range.location.to_i64, length: range.length.to_i64} : nil
+    end
+
+    # The currently selected text (kAXSelectedTextAttribute).
+    def selected_text : String?
+      read_string_attribute("AXSelectedText")
+    end
+
     # --- Focus (A4) ---
 
     # Set `kAXFocusedAttribute` to true on this element. Useful for
