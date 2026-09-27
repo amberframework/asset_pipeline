@@ -629,6 +629,16 @@
                      end
         LibAndroidBridge.android_edittext_set_input_type(@env, et, input_type)
 
+        # Gravity.START / CENTER_HORIZONTAL / Gravity.END preserve natural
+        # leading and trailing placement under Android's active layout direction.
+        gravity_val = case view.text_alignment
+                      when Alignment::Leading  then 8388611 # Gravity.START
+                      when Alignment::Center   then 1       # Gravity.CENTER_HORIZONTAL
+                      when Alignment::Trailing then 8388613 # Gravity.END
+                      else                          8388611
+                      end
+        LibAndroidBridge.android_textview_set_gravity(@env, et, gravity_val)
+
         # Font size and typeface
         LibAndroidBridge.android_textview_set_text_size(@env, et, view.font.size.to_f32)
         LibAndroidBridge.android_textview_set_typeface(@env, et, typeface_style_for(view.font))
@@ -1323,6 +1333,14 @@
 
         # TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD = 0x81
         LibAndroidBridge.android_edittext_set_input_type(@env, et, 0x81)
+
+        gravity_val = case view.text_alignment
+                      when Alignment::Leading  then 8388611 # Gravity.START
+                      when Alignment::Center   then 1       # Gravity.CENTER_HORIZONTAL
+                      when Alignment::Trailing then 8388613 # Gravity.END
+                      else                          8388611
+                      end
+        LibAndroidBridge.android_textview_set_gravity(@env, et, gravity_val)
 
         LibAndroidBridge.android_textview_set_text_size(@env, et, view.font.size.to_f32)
         LibAndroidBridge.android_textview_set_text_color(

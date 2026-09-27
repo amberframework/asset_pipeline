@@ -382,6 +382,7 @@ module UI
         # Font and text color
         apply_font_styles(el, view.font)
         el.add_style("color: #{color_css(view.text_color, default_token: "var(--ap-color-text-primary)")}")
+        el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
 
         apply_common_styles(el, view)
         enforce_touch_target(el)
@@ -937,6 +938,7 @@ module UI
 
         apply_font_styles(el, view.font)
         el.add_style("color: #{color_css(view.text_color, default_token: "var(--ap-color-text-primary)")}")
+        el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
 
         apply_common_styles(el, view)
         enforce_touch_target(el)
@@ -3324,10 +3326,10 @@ module UI
       # Convert a UI::Alignment to a CSS text-align value.
       private def alignment_to_css(alignment : UI::Alignment) : String
         case alignment
-        when Alignment::Leading  then "left"
+        when Alignment::Leading  then "start"
         when Alignment::Center   then "center"
-        when Alignment::Trailing then "right"
-        else                          "left"
+        when Alignment::Trailing then "end"
+        else                          "start"
         end
       end
 

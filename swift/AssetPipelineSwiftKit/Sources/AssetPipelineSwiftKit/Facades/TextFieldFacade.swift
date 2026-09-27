@@ -57,6 +57,7 @@ public class TextFieldFacade: NSObject {
         // overlay only shows while the bound text is empty, so it
         // behaves like the system placeholder for usability.
         let secure = (overrides.secureEntry?.boolValue ?? false)
+        let alignment = swiftUITextFieldAlignment(overrides.textAlignment)
         // Optional brand placeholder tint (Crystal `placeholder_color`). nil
         // keeps the contrast-safe default inside PromptOverlayField.
         let phColor: Color? = overrides.placeholderColor.map {
@@ -71,6 +72,7 @@ public class TextFieldFacade: NSObject {
                 storage: storage,
                 placeholder: placeholder,
                 isSecure: secure,
+                textAlignment: alignment,
                 placeholderColor: phColor
             )
         )
@@ -192,7 +194,7 @@ private struct StorageHost<Content: View>: View {
     var body: some View { content }
 }
 
-// Wraps a SwiftUI TextField / SecureField with a leading-aligned
+// Wraps a SwiftUI TextField / SecureField with a logically aligned
 // overlay Text we control directly, so the visible placeholder reads
 // at ≥ 3:1 contrast against the field background in both light and
 // dark appearance (the SwiftUI defaults render at ~1.7:1 / ~2.2:1 —
@@ -209,12 +211,21 @@ struct PromptOverlayField: View {
     @ObservedObject var storage: TextStorage
     let placeholder: String
     let isSecure: Bool
+    let textAlignment: TextAlignment
     // nil = the kit's contrast-safe default (`Color.primary @ 50%`). When the
     // consumer sets `text_field.placeholder_color`, the facade threads it here
     // so a brand placeholder renders literally. `var … = nil` keeps the
     // synthesized memberwise init backward-compatible for the SecureFieldFacade
     // call site, which doesn't pass a colour.
     var placeholderColor: Color? = nil
+
+    private var frameAlignment: SwiftUI.Alignment {
+        switch textAlignment {
+        case .center: return .center
+        case .trailing: return .trailing
+        default: return .leading
+        }
+    }
 
     var body: some View {
         // Width floor: an EMPTY SwiftUI TextField/SecureField has ~0 ideal width,
@@ -238,15 +249,26 @@ struct PromptOverlayField: View {
                     TextField("", text: storage.binding)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(textAlignment)
+            .frame(maxWidth: .infinity, alignment: frameAlignment)
 
             if storage.text.isEmpty {
                 Text(placeholder)
                     .foregroundStyle(placeholderColor ?? Color.primary.opacity(0.5))
+                    .multilineTextAlignment(textAlignment)
+                    .frame(maxWidth: .infinity, alignment: frameAlignment)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
         }
+    }
+}
+
+func swiftUITextFieldAlignment(_ value: String?) -> TextAlignment {
+    switch value {
+    case "center": return .center
+    case "trailing": return .trailing
+    default: return .leading
     }
 }
 

@@ -152,6 +152,8 @@ describe UI::Native::Populator, "Group 1 default-detection" do
       view = UI::TextField.new
       target = FakeLibObjCBridge.next_sentinel_pointer
       UI::Native::Populator.populate_text_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextAlignment, times: 1,
+        args: [target, "leading"])
       FakeLibObjCBridge.refute_sent(:setSecureEntry)
       FakeLibObjCBridge.refute_sent(:setKeyboardType)
       # Font default (size 17 / weight :regular / family "system") → no setters.
@@ -178,6 +180,15 @@ describe UI::Native::Populator, "Group 1 default-detection" do
       target = FakeLibObjCBridge.next_sentinel_pointer
       UI::Native::Populator.populate_text_field(target, view, RecordingSender.new)
       FakeLibObjCBridge.assert_sent(:setSecureEntry, times: 1, args: [target, "true"])
+    end
+
+    it "forwards an explicit text alignment" do
+      view = UI::TextField.new
+      view.text_alignment = UI::Alignment::Trailing
+      target = FakeLibObjCBridge.next_sentinel_pointer
+      UI::Native::Populator.populate_text_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextAlignment, times: 1,
+        args: [target, "trailing"])
     end
 
     it "forwards font size/weight/family when overridden" do
@@ -222,9 +233,20 @@ describe UI::Native::Populator, "Group 1 default-detection" do
       view = UI::SecureField.new
       target = FakeLibObjCBridge.next_sentinel_pointer
       UI::Native::Populator.populate_secure_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextAlignment, times: 1,
+        args: [target, "leading"])
       FakeLibObjCBridge.refute_sent(:setBackgroundColor)
       FakeLibObjCBridge.refute_sent(:setFontSize)
       FakeLibObjCBridge.refute_sent(:setFontFamily)
+    end
+
+    it "forwards an explicit text alignment" do
+      view = UI::SecureField.new
+      view.text_alignment = UI::Alignment::Trailing
+      target = FakeLibObjCBridge.next_sentinel_pointer
+      UI::Native::Populator.populate_secure_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextAlignment, times: 1,
+        args: [target, "trailing"])
     end
 
     it "forwards font family + size when overridden" do
