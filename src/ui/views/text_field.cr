@@ -44,8 +44,25 @@ module UI
     # Font for the text field content
     property font : Font = Font.new
 
-    # Text color
-    property text_color : Color = Color.new(r: 0.0, g: 0.0, b: 0.0)
+    # Value text color. Until it is assigned, every renderer draws the value in
+    # the platform's appearance-tracking text color (label color on Apple,
+    # the primary text token on web); the black stored here is only a
+    # placeholder value. Assigning it opts the field into this exact color.
+    @text_color : Color = Color.new(r: 0.0, g: 0.0, b: 0.0)
+
+    # The explicit value text color (see `#has_explicit_text_color?`).
+    getter text_color
+
+    # Whether `text_color` was assigned. Renderers honor `text_color` only
+    # when this is true, so an untouched field keeps the appearance-tracking
+    # default in light and dark instead of a fixed black.
+    getter? has_explicit_text_color : Bool = false
+
+    # Assigns the value text color and marks it explicit.
+    def text_color=(color : Color) : Color
+      @has_explicit_text_color = true
+      @text_color = color
+    end
 
     # Placeholder tint. `nil` (the default) keeps the kit's contrast-safe
     # placeholder (`label @ 50% opacity`, ≥ 3:1 in light + dark). Set it to

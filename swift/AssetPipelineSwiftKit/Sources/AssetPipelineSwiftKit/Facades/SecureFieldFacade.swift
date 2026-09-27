@@ -43,7 +43,9 @@ public class SecureFieldFacade: NSObject {
                 storage: storage,
                 placeholder: placeholder,
                 isSecure: true,
-                textAlignment: alignment
+                textAlignment: alignment,
+                placeholderColor: swiftUITextFieldColor(overrides.placeholderColor),
+                textColor: swiftUITextFieldColor(overrides.textColor)
             )
         )
         // Custom font cascade (mirrors TextFieldFacade): custom registered

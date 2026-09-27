@@ -25,6 +25,10 @@ public class TextFieldOverrides: ViewOverrides {
     // Visual chrome: nil/"roundedborder" = boxed default; "underline" = bottom-
     // rule only (transparent fill); "plain" = no chrome.
     @objc public var borderStyle: String? = nil
+    // Value text color (Crystal `text_color`, sent only when the consumer
+    // assigned it). nil = the appearance-tracking label color. When set, the
+    // field's value draws in exactly this color in light and dark.
+    @objc public var textColor: APSKPlatformColor? = nil
     // Placeholder tint. nil = the kit's contrast-safe default (label @ 50%
     // opacity). When set (Crystal `text_field.placeholder_color = ...`), the
     // PromptOverlayField uses this color literally so a brand placeholder
