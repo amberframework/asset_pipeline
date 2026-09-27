@@ -5,6 +5,20 @@
 
 extern void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
 
+@interface APSpecBackingScaleWindow : NSWindow
+@property(nonatomic) CGFloat specBackingScaleFactor;
+@end
+
+@implementation APSpecBackingScaleWindow
+- (CGFloat)backingScaleFactor {
+    return self.specBackingScaleFactor > 0.0
+        ? self.specBackingScaleFactor
+        : [super backingScaleFactor];
+}
+@end
+
+static APSpecBackingScaleWindow *ap_spec_held_window;
+
 static CALayer *ap_spec_surface_layer_named(CALayer *root, NSString *name) {
     for (CALayer *layer in root.sublayers) {
         if ([layer.name isEqualToString:name]) return layer;
@@ -25,6 +39,149 @@ static CGContextRef ap_spec_srgb_bitmap_context(uint8_t *pixels, size_t width, s
         kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
     CGColorSpaceRelease(color_space);
     return context;
+}
+
+static void ap_spec_texture_tile_pixel_size(NSView *view, int32_t *width, int32_t *height) {
+    CALayer *texture_layer = ap_spec_surface_layer_named(view.layer, @"ap.surfaceCraft.texture");
+    CALayer *row_layer = texture_layer.sublayers.count > 0 ? texture_layer.sublayers[0] : nil;
+    CALayer *image_layer = row_layer.sublayers.count > 0 ? row_layer.sublayers[0] : nil;
+    CGImageRef tile = (CGImageRef)image_layer.contents;
+    *width = tile == NULL ? 0 : (int32_t)CGImageGetWidth(tile);
+    *height = tile == NULL ? 0 : (int32_t)CGImageGetHeight(tile);
+}
+
+static int32_t ap_spec_attach_view_to_offscreen_window(
+    NSView *view,
+    double point_width,
+    double point_height,
+    double initial_scale,
+    double changed_scale,
+    BOOL should_change_scale,
+    BOOL should_hold_window,
+    int32_t *initial_tile_width,
+    int32_t *initial_tile_height,
+    int32_t *changed_tile_width,
+    int32_t *changed_tile_height) {
+    @autoreleasepool {
+        [NSApplication sharedApplication];
+        NSRect frame = NSMakeRect(0, 0, point_width, point_height);
+        NSScreen *screen = [NSScreen mainScreen];
+        if (screen != nil) {
+            NSRect visible_frame = screen.visibleFrame;
+            frame.origin = NSMakePoint(
+                NSMidX(visible_frame) - point_width / 2.0,
+                NSMidY(visible_frame) - point_height / 2.0);
+        }
+        APSpecBackingScaleWindow *window = [[APSpecBackingScaleWindow alloc]
+            initWithContentRect:frame
+            styleMask:NSWindowStyleMaskBorderless
+            backing:NSBackingStoreBuffered
+            defer:NO];
+        if (window == nil) return 0;
+        [window setReleasedWhenClosed:NO];
+        window.specBackingScaleFactor = initial_scale;
+        [view setFrame:frame];
+        [window setContentView:view];
+        [window orderOut:nil];
+        [window layoutIfNeeded];
+        [view layoutSubtreeIfNeeded];
+        [window displayIfNeeded];
+        [view displayIfNeeded];
+        if (initial_tile_width != NULL && initial_tile_height != NULL) {
+            ap_spec_texture_tile_pixel_size(view, initial_tile_width, initial_tile_height);
+        }
+
+        if (should_change_scale) {
+            window.specBackingScaleFactor = changed_scale;
+            [view viewDidChangeBackingProperties];
+            [window layoutIfNeeded];
+            [view layoutSubtreeIfNeeded];
+            [window displayIfNeeded];
+            [view displayIfNeeded];
+            if (changed_tile_width != NULL && changed_tile_height != NULL) {
+                ap_spec_texture_tile_pixel_size(view, changed_tile_width, changed_tile_height);
+            }
+        }
+
+        if (should_hold_window) {
+            ap_spec_held_window = window;
+        } else {
+            [window setContentView:nil];
+            [window close];
+            [window release];
+        }
+        return 1;
+    }
+}
+
+int32_t ap_spec_attach_noise_view_and_change_backing_scale(
+    void *view_ptr,
+    double point_width,
+    double point_height,
+    double initial_scale,
+    double changed_scale,
+    int32_t *initial_tile_width,
+    int32_t *initial_tile_height,
+    int32_t *changed_tile_width,
+    int32_t *changed_tile_height) {
+    if (view_ptr == NULL || initial_scale <= 0.0 || changed_scale <= 0.0 ||
+        initial_tile_width == NULL || initial_tile_height == NULL ||
+        changed_tile_width == NULL || changed_tile_height == NULL) return 0;
+    return ap_spec_attach_view_to_offscreen_window(
+        (__bridge NSView *)view_ptr,
+        point_width,
+        point_height,
+        initial_scale,
+        changed_scale,
+        YES,
+        NO,
+        initial_tile_width,
+        initial_tile_height,
+        changed_tile_width,
+        changed_tile_height);
+}
+
+int32_t ap_spec_attach_and_detach_noise_view(void *view_ptr, double point_width, double point_height, double backing_scale) {
+    if (view_ptr == NULL || backing_scale <= 0.0) return 0;
+    return ap_spec_attach_view_to_offscreen_window(
+        (__bridge NSView *)view_ptr,
+        point_width,
+        point_height,
+        backing_scale,
+        backing_scale,
+        NO,
+        NO,
+        NULL,
+        NULL,
+        NULL,
+        NULL);
+}
+
+int32_t ap_spec_attach_noise_view_to_held_window(void *view_ptr, double point_width, double point_height, double backing_scale) {
+    if (view_ptr == NULL || backing_scale <= 0.0 || ap_spec_held_window != nil) return 0;
+    return ap_spec_attach_view_to_offscreen_window(
+        (__bridge NSView *)view_ptr,
+        point_width,
+        point_height,
+        backing_scale,
+        backing_scale,
+        NO,
+        YES,
+        NULL,
+        NULL,
+        NULL,
+        NULL);
+}
+
+void ap_spec_close_held_noise_window(void) {
+    @autoreleasepool {
+        APSpecBackingScaleWindow *window = ap_spec_held_window;
+        if (window == nil) return;
+        ap_spec_held_window = nil;
+        [window setContentView:nil];
+        [window close];
+        [window release];
+    }
 }
 
 int32_t ap_spec_render_surface_craft_json(

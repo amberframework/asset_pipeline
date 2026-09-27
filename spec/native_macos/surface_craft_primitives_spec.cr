@@ -11,6 +11,30 @@ require "../../src/ui"
 
   lib PreviewStateCaptureTestBridge
     fun ap_spec_capture_appkit_view(view : Void*) : Int32
+    fun ap_spec_attach_noise_view_and_change_backing_scale(
+      view : Void*,
+      point_width : Float64,
+      point_height : Float64,
+      initial_scale : Float64,
+      changed_scale : Float64,
+      initial_tile_width : Int32*,
+      initial_tile_height : Int32*,
+      changed_tile_width : Int32*,
+      changed_tile_height : Int32*,
+    ) : Int32
+    fun ap_spec_attach_and_detach_noise_view(
+      view : Void*,
+      point_width : Float64,
+      point_height : Float64,
+      backing_scale : Float64,
+    ) : Int32
+    fun ap_spec_attach_noise_view_to_held_window(
+      view : Void*,
+      point_width : Float64,
+      point_height : Float64,
+      backing_scale : Float64,
+    ) : Int32
+    fun ap_spec_close_held_noise_window : Void
     fun ap_spec_appkit_view_layer_translation_y(view : Void*) : Float64
     fun ap_spec_appkit_view_layer_shadow_opacity(view : Void*) : Float32
   end
@@ -170,6 +194,106 @@ require "../../src/ui"
       tile_pixel_height.should eq(64)
       (texture_opacity - 0.08).abs.should be <= 0.001
       has_compositing_filter.should eq(1)
+    end
+
+    it "attaches Noise to an ordered-out window and rebakes after its backing scale changes" do
+      surface = UI::VStack.new
+      surface << UI::Label.new("Panel content")
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+        base_frequency: 0.83,
+        octave_count: 3,
+        seed: 7,
+        tile_size: 128,
+      )
+      native = UI::AppKit::Renderer.new.render(surface)
+      initial_tile_width = 0
+      initial_tile_height = 0
+      changed_tile_width = 0
+      changed_tile_height = 0
+
+      begin
+        result = UI::ObjC.autoreleasepool do
+          PreviewStateCaptureTestBridge.ap_spec_attach_noise_view_and_change_backing_scale(
+            native.handle.ptr!,
+            128.0,
+            128.0,
+            2.0,
+            1.0,
+            pointerof(initial_tile_width),
+            pointerof(initial_tile_height),
+            pointerof(changed_tile_width),
+            pointerof(changed_tile_height),
+          )
+        end
+        result.should eq(1)
+        initial_tile_width.should eq(256)
+        initial_tile_height.should eq(256)
+        changed_tile_width.should eq(128)
+        changed_tile_height.should eq(128)
+      ensure
+        native.teardown!
+      end
+    end
+
+    it "tears down a Noise view immediately after ordered-out window attachment" do
+      surface = UI::VStack.new
+      surface << UI::Label.new("Panel content")
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+        base_frequency: 0.83,
+        octave_count: 3,
+        seed: 7,
+        tile_size: 128,
+      )
+      native = UI::AppKit::Renderer.new.render(surface)
+
+      begin
+        result = UI::ObjC.autoreleasepool do
+          PreviewStateCaptureTestBridge.ap_spec_attach_noise_view_to_held_window(
+            native.handle.ptr!,
+            128.0,
+            128.0,
+            2.0,
+          )
+        end
+        result.should eq(1)
+        UI::ObjC.autoreleasepool { native.teardown! }
+      ensure
+        UI::ObjC.autoreleasepool do
+          PreviewStateCaptureTestBridge.ap_spec_close_held_noise_window
+          native.teardown!
+        end
+      end
+    end
+
+    it "attaches a Noise Surface hosting view to an ordered-out window" do
+      surface = UI::Surface.new(UI::Label.new("Panel content"))
+      surface.texture_overlay = UI::TextureOverlay.new(
+        texture_kind: UI::TextureKind::Noise,
+        texture_opacity: 0.07,
+        base_frequency: 0.83,
+        octave_count: 3,
+        seed: 7,
+        tile_size: 128,
+      )
+      native = UI::AppKit::Renderer.new.render(surface)
+
+      begin
+        result = UI::ObjC.autoreleasepool do
+          PreviewStateCaptureTestBridge.ap_spec_attach_and_detach_noise_view(
+            native.handle.ptr!,
+            128.0,
+            128.0,
+            2.0,
+          )
+        end
+        result.should eq(1)
+      ensure
+        native.teardown!
+      end
     end
 
     it "matches the stitched grayscale SVG turbulence fixture over a flat fill at 2x" do
