@@ -5,6 +5,7 @@
 
   lib AppKitSelectableLabelTestBridge
     fun ap_spec_create_label_window(content_view_ptr : Void*) : Void*
+    fun ap_spec_pump_label_run_loop : Void
     fun ap_spec_label_frame(view_ptr : Void*, x : Float64*, y : Float64*, width : Float64*, height : Float64*) : Void
     fun ap_spec_label_fitting_size(view_ptr : Void*, width : Float64*, height : Float64*) : Void
     fun ap_spec_close_label_window(window_ptr : Void*) : Void
@@ -19,8 +20,7 @@
         return label
       end
       break if Time.instant >= deadline
-
-      sleep(50.milliseconds)
+      AppKitSelectableLabelTestBridge.ap_spec_pump_label_run_loop
     end
 
     raise "AXTest did not expose the rendered Label after a bounded visibility retry"
