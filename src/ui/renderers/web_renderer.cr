@@ -2625,12 +2625,26 @@ module UI
       end
 
       private def texture_data_uri(texture : UI::TextureOverlay) : String
-        frequencies = case texture.texture_kind
-                      when UI::TextureKind::Noise   then "0.72"
-                      when UI::TextureKind::Brushed then "0.72 0.018"
-                      end
-        turbulence_type = texture.texture_kind == UI::TextureKind::Noise ? "fractalNoise" : "turbulence"
-        svg = %(<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="grain"><feTurbulence type="#{turbulence_type}" baseFrequency="#{frequencies}" numOctaves="3" seed="4" stitchTiles="stitch"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 #{texture.texture_opacity} 0"/></filter><rect width="100%" height="100%" filter="url(%23grain)" opacity="1"/></svg>)
+        if texture.texture_kind == UI::TextureKind::Noise
+          frequencies = texture.base_frequency.to_s
+          octave_count = texture.octave_count
+          seed = texture.seed
+          tile_size = texture.tile_size
+          color_matrix = "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1"
+          color_interpolation = " color-interpolation-filters=\"sRGB\""
+          overlay_opacity = texture.texture_opacity.to_s
+          turbulence_type = "fractalNoise"
+        else
+          frequencies = "0.72 0.018"
+          octave_count = 3
+          seed = 4
+          tile_size = 160
+          color_matrix = "1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 #{texture.texture_opacity} 0"
+          color_interpolation = ""
+          overlay_opacity = "1"
+          turbulence_type = "turbulence"
+        end
+        svg = %(<svg xmlns="http://www.w3.org/2000/svg" width="#{tile_size}" height="#{tile_size}"><filter id="grain"#{color_interpolation}><feTurbulence type="#{turbulence_type}" baseFrequency="#{frequencies}" numOctaves="#{octave_count}" seed="#{seed}" stitchTiles="stitch"/><feColorMatrix values="#{color_matrix}"/></filter><rect width="100%" height="100%" filter="url(%23grain)" opacity="#{overlay_opacity}"/></svg>)
         "data:image/svg+xml;base64,#{Base64.strict_encode(svg)}"
       end
 

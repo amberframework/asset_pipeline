@@ -6,6 +6,15 @@ import SwiftUI
 import AppKit
 import CoreGraphics
 
+@_silgen_name("ap_surface_noise_texture_tile_create")
+private func apSurfaceNoiseTextureTileCreate(
+    _ baseFrequency: Double,
+    _ octaveCount: Int32,
+    _ seed: Int32,
+    _ tileSize: Int32,
+    _ backingScale: Double
+) -> UnsafeRawPointer?
+
 enum SurfaceCraftModifiers {
     private static let textureCache = NSCache<NSString, CGImage>()
 
@@ -57,15 +66,34 @@ enum SurfaceCraftModifiers {
         }
         if let texture = values["texture"] as? [String: Any],
            let kind = texture["kind"] as? String,
-           let opacity = texture["opacity"] as? Double,
-           let image = textureImage(kind: kind) {
-            current = AnyView(current.overlay {
-                Image(decorative: image, scale: 1)
-                    .resizable(resizingMode: .tile)
-                    .opacity(opacity)
-                    .allowsHitTesting(false)
-                    .clipShape(shape)
-            })
+           let opacity = (texture["opacity"] as? NSNumber)?.doubleValue {
+            if kind == "noise" {
+                let baseFrequency = (texture["baseFrequency"] as? NSNumber)?.doubleValue ?? 0.72
+                let octaveCount = (texture["octaveCount"] as? NSNumber)?.int32Value ?? 3
+                let seed = (texture["seed"] as? NSNumber)?.int32Value ?? 4
+                let tileSize = (texture["tileSize"] as? NSNumber)?.int32Value ?? 160
+                if baseFrequency.isFinite, (0.0...16.0).contains(baseFrequency),
+                   (1...8).contains(octaveCount), (1...1024).contains(tileSize) {
+                    current = AnyView(current.overlay {
+                        SurfaceCraftNoiseTextureOverlay(
+                            baseFrequency: baseFrequency,
+                            octaveCount: octaveCount,
+                            seed: seed,
+                            tileSize: tileSize,
+                            opacity: opacity,
+                            shape: shape
+                        )
+                    })
+                }
+            } else if let image = textureImage(kind: kind) {
+                current = AnyView(current.overlay {
+                    Image(decorative: image, scale: 1)
+                        .resizable(resizingMode: .tile)
+                        .opacity(opacity)
+                        .allowsHitTesting(false)
+                        .clipShape(shape)
+                })
+            }
         }
 
         if let shadows = values["dropShadows"] as? [[String: Any]] {
@@ -147,6 +175,7 @@ enum SurfaceCraftModifiers {
     }
 
     private static func textureImage(kind: String) -> CGImage? {
+        guard kind == "brushed" else { return nil }
         let key = kind as NSString
         if let cached = textureCache.object(forKey: key) { return cached }
         let dimension = 64
@@ -162,9 +191,7 @@ enum SurfaceCraftModifiers {
 
         for y in 0..<dimension {
             for x in 0..<dimension {
-                let gray = kind == "brushed"
-                    ? brushedGrain(x: x, y: y, dimension: dimension)
-                    : fractalGrain(x: x, y: y, dimension: dimension)
+                let gray = brushedGrain(x: x, y: y, dimension: dimension)
                 context.setFillColor(CGColor(gray: gray, alpha: 1))
                 context.fill(CGRect(x: x, y: y, width: 1, height: 1))
             }
@@ -172,23 +199,6 @@ enum SurfaceCraftModifiers {
         guard let image = context.makeImage() else { return nil }
         textureCache.setObject(image, forKey: key)
         return image
-    }
-
-    private static func fractalGrain(x: Int, y: Int, dimension: Int) -> Double {
-        let u = Double(x) / Double(dimension)
-        let v = Double(y) / Double(dimension)
-        var sum = 0.0
-        var totalWeight = 0.0
-        for octave in 0..<5 {
-            let frequency = Double(2 << octave)
-            let phase = Double(octave) * 1.73
-            let first = sin(2 * .pi * (frequency * u + frequency * 3 * v) + phase)
-            let second = cos(2 * .pi * (frequency * 2 * u - frequency * v) + phase * 1.91)
-            let weight = 1.0 / frequency.squareRoot()
-            sum += (first + second) * 0.5 * weight
-            totalWeight += weight
-        }
-        return min(1, max(0, 0.5 + sum / totalWeight * 0.32))
     }
 
     private static func brushedGrain(x: Int, y: Int, dimension: Int) -> Double {
@@ -327,6 +337,40 @@ private struct SurfaceCraftFeedbackModifier: ViewModifier {
             #if DEBUG
             .accessibilityValue(Text(accessibilityPhase))
             #endif
+    }
+}
+
+private struct SurfaceCraftNoiseTextureOverlay: View {
+    @Environment(\.displayScale) private var displayScale
+
+    let baseFrequency: Double
+    let octaveCount: Int32
+    let seed: Int32
+    let tileSize: Int32
+    let opacity: Double
+    let shape: RoundedRectangle
+
+    var body: some View {
+        if let image = textureTile {
+            Image(decorative: image, scale: displayScale)
+                .resizable(resizingMode: .tile)
+                .interpolation(.none)
+                .opacity(opacity)
+                .allowsHitTesting(false)
+                .clipShape(shape)
+        }
+    }
+
+    private var textureTile: CGImage? {
+        guard displayScale.isFinite, displayScale > 0,
+              let pointer = apSurfaceNoiseTextureTileCreate(
+                baseFrequency,
+                octaveCount,
+                seed,
+                tileSize,
+                Double(displayScale)
+              ) else { return nil }
+        return Unmanaged<CGImage>.fromOpaque(pointer).takeRetainedValue()
     }
 }
 #endif

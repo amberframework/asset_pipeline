@@ -138,6 +138,7 @@ module CDPProbes
       page_path : String,
       *,
       viewport : NamedTuple(width: Int32, height: Int32) = {width: 1280, height: 800},
+      device_scale_factor : Float64 = 1.0,
       color_scheme : String = "light",
       extra_emulated_media : Array(NamedTuple(name: String, value: String)) = [] of NamedTuple(name: String, value: String),
       & : DevTools ->
@@ -197,7 +198,7 @@ module CDPProbes
           dt.call("Runtime.enable")
           dt.call("Accessibility.enable")
           dt.call("Emulation.setDeviceMetricsOverride",
-            %({"width":#{viewport[:width]},"height":#{viewport[:height]},"deviceScaleFactor":1,"mobile":false}))
+            %({"width":#{viewport[:width]},"height":#{viewport[:height]},"deviceScaleFactor":#{device_scale_factor},"mobile":false}))
           # Color scheme + extras.
           features = [{name: "prefers-color-scheme", value: color_scheme}]
           features.concat(extra_emulated_media)
