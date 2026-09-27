@@ -66,6 +66,13 @@ void ap_spec_pump_label_run_loop(void) {
     [[NSRunLoop mainRunLoop] runUntilDate:settle_date];
 }
 
+void ap_spec_label_fitting_size(void *view_ptr, double *width, double *height) {
+    NSView *view = (NSView *)view_ptr;
+    NSSize fitting_size = [view fittingSize];
+    *width = fitting_size.width;
+    *height = fitting_size.height;
+}
+
 static NSTextField *ap_spec_find_selectable_text_field(NSView *view);
 
 int ap_spec_copy_label_selection(void *window_ptr) {

@@ -12,8 +12,8 @@ validation_report: ../validation/reports/labels.md
 > A label is a static piece of text that people can read and often copy,
 > but not edit. `UI::Label` is the atomic text-display primitive in
 > asset_pipeline. The current Apple renderer uses the SwiftKit Label
-> facade; SwiftUI `Text` remains the visible and measured text, while an
-> opt-in native text control provides selection. Labels have no Liquid Glass
+> facade; the same SwiftUI `Text` draws and handles selection when the
+> opt-in `selectable` property is enabled. Labels have no Liquid Glass
 > backing (they are text glyphs, not surfaces), and `LabelRole` semantic
 > color tokens track light and dark appearance automatically.
 
@@ -90,11 +90,13 @@ ladder << body
 
 The current Apple path goes through AssetPipelineSwiftKit: macOS hosts
 SwiftUI `Text` in an `NSHostingView`, and iOS hosts SwiftUI `Text` in a
-`UIHostingController`. When `selectable` is enabled, the facade overlays
-a transparent, native text control for selection; the original SwiftUI
-text remains visible and determines the layout. No Liquid Glass material
--- labels are text glyphs, not surfaces. `LabelRole` tokens route to the
-platform's semantic label colors and track appearance automatically.
+`UIHostingController`. When `selectable` is enabled, the facade applies
+SwiftUI's `.textSelection(.enabled)` to that same `Text`, keeping selection
+aligned with the visible glyphs and using the existing text layout. The
+package targets iOS 16 and macOS 13, which support this modifier. No
+Liquid Glass material -- labels are text glyphs, not surfaces. `LabelRole`
+tokens route to the platform's semantic label colors and track appearance
+automatically.
 
 ## Customization
 
@@ -154,10 +156,9 @@ selection appearance; the text color still follows `text_color_role`.
   corresponding dim grays.
 - `LabelRole::Quaternary` -> `UIColor.quaternaryLabelColor`. Watermark.
 
-**Font weight in dark mode:** `NSTextField` and `UILabel` do not
-auto-thin typography in dark mode on current Apple SDKs. The validation
-captures (macOS dark, iteration 19) confirm Bold at 34pt and Semibold at
-17pt retain their weight correctly in DarkAqua appearance.
+**Font weight in dark mode:** SwiftUI `Text` keeps the resolved font weight
+in dark appearance. The validation captures (macOS dark, iteration 19)
+confirm Bold at 34pt and Semibold at 17pt retain their weight in DarkAqua.
 
 **Brand override legibility caution:** If a developer sets
 `text_color_role = nil` and supplies a baked RGBA brand color, that color
@@ -261,17 +262,15 @@ body copy that users must read. HIG: *"quaternaryLabel -- Watermark text."*
   the default output remains unchanged.
 - **Android**: emits a `TextView`; `selectable = true` calls
   `setTextIsSelectable(true)`.
-- **iOS 26**: SwiftUI `Text` remains visible. A selectable label overlays
-  a non-editable, non-scrolling `UITextView` with zero text insets and
-  line-fragment padding. The text view uses the same text, font, alignment,
-  wrapping, and line limit; its clear glyphs leave the visible SwiftUI text
-  pixel-identical. `LabelRole` maps to UIKit's dynamic label colors.
-- **iPadOS 26**: uses the same UIKit path as iOS.
-- **macOS 26**: the AppKit renderer hosts SwiftUI `Text`; `selectable =
-  true` overlays an `NSTextField` with `isSelectable = true` and
-  `isEditable = false`. The field's clear glyphs leave the visible SwiftUI
-  text pixel-identical and do not change its intrinsic layout. Font,
-  alignment, wrapping, and line limits are mirrored to the selection field.
+- **iOS and iPadOS**: SwiftUI `Text` uses `.textSelection(.enabled)` when
+  `selectable = true`. The label remains read-only and uses the same text,
+  font, alignment, wrapping, and line limit for display and selection.
+  `LabelRole` maps to UIKit's dynamic label colors.
+- **macOS**: the AppKit renderer hosts SwiftUI `Text`; `selectable = true`
+  enables `.textSelection(.enabled)` on that text. The glyphs, selection
+  highlight, and measured text share one renderer. A Label rendered directly
+  as an `NSTextField` must remain non-editable and set `isSelectable` from
+  the property.
 
 If a renderer constructs an `NSTextField` directly, it must keep
 `isEditable = false` and map `selectable` to `isSelectable`.

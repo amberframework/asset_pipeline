@@ -6,6 +6,7 @@
   lib AppKitSelectableLabelTestBridge
     fun ap_spec_create_label_window(content_view_ptr : Void*) : Void*
     fun ap_spec_pump_label_run_loop : Void
+    fun ap_spec_label_fitting_size(view_ptr : Void*, width : Float64*, height : Float64*) : Void
     fun ap_spec_select_label_text(window_ptr : Void*) : Int32
     fun ap_spec_copy_label_selection(window_ptr : Void*) : Int32
     fun ap_spec_close_label_window(window_ptr : Void*) : Void
@@ -27,7 +28,7 @@
     raise "AXTest did not expose the rendered Label after a bounded visibility retry"
   end
 
-  private def with_rendered_label(selectable : Bool, &block : UI::AXTest::Element, Void* ->) : Nil
+  private def with_rendered_label(selectable : Bool, &block : UI::AXTest::Element, Void*, Void* ->) : Nil
     label = UI::Label.new(LABEL_SELECTION_TEXT)
     label.selectable = selectable
     label.test_id = "label-value"
@@ -39,19 +40,22 @@
       raise "AppKit test window could not be created" if window_ptr.null?
 
       app = UI::AXTest::App.connect(Process.pid.to_i32)
-      yield find_rendered_label(app), window_ptr
+      yield find_rendered_label(app), window_ptr, native.handle.ptr!
     ensure
       AppKitSelectableLabelTestBridge.ap_spec_close_label_window(window_ptr) unless window_ptr.null?
       native.teardown!
     end
   end
 
-  private def label_frame_for(selectable : Bool) : NamedTuple(x: Float64, y: Float64, width: Float64, height: Float64)
-    frame : NamedTuple(x: Float64, y: Float64, width: Float64, height: Float64)? = nil
-    with_rendered_label(selectable) do |element|
-      frame = element.frame
+  private def label_fitting_size_for(selectable : Bool) : NamedTuple(width: Float64, height: Float64)
+    size : NamedTuple(width: Float64, height: Float64)? = nil
+    with_rendered_label(selectable) do |_element, _window_ptr, view_ptr|
+      width = 0.0
+      height = 0.0
+      AppKitSelectableLabelTestBridge.ap_spec_label_fitting_size(view_ptr, pointerof(width), pointerof(height))
+      size = {width: width, height: height}
     end
-    frame || raise("Label AX frame was not available")
+    size || raise("Label fitting size was not available")
   end
 
   private def set_clipboard(text : String) : Nil
@@ -74,15 +78,15 @@
       UI::AXTest::App.accessibility_trusted?.should be_true
       set_clipboard("selection-spec-sentinel")
 
-      with_rendered_label(false) do |_label, window_ptr|
+      with_rendered_label(false) do |_label, window_ptr, _view_ptr|
         AppKitSelectableLabelTestBridge.ap_spec_select_label_text(window_ptr).should eq(0)
         AppKitSelectableLabelTestBridge.ap_spec_copy_label_selection(window_ptr).should eq(0)
         clipboard_text.should eq("selection-spec-sentinel")
       end
     end
 
-    it "keeps the same frame when selection is enabled" do
-      label_frame_for(true).should eq(label_frame_for(false))
+    it "keeps the same fitting size when selection is enabled" do
+      label_fitting_size_for(true).should eq(label_fitting_size_for(false))
     end
   end
 {% end %}
