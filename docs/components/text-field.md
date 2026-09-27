@@ -36,3 +36,9 @@ amount.keyboard_type = UI::KeyboardType::NumberPad
 | Web | `text-align: start`, `center`, or `end` |
 
 `UI::TextField#secure_entry` and `UI::SecureField` preserve the same alignment for obscured values and placeholders.
+
+| Platform | Color behavior |
+|---|---|
+| macOS and iOS | An assigned `text_color` draws the value (and a SecureField's masked value) in exactly that sRGB color, standalone or in a labeled Form row; unassigned, the value keeps the system label color. `placeholder_color` tints the placeholder |
+| Android | An assigned `text_color` sets the EditText text color, else the Material on-surface role; `placeholder_color` sets the hint color, else on-surface-variant |
+| Web | An assigned `text_color` is emitted verbatim as `color`, else `var(--ap-color-text-primary)`; `placeholder_color` sets `--ap-placeholder-color`, read by the `.ap-placeholder-tint::placeholder` rule in the theme stylesheet |

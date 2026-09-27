@@ -96,7 +96,8 @@ UIColor.labelColor for appearance-tracking across light and dark modes.
 | `placeholder` | `String` | `""` | Hint text shown in secondary color when the field is empty; disappears when the user begins typing. |
 | `text` | `String` | `""` | Pre-populated text value shown in primary color. |
 | `font` | `UI::Font` | `UI::Font.new` | Font applied to both the placeholder and the filled text. |
-| `text_color` | `UI::Color` | `Color{r:0,g:0,b:0,a:1}` (sentinel -- resolves to system labelColor) | Explicit RGBA text color override; set to a non-sentinel value to apply a brand color instead of the appearance-tracking system label color. |
+| `text_color` | `UI::Color` | unassigned (system labelColor) | Explicit RGBA value color. Assigning it, including pure black, sets `has_explicit_text_color?` and draws the value in exactly that color in light and dark instead of the appearance-tracking system label color. `UI::SecureField` has the same property for its masked value. |
+| `placeholder_color` | `UI::Color?` | `nil` (label color at 50% opacity) | Explicit placeholder tint. `UI::SecureField` has the same property. |
 | `secure_entry` | `Bool` | `false` | When true, renders as NSSecureTextField (macOS) or UITextField with secureTextEntry=true (iOS), hiding input as bullet characters. |
 | `keyboard_type` | `UI::KeyboardType` | `KeyboardType::Default` | Keyboard variant shown on iOS/iPadOS. `EmailAddress`, `NumberPad`, `PhonePad`, `URL`, or `Default`. Has no visible effect on macOS. |
 | `on_change` | `Proc(String, Nil)?` | `nil` | Callback invoked when the text value changes. Receives the current string. Wired to `controlTextDidChange:` (macOS) or `UIControlEventEditingChanged` (iOS). |
@@ -104,15 +105,15 @@ UIColor.labelColor for appearance-tracking across light and dark modes.
 
 **Theming**: `UI::Theme#font_size_body`, `UI::Theme#font_family`,
 `UI::Theme#corner_radius_small` (4pt), `UI::Theme#corner_radius_medium` (8pt).
-The text_color sentinel detects the default Color struct and substitutes
-`NSColor.labelColor` / `UIColor.labelColor` automatically.
+Until `text_color` is assigned, the renderer sends no value color, so the
+SwiftUI field keeps `NSColor.labelColor` / `UIColor.labelColor`.
 See `foundations/color-and-theming.md`.
 
 ## Light / dark appearance notes
 
 **macOS (Aqua / DarkAqua):**
-- Text color: when `text_color` is the default sentinel, the renderer substitutes
-  `nscolor_label_primary` which resolves to `NSColor.labelColor`. In Aqua this is
+- Text color: until `text_color` is assigned, the field keeps
+  `NSColor.labelColor`. In Aqua this is
   near-black ~0.0 RGB; in DarkAqua it is near-white ~0.95 RGB. The transition is
   automatic and appearance-tracking.
 - Placeholder text: NSTextField renders placeholder in NSColor.placeholderTextColor,
@@ -126,7 +127,7 @@ See `foundations/color-and-theming.md`.
   `UI::Image` in an HStack with the text field (no dedicated knob).
 
 **iOS (light / dark):**
-- Text color: same labelColor-sentinel pattern, using `UIColor.labelColor`. Light mode
+- Text color: until `text_color` is assigned, the field keeps `UIColor.labelColor`. Light mode
   near-black; dark mode near-white. Both appearances tracked automatically.
 - Placeholder text: UITextField uses `UIColor.placeholderTextColor`, an appearance-
   tracking system color. Light ~0.50 RGB; dark ~0.55 RGB.
