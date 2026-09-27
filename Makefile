@@ -72,14 +72,23 @@ MACOS_LINK_FLAGS := \
 # traps (SIGTRAP). -Dwithout_mt keeps the main fiber on the main thread.
 MACOS_SPEC_FLAGS := -Dmacos -Dwithout_mt
 
+# `crystal spec` writes its binary to $(CRYSTAL_CACHE_DIR)/crystal-run-spec.tmp,
+# and the default cache dir is shared by every checkout on the machine, so a
+# concurrent spec run elsewhere can replace or delete the binary mid-run.
+# Keep this checkout's spec binary in its own cache dir.
+MACOS_SPEC_CACHE_DIR := $(CURDIR)/.crystal-cache
+
+# Extra spec-runner arguments, e.g. `make test-macos MACOS_SPEC_ARGS=-v`.
+MACOS_SPEC_ARGS ?=
+
 .PHONY: test-web test-macos test-ios test-android test-all lint clean-bridges
 
 test-web:
 	$(CRYSTAL) spec spec/web/
 
 test-macos: $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ) $(SWIFTKIT_LIB)
-	$(ACRYSTAL) spec spec/native_macos/ $(MACOS_SPEC_FLAGS) \
-		--link-flags="$(MACOS_LINK_FLAGS)"
+	CRYSTAL_CACHE_DIR=$(MACOS_SPEC_CACHE_DIR) $(ACRYSTAL) spec spec/native_macos/ $(MACOS_SPEC_FLAGS) \
+		--link-flags="$(MACOS_LINK_FLAGS)" $(MACOS_SPEC_ARGS)
 
 test-ios:
 	@echo "[test-ios] iOS spec lane is attempted-blocked."
