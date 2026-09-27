@@ -376,6 +376,12 @@ module UI
         nl = view.number_of_lines
         sender.set_number(target, :setNumberOfLines, nl == 0 ? nil : nl.to_f64)
 
+        # Selection is an opt-in behavior. The SwiftKit facade keeps the
+        # default Text view unchanged when this property is false.
+        if view.selectable
+          sender.set_bool(target, :setSelectable, true)
+        end
+
         # Font size + weight. The Crystal `UI::Font` type default is
         # `Font.new(size: 17.0, weight: :regular)` — exactly SwiftUI's
         # body default — so we only emit when the developer overrode

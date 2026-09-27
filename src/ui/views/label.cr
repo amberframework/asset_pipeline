@@ -75,6 +75,15 @@ module UI
     # Maximum number of lines (0 means unlimited)
     property number_of_lines : Int32 = 0
 
+    # Whether the read-only text can be selected and copied on supported
+    # platforms. Defaults to `false` so existing labels keep their behavior.
+    #
+    # ```
+    # path = UI::Label.new("/tmp/report.txt")
+    # path.selectable = true
+    # ```
+    property selectable : Bool = false
+
     # Preferred wrapping width for native multi-line layout engines.
     #
     # UIKit's UILabel uses this to compute a stable multi-line intrinsic

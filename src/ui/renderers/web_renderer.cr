@@ -168,6 +168,12 @@ module UI
         # Text alignment
         el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
 
+        # Keep the existing default stylesheet untouched unless the caller
+        # opts into selecting this read-only text.
+        if view.selectable
+          el.add_style("user-select: text")
+        end
+
         # Line clamping
         if view.number_of_lines > 0
           el.add_style("display: -webkit-box; -webkit-line-clamp: #{view.number_of_lines}; -webkit-box-orient: vertical; overflow: hidden")
