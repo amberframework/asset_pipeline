@@ -27,6 +27,17 @@ extern void *ap_surface_noise_texture_tile_create(
 
 static APSpecBackingScaleWindow *ap_spec_held_window;
 
+// Offscreen window for the AppKit view capture. AppKit would otherwise pull
+// a frame at (-30000, -30000) back onto a screen.
+@interface APSpecOffscreenCaptureWindow : NSWindow
+@end
+
+@implementation APSpecOffscreenCaptureWindow
+- (NSRect)constrainFrameRect:(NSRect)frame_rect toScreen:(NSScreen *)screen {
+    return frame_rect;
+}
+@end
+
 static CALayer *ap_spec_surface_layer_named(CALayer *root, NSString *name) {
     for (CALayer *layer in root.sublayers) {
         if ([layer.name isEqualToString:name]) return layer;
@@ -528,20 +539,24 @@ int ap_spec_capture_appkit_view(void *view_ptr) {
     if (view_ptr == NULL) return 0;
 
     @autoreleasepool {
-        [NSApplication sharedApplication];
+        NSApplication *application = [NSApplication sharedApplication];
+        [application setActivationPolicy:NSApplicationActivationPolicyAccessory];
         NSView *view = (NSView *)view_ptr;
         NSRect frame = NSMakeRect(0, 0, 320, 220);
         [view setFrame:frame];
 
-        NSWindow *window = [[NSWindow alloc]
-            initWithContentRect:frame
+        // Parked far off every display and ordered in behind all other
+        // windows: the capture draws through cacheDisplayInRect:, so the
+        // window never needs to be key, frontmost, or visible.
+        APSpecOffscreenCaptureWindow *window = [[APSpecOffscreenCaptureWindow alloc]
+            initWithContentRect:NSMakeRect(-30000, -30000, NSWidth(frame), NSHeight(frame))
             styleMask:NSWindowStyleMaskBorderless
             backing:NSBackingStoreBuffered
             defer:NO];
         if (window == nil) return 0;
         [window setReleasedWhenClosed:NO];
         [window setContentView:view];
-        [window makeKeyAndOrderFront:nil];
+        [window orderBack:nil];
 
         [window layoutIfNeeded];
         [view layoutSubtreeIfNeeded];

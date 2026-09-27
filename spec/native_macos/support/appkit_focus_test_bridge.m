@@ -6,22 +6,57 @@ void *ap_spec_create_focus_target(void) {
     return target;
 }
 
+// The first-responder probe runs while someone may be using the machine, so
+// its window never activates the app and never becomes key: it is borderless,
+// parked far outside every display, and ordered in behind all other windows.
+// makeFirstResponder: installs the field editor on a non-key window, which is
+// all the deferred-focus contract needs.
+@interface APSpecOffscreenFocusWindow : NSWindow
+@end
+
+@implementation APSpecOffscreenFocusWindow
+- (NSRect)constrainFrameRect:(NSRect)frame_rect toScreen:(NSScreen *)screen {
+    return frame_rect;
+}
+@end
+
+static const NSTimeInterval AP_SPEC_FOCUS_TIMEOUT = 2.0;
+
 void *ap_spec_create_focus_window(void) {
-    [NSApplication sharedApplication];
-    NSWindow *window = [[NSWindow alloc]
-        initWithContentRect:NSMakeRect(100, 100, 260, 100)
-        styleMask:NSWindowStyleMaskTitled
+    NSApplication *application = [NSApplication sharedApplication];
+    [application setActivationPolicy:NSApplicationActivationPolicyAccessory];
+
+    APSpecOffscreenFocusWindow *window = [[APSpecOffscreenFocusWindow alloc]
+        initWithContentRect:NSMakeRect(-30000, -30000, 260, 100)
+        styleMask:NSWindowStyleMaskBorderless
         backing:NSBackingStoreBuffered
         defer:NO];
     [window setReleasedWhenClosed:NO];
-    [window makeKeyAndOrderFront:nil];
-    [NSApp activateIgnoringOtherApps:YES];
+    [window setTitle:@"First Responder Probe"];
+    [window orderBack:nil];
     return window;
 }
 
+// Attaching the target fires the deferred makeFirstResponder: request from
+// viewDidMoveToWindow. Pump the run loop in short, bounded passes until the
+// field editor is in place so the probe does not race AppKit's setup.
 void ap_spec_attach_focus_target(void *window_ptr, void *target_ptr) {
     NSWindow *window = (NSWindow *)window_ptr;
-    [window setContentView:(NSView *)target_ptr];
+    NSTextField *target = (NSTextField *)target_ptr;
+    [window setContentView:(NSView *)target];
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:AP_SPEC_FOCUS_TIMEOUT];
+    do {
+        [[window contentView] layoutSubtreeIfNeeded];
+        [window displayIfNeeded];
+        NSDate *until = [NSDate dateWithTimeIntervalSinceNow:0.02];
+        [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:until];
+        if (target.currentEditor != nil) break;
+    } while ([deadline timeIntervalSinceNow] > 0);
+}
+
+int ap_spec_focus_window_is_key(void *window_ptr) {
+    return [(NSWindow *)window_ptr isKeyWindow] ? 1 : 0;
 }
 
 BOOL ap_spec_window_has_first_responder(void *window_ptr, void *target_ptr) {
