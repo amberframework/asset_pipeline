@@ -20,8 +20,28 @@ module UI
     property name : String? = nil
     # Typography applied to the rendered text.
     property font : Font = Font.new
-    # Foreground color applied to the text. Overrides any role token.
-    property text_color : Color = Color.new(r: 0.0, g: 0.0, b: 0.0)
+    # Masked value color. Until it is assigned, every renderer draws the value
+    # in the platform's appearance-tracking text color; the black stored here
+    # is only a placeholder value. Assigning it opts the field into this exact
+    # color. Mirrors `UI::TextField#text_color`.
+    @text_color : Color = Color.new(r: 0.0, g: 0.0, b: 0.0)
+
+    # The explicit masked value color (see `#has_explicit_text_color?`).
+    getter text_color
+
+    # Whether `text_color` was assigned. Renderers honor `text_color` only
+    # when this is true.
+    getter? has_explicit_text_color : Bool = false
+
+    # Assigns the masked value color and marks it explicit.
+    def text_color=(color : Color) : Color
+      @has_explicit_text_color = true
+      @text_color = color
+    end
+
+    # Placeholder tint. `nil` (the default) keeps the kit's contrast-safe
+    # placeholder. Mirrors `UI::TextField#placeholder_color`.
+    property placeholder_color : Color? = nil
     # Invoked when the user changes the control's value.
     property on_change : Proc(String, Nil)? = nil
 

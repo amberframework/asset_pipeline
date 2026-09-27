@@ -85,6 +85,9 @@ module UI
           # with an explicit width + padding overflows its box by the padding, and any
           # centered children land off-center by that amount. Matches the golden.
           io << "*,*::before,*::after{box-sizing:border-box}\n"
+          # Brand placeholder tint for TextField / SecureField (see
+          # `apply_input_text_colors`).
+          io << ".ap-placeholder-tint::placeholder{color:var(--ap-placeholder-color);opacity:1}\n"
           io << surface_craft_css
           io << "</style>\n"
         end
@@ -385,9 +388,9 @@ module UI
           el.set_attribute("inputmode", "url")
         end
 
-        # Font and text color
+        # Font, value color, and placeholder tint
         apply_font_styles(el, view.font)
-        el.add_style("color: #{color_css(view.text_color, default_token: "var(--ap-color-text-primary)")}")
+        apply_input_text_colors(el, view)
         el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
 
         apply_common_styles(el, view)
@@ -943,7 +946,7 @@ module UI
         end
 
         apply_font_styles(el, view.font)
-        el.add_style("color: #{color_css(view.text_color, default_token: "var(--ap-color-text-primary)")}")
+        apply_input_text_colors(el, view)
         el.add_style("text-align: #{alignment_to_css(view.text_alignment)}")
 
         apply_common_styles(el, view)
@@ -2602,6 +2605,26 @@ module UI
           "var(--ap-color-text-muted)"
         else
           "var(--ap-color-text-primary)"
+        end
+      end
+
+      # Value color and placeholder tint shared by TextField and SecureField.
+      # An assigned `text_color` is emitted verbatim (a deliberate black stays
+      # black); an untouched field gets the theme's primary text token so it
+      # tracks light and dark. `placeholder_color` travels as the
+      # `--ap-placeholder-color` custom property, which the
+      # `.ap-placeholder-tint::placeholder` rule in `inject_theme_css` reads,
+      # because inline styles cannot reach the `::placeholder` pseudo-element.
+      private def apply_input_text_colors(el : Components::Elements::Input, view : UI::TextField | UI::SecureField) : Nil
+        if view.has_explicit_text_color?
+          el.add_style("color: #{color_css(view.text_color)}")
+        else
+          el.add_style("color: var(--ap-color-text-primary)")
+        end
+
+        if placeholder_color = view.placeholder_color
+          el.add_class("ap-placeholder-tint")
+          el.add_style("--ap-placeholder-color: #{color_css(placeholder_color)}")
         end
       end
 

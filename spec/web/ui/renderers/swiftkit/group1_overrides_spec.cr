@@ -163,6 +163,26 @@ describe UI::Native::Populator, "Group 1 default-detection" do
       FakeLibObjCBridge.refute_sent(:setFontFamily)
       # placeholder_color defaults to nil → no placeholder-tint setter.
       FakeLibObjCBridge.refute_sent(:setPlaceholderColor)
+      # text_color never assigned → the facade keeps the label color.
+      FakeLibObjCBridge.refute_sent(:setTextColor)
+    end
+
+    it "emits setTextColor when text_color is assigned" do
+      view = UI::TextField.new
+      view.text_color = UI::Color.new(r: 0.137, g: 0.161, b: 0.227) # #23293A
+      target = FakeLibObjCBridge.next_sentinel_pointer
+      UI::Native::Populator.populate_text_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextColor, times: 1,
+        args: [target, "rgba(0.137,0.161,0.227,1.0)"])
+    end
+
+    it "emits an explicitly assigned black text_color" do
+      view = UI::TextField.new
+      view.text_color = UI::Color.new(r: 0.0, g: 0.0, b: 0.0)
+      target = FakeLibObjCBridge.next_sentinel_pointer
+      UI::Native::Populator.populate_text_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextColor, times: 1,
+        args: [target, "rgba(0.0,0.0,0.0,1.0)"])
     end
 
     it "emits setPlaceholderColor when placeholder_color is set" do
@@ -238,6 +258,20 @@ describe UI::Native::Populator, "Group 1 default-detection" do
       FakeLibObjCBridge.refute_sent(:setBackgroundColor)
       FakeLibObjCBridge.refute_sent(:setFontSize)
       FakeLibObjCBridge.refute_sent(:setFontFamily)
+      FakeLibObjCBridge.refute_sent(:setTextColor)
+      FakeLibObjCBridge.refute_sent(:setPlaceholderColor)
+    end
+
+    it "emits setTextColor and setPlaceholderColor when assigned" do
+      view = UI::SecureField.new
+      view.text_color = UI::Color.new(r: 0.137, g: 0.161, b: 0.227)
+      view.placeholder_color = UI::Color.new(r: 0.745, g: 0.761, b: 0.761)
+      target = FakeLibObjCBridge.next_sentinel_pointer
+      UI::Native::Populator.populate_secure_field(target, view, RecordingSender.new)
+      FakeLibObjCBridge.assert_sent(:setTextColor, times: 1,
+        args: [target, "rgba(0.137,0.161,0.227,1.0)"])
+      FakeLibObjCBridge.assert_sent(:setPlaceholderColor, times: 1,
+        args: [target, "rgba(0.745,0.761,0.761,1.0)"])
     end
 
     it "forwards an explicit text alignment" do

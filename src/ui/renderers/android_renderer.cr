@@ -597,7 +597,7 @@
         LibAndroidBridge.android_textinputlayout_set_box_background_mode(@env, til, 1)
         LibAndroidBridge.android_textinputlayout_set_box_background_color(@env, til, material_color(:surface_variant))
         LibAndroidBridge.android_textinputlayout_set_box_stroke_color(@env, til, material_color(:outline))
-        LibAndroidBridge.android_textinputlayout_set_hint_text_color(@env, til, material_color(:on_surface_variant))
+        LibAndroidBridge.android_textinputlayout_set_hint_text_color(@env, til, input_hint_argb(view))
 
         unless view.placeholder.empty?
           LibAndroidBridge.android_textinputlayout_set_hint(@env, til, view.placeholder.to_unsafe, view.placeholder.bytesize)
@@ -648,9 +648,8 @@
         LibAndroidBridge.android_textview_set_text_size(@env, et, view.font.size.to_f32)
         LibAndroidBridge.android_textview_set_typeface(@env, et, typeface_style_for(view.font))
 
-        # Text color
-        LibAndroidBridge.android_textview_set_text_color(
-          @env, et, color_to_argb(view.text_color))
+        # Value color: the assigned text_color, else the theme's on-surface role.
+        LibAndroidBridge.android_textview_set_text_color(@env, et, input_text_argb(view))
 
         LibAndroidBridge.android_viewgroup_add_view_wh(@env, til, et, -1, -2)
 
@@ -670,6 +669,23 @@
         end
 
         push_native(native, til)
+      end
+
+      # Value color for TextField / SecureField: the assigned `text_color`,
+      # else the Material on-surface role so an untouched field tracks the
+      # light and dark theme instead of the model's black placeholder value.
+      private def input_text_argb(view : UI::TextField | UI::SecureField) : Int32
+        view.has_explicit_text_color? ? color_to_argb(view.text_color) : material_color(:on_surface)
+      end
+
+      # Hint (placeholder) color: the assigned `placeholder_color`, else the
+      # Material on-surface-variant role.
+      private def input_hint_argb(view : UI::TextField | UI::SecureField) : Int32
+        if placeholder_color = view.placeholder_color
+          color_to_argb(placeholder_color)
+        else
+          material_color(:on_surface_variant)
+        end
       end
 
       # -----------------------------------------------------------------
@@ -1317,7 +1333,7 @@
         LibAndroidBridge.android_textinputlayout_set_box_background_mode(@env, til, 1)
         LibAndroidBridge.android_textinputlayout_set_box_background_color(@env, til, material_color(:surface_variant))
         LibAndroidBridge.android_textinputlayout_set_box_stroke_color(@env, til, material_color(:outline))
-        LibAndroidBridge.android_textinputlayout_set_hint_text_color(@env, til, material_color(:on_surface_variant))
+        LibAndroidBridge.android_textinputlayout_set_hint_text_color(@env, til, input_hint_argb(view))
 
         unless view.placeholder.empty?
           LibAndroidBridge.android_textinputlayout_set_hint(@env, til, view.placeholder.to_unsafe, view.placeholder.bytesize)
@@ -1348,8 +1364,7 @@
         LibAndroidBridge.android_textview_set_gravity(@env, et, gravity_val)
 
         LibAndroidBridge.android_textview_set_text_size(@env, et, view.font.size.to_f32)
-        LibAndroidBridge.android_textview_set_text_color(
-          @env, et, color_to_argb(view.text_color))
+        LibAndroidBridge.android_textview_set_text_color(@env, et, input_text_argb(view))
         LibAndroidBridge.android_viewgroup_add_view_wh(@env, til, et, -1, -2)
 
         apply_common_non_surface_properties(til, view)

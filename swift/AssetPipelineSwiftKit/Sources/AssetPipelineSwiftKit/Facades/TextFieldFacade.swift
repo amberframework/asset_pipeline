@@ -58,22 +58,17 @@ public class TextFieldFacade: NSObject {
         // behaves like the system placeholder for usability.
         let secure = (overrides.secureEntry?.boolValue ?? false)
         let alignment = swiftUITextFieldAlignment(overrides.textAlignment)
-        // Optional brand placeholder tint (Crystal `placeholder_color`). nil
-        // keeps the contrast-safe default inside PromptOverlayField.
-        let phColor: Color? = overrides.placeholderColor.map {
-            #if canImport(UIKit)
-            return Color(uiColor: $0)
-            #else
-            return Color(nsColor: $0)
-            #endif
-        }
+        // Optional brand colors (Crystal `text_color` / `placeholder_color`).
+        // nil keeps the label color for the value and the contrast-safe
+        // default for the placeholder inside PromptOverlayField.
         let base: AnyView = AnyView(
             PromptOverlayField(
                 storage: storage,
                 placeholder: placeholder,
                 isSecure: secure,
                 textAlignment: alignment,
-                placeholderColor: phColor
+                placeholderColor: swiftUITextFieldColor(overrides.placeholderColor),
+                textColor: swiftUITextFieldColor(overrides.textColor)
             )
         )
 
@@ -214,10 +209,14 @@ struct PromptOverlayField: View {
     let textAlignment: TextAlignment
     // nil = the kit's contrast-safe default (`Color.primary @ 50%`). When the
     // consumer sets `text_field.placeholder_color`, the facade threads it here
-    // so a brand placeholder renders literally. `var … = nil` keeps the
-    // synthesized memberwise init backward-compatible for the SecureFieldFacade
-    // call site, which doesn't pass a colour.
+    // so a brand placeholder renders literally. `var … = nil` keeps both colors
+    // optional in the synthesized memberwise init.
     var placeholderColor: Color? = nil
+    // nil = the appearance-tracking label color. When the consumer sets
+    // `text_field.text_color`, the value text draws in exactly this color.
+    // It is applied to the TextField / SecureField only, never to the
+    // placeholder overlay, which keeps its own tint.
+    var textColor: Color? = nil
 
     private var frameAlignment: SwiftUI.Alignment {
         switch textAlignment {
@@ -249,6 +248,7 @@ struct PromptOverlayField: View {
                     TextField("", text: storage.binding)
                 }
             }
+            .modifier(TextFieldValueColor(color: textColor))
             .multilineTextAlignment(textAlignment)
             .frame(maxWidth: .infinity, alignment: frameAlignment)
 
@@ -261,6 +261,31 @@ struct PromptOverlayField: View {
                     .accessibilityHidden(true)
             }
         }
+    }
+}
+
+// Applies the consumer's value color to a TextField / SecureField, or leaves
+// the environment's foreground style (the label color) alone when nil.
+private struct TextFieldValueColor: ViewModifier {
+    let color: Color?
+
+    func body(content: Content) -> some View {
+        if let color {
+            content.foregroundStyle(color)
+        } else {
+            content
+        }
+    }
+}
+
+// Bridges an optional platform color from the overrides into SwiftUI.
+func swiftUITextFieldColor(_ color: APSKPlatformColor?) -> Color? {
+    color.map {
+        #if canImport(UIKit)
+        return Color(uiColor: $0)
+        #else
+        return Color(nsColor: $0)
+        #endif
     }
 }
 
