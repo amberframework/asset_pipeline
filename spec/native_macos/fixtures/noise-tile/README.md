@@ -1,10 +1,12 @@
 # Noise tile reference
 
-The SVG applies the `fractalNoise` turbulence values to the red channel, copies
-that channel to opaque grayscale, and composites it at 7% over `#808080`. The
-128 by 128 user-unit tile is rendered at 256 by 256 pixels to match a 128 point
-native tile on a 2x display. `color-interpolation-filters="sRGB"` keeps the
-reference in the color space used by the native tile.
+The SVG projects the `fractalNoise` red channel to opaque grayscale and
+composites it at 7% over `#808080`. The native spec makes the same projection
+from the shared RGBA tile before drawing it, so this fixture checks the lattice
+channel independently of the browser's RGBA compositing. The 128 by 128
+user-unit tile is rendered at 256 by 256 pixels to match a 128 point native
+tile on a 2x display. `color-interpolation-filters="sRGB"` keeps the reference
+in the color space used by the native tile.
 
 Exact command, run from the repository root:
 
@@ -19,13 +21,15 @@ Reference PNG SHA-256:
 `092d7c643d66b5aab4ec9c224c624833145d0be448e090a74295e93630de832c`.
 
 The native spec allows a maximum per-channel difference of `7/255`. The
-measured native/reference maximum is `7/255`; the previous sine-wave tile
-measured `26/255` against this fixture. This allowance covers the small
-8-bit compositing differences between librsvg and Core Animation at 7%
-opacity while still rejecting the visibly different old pattern.
+original direct-render comparison measured a native/reference maximum of
+`7/255`; the sine-wave tile measured `26/255` against this fixture. This
+allowance covers the small 8-bit compositing differences between librsvg and
+Core Animation at 7% opacity while still rejecting the visibly different old
+pattern.
 
-At 7% opacity over the flat fill, the measured native mean is `128.0003` and
-standard deviation is `2.1507` on the 0–255 channel scale. The reference mean
-is `127.5117` and standard deviation is `2.0295`, so the absolute differences
-are `0.4886` and `0.1212` channel values. Both are within `0.5` channel value
-(`0.5/255` of full scale).
+In that original opaque-tile comparison at 7% opacity, native mean was
+`128.0003` and standard deviation `2.1507` on the 0–255 channel scale. The
+reference mean was `127.5117` and standard deviation `2.0295`; absolute
+differences were `0.4886` and `0.1212`. Current live RGBA compositing
+measurements are recorded with the browser fixtures in
+`../noise-composite/README.md`.

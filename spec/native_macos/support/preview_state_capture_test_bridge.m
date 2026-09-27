@@ -6,6 +6,12 @@
 #include <stdint.h>
 
 extern void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
+extern void *ap_surface_noise_texture_tile_create(
+    double base_frequency,
+    int octave_count,
+    int seed,
+    int tile_size,
+    double backing_scale);
 
 @interface APSpecBackingScaleWindow : NSWindow
 @property(nonatomic) CGFloat specBackingScaleFactor;
@@ -41,6 +47,133 @@ static CGContextRef ap_spec_srgb_bitmap_context(uint8_t *pixels, size_t width, s
         kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
     CGColorSpaceRelease(color_space);
     return context;
+}
+
+static void ap_spec_release_noise_pixels(void *info, const void *data, size_t size) {
+    (void)info;
+    (void)size;
+    free((void *)data);
+}
+
+int32_t ap_spec_render_noise_red_grayscale_reference(
+    double base_frequency,
+    int32_t octave_count,
+    int32_t seed,
+    int32_t tile_size,
+    double backing_scale,
+    uint8_t *pixels,
+    int32_t capacity,
+    int32_t *pixel_width,
+    int32_t *pixel_height) {
+    if (pixels == NULL || pixel_width == NULL || pixel_height == NULL ||
+        tile_size <= 0 || backing_scale <= 0.0) return 0;
+
+    size_t output_width = (size_t)llround((double)tile_size * backing_scale);
+    size_t output_height = output_width;
+    if (output_width == 0 || output_width > INT32_MAX ||
+        output_width * output_height > SIZE_MAX / 4 ||
+        (size_t)capacity < output_width * output_height * 4) return 0;
+
+    @autoreleasepool {
+        CGImageRef noise_tile = (CGImageRef)ap_surface_noise_texture_tile_create(
+            base_frequency, octave_count, seed, tile_size, backing_scale);
+        if (noise_tile == NULL) return 0;
+
+        size_t tile_width = CGImageGetWidth(noise_tile);
+        size_t tile_height = CGImageGetHeight(noise_tile);
+        size_t source_row_bytes = CGImageGetBytesPerRow(noise_tile);
+        CGDataProviderRef source_provider = CGImageGetDataProvider(noise_tile);
+        CFDataRef source_data = source_provider == NULL ? NULL : CGDataProviderCopyData(source_provider);
+        CGImageRelease(noise_tile);
+        if (source_data == NULL || tile_width != output_width || tile_height != output_height) {
+            if (source_data != NULL) CFRelease(source_data);
+            return 0;
+        }
+
+        const uint8_t *source = CFDataGetBytePtr(source_data);
+        size_t gray_row_bytes = tile_width * 4;
+        if (source == NULL || source_row_bytes < gray_row_bytes) {
+            CFRelease(source_data);
+            return 0;
+        }
+        uint8_t *gray_pixels = calloc(tile_width * tile_height, 4);
+        if (gray_pixels == NULL) {
+            CFRelease(source_data);
+            return 0;
+        }
+        for (size_t y = 0; y < tile_height; y++) {
+            for (size_t x = 0; x < tile_width; x++) {
+                const uint8_t *source_pixel = source + y * source_row_bytes + x * 4;
+                uint8_t alpha = source_pixel[3];
+                uint8_t red = alpha == 0 ? 0 : (uint8_t)MIN(255, ((int)source_pixel[0] * 255 + alpha / 2) / alpha);
+                uint8_t *gray_pixel = gray_pixels + y * gray_row_bytes + x * 4;
+                gray_pixel[0] = red;
+                gray_pixel[1] = red;
+                gray_pixel[2] = red;
+                gray_pixel[3] = 255;
+            }
+        }
+        CFRelease(source_data);
+
+        CGColorSpaceRef color_space = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+        if (color_space == NULL) {
+            free(gray_pixels);
+            return 0;
+        }
+        CGDataProviderRef gray_provider = CGDataProviderCreateWithData(
+            NULL, gray_pixels, gray_row_bytes * tile_height, ap_spec_release_noise_pixels);
+        if (gray_provider == NULL) {
+            CGColorSpaceRelease(color_space);
+            free(gray_pixels);
+            return 0;
+        }
+        CGImageRef gray_tile = CGImageCreate(
+            tile_width,
+            tile_height,
+            8,
+            32,
+            gray_row_bytes,
+            color_space,
+            kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big,
+            gray_provider,
+            NULL,
+            false,
+            kCGRenderingIntentDefault);
+        if (gray_provider != NULL) CGDataProviderRelease(gray_provider);
+        CGColorSpaceRelease(color_space);
+        if (gray_tile == NULL) {
+            return 0;
+        }
+
+        NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, tile_size, tile_size)];
+        view.wantsLayer = YES;
+        view.layer.contentsScale = backing_scale;
+        view.layer.backgroundColor = [NSColor colorWithSRGBRed:128.0 / 255.0
+            green:128.0 / 255.0 blue:128.0 / 255.0 alpha:1.0].CGColor;
+        CALayer *image_layer = [CALayer layer];
+        image_layer.frame = view.bounds;
+        image_layer.contentsScale = backing_scale;
+        image_layer.contents = (__bridge id)gray_tile;
+        image_layer.opacity = 0.07;
+        [view.layer addSublayer:image_layer];
+
+        CGContextRef context = ap_spec_srgb_bitmap_context(pixels, output_width, output_height);
+        if (context == NULL) {
+            CGImageRelease(gray_tile);
+            [view release];
+            return 0;
+        }
+        CGContextTranslateCTM(context, 0, output_height);
+        CGContextScaleCTM(context, backing_scale, -backing_scale);
+        [view.layer renderInContext:context];
+        CGContextFlush(context);
+        CGContextRelease(context);
+        CGImageRelease(gray_tile);
+        [view release];
+        *pixel_width = (int32_t)output_width;
+        *pixel_height = (int32_t)output_height;
+        return 1;
+    }
 }
 
 static void ap_spec_texture_tile_pixel_size(NSView *view, int32_t *width, int32_t *height) {

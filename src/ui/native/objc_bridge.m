@@ -5310,21 +5310,27 @@ static CGImageRef ap_surface_noise_generate_tile(
                 (double)x * tile_size / pixel_size,
                 (double)y * tile_size / pixel_size,
             };
-            double value = (ap_surface_noise_turbulence(
-                &state,
-                0,
-                point,
-                base_frequency,
-                base_frequency,
-                octave_count,
-                tile_size) + 1.0) * 0.5;
-            value = fmin(1.0, fmax(0.0, value));
-            uint8_t gray = (uint8_t)lround(value * 255.0);
             size_t offset = (y * pixel_size + x) * 4;
-            pixel_bytes[offset] = gray;
-            pixel_bytes[offset + 1] = gray;
-            pixel_bytes[offset + 2] = gray;
-            pixel_bytes[offset + 3] = 255;
+            double channel_values[AP_NOISE_GRADIENT_CHANNELS];
+            for (int channel = 0; channel < AP_NOISE_GRADIENT_CHANNELS; channel++) {
+                double value = (ap_surface_noise_turbulence(
+                    &state,
+                    channel,
+                    point,
+                    base_frequency,
+                    base_frequency,
+                    octave_count,
+                    tile_size) + 1.0) * 0.5;
+                channel_values[channel] = fmin(1.0, fmax(0.0, value));
+            }
+            // feTurbulence supplies independent RGBA channels. The layer opacity
+            // is applied once by Core Animation, so store the tile premultiplied
+            // by its generated alpha just as a decoded SVG image would be.
+            double alpha = channel_values[3];
+            for (int channel = 0; channel < 3; channel++) {
+                pixel_bytes[offset + channel] = (uint8_t)lround(channel_values[channel] * alpha * 255.0);
+            }
+            pixel_bytes[offset + 3] = (uint8_t)lround(alpha * 255.0);
         }
     }
 

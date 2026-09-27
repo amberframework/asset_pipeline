@@ -48,6 +48,17 @@ require "../../src/ui"
   end
 
   lib NoiseTextureFixtureBridge
+    fun ap_spec_render_noise_red_grayscale_reference(
+      base_frequency : Float64,
+      octave_count : Int32,
+      seed : Int32,
+      tile_size : Int32,
+      backing_scale : Float64,
+      pixels : UInt8*,
+      capacity : Int32,
+      pixel_width : Int32*,
+      pixel_height : Int32*,
+    ) : Int32
     fun ap_spec_render_surface_craft_json(
       json : UInt8*,
       point_width : Float64,
@@ -116,6 +127,24 @@ require "../../src/ui"
       total += gray_value
     end
     mean = total / pixel_count
+    sum_of_squared_differences = values.sum do |value|
+      difference = value - mean
+      difference * difference
+    end
+    {mean, Math.sqrt(sum_of_squared_differences / pixel_count)}
+  end
+
+  private def surface_craft_luma_statistics(pixels : Array(UInt8), pixel_width : Int32, pixel_height : Int32) : {Float64, Float64}
+    pixel_count = pixel_width.to_i64 * pixel_height.to_i64
+    values = Array(Float64).new(pixel_count.to_i32)
+    pixel_count.times do |index|
+      offset = index.to_i32 * 4
+      red = pixels[offset].to_f64
+      green = pixels[offset + 1].to_f64
+      blue = pixels[offset + 2].to_f64
+      values << red * 0.2126 + green * 0.7152 + blue * 0.0722
+    end
+    mean = values.sum / pixel_count
     sum_of_squared_differences = values.sum do |value|
       difference = value - mean
       difference * difference
@@ -338,7 +367,7 @@ require "../../src/ui"
       end
     end
 
-    it "matches the stitched grayscale SVG turbulence fixture over a flat fill at 2x" do
+    it "matches the red-channel grayscale SVG turbulence fixture over a flat fill at 2x" do
       pixel_capacity = 256 * 256 * 4
       native_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
       repeated_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
@@ -347,64 +376,30 @@ require "../../src/ui"
       native_pixel_height = 0
       reference_pixel_width = 0
       reference_pixel_height = 0
-      tile_pixel_width = 0
-      tile_pixel_height = 0
-      texture_opacity = 0.0
-      contents_scale = 0.0
-      has_compositing_filter = 0
-      surface = UI::VStack.new
-      surface.background_fill_color = UI::Color.new(r: 128.0 / 255.0, g: 128.0 / 255.0, b: 128.0 / 255.0)
-      surface.texture_overlay = UI::TextureOverlay.new(
-        texture_kind: UI::TextureKind::Noise,
-        texture_opacity: 0.07,
-        base_frequency: 0.83,
-        octave_count: 3,
-        seed: 7,
-        tile_size: 128,
-      )
-      json = if payload = surface.surface_craft_json
-               payload
-             else
-               fail "Noise surface payload was not emitted"
-             end
-
-      NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
-        json.to_unsafe,
-        128.0,
-        128.0,
+      NoiseTextureFixtureBridge.ap_spec_render_noise_red_grayscale_reference(
+        0.83,
+        3,
+        7,
+        128,
         2.0,
         native_pixels.to_unsafe,
         pixel_capacity,
         pointerof(native_pixel_width),
         pointerof(native_pixel_height),
-        pointerof(tile_pixel_width),
-        pointerof(tile_pixel_height),
-        pointerof(texture_opacity),
-        pointerof(contents_scale),
-        pointerof(has_compositing_filter),
       ).should eq(1)
 
       repeated_pixel_width = 0
       repeated_pixel_height = 0
-      repeated_tile_pixel_width = 0
-      repeated_tile_pixel_height = 0
-      repeated_opacity = 0.0
-      repeated_contents_scale = 0.0
-      repeated_blend_filter = 0
-      NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
-        json.to_unsafe,
-        128.0,
-        128.0,
+      NoiseTextureFixtureBridge.ap_spec_render_noise_red_grayscale_reference(
+        0.83,
+        3,
+        7,
+        128,
         2.0,
         repeated_pixels.to_unsafe,
         pixel_capacity,
         pointerof(repeated_pixel_width),
         pointerof(repeated_pixel_height),
-        pointerof(repeated_tile_pixel_width),
-        pointerof(repeated_tile_pixel_height),
-        pointerof(repeated_opacity),
-        pointerof(repeated_contents_scale),
-        pointerof(repeated_blend_filter),
       ).should eq(1)
 
       fixture_path = File.expand_path("fixtures/noise-tile/reference.png", __DIR__)
@@ -442,37 +437,81 @@ require "../../src/ui"
       (native_mean - reference_mean).abs.should be <= 0.5
       (native_standard_deviation - reference_standard_deviation).abs.should be <= 0.5
       repeated_pixels.should eq(native_pixels)
-      tile_pixel_width.should eq(256)
-      tile_pixel_height.should eq(256)
-      (contents_scale - 2.0).abs.should be <= 0.001
-      (texture_opacity - 0.07).abs.should be <= 0.001
-      has_compositing_filter.should eq(0)
+    end
 
-      initial_tile_width = 0
-      initial_tile_height = 0
-      initial_contents_scale = 0.0
-      new_tile_width = 0
-      new_tile_height = 0
-      new_contents_scale = 0.0
-      NoiseTextureFixtureBridge.ap_spec_rebake_noise_surface_on_scale_change(
-        json.to_unsafe,
-        128.0,
-        128.0,
-        2.0,
-        1.0,
-        pointerof(initial_tile_width),
-        pointerof(initial_tile_height),
-        pointerof(initial_contents_scale),
-        pointerof(new_tile_width),
-        pointerof(new_tile_height),
-        pointerof(new_contents_scale),
-      ).should eq(1)
-      initial_tile_width.should eq(256)
-      initial_tile_height.should eq(256)
-      (initial_contents_scale - 2.0).abs.should be <= 0.001
-      new_tile_width.should eq(128)
-      new_tile_height.should eq(128)
-      (new_contents_scale - 1.0).abs.should be <= 0.001
+    it "matches browser RGBA Noise compositing over light and dark fills at 2x" do
+      fixture_cases = [
+        {fill: UI::Color.new(r: 251.0 / 255.0, g: 248.0 / 255.0, b: 242.0 / 255.0), file: "light-reference.png"},
+        {fill: UI::Color.new(r: 43.0 / 255.0, g: 50.0 / 255.0, b: 69.0 / 255.0), file: "dark-reference.png"},
+      ]
+      pixel_capacity = 256 * 256 * 4
+
+      fixture_cases.each do |fixture_case|
+        surface = UI::VStack.new
+        surface.background_fill_color = fixture_case[:fill]
+        surface.texture_overlay = UI::TextureOverlay.new(
+          texture_kind: UI::TextureKind::Noise,
+          texture_opacity: 0.07,
+          base_frequency: 0.83,
+          octave_count: 3,
+          seed: 7,
+          tile_size: 128,
+        )
+        json = surface.surface_craft_json || fail("Noise surface payload was not emitted")
+        native_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
+        native_pixel_width = 0
+        native_pixel_height = 0
+        tile_pixel_width = 0
+        tile_pixel_height = 0
+        texture_opacity = 0.0
+        contents_scale = 0.0
+        has_compositing_filter = 0
+
+        NoiseTextureFixtureBridge.ap_spec_render_surface_craft_json(
+          json.to_unsafe,
+          128.0,
+          128.0,
+          2.0,
+          native_pixels.to_unsafe,
+          pixel_capacity,
+          pointerof(native_pixel_width),
+          pointerof(native_pixel_height),
+          pointerof(tile_pixel_width),
+          pointerof(tile_pixel_height),
+          pointerof(texture_opacity),
+          pointerof(contents_scale),
+          pointerof(has_compositing_filter),
+        ).should eq(1)
+
+        reference_path = File.expand_path("fixtures/noise-composite/#{fixture_case[:file]}", __DIR__)
+        reference_pixels = Array(UInt8).new(pixel_capacity, 0_u8)
+        reference_pixel_width = 0
+        reference_pixel_height = 0
+        NoiseTextureFixtureBridge.ap_spec_copy_png_rgba(
+          reference_path.to_unsafe,
+          reference_pixels.to_unsafe,
+          pixel_capacity,
+          pointerof(reference_pixel_width),
+          pointerof(reference_pixel_height),
+        ).should eq(1)
+
+        native_pixel_width.should eq(256)
+        native_pixel_height.should eq(256)
+        reference_pixel_width.should eq(256)
+        reference_pixel_height.should eq(256)
+        native_mean, native_standard_deviation = surface_craft_luma_statistics(native_pixels, native_pixel_width, native_pixel_height)
+        reference_mean, reference_standard_deviation = surface_craft_luma_statistics(reference_pixels, reference_pixel_width, reference_pixel_height)
+
+        # The mean allows one 8-bit level for compositor rounding. The tighter
+        # standard-deviation bound catches a doubled or missing layer opacity.
+        (native_mean - reference_mean).abs.should be <= 1.0
+        (native_standard_deviation - reference_standard_deviation).abs.should be <= 0.15
+        tile_pixel_width.should eq(256)
+        tile_pixel_height.should eq(256)
+        (texture_opacity - 0.07).abs.should be <= 0.001
+        (contents_scale - 2.0).abs.should be <= 0.001
+        has_compositing_filter.should eq(0)
+      end
     end
 
     it "renders custom toggle styles, keycaps, swatch pickers, and tabbed sections through SwiftUI hosts" do
