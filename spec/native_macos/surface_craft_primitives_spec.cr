@@ -35,6 +35,14 @@ require "../../src/ui"
       backing_scale : Float64,
     ) : Int32
     fun ap_spec_close_held_noise_window : Void
+    fun ap_spec_noise_texture_layout_metrics(
+      view : Void*,
+      texture_width : Float64*,
+      texture_height : Float64*,
+      row_count : Int32*,
+      column_count : Int32*,
+    ) : Int32
+    fun ap_spec_surface_layer_count(view : Void*, name : UInt8*) : Int32
     fun ap_spec_appkit_view_layer_translation_y(view : Void*) : Float64
     fun ap_spec_appkit_view_layer_shadow_opacity(view : Void*) : Float32
   end
@@ -207,6 +215,13 @@ require "../../src/ui"
         seed: 7,
         tile_size: 128,
       )
+      surface.linear_gradient = UI::LinearGradient.new(
+        list_of_stops: [
+          UI::GradientStop.new(stop_color: UI::ColorRole::SurfaceElevated, stop_position: 0.0),
+          UI::GradientStop.new(stop_color: UI::ColorRole::SurfacePanel, stop_position: 1.0),
+        ],
+        gradient_angle: 135.0,
+      )
       surface.list_of_drop_shadows = [
         UI::DropShadow.new(shadow_color: UI::ColorRole::TextPrimary, offset_y: 2.0, blur_radius: 5.0),
       ]
@@ -215,13 +230,17 @@ require "../../src/ui"
       initial_tile_height = 0
       changed_tile_width = 0
       changed_tile_height = 0
+      texture_width = 0.0
+      texture_height = 0.0
+      texture_row_count = 0
+      texture_column_count = 0
 
       begin
         result = UI::ObjC.autoreleasepool do
           PreviewStateCaptureTestBridge.ap_spec_attach_noise_view_and_change_backing_scale(
             native.handle.ptr!,
-            128.0,
-            128.0,
+            300.0,
+            270.0,
             2.0,
             1.0,
             pointerof(initial_tile_width),
@@ -235,6 +254,26 @@ require "../../src/ui"
         initial_tile_height.should eq(256)
         changed_tile_width.should eq(128)
         changed_tile_height.should eq(128)
+        PreviewStateCaptureTestBridge.ap_spec_noise_texture_layout_metrics(
+          native.handle.ptr!,
+          pointerof(texture_width),
+          pointerof(texture_height),
+          pointerof(texture_row_count),
+          pointerof(texture_column_count),
+        ).should eq(1)
+        texture_width.should eq(300.0)
+        texture_height.should eq(270.0)
+        texture_row_count.should eq(3)
+        texture_column_count.should eq(3)
+        PreviewStateCaptureTestBridge.ap_spec_surface_layer_count(
+          native.handle.ptr!, "ap.surfaceCraft.gradient",
+        ).should eq(1)
+        PreviewStateCaptureTestBridge.ap_spec_surface_layer_count(
+          native.handle.ptr!, "ap.surfaceCraft.texture",
+        ).should eq(1)
+        PreviewStateCaptureTestBridge.ap_spec_surface_layer_count(
+          native.handle.ptr!, "ap.surfaceCraft.drop.0",
+        ).should eq(1)
       ensure
         native.teardown!
       end

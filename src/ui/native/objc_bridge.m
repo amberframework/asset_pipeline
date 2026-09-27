@@ -62,12 +62,35 @@
 static char apsk_pending_focus_key;
 static char apsk_focus_result_key;
 static char ap_surface_craft_texture_payload_key;
+static char ap_surface_craft_applied_layout_key;
 
 void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
+
+static NSString *ap_surface_craft_layout_signature(NSView *view, CALayer *root) {
+    if (root == nil) return nil;
+    CGFloat backing_scale = view.window != nil ? view.window.backingScaleFactor : root.contentsScale;
+    if (!isfinite(backing_scale) || backing_scale <= 0.0) backing_scale = 1.0;
+    CGRect bounds = root.bounds;
+    return [NSString stringWithFormat:@"%.17g:%.17g:%.17g:%.17g:%.17g",
+        (double)bounds.origin.x, (double)bounds.origin.y,
+        (double)bounds.size.width, (double)bounds.size.height, (double)backing_scale];
+}
+
+static void ap_surface_craft_apply_after_layout(NSView *view) {
+    NSString *surface_craft_json = objc_getAssociatedObject(view, &ap_surface_craft_texture_payload_key);
+    if (surface_craft_json == nil) return;
+
+    NSString *layout_signature = ap_surface_craft_layout_signature(view, view.layer);
+    NSString *applied_signature = objc_getAssociatedObject(view, &ap_surface_craft_applied_layout_key);
+    if (layout_signature != nil && ![layout_signature isEqualToString:applied_signature]) {
+        appkit_view_apply_surface_craft(view, surface_craft_json.UTF8String);
+    }
+}
 
 @interface NSView (APSKDeferredFirstResponder)
 - (void)apsk_deferred_view_did_move_to_window;
 - (void)ap_surface_craft_view_did_change_backing_properties;
+- (void)ap_surface_craft_view_did_layout;
 @end
 
 @implementation NSView (APSKDeferredFirstResponder)
@@ -82,6 +105,12 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
     Method backing_replacement = class_getInstanceMethod(self, @selector(ap_surface_craft_view_did_change_backing_properties));
     if (backing_original != NULL && backing_replacement != NULL) {
         method_exchangeImplementations(backing_original, backing_replacement);
+    }
+
+    Method layout_original = class_getInstanceMethod(self, @selector(layout));
+    Method layout_replacement = class_getInstanceMethod(self, @selector(ap_surface_craft_view_did_layout));
+    if (layout_original != NULL && layout_replacement != NULL) {
+        method_exchangeImplementations(layout_original, layout_replacement);
     }
 }
 
@@ -100,10 +129,13 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json);
 - (void)ap_surface_craft_view_did_change_backing_properties {
     [self ap_surface_craft_view_did_change_backing_properties];
 
-    NSString *surface_craft_json = objc_getAssociatedObject(self, &ap_surface_craft_texture_payload_key);
-    if (surface_craft_json != nil) {
-        appkit_view_apply_surface_craft(self, surface_craft_json.UTF8String);
-    }
+    ap_surface_craft_apply_after_layout(self);
+}
+
+- (void)ap_surface_craft_view_did_layout {
+    [self ap_surface_craft_view_did_layout];
+
+    ap_surface_craft_apply_after_layout(self);
 }
 @end
 #endif
@@ -5424,9 +5456,11 @@ static NSArray<CALayer *> *ap_surface_layers_named(CALayer *root, NSString *name
 }
 
 static void ap_surface_remove_layers_with_prefix(CALayer *root, NSString *prefix) {
+    NSMutableArray<CALayer *> *matching_layers = [NSMutableArray array];
     for (CALayer *layer in root.sublayers) {
-        if ([layer.name hasPrefix:prefix]) [layer removeFromSuperlayer];
+        if ([layer.name hasPrefix:prefix]) [matching_layers addObject:layer];
     }
+    for (CALayer *layer in matching_layers) [layer removeFromSuperlayer];
 }
 
 static void ap_surface_apply_preview_feedback(CALayer *root, NSDictionary *values) {
@@ -5541,6 +5575,8 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
         } else {
             objc_setAssociatedObject(view, &ap_surface_craft_texture_payload_key,
                 nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
+            objc_setAssociatedObject(view, &ap_surface_craft_applied_layout_key,
+                nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
         }
 
         CGFloat backing_scale = view.window != nil ? view.window.backingScaleFactor : root.contentsScale;
@@ -5584,6 +5620,7 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
             CAReplicatorLayer *vertical = [CAReplicatorLayer layer];
             vertical.name = @"ap.surfaceCraft.texture";
             vertical.frame = root.bounds;
+            vertical.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
             vertical.opacity = (float)[texture[@"opacity"] doubleValue];
             CAReplicatorLayer *row = [CAReplicatorLayer layer];
             CALayer *image = [CALayer layer];
@@ -5611,6 +5648,7 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
                 vertical.instanceTransform = CATransform3DMakeTranslation(0, tile_size_points, 0);
                 row.contentsScale = backing_scale;
                 row.frame = CGRectMake(0, 0, CGRectGetWidth(root.bounds), tile_size_points);
+                row.autoresizingMask = kCALayerWidthSizable;
                 row.instanceCount = (NSUInteger)columns;
                 row.instanceTransform = CATransform3DMakeTranslation(tile_size_points, 0, 0);
                 image.frame = CGRectMake(0, 0, tile_size_points, tile_size_points);
@@ -5677,6 +5715,9 @@ void appkit_view_apply_surface_craft(void *view_ptr, const char *json) {
         }
 
         ap_surface_apply_preview_feedback(root, values);
+        NSString *layout_signature = ap_surface_craft_layout_signature(view, root);
+        objc_setAssociatedObject(view, &ap_surface_craft_applied_layout_key,
+            layout_signature, OBJC_ASSOCIATION_COPY_NONATOMIC);
     }
 }
 

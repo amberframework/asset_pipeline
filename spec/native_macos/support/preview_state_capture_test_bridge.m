@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import <ImageIO/ImageIO.h>
+#import <QuartzCore/QuartzCore.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -73,8 +74,10 @@ static int32_t ap_spec_attach_view_to_offscreen_window(
                 NSMidX(visible_frame) - point_width / 2.0,
                 NSMidY(visible_frame) - point_height / 2.0);
         }
+        NSRect initial_frame = frame;
+        initial_frame.size = NSMakeSize(32.0, 32.0);
         APSpecBackingScaleWindow *window = [[APSpecBackingScaleWindow alloc]
-            initWithContentRect:frame
+            initWithContentRect:initial_frame
             styleMask:NSWindowStyleMaskBorderless
             backing:NSBackingStoreBuffered
             defer:NO];
@@ -83,9 +86,17 @@ static int32_t ap_spec_attach_view_to_offscreen_window(
         window.specBackingScaleFactor = initial_scale;
         int32_t result = 1;
         @try {
-            [view setFrame:frame];
+            [view setFrame:NSMakeRect(0, 0, 32.0, 32.0)];
             [window setContentView:view];
             [window orderOut:nil];
+            [window layoutIfNeeded];
+            [view layoutSubtreeIfNeeded];
+            [window displayIfNeeded];
+            [view displayIfNeeded];
+
+            // Grow after attachment so the backing-properties and layout hooks
+            // see the final bounds rather than the provisional content frame.
+            [window setContentSize:NSMakeSize(point_width, point_height)];
             [window layoutIfNeeded];
             [view layoutSubtreeIfNeeded];
             [window displayIfNeeded];
@@ -196,6 +207,40 @@ void ap_spec_close_held_noise_window(void) {
         [window close];
         [window release];
     }
+}
+
+int32_t ap_spec_noise_texture_layout_metrics(
+    void *view_ptr,
+    double *texture_width,
+    double *texture_height,
+    int32_t *row_count,
+    int32_t *column_count) {
+    if (view_ptr == NULL || texture_width == NULL || texture_height == NULL ||
+        row_count == NULL || column_count == NULL) return 0;
+    NSView *view = (__bridge NSView *)view_ptr;
+    CALayer *texture = ap_spec_surface_layer_named(view.layer, @"ap.surfaceCraft.texture");
+    CAReplicatorLayer *vertical = [texture isKindOfClass:[CAReplicatorLayer class]] ?
+        (CAReplicatorLayer *)texture : nil;
+    CAReplicatorLayer *row = vertical.sublayers.count > 0 &&
+        [vertical.sublayers[0] isKindOfClass:[CAReplicatorLayer class]] ?
+        (CAReplicatorLayer *)vertical.sublayers[0] : nil;
+    if (vertical == nil || row == nil) return 0;
+    *texture_width = CGRectGetWidth(vertical.frame);
+    *texture_height = CGRectGetHeight(vertical.frame);
+    *row_count = (int32_t)vertical.instanceCount;
+    *column_count = (int32_t)row.instanceCount;
+    return 1;
+}
+
+int32_t ap_spec_surface_layer_count(void *view_ptr, const char *name) {
+    if (view_ptr == NULL || name == NULL) return 0;
+    NSView *view = (__bridge NSView *)view_ptr;
+    NSString *target = [NSString stringWithUTF8String:name];
+    int32_t count = 0;
+    for (CALayer *layer in view.layer.sublayers) {
+        if ([layer.name isEqualToString:target]) count++;
+    }
+    return count;
 }
 
 int32_t ap_spec_render_surface_craft_json(
