@@ -92,18 +92,18 @@ describe UI::Web::Renderer do
       html.should contain("text-align: center")
     end
 
-    it "applies leading text alignment as left" do
+    it "applies leading text alignment as start" do
       label = UI::Label.new("Left")
       label.text_alignment = UI::Alignment::Leading
       html = render(label)
-      html.should contain("text-align: left")
+      html.should contain("text-align: start")
     end
 
-    it "applies trailing text alignment as right" do
+    it "applies trailing text alignment as end" do
       label = UI::Label.new("Right")
       label.text_alignment = UI::Alignment::Trailing
       html = render(label)
-      html.should contain("text-align: right")
+      html.should contain("text-align: end")
     end
 
     it "applies line clamping when number_of_lines > 0" do
@@ -364,6 +364,22 @@ describe UI::Web::Renderer do
   end
 
   describe "TextField" do
+    it "defaults to logical leading alignment" do
+      render(UI::TextField.new).should contain("text-align: start")
+    end
+
+    it "emits logical text alignment for every alignment value" do
+      {
+        {UI::Alignment::Leading, "text-align: start"},
+        {UI::Alignment::Center, "text-align: center"},
+        {UI::Alignment::Trailing, "text-align: end"},
+      }.each do |alignment, expected_style|
+        field = UI::TextField.new("Project")
+        field.text_alignment = alignment
+        render(field).should contain(expected_style)
+      end
+    end
+
     it "renders to <input> with type=text" do
       field = UI::TextField.new("Enter name")
       html = render(field)
@@ -380,9 +396,11 @@ describe UI::Web::Renderer do
     it "renders as type=password when secure_entry is true" do
       field = UI::TextField.new("Password")
       field.secure_entry = true
+      field.text_alignment = UI::Alignment::Trailing
       html = render(field)
       html.should contain("type=\"password\"")
       html.should_not contain("type=\"text\"")
+      html.should contain("text-align: end")
     end
 
     it "applies value attribute when text is set" do
@@ -464,6 +482,12 @@ describe UI::Web::Renderer do
   end
 
   describe "SecureField" do
+    it "emits the requested logical text alignment" do
+      field = UI::SecureField.new("Password")
+      field.text_alignment = UI::Alignment::Trailing
+      render(field).should contain("text-align: end")
+    end
+
     it "renders type=\"password\"" do
       field = UI::SecureField.new("Password")
       html = render(field)

@@ -471,7 +471,8 @@ module UI
       def self.populate_text_field(target : String, view : UI::TextField, sender : Sender)
         populate_view_common(target, view, sender)
         # Placeholder + text are positional args on apsk_make_text_field;
-        # only secure-entry needs to flow through overrides.
+        # text alignment and secure-entry flow through overrides.
+        sender.set_string(target, :setTextAlignment, view.text_alignment.to_s.downcase)
         sender.set_bool(target, :setSecureEntry, view.secure_entry ? true : nil)
         kt = view.keyboard_type
         unless kt == UI::KeyboardType::Default
@@ -493,6 +494,7 @@ module UI
 
       def self.populate_secure_field(target : String, view : UI::SecureField, sender : Sender)
         populate_view_common(target, view, sender)
+        sender.set_string(target, :setTextAlignment, view.text_alignment.to_s.downcase)
         # The SwiftUI SecureField default handles obscured entry + a11y traits;
         # only the brand font flows through (so a password field matches its
         # sibling text fields). UI::SecureField#font was previously dropped.

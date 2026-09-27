@@ -19,7 +19,8 @@
 # Bridge object file lifecycle:
 #   `make test-macos` depends on `src/ui/native/objc_bridge.o`
 #   (`$(AP_BRIDGE_OBJ)`), `src/ui/native/swiftkit_bridge.o`
-#   (`$(SK_BRIDGE_OBJ)`), and the spec-only first-responder test bridge.
+#   (`$(SK_BRIDGE_OBJ)`), and the spec-only first-responder, preview-state,
+#   and text-field alignment bridges.
 #   All are compiled with `-fno-objc-arc`
 #   (the bridges manage their own memory). The `.o` files are .gitignored
 #   build artifacts — never check them in.
@@ -38,6 +39,8 @@ SPEC_FOCUS_BRIDGE_OBJ := src/ui/native/appkit_focus_spec_bridge.o
 SPEC_FOCUS_BRIDGE_SRC := spec/native_macos/support/appkit_focus_test_bridge.m
 SPEC_PREVIEW_BRIDGE_OBJ := src/ui/native/appkit_preview_state_spec_bridge.o
 SPEC_PREVIEW_BRIDGE_SRC := spec/native_macos/support/preview_state_capture_test_bridge.m
+SPEC_TEXT_FIELD_BRIDGE_OBJ := src/ui/native/text_field_alignment_spec_bridge.o
+SPEC_TEXT_FIELD_BRIDGE_SRC := spec/native_macos/support/text_field_alignment_test_bridge.m
 
 SWIFTKIT_DIR  := swift/AssetPipelineSwiftKit
 SWIFTKIT_LIB  := $(SWIFTKIT_DIR)/.build/release/libAssetPipelineSwiftKit.a
@@ -56,6 +59,7 @@ MACOS_FRAMEWORKS := \
 MACOS_LINK_FLAGS := \
 	$(abspath $(AP_BRIDGE_OBJ)) $(abspath $(SK_BRIDGE_OBJ)) $(abspath $(COL_BRIDGE_OBJ)) \
 	$(abspath $(SPEC_FOCUS_BRIDGE_OBJ)) $(abspath $(SPEC_PREVIEW_BRIDGE_OBJ)) \
+	$(abspath $(SPEC_TEXT_FIELD_BRIDGE_OBJ)) \
 	-Wl,-force_load,$(abspath $(SWIFTKIT_LIB)) \
 	$(MACOS_FRAMEWORKS) \
 	-L$(SWIFT_RUNTIME_LIB_DIR) \
@@ -70,7 +74,7 @@ MACOS_LINK_FLAGS := \
 test-web:
 	$(CRYSTAL) spec spec/web/
 
-test-macos: $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ) $(SWIFTKIT_LIB)
+test-macos: $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ) $(SPEC_TEXT_FIELD_BRIDGE_OBJ) $(SWIFTKIT_LIB)
 	$(ACRYSTAL) spec spec/native_macos/ -Dmacos \
 		--link-flags="$(MACOS_LINK_FLAGS)"
 
@@ -110,10 +114,13 @@ $(SPEC_FOCUS_BRIDGE_OBJ): $(SPEC_FOCUS_BRIDGE_SRC)
 $(SPEC_PREVIEW_BRIDGE_OBJ): $(SPEC_PREVIEW_BRIDGE_SRC)
 	clang -c $(SPEC_PREVIEW_BRIDGE_SRC) -o $(SPEC_PREVIEW_BRIDGE_OBJ) -fno-objc-arc
 
+$(SPEC_TEXT_FIELD_BRIDGE_OBJ): $(SPEC_TEXT_FIELD_BRIDGE_SRC)
+	clang -c $(SPEC_TEXT_FIELD_BRIDGE_SRC) -o $(SPEC_TEXT_FIELD_BRIDGE_OBJ) -fno-objc-arc
+
 $(SWIFTKIT_LIB): $(wildcard $(SWIFTKIT_DIR)/Sources/AssetPipelineSwiftKit/*.swift) \
                  $(wildcard $(SWIFTKIT_DIR)/Sources/AssetPipelineSwiftKit/**/*.swift) \
                  $(SWIFTKIT_DIR)/Package.swift
 	swift build -c release --package-path $(SWIFTKIT_DIR)
 
 clean-bridges:
-	rm -f $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ)
+	rm -f $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(COL_BRIDGE_OBJ) $(SPEC_FOCUS_BRIDGE_OBJ) $(SPEC_PREVIEW_BRIDGE_OBJ) $(SPEC_TEXT_FIELD_BRIDGE_OBJ)

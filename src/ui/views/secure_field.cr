@@ -12,6 +12,9 @@ module UI
     property text : String = ""
     # Placeholder text shown when the field is empty.
     property placeholder : String = ""
+    # Horizontal alignment of the value and placeholder inside the field.
+    # Leading and Trailing follow the platform's natural reading direction.
+    property text_alignment : Alignment = Alignment::Leading
     # Name attribute for web POST submission. See `UI::TextField#name`
     # for the full doc.
     property name : String? = nil
