@@ -286,6 +286,7 @@ class UI::Label < UI::View
   property text_color : Color = Color.new(r: 0.0, g: 0.0, b: 0.0)
   property text_alignment : Alignment = Alignment::Leading
   property number_of_lines : Int32 = 0
+  property selectable : Bool = false
 
   def initialize(@text : String)
 end
@@ -298,6 +299,7 @@ end
 | `text_color` | `Color` | black | Text foreground color |
 | `text_alignment` | `Alignment` | `Leading` | Horizontal text alignment |
 | `number_of_lines` | `Int32` | `0` | Max lines to display (0 = unlimited) |
+| `selectable` | `Bool` | `false` | Allows people to select and copy the read-only text on supported platforms |
 
 **Example:**
 ```crystal
@@ -305,6 +307,9 @@ title = UI::Label.new("Welcome Back")
 title.font = UI::Font.new(size: 28.0, weight: :bold)
 title.text_color = UI::Color.new(r: 0.2, g: 0.2, b: 0.2)
 title.text_alignment = UI::Alignment::Center
+
+path = UI::Label.new("/Users/example/Documents/report.pdf")
+path.selectable = true  # selectable, still read-only
 ```
 
 ---

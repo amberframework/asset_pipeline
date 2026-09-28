@@ -111,6 +111,16 @@ struct CGRect
   end
 end
 
+# CoreFoundation range (used by AXSelectedTextRange).
+@[Extern]
+struct CFRange
+  property location : LibC::Long
+  property length : LibC::Long
+
+  def initialize(@location : LibC::Long = 0, @length : LibC::Long = 0)
+  end
+end
+
 # CoreFoundation bindings for string/array manipulation needed by AXUIElement
 @[Link(framework: "CoreFoundation")]
 lib LibCF

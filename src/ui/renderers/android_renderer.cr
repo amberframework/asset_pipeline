@@ -57,6 +57,7 @@
 
       # --- TextView / Button / Label ---
       fun android_textview_set_text(env : Void*, tv : Void*, text : UInt8*, byte_len : Int32)
+      fun android_textview_set_text_is_selectable(env : Void*, tv : Void*, selectable : Int32)
       fun android_textview_set_text_size(env : Void*, tv : Void*, size_sp : Float32)
       fun android_textview_set_text_color(env : Void*, tv : Void*, argb : Int32)
       fun android_textview_set_gravity(env : Void*, tv : Void*, gravity : Int32)
@@ -297,6 +298,10 @@
         # setText
         LibAndroidBridge.android_textview_set_text(
           @env, tv, view.text.to_unsafe, view.text.bytesize)
+
+        if view.selectable
+          LibAndroidBridge.android_textview_set_text_is_selectable(@env, tv, 1)
+        end
 
         # setTextSize (SP units -- Android's scale-independent pixels)
         LibAndroidBridge.android_textview_set_text_size(@env, tv, view.font.size.to_f32)

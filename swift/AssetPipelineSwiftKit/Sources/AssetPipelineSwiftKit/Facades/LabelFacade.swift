@@ -170,6 +170,9 @@ private struct APSKLabelHost: View {
         }
 
         content = CommonModifiers.apply(content, overrides: overrides)
+        if overrides.selectable?.boolValue == true {
+            content = AnyView(content.textSelection(.enabled))
+        }
         return content
     }
 }

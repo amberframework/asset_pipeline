@@ -2,7 +2,7 @@
 slug: labels
 ui_view: UI::Label
 priority: P0
-platforms: [iOS, iPadOS, macOS]
+platforms: [Web, Android, iOS, iPadOS, macOS]
 hig_page: ../../../apple-hig/pages/labels.md
 validation_report: ../validation/reports/labels.md
 ---
@@ -11,10 +11,11 @@ validation_report: ../validation/reports/labels.md
 
 > A label is a static piece of text that people can read and often copy,
 > but not edit. `UI::Label` is the atomic text-display primitive in
-> asset_pipeline -- it emits `NSTextField` (non-editable) on macOS and
-> `UILabel` on iOS/iPadOS with no Liquid Glass backing (labels are text
-> glyphs, not surfaces), using `LabelRole` semantic color tokens that
-> track light and dark appearance automatically.
+> asset_pipeline. The current Apple renderer uses the SwiftKit Label
+> facade; the same SwiftUI `Text` draws and handles selection when the
+> opt-in `selectable` property is enabled. Labels have no Liquid Glass
+> backing (they are text glyphs, not surfaces), and `LabelRole` semantic
+> color tokens track light and dark appearance automatically.
 
 ## Feel of the flow
 _What this component "means" in a UI, and when to reach for it._
@@ -87,11 +88,15 @@ body.number_of_lines = 0
 ladder << body
 ```
 
-Renders: `UILabel` on iOS/iPadOS; `NSTextField` (isEditable: NO,
-setBordered: NO, setDrawsBackground: NO) on macOS. No Liquid Glass
-material -- labels are text glyphs, not surfaces. `LabelRole` tokens
-route to `NSColor.labelColor` / `UIColor.labelColor` and their four
-tiered counterparts, tracking appearance automatically.
+The current Apple path goes through AssetPipelineSwiftKit: macOS hosts
+SwiftUI `Text` in an `NSHostingView`, and iOS hosts SwiftUI `Text` in a
+`UIHostingController`. When `selectable` is enabled, the facade applies
+SwiftUI's `.textSelection(.enabled)` to that same `Text`, keeping selection
+aligned with the visible glyphs and using the existing text layout. The
+package targets iOS 16 and macOS 13, which support this modifier. No
+Liquid Glass material -- labels are text glyphs, not surfaces. `LabelRole`
+tokens route to the platform's semantic label colors and track appearance
+automatically.
 
 ## Customization
 
@@ -102,8 +107,12 @@ tiered counterparts, tracking appearance automatically.
 | `text_color` | `UI::Color` | `Color(0,0,0)` | Brand/explicit RGBA override. Only consulted when `text_color_role` is nil. Setting this without clearing `text_color_role` has no effect -- the role takes priority. |
 | `font` | `UI::Font` | `Font.new(family: "system", size: 17.0, weight: :regular)` | System font, 17pt Regular (HIG Body). HIG ladder sizes: Large Title 34 Bold / Headline 17 Semibold / Body 17 / Callout 16 / Subheadline 15 Semibold / Footnote 13 / Caption 12. See "Light / dark appearance notes" for Dynamic Type gap. |
 | `text_alignment` | `UI::Alignment` | `Alignment::Leading` | Leading / Center / Trailing. HIG expects leading for prose; center for titles over cards. |
-| `number_of_lines` | `Int32` | `0` | Maximum line count. `0` means unlimited (maps to `UILabel.numberOfLines = 0` and NSTextField cell `usesSingleLineMode = NO`). Required for any label whose text may wrap. |
+| `number_of_lines` | `Int32` | `0` | Maximum line count. `0` means unlimited. Required for any label whose text may wrap. |
+| `selectable` | `Bool` | `false` | Allows people to select and copy the read-only text on supported platforms. It never makes the label editable. |
 | `accessibility_label` | `String?` | `nil` (inherits `text`) | VoiceOver label override. Inherited from `UI::View`. Set when the visible text is a glyph, abbreviation, or visual-only decoration. |
+
+Set `selectable = true` for useful values such as paths, addresses, and
+error messages that people may need to copy. The default remains `false`.
 
 **Theming**: `UI::Theme.apple_default` provides `font_family`,
 `font_size_body` (17.0), `font_size_title` (22.0), `font_size_headline`
@@ -117,6 +126,10 @@ own the lookup to platform system colors. See `foundations/color-and-theming.md`
 `UI::Label` is not a glass-backed surface -- it carries no NSVisualEffectView
 / UIVisualEffectView. Appearance-tracking comes entirely from the
 `text_color_role` color-token system. Here is how each role resolves:
+
+Enabling `selectable` does not change the label's font, alignment, line
+limit, or semantic color. The platform selection highlight uses the system
+selection appearance; the text color still follows `text_color_role`.
 
 **macOS (AppKit):**
 - `LabelRole::Primary` -> `NSColor.labelColor`. Light: near-black (~0.0
@@ -143,10 +156,9 @@ own the lookup to platform system colors. See `foundations/color-and-theming.md`
   corresponding dim grays.
 - `LabelRole::Quaternary` -> `UIColor.quaternaryLabelColor`. Watermark.
 
-**Font weight in dark mode:** `NSTextField` and `UILabel` do not
-auto-thin typography in dark mode on current Apple SDKs. The validation
-captures (macOS dark, iteration 19) confirm Bold at 34pt and Semibold at
-17pt retain their weight correctly in DarkAqua appearance.
+**Font weight in dark mode:** SwiftUI `Text` keeps the resolved font weight
+in dark appearance. The validation captures (macOS dark, iteration 19)
+confirm Bold at 34pt and Semibold at 17pt retain their weight in DarkAqua.
 
 **Brand override legibility caution:** If a developer sets
 `text_color_role = nil` and supplies a baked RGBA brand color, that color
@@ -170,6 +182,16 @@ use 12pt Secondary for contrast demonstration only.
 ## Customization / brand override
 _How to go from the HIG-default look to your brand voice, without giving
 up HIG's legibility, hit targets, or appearance-tracking._
+
+**Make a useful value copyable while keeping the same label styling.**
+```crystal
+path = UI::Label.new("/Users/example/Documents/report.pdf")
+path.selectable = true
+path.font = UI::Font.new(family: "monospace", size: 13.0)
+path.text_color_role = UI::LabelRole::Secondary
+```
+Selection changes interaction only. Keep semantic colors for automatic
+light/dark adaptation, or use the explicit brand-color examples below.
 
 **Use a brand primary color for accent text while keeping system labels.**
 ```crystal
@@ -236,23 +258,22 @@ metadata like "3 items" or a version stamp. Do not use quaternary for
 body copy that users must read. HIG: *"quaternaryLabel -- Watermark text."*
 
 ## What happens on each platform
-- **iOS 26**: `UILabel` via `alloc` + `initWithFrame:`. `font` routes
-  to `UIFont.systemFontOfSize:weight:` (fixed-point; not Dynamic Type).
-  `LabelRole::Primary` -> `UIColor.labelColor` (dynamic); `::Secondary`
-  -> `UIColor.secondaryLabelColor`; `::Tertiary` ->
-  `UIColor.tertiaryLabelColor`; `::Quaternary` ->
-  `UIColor.quaternaryLabelColor`. `number_of_lines` -> `setNumberOfLines:`.
-  No Liquid Glass.
-- **iPadOS 26**: same as iOS 26. Larger viewport means the gallery does
-  not clip (the iOS host scrolling gap only appears at iPhone width).
-- **macOS 26**: `NSTextField` via `alloc` + `init`, then `setEditable: NO`,
-  `setBordered: NO`, `setDrawsBackground: NO`, `setSelectable: NO`
-  (HIG macOS: *"use the isEditable property of NSTextField"*). `font`
-  routes to `NSFont.systemFontOfSize:weight:`. `LabelRole` tokens route
-  to `NSColor.labelColor` / `NSColor.secondaryLabelColor` /
-  `NSColor.tertiaryLabelColor` / `NSColor.quaternaryLabelColor`.
-  Multi-line behavior via `NSTextField.cell.wraps = YES` when
-  `number_of_lines = 0`.
+- **Web**: emits a `span`. `selectable = true` adds `user-select: text`;
+  the default output remains unchanged.
+- **Android**: emits a `TextView`; `selectable = true` calls
+  `setTextIsSelectable(true)`.
+- **iOS and iPadOS**: SwiftUI `Text` uses `.textSelection(.enabled)` when
+  `selectable = true`. The label remains read-only and uses the same text,
+  font, alignment, wrapping, and line limit for display and selection.
+  `LabelRole` maps to UIKit's dynamic label colors.
+- **macOS**: the AppKit renderer hosts SwiftUI `Text`; `selectable = true`
+  enables `.textSelection(.enabled)` on that text. The glyphs, selection
+  highlight, and measured text share one renderer. A Label rendered directly
+  as an `NSTextField` must remain non-editable and set `isSelectable` from
+  the property.
+
+If a renderer constructs an `NSTextField` directly, it must keep
+`isEditable = false` and map `selectable` to `isSelectable`.
 
 ## HIG citations (validated)
 - Labels -> Abstract: *"A label is a static piece of text that people can

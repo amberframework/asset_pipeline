@@ -191,6 +191,16 @@ void android_textview_set_text(void *env_ptr, void *tv, uint8_t *text, int32_t b
     (*env)->DeleteLocalRef(env, cls);
 }
 
+void android_textview_set_text_is_selectable(void *env_ptr, void *tv, int32_t selectable) {
+    JNIEnv *env = (JNIEnv *)env_ptr;
+    jclass cls = (*env)->GetObjectClass(env, (jobject)tv);
+    jmethodID method = ap_get_method(env, cls, "setTextIsSelectable", "(Z)V");
+    if (method) {
+        (*env)->CallVoidMethod(env, (jobject)tv, method, selectable ? JNI_TRUE : JNI_FALSE);
+    }
+    (*env)->DeleteLocalRef(env, cls);
+}
+
 void android_textview_set_text_size(void *env_ptr, void *tv, float size_sp) {
     JNIEnv *env = (JNIEnv *)env_ptr;
     jclass cls = (*env)->GetObjectClass(env, (jobject)tv);
