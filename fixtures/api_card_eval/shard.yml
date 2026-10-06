@@ -1,0 +1,10 @@
+name: asset_pipeline_api_card_eval_fixture
+version: 0.1.0
+description: Fixture app for the Asset Pipeline API-card evaluation.
+authors:
+  - Seth Tucker
+crystal: ">= 1.21.0, < 2.0.0"
+license: MIT
+dependencies:
+  asset_pipeline:
+    path: ../..
