@@ -410,6 +410,9 @@ module UI
     #
     # Intended for use in test cleanup (`Spec.after_each`). Do NOT call
     # this in production code -- use `unregister` for targeted cleanup.
+    #
+    # IDs keep counting up across a clear: a NativeView finalized later still
+    # unregisters its old IDs, and a reused ID would remove a live callback.
     def self.clear : Nil
       @@callbacks.try(&.clear)
       @@string_callbacks.try(&.clear)
@@ -418,7 +421,6 @@ module UI
       @@float_callbacks.try(&.clear)
       @@int_callbacks.try(&.clear)
       @@time_callbacks.try(&.clear)
-      @@next_id = 1_u64
     end
   end
 end
