@@ -707,12 +707,12 @@ module UI
         emit = apple_step != :regular || view.material != :regular
         if emit
           key = case apple_step
-                when :ultra_thin  then "ultraThin"
-                when :thin        then "thin"
-                when :regular     then "regular"
-                when :thick       then "thick"
-                when :chrome      then "ultraThick" # closest SwiftUI Material analogue
-                else                   apple_step.to_s
+                when :ultra_thin then "ultraThin"
+                when :thin       then "thin"
+                when :regular    then "regular"
+                when :thick      then "thick"
+                when :chrome     then "ultraThick" # closest SwiftUI Material analogue
+                else                  apple_step.to_s
                 end
           sender.set_string(target, :setMaterial, key)
         end
@@ -763,7 +763,7 @@ module UI
         def initialize(@overrides_ptr : Void*)
         end
 
-        def set_color(target : String, setter : Symbol, color : UI::Color?)
+        def set_color(target : String, setter : Symbol, color : UI::Color?) : Nil
           return if color.nil?
           LibSwiftKitBridge.apsk_overrides_set_color(
             @overrides_ptr, Populator.objc_setter_selector(setter).to_unsafe,

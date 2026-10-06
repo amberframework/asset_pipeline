@@ -157,13 +157,18 @@ describe UI::CallbackRegistry do
       UI::CallbackRegistry.size.should eq(0)
     end
 
-    it "resets the ID counter" do
-      id1 = UI::CallbackRegistry.register(->{ })
+    it "keeps IDs increasing so a stale unregister cannot remove a live callback" do
+      stale_id = UI::CallbackRegistry.register(->{ })
       UI::CallbackRegistry.clear
-      id2 = UI::CallbackRegistry.register(->{ })
-      # After clear, IDs restart from 1, so id2 should be small
-      # (not necessarily equal to id1, but the counter is reset)
-      (id2 <= id1).should be_true
+      fired = 0
+      live_id = UI::CallbackRegistry.register(->{ fired += 1; nil })
+
+      # A NativeView finalized after the clear still unregisters its old IDs.
+      UI::CallbackRegistry.unregister(stale_id)
+      UI::CallbackRegistry.call(live_id)
+
+      (live_id > stale_id).should be_true
+      fired.should eq(1)
     end
   end
 

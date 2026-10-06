@@ -44,6 +44,15 @@ describe UI::Web::Renderer do
   end
 
   describe "@container CSS blocks ship in the components layer" do
+    # The blocks register once, when the file loads; CSS specs that run
+    # earlier clear the shared registry, so restore them for each example.
+    before_each do
+      registry = Components::CSS::ComponentCSSRegistry.instance
+      registry.register("UI::Card", Components::CSS::ContainerQueryComponents::CARD_CSS)
+      registry.register("UI::Form", Components::CSS::ContainerQueryComponents::FORM_CSS)
+      registry.register("UI::NavigationSplitView", Components::CSS::ContainerQueryComponents::SPLIT_VIEW_CSS)
+    end
+
     it "registers @container card (...) rules" do
       registry = Components::CSS::ComponentCSSRegistry.instance
       registry.entries.has_key?("UI::Card").should be_true

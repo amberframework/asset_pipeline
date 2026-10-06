@@ -29,7 +29,7 @@ require "../view"
       def initialize
       end
 
-      def add_item(label : String, icon : String? = nil, is_destructive : Bool = false, is_disabled : Bool = false, &block : -> Nil)
+      def add_item(label : String, icon : String? = nil, is_destructive : Bool = false, is_disabled : Bool = false, &block : -> Nil) : Array(Entry)
         @items << Item.new(
           label: label,
           icon: icon,
@@ -39,7 +39,7 @@ require "../view"
         )
       end
 
-      def add_item(label : String, icon : String? = nil, is_destructive : Bool = false, is_disabled : Bool = false)
+      def add_item(label : String, icon : String? = nil, is_destructive : Bool = false, is_disabled : Bool = false) : Array(Entry)
         @items << Item.new(
           label: label,
           icon: icon,
@@ -48,7 +48,7 @@ require "../view"
         )
       end
 
-      def add_separator
+      def add_separator : Array(Entry)
         @items << Separator.new
       end
 

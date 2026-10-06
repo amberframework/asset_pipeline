@@ -1,0 +1,83 @@
+card_version: 1
+library: asset_pipeline
+applies_to: "~> 0.37.0"
+docs_flags:
+  - ios
+docs_entries:
+  - src/asset_pipeline.cr
+  - src/ui.cr
+  - src/components.cr
+notes:
+  - symbol: UI::VStack
+    text: "Asset Pipeline 0.37.0 exports `UI::VStack` from `src/ui.cr`; it is the vertical stack view and accepts `spacing : Float64` and `alignment : UI::Alignment`."
+  - symbol: UI::Widgets
+    text: "Asset Pipeline 0.37.0 exports `UI::Widgets`. Construct it with `UI::Widgets.new(application_name : String, bundle_identifier : String? = nil, widgets : Array(UI::Widget)? = nil)`."
+  - symbol: UI::ContextMenu
+    text: "`UI::ContextMenu` compiles when either `-Dmacos` or `-Dios` is set. Its `add_item(...)` overloads and `add_separator` return `Array(UI::ContextMenu::Entry)`. Use `UI::ContextMenuWithWebFallback` for a cross-platform view."
+  - symbol: UI::ActionSheet
+    text: "`UI::ActionSheet` is iOS-only and compiles with `-Dios`. Its shared-target alternative is `UI::ActionSheetWithWebFallback`."
+  - symbol: UI::PlatformVisitor#visit
+    text: "Every concrete `UI::PlatformVisitor` implements the abstract overload for each supported view, including `visit(view : UI::ActivityView)`. The base overload leaves its return type open so renderer implementations can return their platform view type."
+  - symbol: UI::App#screen
+    text: "Each `UI::App#screen` declaration needs a native `UI::Controller`, a complete web binding, or both. A web binding supplies `web_controller:` and either `web_path:` or `web_actions:`; a native controller can derive its screen class by the `Controller` to `Screen` naming convention."
+  - symbol: UI::NavigationCoordinator.new
+    text: "`UI::NavigationCoordinator.new(root : UI::NavigationCoordinator::Route)` requires an initial route. Create one with `UI::NavigationCoordinator::Route.new(:route_id)`."
+  - symbol: UI::ScreenContext#params
+    text: "`UI::ScreenContext#params` returns `Hash(String, String)`. A concrete override declares the same hash return type."
+  - symbol: UI::Color
+    text: "`UI::Color` is an RGBA record with `r`, `g`, `b`, and `a` as `Float64`; construct it with `UI::Color.new(r: ..., g: ..., b: ..., a: ...)`."
+  - symbol: UI::Native::Populator::Sender#set_color
+    text: "On Apple targets, a `UI::Native::Populator::Sender` subclass implements `set_color(target : String, setter : Symbol, color : UI::Color?)`; leave its return type inferred so existing app overrides keep their signature."
+  - symbol: Components::Elements::Iframe
+    text: "Asset Pipeline 0.37.0 exports `Components::Elements::Iframe`, a container element constructed with optional HTML attributes."
+  - symbol: UI::Checkbox#disabled=
+    text: "`UI::Checkbox` has no `disabled=` setter. Use `UI::Toggle`, set `style = UI::ToggleStyle::Checkbox`, and assign its `disabled` property."
+error_hints:
+  - pattern: "undefined constant ::?UI::VStack"
+    hint: "Asset Pipeline 0.37.0 exports `UI::VStack` through its UI entrypoint."
+    example: "UI::VStack.new(12.0, UI::Alignment::Center)"
+  - pattern: "undefined constant UI::Widgets"
+    hint: "Asset Pipeline 0.37.0 exports `UI::Widgets`; load the UI entrypoint and construct the catalog with its application name."
+    example: "UI::Widgets.new(\"Notes\", \"org.example.notes\")"
+  - pattern: "UI::ContextMenu is Apple-family only \\(Tier 3\\)\\. This build does not have -Dmacos or -Dios"
+    hint: "Build this `UI::ContextMenu` use with either Apple target flag."
+    example: "menu = UI::ContextMenu.new"
+  - pattern: "UI::ActionSheet is iOS-only \\(Tier 3\\)\\. This build does not have -Dios"
+    hint: "Build this `UI::ActionSheet` use with the iOS target flag."
+    example: "sheet = UI::ActionSheet.new(\"Title\", \"Message\")"
+  - pattern: "abstract `def UI::PlatformVisitor#visit\\(view : ActivityView\\)` must be implemented by ([A-Za-z_][A-Za-z0-9_:]*)"
+    hint: "Implement the `ActivityView` visitor overload on {1}."
+    example: |-
+      def visit(view : UI::ActivityView) : Nil
+        view.title
+        nil
+      end
+  - pattern: "UI::App\\.screen :([a-z_][a-z0-9_]*) sets web_controller but neither web_path nor web_actions"
+    hint: "Give the web binding for route :{1} a path or action list."
+    example: "screen :{1}, web_controller: NotesController, web_path: \"/{1}\""
+  - pattern: "UI::App\\.screen :([a-z_][a-z0-9_]*) must declare at least one side"
+    hint: "Bind route :{1} to a native controller or a complete web controller route."
+    example: "screen :{1}, NotesController"
+  - pattern: "undefined constant Components::Elements::Iframe"
+    hint: "Asset Pipeline 0.37.0 exports the iframe container as `Components::Elements::Iframe`."
+    example: "iframe = Components::Elements::Iframe.new"
+  - pattern: "wrong number of arguments for 'UI::NavigationCoordinator\\.new' \\(given 0, expected 1\\)"
+    hint: "Create the navigation coordinator with its root route."
+    example: "navigation = UI::NavigationCoordinator.new(UI::NavigationCoordinator::Route.new(:notes))"
+  - pattern: "this method overrides UI::ScreenContext#params\\(\\) which has an explicit return type of Hash\\(String, String\\)"
+    hint: "Declare the concrete params getter with the same `Hash(String, String)` return type."
+    example: "getter params : Hash(String, String) = {} of String => String"
+  - pattern: "undefined method 'rgba' for UI::Color\\.class"
+    hint: "Build the RGBA value with the `UI::Color` record constructor."
+    example: "UI::Color.new(r: 0.96, g: 0.65, b: 0.13, a: 0.42)"
+  - pattern: "abstract .*UI::Native::Populator::Sender#set_color.*must be implemented by ([A-Za-z_][A-Za-z0-9_:]*)"
+    hint: "Implement the color setter on {1}, keeping the return type inferred for app override compatibility."
+    example: |-
+      def set_color(target : String, setter : Symbol, color : UI::Color?)
+      end
+  - pattern: "undefined method 'disabled=' for UI::Checkbox"
+    hint: "Use a `UI::Toggle` with checkbox styling for a disabled checkbox control."
+    example: |-
+      toggle = UI::Toggle.new("Completed")
+      toggle.style = UI::ToggleStyle::Checkbox
+      toggle.disabled = true
