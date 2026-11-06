@@ -1,5 +1,5 @@
 name: asset_pipeline
-version: 0.37.0
+version: 0.37.1
 
 authors:
   - Seth Tucker <crimsonknightstudios@gmail.com>
@@ -7,3 +7,10 @@ authors:
 crystal: '>= 1.10.1'
 
 license: MIT
+
+# Assistant docs Minecart installs into an application. The two Apple reference
+# corpora hold 515 MB of images, so they stay in this repository and are read here.
+ai_docs:
+  exclude:
+    - .claude/skills/apple-hig
+    - .claude/skills/apple-platform-guide
