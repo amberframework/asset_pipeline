@@ -63,7 +63,7 @@ jobs:
   # ---------------------------------------------------------------------
   lint:
     name: Lint (convention rules)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -77,7 +77,7 @@ jobs:
 
   test-web-linux:
     name: Spec lane (web, Linux)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -184,7 +184,7 @@ jobs:
 
   test-android:
     name: Spec lane (Android native)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
     steps:
