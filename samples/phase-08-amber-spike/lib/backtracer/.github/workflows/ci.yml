@@ -17,12 +17,12 @@ jobs:
 
     steps:
       - name: Install Crystal
-        uses: oprypin/install-crystal@v1
+        uses: oprypin/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f  # v1
         with:
           crystal: ${{ matrix.crystal }}
 
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e  # v2
 
       - name: Install dependencies
         run: shards install
