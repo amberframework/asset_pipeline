@@ -28,13 +28,13 @@ jobs:
     name: 'crystal: ${{ matrix.crystal }}, os: ${{ matrix.os }}'
     steps:
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e  # v2
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f  # v1
         with:
           crystal: ${{ matrix.crystal }}
       - name: Cache shards
-        uses: actions/cache@v2
+        uses: actions/cache@8492260343ad570701412c2f464a5877dc76bace  # v2
         with:
           path: ~/.cache/shards
           key: ${{ runner.os }}-${{matrix.crystal}}-shards-${{ hashFiles('shard.yml') }}
@@ -43,13 +43,13 @@ jobs:
         run: shards update
 
       - name: Redis on ${{ runner.os }}
-        uses: shogo82148/actions-setup-redis@v1
+        uses: shogo82148/actions-setup-redis@3e38d435ea02619c76909c929ecc501806c7145e  # v1
         id: main_redis
         with:
           redis-version: 6.2
 
       - name: Redis with password on ${{ runner.os }}
-        uses: shogo82148/actions-setup-redis@v1
+        uses: shogo82148/actions-setup-redis@3e38d435ea02619c76909c929ecc501806c7145e  # v1
         with:
           redis-version: 6.2
           redis-port: 6380

@@ -67,10 +67,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f  # v1
 
       - name: make lint
         run: make lint
@@ -81,10 +81,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -92,7 +92,7 @@ jobs:
             crystal-shards-${{ runner.os }}-
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f  # v1
 
       - name: Shards install
         run: |
@@ -107,10 +107,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -141,10 +141,10 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -152,7 +152,7 @@ jobs:
             crystal-shards-${{ runner.os }}-
 
       - name: Cache Swift .build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: swift/AssetPipelineSwiftKit/.build
           key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
@@ -178,7 +178,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
       - name: make test-ios (placeholder)
         run: make test-ios
 
@@ -189,7 +189,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
       - name: make test-android (placeholder)
         run: make test-android
 
@@ -202,10 +202,10 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -240,7 +240,7 @@ jobs:
           echo "Tracked files clean — build-web did not mutate sources."
 
       - name: Upload web demo artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: demo-web
           path: |
@@ -254,10 +254,10 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -265,7 +265,7 @@ jobs:
             crystal-shards-${{ runner.os }}-
 
       - name: Cache Swift .build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: swift/AssetPipelineSwiftKit/.build
           key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
@@ -300,7 +300,7 @@ jobs:
           echo "Tracked files clean — build-macos did not mutate sources."
 
       - name: Upload macOS demo artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: demo-macos
           path: |
@@ -314,10 +314,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -352,7 +352,7 @@ jobs:
           echo "Tracked files clean — build-ios did not mutate sources."
 
       - name: Upload iOS demo artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: demo-ios
           path: |
@@ -375,10 +375,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -394,7 +394,7 @@ jobs:
         run: brew install imagemagick
 
       - name: Download web demo artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: demo-web
           path: output/initiative-demo/
@@ -420,7 +420,7 @@ jobs:
 
       - name: Upload audit logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: audit-logs-web
           path: |
@@ -436,10 +436,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -447,7 +447,7 @@ jobs:
             crystal-shards-${{ runner.os }}-
 
       - name: Cache Swift .build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: swift/AssetPipelineSwiftKit/.build
           key: swift-build-${{ runner.os }}-${{ hashFiles('swift/AssetPipelineSwiftKit/Package.resolved', 'swift/AssetPipelineSwiftKit/Package.swift') }}
@@ -468,7 +468,7 @@ jobs:
         # build-macos uploads `.../macos/bin/`, the `cascade` binary inside
         # the artifact must land at `.../macos/bin/cascade`, NOT
         # `.../macos/cascade`. Set the download path to the bin/ dir.
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: demo-macos
           path: samples/initiative-cross-platform-ui-demo/macos/bin/
@@ -501,7 +501,7 @@ jobs:
 
       - name: Upload audit logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: audit-logs-macos
           path: |
@@ -519,10 +519,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Cache Crystal shards
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: lib
           key: crystal-shards-${{ runner.os }}-${{ hashFiles('shard.lock', 'shard.yml') }}
@@ -538,7 +538,7 @@ jobs:
         run: brew install imagemagick
 
       - name: Download iOS demo artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: demo-ios
           path: samples/initiative-cross-platform-ui-demo/ios/build/
@@ -561,7 +561,7 @@ jobs:
 
       - name: Upload audit logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: audit-logs-ios
           path: |
