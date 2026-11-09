@@ -51,7 +51,7 @@ module Components
       
       def clear : Nil
         # Get all keys with our prefix
-        @data.delete_if { |key, _| key.starts_with?(@prefix) }
+        @data.reject! { |key, _| key.starts_with?(@prefix) }
       end
       
       def exists?(key : String) : Bool
