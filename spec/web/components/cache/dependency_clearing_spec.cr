@@ -2,6 +2,7 @@ require "../../spec_helper"
 require "../../../../src/components/base/stateless_component"
 require "../../../../src/components/cache/cacheable"
 require "../../../../src/components/cache/memory_cache_store"
+require "../../../../src/components/cache/configuration"
 
 module DependencyClearingFixtures
   class Row < Components::StatelessComponent
@@ -102,11 +103,10 @@ describe Components::Cache::Cacheable do
   end
 
   describe "defaults" do
-    it "has a default store with no setup and no time limit" do
+    it "starts with a byte-bounded store and no time limit" do
+      configuration = Components::Cache::Configuration.new
+      configuration.default_expires_in.should be_nil
       Components::Cache::MemoryCacheStore.new.maximum_bytes.should eq(32_i64 * 1024 * 1024)
-      store = new_store
-      store.should be(Components::Cache::Cacheable.cache_store)
-      Components::Cache::Cacheable.default_expires_in.should be_nil
     end
   end
 end
