@@ -2,6 +2,7 @@
 require "./components/base/component"
 require "./components/base/stateful_component"
 require "./components/base/stateless_component"
+require "./components/base/stateless_view"
 
 # Elements
 require "./components/elements/base/html_element"
@@ -99,6 +100,7 @@ require "./components/design_system/components"
 # via reactive_handler. Web/server only.
 {% unless flag?(:ios) || flag?(:android) %}
   require "./components/integration"
+  require "./components/cache/page_cache_handler"
 {% end %}
 
 # Helper to create a page
