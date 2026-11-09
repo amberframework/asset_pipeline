@@ -386,6 +386,14 @@ describe Components::Cache::PageCacheHandler do
     calls.should eq(2)
   end
 
+  it "does not store an empty response" do
+    cache = new_cache
+    handler = Components::Cache::PageCacheHandler.new(cache) { |context| context.request.path }
+    calls = 0
+    2.times { run_handler(handler) { |_context| calls += 1 } }
+    calls.should eq(2)
+  end
+
   it "does not store a failed response" do
     cache = new_cache
     handler = Components::Cache::PageCacheHandler.new(cache) { |context| context.request.path }

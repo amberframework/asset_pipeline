@@ -89,6 +89,7 @@ module Components
         content_type = response.headers["Content-Type"]? || "text/html"
         return unless content_type.starts_with?("text/html")
         html = response_html(context, capturing_output)
+        return if html.empty?
         @page_cache.store_page_unless_cleared(page_key, html, content_type, generation)
       end
 
