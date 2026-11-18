@@ -9,10 +9,16 @@ require "../../../src/asset_pipeline"
 # random inputs, and both must agree on every input: the same answer, or the
 # same ArgumentError for text that is not valid UTF-8.
 
+# PCRE2 10.43 added nonspacing marks (Mn) and connector punctuation (Pc) to
+# the UCP `\w` class, and the scanners follow that rule. The former patterns
+# below spell `\w` with this class so they mean the same on every PCRE2
+# version; on 10.43 and later it is exactly `\w`.
+private WORD_CLASS = %q(\w\p{Mn}\p{Pc})
+
 private module FormerPattern
   EXTERNAL_LIBRARY_PATTERNS = {
     /\$\s*\(/                                                                             => "jquery",
-    /jQuery[\.\s]*[\(\w]/                                                                 => "jQuery",
+    /jQuery[\.\s]*[\(#{WORD_CLASS}]/                                                      => "jQuery",
     /_\.(map|filter|forEach|reduce|find|includes|isEmpty|isArray|get|set|has|clone)/      => "lodash",
     /lodash\.(map|filter|forEach|reduce|find|includes|isEmpty|isArray|get|set|has|clone)/ => "lodash",
     /moment\s*\(/                                                                         => "moment",
@@ -35,7 +41,7 @@ private module FormerPattern
     /([A-Z][a-zA-Z0-9_]*)\.[A-Z_][A-Z0-9_]*\s*[=\(]/,
   ]
 
-  STATIC_IMPORT  = /import\s+(?:(?:\{[^}]+\}|\*\s+as\s+\w+|\w+)(?:\s*,\s*(?:\{[^}]+\}|\*\s+as\s+\w+|\w+))*\s+from\s+)?["']([^"']+)["']/
+  STATIC_IMPORT  = /import\s+(?:(?:\{[^}]+\}|\*\s+as\s+[#{WORD_CLASS}]+|[#{WORD_CLASS}]+)(?:\s*,\s*(?:\{[^}]+\}|\*\s+as\s+[#{WORD_CLASS}]+|[#{WORD_CLASS}]+))*\s+from\s+)?["']([^"']+)["']/
   DYNAMIC_IMPORT = /import\s*\(\s*["']([^"']+)["']\s*\)/
 
   def self.external_library_names(source : String) : Array(String)
@@ -58,11 +64,11 @@ private module FormerPattern
 
   def self.counts(source : String) : Array(Int32)
     [
-      source.scan(/function\s+\w+/).size,
-      source.scan(/(?:const|let|var)\s+\w+\s*=\s*(?:function|\()/).size,
+      source.scan(/function\s+[#{WORD_CLASS}]+/).size,
+      source.scan(/(?:const|let|var)\s+[#{WORD_CLASS}]+\s*=\s*(?:function|\()/).size,
       source.scan(/^\s*(?:constructor|[a-zA-Z_][a-zA-Z0-9_]*)\s*\(/m).size,
-      source.scan(/class\s+\w+/).size,
-      source.scan(/addEventListener|on\w+\s*=/).size,
+      source.scan(/class\s+[#{WORD_CLASS}]+/).size,
+      source.scan(/addEventListener|on[#{WORD_CLASS}]+\s*=/).size,
     ]
   end
 
@@ -212,20 +218,40 @@ private def assert_same_on_table_and_fuzz(label : String, extra_inputs : Array(S
   5_000.times { check.call(mutate(seeds.sample(random), seeds, tokens, random)) } unless seeds.empty?
 end
 
-describe AssetPipeline::TextScanning do
-  describe ".space?" do
-    it "matches the PCRE2 \\s class for every Unicode scalar value" do
-      mismatches_against(/\A\s\z/) { |char| AssetPipeline::TextScanning.space?(char) }.should eq([] of String)
-    end
-  end
+# The scanners' character classes come from Unicode 17.0.0 data and were
+# verified against PCRE2 10.49. An older libpcre2 ships older Unicode data in
+# which some code points carry another category, so there the exhaustive
+# class checks are reported as pending rather than failed.
+private def linked_pcre2_version : String
+  {% if Regex.has_constant?(:PCRE2) %}
+    Regex::PCRE2.version
+  {% else %}
+    "PCRE1"
+  {% end %}
+end
 
-  describe ".word_char?" do
-    # PCRE2 10.43 added nonspacing marks (Mn) and connector punctuation (Pc)
-    # to the UCP \w class; the bracket form states that rule on every PCRE2
-    # version and equals plain \w on 10.43 and later.
-    it "matches the PCRE2 10.43+ \\w class for every Unicode scalar value" do
-      mismatches_against(/\A[\w\p{Mn}\p{Pc}]\z/) { |char| AssetPipeline::TextScanning.word_char?(char) }.should eq([] of String)
+private def pcre2_shares_scanner_unicode_data? : Bool
+  numbers = linked_pcre2_version.split(' ').first.split('.')
+  major = numbers[0]?.try(&.to_i?) || 0
+  minor = numbers[1]?.try(&.to_i?) || 0
+  major > 10 || (major == 10 && minor >= 49)
+end
+
+describe AssetPipeline::TextScanning do
+  if pcre2_shares_scanner_unicode_data?
+    describe ".space?" do
+      it "matches the PCRE2 \\s class for every Unicode scalar value" do
+        mismatches_against(/\A\s\z/) { |char| AssetPipeline::TextScanning.space?(char) }.should eq([] of String)
+      end
     end
+
+    describe ".word_char?" do
+      it "matches the PCRE2 10.43+ \\w class for every Unicode scalar value" do
+        mismatches_against(/\A[#{WORD_CLASS}]\z/) { |char| AssetPipeline::TextScanning.word_char?(char) }.should eq([] of String)
+      end
+    end
+  else
+    pending "matches PCRE2 \\s and \\w for every Unicode scalar value (linked PCRE2 #{linked_pcre2_version} predates the Unicode 17 data the scanners use)"
   end
 
   describe ".stimulus_controller_class_name?" do
