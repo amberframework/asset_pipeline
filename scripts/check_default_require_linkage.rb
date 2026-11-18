@@ -1,11 +1,15 @@
 #!/usr/bin/ruby
-# Checks that `require "asset_pipeline"` keeps applications free of PCRE2.
+# Checks that `require "asset_pipeline"`, and what a generated Amber app's
+# initializers require, keep applications free of PCRE2.
 #
-# It builds spec/web/linkage/default_require_probe.cr (everything the default
-# require loads, exercised) and spec/web/linkage/regex_control_probe.cr (the same
-# plus one Regex), runs both, and checks that:
+# It builds and runs three probes under spec/web/linkage/:
+# default_require_probe.cr (everything the default require loads, exercised),
+# generated_app_initializers_probe.cr (exactly the requires amber_cli writes into
+# config/initializers/page_cache.cr, used as the generated app uses them) and
+# regex_control_probe.cr (the default require plus one Regex). It checks that:
 #
-#   * the default-require probe links no libpcre2 and carries no pcre2_ symbols;
+#   * the default-require and generated-initializers probes link no libpcre2 and
+#     carry no pcre2_ symbols;
 #   * the control probe shows PCRE2, which proves the check can fail;
 #   * the default require loads no UI, components, CSS engine, generator, or
 #     lint-rule file (those stay behind their own requires).
@@ -39,18 +43,18 @@ Dir.chdir(repo_root) do
 end
 
 Dir.mktmpdir("asset_pipeline_linkage") do |build_dir|
-  { "default_require_probe" => false, "regex_control_probe" => true }.each do |probe, expect_pcre2|
+  { "default_require_probe" => false, "generated_app_initializers_probe" => false, "regex_control_probe" => true }.each do |probe, expect_pcre2|
     binary = File.join(build_dir, probe)
     run!(crystal, "build", File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
     Dir.chdir(build_dir) { run!(binary) } # the probe must also run cleanly
     library_lines = run!(*dynamic_libraries_command, binary).lines.grep(/pcre2/).size
     symbol_lines = run!("nm", binary).lines.grep(/pcre2_/).size
     has_pcre2 = library_lines > 0 || symbol_lines > 0
-    puts format("%-22s %s pcre2 lines: %d   nm pcre2_ symbols: %d", probe, dynamic_libraries_command.join(" "), library_lines, symbol_lines)
+    puts format("%-34s %s pcre2 lines: %d   nm pcre2_ symbols: %d", probe, dynamic_libraries_command.join(" "), library_lines, symbol_lines)
     results["#{probe} #{expect_pcre2 ? "shows" : "is free of"} PCRE2"] = (has_pcre2 == expect_pcre2)
   end
 end
 
 failed = results.reject { |_, passed| passed }.keys
 abort "FAIL: #{failed.join("; ")}" unless failed.empty?
-puts "PASS: the default require path links no PCRE2, and the control probe shows the check detects it."
+puts "PASS: the default require path and the generated app's initializer requires link no PCRE2, and the control probe shows the check detects it."

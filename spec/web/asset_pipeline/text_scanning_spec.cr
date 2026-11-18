@@ -212,7 +212,8 @@ end
 private def assert_same_on_table_and_fuzz(label : String, extra_inputs : Array(String), tokens : Array(String), &check : String -> Nil)
   inputs = ["", " ", "\n", "\u00A0", "é", invalid_utf8("a")] + extra_inputs
   inputs.each { |input| check.call(input) }
-  random = Random.new(label.hash)
+  # String#hash changes between processes, so the seed comes from the label's bytes.
+  random = Random.new(label.bytes.sum(0_u64))
   seeds = extra_inputs.select { |input| input.size < 200 }
   3_000.times { check.call(scan_text(tokens, random)) }
   5_000.times { check.call(mutate(seeds.sample(random), seeds, tokens, random)) } unless seeds.empty?

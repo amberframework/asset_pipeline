@@ -23,6 +23,17 @@ and the framework registry (the script renderer and platform gates had none).
   asset compile and verify) and checks that `otool -L`/`ldd` and `nm` show no
   PCRE2, next to a control probe that must show it. CI runs it on Crystal
   `latest`.
+- The page cache a generated Amber app loads by default
+  (`asset_pipeline/components/base/stateless_view` and
+  `asset_pipeline/components/cache/configuration`, required by its
+  `config/initializers/page_cache.cr`) links no PCRE2 either.
+  `Components::Cache::PageAnswer.refuses_coding?`, the Accept-Encoding
+  `q=0` check, is hand-written and answers exactly as `/(^|;)q=0(\.0*)?$/`
+  did, including `$` before one final newline;
+  `spec/web/components/cache/page_answer_spec.cr` compares the two. The
+  linkage script builds a third probe,
+  `spec/web/linkage/generated_app_initializers_probe.cr`, with exactly those
+  requires.
 - The UI system, components, CSS engine, and generators keep their code and
   are reached only through their own requires; the README lists which require
   loads what.

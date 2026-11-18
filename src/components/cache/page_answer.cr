@@ -75,7 +75,7 @@ module Components
         accepts_gzip = false
         accept_encoding.split(',').each do |coding|
           coding_name, _, parameters = coding.partition(';')
-          next if refuses_coding?(parameters)
+          next if PageAnswer.refuses_coding?(parameters)
           stripped_name = coding_name.strip
           accepts_brotli ||= stripped_name.compare("br", case_insensitive: true) == 0
           accepts_gzip ||= stripped_name.compare("gzip", case_insensitive: true) == 0
@@ -85,9 +85,33 @@ module Components
         Representation::Identity
       end
 
-      private def refuses_coding?(parameters : String) : Bool
+      # :nodoc:
+      #
+      # Returns whether one Accept-Encoding entry's parameters refuse its coding:
+      # the last parameter is `q=0`, `q=0.` or `q=0.` followed by zeros, ignoring
+      # spaces and case.
+      #
+      # Written by hand so that the page cache, which generated Amber apps load by
+      # default, links no regular-expression engine. It answers exactly as the
+      # pattern it replaced, `/(^|;)q=0(\.0*)?$/`, on the same normalized text.
+      def self.refuses_coding?(parameters : String) : Bool
         return false if parameters.empty?
-        parameters.delete(' ').downcase.matches?(/(^|;)q=0(\.0*)?$/)
+        normalized_parameters = parameters.delete(' ').downcase
+        return true if zero_quality?(last_parameter(normalized_parameters))
+        # The former pattern's `$` also matched just before one final newline.
+        normalized_parameters.ends_with?('\n') && zero_quality?(last_parameter(normalized_parameters.rchop))
+      end
+
+      private def self.last_parameter(normalized_parameters : String) : String
+        normalized_parameters.rpartition(';').last
+      end
+
+      # `q=0`, optionally followed by a dot and any number of zeros.
+      private def self.zero_quality?(parameter : String) : Bool
+        return false unless parameter.starts_with?("q=0")
+        fraction = parameter.lchop("q=0")
+        return true if fraction.empty?
+        fraction.starts_with?('.') && fraction.lchop('.').each_char.all?('0')
       end
     end
   end
