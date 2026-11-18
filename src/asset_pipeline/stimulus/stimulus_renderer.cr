@@ -2,6 +2,7 @@
 # imports from the import map and emitting registration boilerplate.
 
 require "../script_renderer"
+require "../javascript_source_scan"
 
 module AssetPipeline::Stimulus
   # The `StimulusRenderer` extends `ScriptRenderer` to provide Stimulus-specific functionality.
@@ -234,16 +235,12 @@ module AssetPipeline::Stimulus
       return controllers if @custom_javascript_block.empty?
 
       # Look for Stimulus.register patterns
-      stimulus_register_matches = @custom_javascript_block.scan(/Stimulus\.register\s*\(\s*["']([^"']+)["']\s*,\s*([A-Za-z][A-Za-z0-9_]*)\s*\)/)
-      stimulus_register_matches.each do |match|
-        controller_class = match[2]
+      JavascriptSourceScan.each_stimulus_registered_class(@custom_javascript_block) do |controller_class|
         controllers << controller_class unless controllers.includes?(controller_class)
       end
 
       # Look for import statements that reference controller classes
-      import_matches = @custom_javascript_block.scan(/import\s+([A-Za-z][A-Za-z0-9_]*)\s+from\s+["']([^"']+)["']/)
-      import_matches.each do |match|
-        controller_class = match[1]
+      JavascriptSourceScan.each_default_import_name(@custom_javascript_block) do |controller_class|
         if looks_like_stimulus_controller?(controller_class)
           controllers << controller_class unless controllers.includes?(controller_class)
         end
@@ -255,7 +252,7 @@ module AssetPipeline::Stimulus
     # Determines if an import name looks like a Stimulus controller
     private def looks_like_stimulus_controller?(name : String) : Bool
       # Stimulus controllers typically end with "Controller" and are capitalized
-      name.match(/^[A-Z][a-zA-Z0-9_]*Controller$/) != nil
+      TextScanning.stimulus_controller_class_name?(name)
     end
 
     # Checks if a line contains a controller reference
@@ -287,7 +284,7 @@ module AssetPipeline::Stimulus
       base_name = controller_class.chomp("Controller")
       
       # Convert from PascalCase to kebab-case
-      base_name.gsub(/([A-Z])/, "-\\1").downcase.lstrip("-")
+      TextScanning.hyphenate_before_uppercase(base_name).downcase.lstrip("-")
     end
 
     # Performance monitoring methods

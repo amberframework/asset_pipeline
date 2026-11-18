@@ -41,6 +41,13 @@ jobs:
       - name: Run the complete web suite
         run: make test-web
 
+      - name: Check that the default require links no PCRE2
+        # `crystal tool dependencies` arrived after Crystal 1.10.
+        if: matrix.crystal == 'latest'
+        env:
+          CRYSTAL: crystal
+        run: ruby scripts/check_default_require_linkage.rb
+
       - name: Confirm tests did not change tracked files
         run: git diff --exit-code
 

@@ -1,3 +1,5 @@
+require "../asset_pipeline/text_scanning"
+
 module AssetPipeline
   # The `ImportMap` is the main way that javascript is handled. This is a no-bundle approach using the "import map" browser standard.
   #
@@ -94,7 +96,10 @@ module AssetPipeline
     #
     # To learn how to use scopes, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap" target="_blank">read about import maps and scopes here</a>
     def add_scope(scope : String, name : String, to : String)
-      raise "Scope key must start with `/`, `./`, or `../`" unless scope.starts_with?(/\/|\.\/|\.\.\//)
+      AssetPipeline::TextScanning.ensure_valid_utf8!(scope)
+      unless scope.starts_with?('/') || scope.starts_with?("./") || scope.starts_with?("../")
+        raise "Scope key must start with `/`, `./`, or `../`"
+      end
       @scopes[scope] << {name => to}
     end
 
@@ -152,24 +157,27 @@ module AssetPipeline
         next if import_entry.has_key?("type") || import_entry.has_key?("framework")
         
         # Auto-detect Stimulus controllers
-        if import_name.match(/^[A-Z][a-zA-Z0-9_]*Controller$/)
+        # The controller check raises ArgumentError for invalid UTF-8 (as the
+        # former regular expressions did), so the substring checks below
+        # only see valid text.
+        if AssetPipeline::TextScanning.stimulus_controller_class_name?(import_name)
           import_entry["type"] = "controller"
           import_entry["framework"] = "stimulus"
-        # Auto-detect framework imports
-        elsif import_name.match(/@hotwired\/stimulus|stimulus/)
+        # Auto-detect framework imports ("@hotwired/stimulus" contains "stimulus")
+        elsif import_name.includes?("stimulus")
           import_entry["type"] = "framework"
           import_entry["framework"] = "stimulus"
-        elsif import_name.match(/alpinejs|alpine/)
+        elsif import_name.includes?("alpine")
           import_entry["type"] = "framework"
           import_entry["framework"] = "alpine"
-        elsif import_name.match(/vue/)
+        elsif import_name.includes?("vue")
           import_entry["type"] = "framework"
           import_entry["framework"] = "vue"
-        elsif import_name.match(/react/)
+        elsif import_name.includes?("react")
           import_entry["type"] = "framework"
           import_entry["framework"] = "react"
         # Auto-detect common libraries
-        elsif import_name.match(/lodash|underscore|jquery|axios|fetch/)
+        elsif {"lodash", "underscore", "jquery", "axios", "fetch"}.any? { |library| import_name.includes?(library) }
           import_entry["type"] = "library"
         # Default to utility for unrecognized patterns
         else
@@ -231,10 +239,12 @@ module AssetPipeline
           @preload_module_links += %(<link rel="modulepreload" href="#{import.first_value}">\n)
         end
 
-        if !import.first_value.to_s.starts_with?(/http|\.\//)
+        import_path = import.first_value.to_s
+        AssetPipeline::TextScanning.ensure_valid_utf8!(import_path)
+        if !import_path.starts_with?("http") && !import_path.starts_with?("./")
           first_value = import[import.first_key].to_s
 
-          if !first_value.starts_with?(/\/|\.\//)
+          if !first_value.starts_with?('/') && !first_value.starts_with?("./")
             import[import.first_key] = @public_asset_base_path.join(first_value).to_s
           end
         end

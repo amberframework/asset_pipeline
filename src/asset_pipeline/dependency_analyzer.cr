@@ -1,6 +1,8 @@
 # Dependency analyzer for the asset pipeline JS / CSS graph.
 # Part of the asset_pipeline shard.
 
+require "./javascript_source_scan"
+
 module AssetPipeline
   # The `DependencyAnalyzer` analyzes JavaScript code to detect dependencies that should be imported.
   # It can identify references to external libraries, local modules, and common JavaScript patterns
@@ -8,53 +10,13 @@ module AssetPipeline
   #
   # Performance optimizations:
   # - Caches dependency analysis results based on JavaScript content hash
-  # - Memoizes expensive regex operations
+  # - Scans the source with hand-written, linear-time scanners
   # - Caches import suggestions to avoid regeneration
   class DependencyAnalyzer
-    # Common external library patterns and their typical import names
-    EXTERNAL_LIBRARY_PATTERNS = {
-      # jQuery patterns
-      /\$\s*\(/ => "jquery",
-      /jQuery[\.\s]*[\(\w]/ => "jQuery",
-      
-      # Lodash patterns  
-      /_\.(map|filter|forEach|reduce|find|includes|isEmpty|isArray|get|set|has|clone)/ => "lodash",
-      /lodash\.(map|filter|forEach|reduce|find|includes|isEmpty|isArray|get|set|has|clone)/ => "lodash",
-      
-      # Moment.js patterns
-      /moment\s*\(/ => "moment",
-      /moment\.(now|utc|unix)/ => "moment",
-      
-      # Chart.js patterns
-      /new\s+Chart\s*\(/ => "chartjs",
-      /Chart\.(register|defaults)/ => "chartjs",
-      
-      # Alpine.js patterns
-      /Alpine\.(start|data|store)/ => "alpinejs",
-      /x-data\s*=/ => "alpinejs",
-      
-      # Vue.js patterns
-      /Vue\.(createApp|ref|reactive|computed)/ => "vue",
-      /createApp\s*\(/ => "vue",
-      
-      # React patterns
-      /React\.(useState|useEffect|createElement)/ => "react",
-      /ReactDOM\.render/ => "react-dom",
-      
-      # Common utility patterns
-      /axios\.(get|post|put|delete)/ => "axios",
-      /fetch\s*\(/ => "unfetch", # Common polyfill
-    }
-    
-    # Patterns that indicate local module references
-    LOCAL_MODULE_PATTERNS = [
-      # Function calls that look like class constructors
-      /new\s+([A-Z][a-zA-Z0-9_]*)\s*\(/,
-      # Method calls on capitalized objects
-      /([A-Z][a-zA-Z0-9_]*)\.[a-zA-Z_][a-zA-Z0-9_]*\s*\(/,
-      # Static method references
-      /([A-Z][a-zA-Z0-9_]*)\.[A-Z_][A-Z0-9_]*\s*[=\(]/,
-    ]
+    # The usage signals this analyzer looks for are hand-written scanners in
+    # `JavascriptSourceScan` (they replaced the former
+    # `EXTERNAL_LIBRARY_PATTERNS` and `LOCAL_MODULE_PATTERNS` regular
+    # expressions), so the default require path links no PCRE2.
 
     @javascript_content : String
     @content_hash : UInt64
@@ -108,15 +70,7 @@ module AssetPipeline
         return cached_deps
       end
       
-      detected = Set(String).new
-      
-      EXTERNAL_LIBRARY_PATTERNS.each do |pattern, library_name|
-        if @javascript_content.match(pattern)
-          detected.add(library_name)
-        end
-      end
-      
-      result = detected.to_a
+      result = JavascriptSourceScan.external_library_names(@javascript_content)
       
       # Cache the result
       @@external_deps_cache[@content_hash] = result
@@ -134,11 +88,8 @@ module AssetPipeline
       
       detected = Set(String).new
       
-      LOCAL_MODULE_PATTERNS.each do |pattern|
-        @javascript_content.scan(pattern) do |match|
-          class_name = match[1]? || match[0]
-          detected.add(class_name) if class_name && looks_like_importable_class?(class_name)
-        end
+      JavascriptSourceScan.each_local_class_reference(@javascript_content) do |class_name|
+        detected.add(class_name) if looks_like_importable_class?(class_name)
       end
       
       result = detected.to_a
@@ -187,7 +138,7 @@ module AssetPipeline
     # Checks if a class name looks like it should be importable
     private def looks_like_importable_class?(class_name : String) : Bool
       # Must start with capital letter and contain only valid identifier characters
-      return false unless class_name.match(/^[A-Z][a-zA-Z0-9_]*$/)
+      return false unless TextScanning.ascii_class_name?(class_name)
       
       # Exclude built-in browser APIs and common globals
       excluded_globals = %w[
@@ -212,18 +163,10 @@ module AssetPipeline
         return cached_imports
       end
       
-      imports = [] of String
-      
-      # Match import statements
-      @javascript_content.scan(/import\s+(?:(?:\{[^}]+\}|\*\s+as\s+\w+|\w+)(?:\s*,\s*(?:\{[^}]+\}|\*\s+as\s+\w+|\w+))*\s+from\s+)?["']([^"']+)["']/) do |match|
-        imports << match[1]
-      end
-      
-      # Match dynamic imports
-      @javascript_content.scan(/import\s*\(\s*["']([^"']+)["']\s*\)/) do |match|
-        imports << match[1]
-      end
-      
+      # Static import statements first, then dynamic `import("...")` calls
+      imports = JavascriptSourceScan.static_import_specifiers(@javascript_content)
+      imports.concat(JavascriptSourceScan.dynamic_import_specifiers(@javascript_content))
+
       result = imports.uniq
       
       # Cache the result
@@ -249,13 +192,13 @@ module AssetPipeline
       
       lines = @javascript_content.split('\n').reject(&.strip.empty?)
       # Count function declarations, arrow functions, and class methods
-      function_declarations = @javascript_content.scan(/function\s+\w+/).size
-      arrow_functions = @javascript_content.scan(/(?:const|let|var)\s+\w+\s*=\s*(?:function|\()/).size
-      class_methods = @javascript_content.scan(/^\s*(?:constructor|[a-zA-Z_][a-zA-Z0-9_]*)\s*\(/m).size
-      
+      function_declarations = JavascriptSourceScan.function_declaration_count(@javascript_content)
+      arrow_functions = JavascriptSourceScan.function_assignment_count(@javascript_content)
+      class_methods = JavascriptSourceScan.method_definition_count(@javascript_content)
+
       functions = function_declarations + arrow_functions + class_methods
-      classes = @javascript_content.scan(/class\s+\w+/).size
-      event_listeners = @javascript_content.scan(/addEventListener|on\w+\s*=/).size
+      classes = JavascriptSourceScan.class_declaration_count(@javascript_content)
+      event_listeners = JavascriptSourceScan.event_listener_count(@javascript_content)
       
       suggestions = [] of String
       

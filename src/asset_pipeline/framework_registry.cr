@@ -1,6 +1,8 @@
 # Registry of integration adapters for host frameworks (Amber, Lucky, etc.).
 # Part of the asset_pipeline shard.
 
+require "./text_scanning"
+
 module AssetPipeline
   # The `FrameworkRegistry` provides an extensible architecture for adding support
   # for different JavaScript frameworks. This allows the AssetPipeline to support
@@ -9,28 +11,44 @@ module AssetPipeline
   # This registry pattern ensures clean separation of concerns and provides a
   # standard interface for framework-specific functionality.
   class FrameworkRegistry
+    # A check that tells whether an import name belongs to a framework.
+    alias ImportNameMatcher = Proc(String, Bool)
+
     @@renderers = Hash(String, String).new
-    @@framework_patterns = Hash(String, Array(Regex)).new
+    @@framework_patterns = Hash(String, Array(ImportNameMatcher)).new
     @@framework_metadata = Hash(String, Hash(String, String)).new
 
     # Registers a framework renderer class with the registry
+    #
+    # Each pattern is a check on an import name. Hand-written checks keep the
+    # application free of PCRE2:
     #
     # ```
     # FrameworkRegistry.register_framework(
     #   "stimulus",
     #   "AssetPipeline::Stimulus::StimulusRenderer",
-    #   patterns: [/Controller$/],
-    #   core_import: "@hotwired/stimulus", 
+    #   patterns: [->(import_name : String) { import_name.ends_with?("Controller") }],
+    #   core_import: "@hotwired/stimulus",
     #   description: "Hotwired Stimulus framework support"
     # )
     # ```
-    def self.register_framework(name : String, renderer_class_name : String, patterns : Array(Regex) = [] of Regex, core_import : String? = nil, description : String? = nil)
+    def self.register_framework(name : String, renderer_class_name : String, patterns : Array(ImportNameMatcher) = [] of ImportNameMatcher, core_import : String? = nil, description : String? = nil)
       @@renderers[name] = renderer_class_name
       @@framework_patterns[name] = patterns
       @@framework_metadata[name] = {
         "core_import" => core_import || "",
         "description" => description || ""
       }
+    end
+
+    # Registers a framework whose import names are recognized by regular
+    # expressions. An application that calls this overload links PCRE2; the
+    # `ImportNameMatcher` overload does not.
+    def self.register_framework(name : String, renderer_class_name : String, patterns : Array(Regex), core_import : String? = nil, description : String? = nil)
+      matchers = patterns.map do |pattern|
+        ImportNameMatcher.new { |import_name| import_name.matches?(pattern) }
+      end
+      register_framework(name, renderer_class_name, matchers, core_import, description)
     end
 
     # Returns the renderer class name for a given framework name
@@ -61,7 +79,7 @@ module AssetPipeline
     def self.detect_framework(import_name : String) : String?
       @@framework_patterns.each do |framework_name, patterns|
         patterns.each do |pattern|
-          return framework_name if import_name.match(pattern)
+          return framework_name if pattern.call(import_name)
         end
       end
       nil
@@ -142,7 +160,7 @@ module AssetPipeline
       register_framework(
         "stimulus",
         "AssetPipeline::Stimulus::StimulusRenderer",
-        patterns: [/^[A-Z][a-zA-Z0-9_]*Controller$/],
+        patterns: [ImportNameMatcher.new { |import_name| TextScanning.stimulus_controller_class_name?(import_name) }],
         core_import: "@hotwired/stimulus",
         description: "Hotwired Stimulus framework for HTML-first JavaScript"
       )
