@@ -37,7 +37,7 @@ module AssetPipeline
       @@framework_patterns[name] = patterns
       @@framework_metadata[name] = {
         "core_import" => core_import || "",
-        "description" => description || ""
+        "description" => description || "",
       }
     end
 
@@ -98,7 +98,7 @@ module AssetPipeline
     # Returns the core import name for a framework (e.g., "@hotwired/stimulus")
     #
     # ```
-    # FrameworkRegistry.get_core_import("stimulus")  # => "@hotwired/stimulus"
+    # FrameworkRegistry.get_core_import("stimulus") # => "@hotwired/stimulus"
     # ```
     def self.get_core_import(framework_name : String) : String?
       metadata = @@framework_metadata[framework_name]?
@@ -133,11 +133,11 @@ module AssetPipeline
     # ```
     def self.registry_summary
       total_patterns = @@framework_patterns.values.sum(&.size)
-      
+
       {
-        "frameworks" => supported_frameworks,
+        "frameworks"     => supported_frameworks,
         "total_patterns" => total_patterns,
-        "details" => @@framework_metadata
+        "details"        => @@framework_metadata,
       }
     end
 
@@ -167,7 +167,7 @@ module AssetPipeline
 
       # Placeholder registrations for future framework support
       # These would be implemented when the corresponding renderer classes are created
-      
+
       # register_framework(
       #   "alpine",
       #   AssetPipeline::Alpine::AlpineRenderer,
@@ -175,7 +175,7 @@ module AssetPipeline
       #   core_import: "alpinejs",
       #   description: "Alpine.js lightweight framework"
       # )
-      
+
       # register_framework(
       #   "vue",
       #   AssetPipeline::Vue::VueRenderer,
@@ -216,4 +216,4 @@ module AssetPipeline
       false
     end
   end
-end 
+end

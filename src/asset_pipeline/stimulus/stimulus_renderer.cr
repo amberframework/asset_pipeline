@@ -11,7 +11,7 @@ module AssetPipeline::Stimulus
   #
   # This renderer can parse custom JavaScript blocks to:
   # - Detect `Stimulus.register("name", ControllerClass)` patterns
-  # - Identify controller import statements 
+  # - Identify controller import statements
   # - Generate proper Stimulus application setup
   # - Handle Stimulus-specific initialization code
   #
@@ -22,7 +22,7 @@ module AssetPipeline::Stimulus
   class StimulusRenderer < AssetPipeline::ScriptRenderer
     @stimulus_controllers : Array(String) = [] of String
     @stimulus_application_name : String
-    
+
     # Performance caches
     @controller_detection_cache : Hash(UInt64, Array(String)) = {} of UInt64 => Array(String)
     @script_content_cache : Hash(UInt64, String) = {} of UInt64 => String
@@ -37,11 +37,11 @@ module AssetPipeline::Stimulus
     # ```
     def initialize(import_map : ImportMap, custom_javascript_block : String = "", @stimulus_application_name : String = "application")
       super(import_map, custom_javascript_block)
-      
+
       # Calculate hashes for caching
       @import_map_hash = calculate_import_map_hash(import_map)
       @custom_js_hash = custom_javascript_block.hash.to_u64
-      
+
       @stimulus_controllers = extract_controller_names_with_cache
     end
 
@@ -86,22 +86,22 @@ module AssetPipeline::Stimulus
     private def generate_stimulus_script_content_with_cache : String
       # Create cache key from import map hash, custom JS hash, and application name
       cache_key = calculate_script_cache_key
-      
+
       # Return cached content if available
       if cached_content = @script_content_cache[cache_key]?
         return cached_content
       end
-      
+
       # Generate and cache new content
       content = generate_stimulus_script_content
       @script_content_cache[cache_key] = content
-      
+
       # Limit cache size to prevent memory growth
       if @script_content_cache.size > 100
         # Remove oldest entries (simple FIFO eviction)
         @script_content_cache.delete(@script_content_cache.first_key)
       end
-      
+
       content
     end
 
@@ -109,10 +109,10 @@ module AssetPipeline::Stimulus
     private def calculate_script_cache_key : UInt64
       # Combine import map hash, custom JS hash, and application name hash
       base_hash = @import_map_hash &+ @custom_js_hash &+ @stimulus_application_name.hash.to_u64
-      
+
       # Include controller list hash for additional uniqueness
       controller_hash = @stimulus_controllers.sort.join(",").hash.to_u64
-      
+
       base_hash &+ controller_hash
     end
 
@@ -122,7 +122,7 @@ module AssetPipeline::Stimulus
       import_entries = import_map.imports.map do |entry|
         "#{entry.first_key}:#{entry.first_value}"
       end.sort.join("|")
-      
+
       import_entries.hash.to_u64
     end
 
@@ -130,40 +130,40 @@ module AssetPipeline::Stimulus
     private def extract_controller_names_with_cache : Array(String)
       # Create cache key from both import map and custom JS
       cache_key = @import_map_hash &+ @custom_js_hash
-      
+
       # Return cached controllers if available
       if cached_controllers = @controller_detection_cache[cache_key]?
         return cached_controllers
       end
-      
+
       # Extract controllers and cache the result
       controllers = extract_controller_names_from_javascript_block
       controllers.concat(extract_controller_names_from_import_map)
       controllers.uniq!
-      
+
       @controller_detection_cache[cache_key] = controllers
-      
+
       # Limit cache size to prevent memory growth
       if @controller_detection_cache.size > 50
         # Remove oldest entries (simple FIFO eviction)
         @controller_detection_cache.delete(@controller_detection_cache.first_key)
       end
-      
+
       controllers
     end
 
     # Extracts controller names from import map
     private def extract_controller_names_from_import_map : Array(String)
       controllers = [] of String
-      
+
       @import_map.imports.each do |import_entry|
         import_name = import_entry.first_key
-        
+
         if looks_like_stimulus_controller?(import_name)
           controllers << import_name unless controllers.includes?(import_name)
         end
       end
-      
+
       controllers
     end
 
@@ -178,9 +178,9 @@ module AssetPipeline::Stimulus
       lines = processed_js.split("\n")
       filtered_lines = lines.reject do |line|
         line.strip.starts_with?("import") && contains_controller_reference?(line) ||
-        line.strip.includes?("Stimulus.register") ||
-        line.strip.includes?("Application.start") ||
-        line.strip.includes?("application.start")
+          line.strip.includes?("Stimulus.register") ||
+          line.strip.includes?("Application.start") ||
+          line.strip.includes?("application.start")
       end
 
       filtered_lines.join("\n").strip
@@ -225,7 +225,7 @@ module AssetPipeline::Stimulus
     private def generate_stimulus_application_start : String
       registrations = generate_controller_registrations
       return "" if registrations.empty?
-      
+
       registrations
     end
 
@@ -269,11 +269,11 @@ module AssetPipeline::Stimulus
       if cached_id = @controller_id_cache[controller_class]?
         return cached_id
       end
-      
+
       # Generate and cache the result
       stimulus_id = controller_class_to_stimulus_id(controller_class)
       @controller_id_cache[controller_class] = stimulus_id
-      
+
       stimulus_id
     end
 
@@ -282,19 +282,19 @@ module AssetPipeline::Stimulus
     private def controller_class_to_stimulus_id(controller_class : String) : String
       # Remove "Controller" suffix
       base_name = controller_class.chomp("Controller")
-      
+
       # Convert from PascalCase to kebab-case
       TextScanning.hyphenate_before_uppercase(base_name).downcase.lstrip("-")
     end
 
     # Performance monitoring methods
-    
+
     # Returns cache statistics for monitoring performance
     def cache_stats : Hash(String, Int32)
       {
         "controller_detection_cache_size" => @controller_detection_cache.size,
-        "script_content_cache_size" => @script_content_cache.size,
-        "controller_id_cache_size" => @controller_id_cache.size
+        "script_content_cache_size"       => @script_content_cache.size,
+        "controller_id_cache_size"        => @controller_id_cache.size,
       }
     end
 
@@ -311,9 +311,9 @@ module AssetPipeline::Stimulus
       # For now, return placeholder data
       {
         "controller_detection_hit_ratio" => 0.0,
-        "script_content_hit_ratio" => 0.0,
-        "controller_id_hit_ratio" => 0.0
+        "script_content_hit_ratio"       => 0.0,
+        "controller_id_hit_ratio"        => 0.0,
       }
     end
   end
-end 
+end

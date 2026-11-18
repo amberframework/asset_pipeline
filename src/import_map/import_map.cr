@@ -79,8 +79,8 @@ module AssetPipeline
     # Enhanced import method with metadata support for categorizing imports by type and framework
     #
     # ```
-    # import_map.add_import_with_metadata("HelloController", "hello_controller.js", 
-    #                                     type: "controller", framework: "stimulus")
+    # import_map.add_import_with_metadata("HelloController", "hello_controller.js",
+    #   type: "controller", framework: "stimulus")
     # ```
     #
     # Supported types: "controller", "library", "utility", "framework", "component"
@@ -106,7 +106,7 @@ module AssetPipeline
     # Returns imports filtered by type (e.g., "controller", "library", "utility")
     #
     # ```
-    # import_map.imports_by_type("controller")  # Returns only controller imports
+    # import_map.imports_by_type("controller") # Returns only controller imports
     # ```
     def imports_by_type(type : String) : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["type"]? == type }
@@ -115,7 +115,7 @@ module AssetPipeline
     # Returns imports filtered by framework (e.g., "stimulus", "alpine", "vue")
     #
     # ```
-    # import_map.imports_by_framework("stimulus")  # Returns only Stimulus-related imports
+    # import_map.imports_by_framework("stimulus") # Returns only Stimulus-related imports
     # ```
     def imports_by_framework(framework : String) : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["framework"]? == framework }
@@ -124,7 +124,7 @@ module AssetPipeline
     # Returns imports that have no framework specified (framework-agnostic)
     #
     # ```
-    # import_map.framework_agnostic_imports  # Returns general/utility imports
+    # import_map.framework_agnostic_imports # Returns general/utility imports
     # ```
     def framework_agnostic_imports : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["framework"]?.nil? }
@@ -152,10 +152,10 @@ module AssetPipeline
     def auto_categorize_imports!
       @imports.each do |import_entry|
         import_name = import_entry.first_key
-        
+
         # Skip if already categorized
         next if import_entry.has_key?("type") || import_entry.has_key?("framework")
-        
+
         # Auto-detect Stimulus controllers
         # The controller check raises ArgumentError for invalid UTF-8 (as the
         # former regular expressions did), so the substring checks below
@@ -163,7 +163,7 @@ module AssetPipeline
         if AssetPipeline::TextScanning.stimulus_controller_class_name?(import_name)
           import_entry["type"] = "controller"
           import_entry["framework"] = "stimulus"
-        # Auto-detect framework imports ("@hotwired/stimulus" contains "stimulus")
+          # Auto-detect framework imports ("@hotwired/stimulus" contains "stimulus")
         elsif import_name.includes?("stimulus")
           import_entry["type"] = "framework"
           import_entry["framework"] = "stimulus"
@@ -176,10 +176,10 @@ module AssetPipeline
         elsif import_name.includes?("react")
           import_entry["type"] = "framework"
           import_entry["framework"] = "react"
-        # Auto-detect common libraries
+          # Auto-detect common libraries
         elsif {"lodash", "underscore", "jquery", "axios", "fetch"}.any? { |library| import_name.includes?(library) }
           import_entry["type"] = "library"
-        # Default to utility for unrecognized patterns
+          # Default to utility for unrecognized patterns
         else
           import_entry["type"] = "utility"
         end
@@ -198,20 +198,20 @@ module AssetPipeline
     def import_summary : Hash(String, Hash(String, Int32))
       type_counts = Hash(String, Int32).new(0)
       framework_counts = Hash(String, Int32).new(0)
-      
+
       @imports.each do |import_entry|
         if type = import_entry["type"]?.as?(String)
           type_counts[type] += 1
         end
-        
+
         if framework = import_entry["framework"]?.as?(String)
           framework_counts[framework] += 1
         end
       end
-      
+
       {
-        "types" => type_counts,
-        "frameworks" => framework_counts
+        "types"      => type_counts,
+        "frameworks" => framework_counts,
       }
     end
 
