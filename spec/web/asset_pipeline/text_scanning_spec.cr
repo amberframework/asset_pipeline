@@ -532,3 +532,100 @@ describe "default require path call sites" do
     end
   end
 end
+
+describe "the faster scanning forms" do
+  list_of_literals = ["new", "import", "function", "class", "Stimulus.register", "$", "jQuery", "_.", "lodash.",
+                      "moment", "moment.", "Chart.", "Alpine.", "x-data", "Vue.", "createApp", "React.",
+                      "ReactDOM.render", "axios.", "fetch", "stimulus", "alpine", "vue", "react", "underscore",
+                      "jquery", "é", "ab", "aab"]
+  literal_tokens = JS_TOKENS + ["a", "b", "ab", "aa", "react", "jquery", "underscore", "stimulus", "alpine"]
+
+  it "finds each literal where String#byte_index does, from every offset" do
+    random = Random.new(20_261_118)
+    3_000.times do
+      text = scan_text(literal_tokens, random, 40)
+      list_of_literals.each do |literal|
+        (0..text.bytesize + 1).step(random.rand(1..7)) do |offset|
+          AssetPipeline::TextScanning.literal_index(text, literal, offset).should eq(text.byte_index(literal, offset))
+        end
+        AssetPipeline::TextScanning.contains_literal?(text, literal).should eq(text.includes?(literal))
+      end
+    end
+  end
+
+  it "skips the same \\s and \\w runs as the Char-by-Char form" do
+    random = Random.new(11)
+    5_000.times do
+      text = scan_text(JS_TOKENS, random, 12)
+      0.upto(text.bytesize) do |position|
+        next unless position == text.bytesize || (text.to_slice[position] & 0xC0) != 0x80
+        AssetPipeline::TextScanning.skip_spaces(text, position)
+          .should eq(AssetPipeline::TextScanning.skip_chars(text, position) { |char| AssetPipeline::TextScanning.space?(char) })
+        AssetPipeline::TextScanning.skip_word_chars(text, position)
+          .should eq(AssetPipeline::TextScanning.skip_chars(text, position) { |char| AssetPipeline::TextScanning.word_char?(char) })
+      end
+    end
+  end
+
+  it "gives the same answers when the caller has validated the source" do
+    random = Random.new(23)
+    3_000.times do
+      input = scan_text(JS_TOKENS, random)
+      scan = AssetPipeline::JavascriptSourceScan
+      scan.external_library_names(input, source_is_valid_utf8: true).should eq(FormerPattern.external_library_names(input))
+      found = [] of String
+      scan.each_local_class_reference(input, source_is_valid_utf8: true) { |name| found << name }
+      found.should eq(FormerPattern.local_class_references(input))
+      scan.static_import_specifiers(input, source_is_valid_utf8: true).should eq(FormerPattern.static_import_specifiers(input))
+      scan.dynamic_import_specifiers(input, source_is_valid_utf8: true).should eq(FormerPattern.dynamic_import_specifiers(input))
+      [
+        scan.function_declaration_count(input, source_is_valid_utf8: true),
+        scan.function_assignment_count(input, source_is_valid_utf8: true),
+        scan.method_definition_count(input, source_is_valid_utf8: true),
+        scan.class_declaration_count(input, source_is_valid_utf8: true),
+        scan.event_listener_count(input, source_is_valid_utf8: true),
+      ].should eq(FormerPattern.counts(input))
+    end
+  end
+
+  it "analyzes dependencies as the former patterns did, validating the content once" do
+    random = Random.new(31)
+    2_000.times do
+      input = scan_text(JS_TOKENS, random, 40)
+      AssetPipeline::DependencyAnalyzer.clear_caches
+      analyzer = AssetPipeline::DependencyAnalyzer.new(input)
+      analyzer.detect_external_dependencies.should eq(FormerPattern.external_library_names(input))
+      analyzer.extract_existing_imports
+        .should eq((FormerPattern.static_import_specifiers(input) + FormerPattern.dynamic_import_specifiers(input)).uniq)
+      counts = FormerPattern.counts(input)
+      complexity = analyzer.analyze_code_complexity
+      complexity["functions"].should eq((counts[0] + counts[1] + counts[2]).to_s)
+      complexity["classes"].should eq(counts[3].to_s)
+      complexity["event_listeners"].should eq(counts[4].to_s)
+    end
+  end
+
+  it "raises ArgumentError from the first scan of content that is not valid UTF-8, not from new" do
+    AssetPipeline::DependencyAnalyzer.clear_caches
+    analyzer = AssetPipeline::DependencyAnalyzer.new(invalid_utf8("new Foo() import('x')"))
+    expect_raises(ArgumentError) { analyzer.detect_external_dependencies }
+    expect_raises(ArgumentError) { analyzer.detect_local_dependencies }
+    expect_raises(ArgumentError) { analyzer.extract_existing_imports }
+    expect_raises(ArgumentError) { analyzer.analyze_code_complexity }
+  end
+
+  it "auto-categorizes long import names as the former patterns did" do
+    random = Random.new(41)
+    keywords = ["stimulus", "alpine", "vue", "react", "lodash", "underscore", "jquery", "axios", "fetch", "stimulu", "reac"]
+    200.times do
+      name = String.build do |io|
+        random.rand(1..400).times { io << (random.rand(8) == 0 ? keywords.sample(random) : PATH_TOKENS.sample(random)) }
+      end
+      import_map = AssetPipeline::ImportMap.new
+      import_map.add_import(name, "x.js")
+      import_map.auto_categorize_imports!
+      entry = import_map.imports.first
+      {entry["type"]?, entry["framework"]?}.should eq(FormerPattern.auto_category(name))
+    end
+  end
+end

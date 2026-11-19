@@ -97,21 +97,23 @@ module Components
       def self.refuses_coding?(parameters : String) : Bool
         return false if parameters.empty?
         normalized_parameters = parameters.delete(' ').downcase
-        return true if zero_quality?(last_parameter(normalized_parameters))
+        bytes = normalized_parameters.to_slice
+        return true if zero_quality?(last_parameter(bytes))
         # The former pattern's `$` also matched just before one final newline.
-        normalized_parameters.ends_with?('\n') && zero_quality?(last_parameter(normalized_parameters.rchop))
+        normalized_parameters.ends_with?('\n') && zero_quality?(last_parameter(bytes[0, bytes.size - 1]))
       end
 
-      private def self.last_parameter(normalized_parameters : String) : String
-        normalized_parameters.rpartition(';').last
+      # The bytes after the last `;`, read in place.
+      private def self.last_parameter(bytes : Bytes) : Bytes
+        separator = bytes.rindex(';'.ord.to_u8)
+        separator ? bytes[separator + 1..] : bytes
       end
 
       # `q=0`, optionally followed by a dot and any number of zeros.
-      private def self.zero_quality?(parameter : String) : Bool
-        return false unless parameter.starts_with?("q=0")
-        fraction = parameter.lchop("q=0")
-        return true if fraction.empty?
-        fraction.starts_with?('.') && fraction.lchop('.').each_char.all?('0')
+      private def self.zero_quality?(parameter : Bytes) : Bool
+        return false unless parameter.size >= 3 && parameter[0] == 'q'.ord && parameter[1] == '='.ord && parameter[2] == '0'.ord
+        return true if parameter.size == 3
+        parameter[3] == '.'.ord && parameter[4..].all?('0'.ord)
       end
     end
   end

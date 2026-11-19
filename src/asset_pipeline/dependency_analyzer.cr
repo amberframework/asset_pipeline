@@ -20,6 +20,9 @@ module AssetPipeline
 
     @javascript_content : String
     @content_hash : UInt64
+    # Set once the content has passed the UTF-8 check, so every later scan of
+    # this immutable string skips it.
+    @content_is_valid_utf8 = false
 
     # Performance caches - class level to share across instances
     @@dependency_cache : Hash(UInt64, Hash(Symbol, Array(String))) = {} of UInt64 => Hash(Symbol, Array(String))
@@ -70,7 +73,7 @@ module AssetPipeline
         return cached_deps
       end
 
-      result = JavascriptSourceScan.external_library_names(@javascript_content)
+      result = JavascriptSourceScan.external_library_names(validated_content, source_is_valid_utf8: true)
 
       # Cache the result
       @@external_deps_cache[@content_hash] = result
@@ -88,7 +91,7 @@ module AssetPipeline
 
       detected = Set(String).new
 
-      JavascriptSourceScan.each_local_class_reference(@javascript_content) do |class_name|
+      JavascriptSourceScan.each_local_class_reference(validated_content, source_is_valid_utf8: true) do |class_name|
         detected.add(class_name) if looks_like_importable_class?(class_name)
       end
 
@@ -135,6 +138,17 @@ module AssetPipeline
       suggestions
     end
 
+    # Returns the content after checking, on the first scan only, that it is
+    # valid UTF-8; raises `ArgumentError` otherwise, as the former regular
+    # expressions did.
+    private def validated_content : String
+      unless @content_is_valid_utf8
+        TextScanning.ensure_valid_utf8!(@javascript_content)
+        @content_is_valid_utf8 = true
+      end
+      @javascript_content
+    end
+
     # Checks if a class name looks like it should be importable
     private def looks_like_importable_class?(class_name : String) : Bool
       # Must start with capital letter and contain only valid identifier characters
@@ -164,8 +178,9 @@ module AssetPipeline
       end
 
       # Static import statements first, then dynamic `import("...")` calls
-      imports = JavascriptSourceScan.static_import_specifiers(@javascript_content)
-      imports.concat(JavascriptSourceScan.dynamic_import_specifiers(@javascript_content))
+      source = validated_content
+      imports = JavascriptSourceScan.static_import_specifiers(source, source_is_valid_utf8: true)
+      imports.concat(JavascriptSourceScan.dynamic_import_specifiers(source, source_is_valid_utf8: true))
 
       result = imports.uniq
 
@@ -191,14 +206,15 @@ module AssetPipeline
       end
 
       lines = @javascript_content.split('\n').reject(&.strip.empty?)
+      source = validated_content
       # Count function declarations, arrow functions, and class methods
-      function_declarations = JavascriptSourceScan.function_declaration_count(@javascript_content)
-      arrow_functions = JavascriptSourceScan.function_assignment_count(@javascript_content)
-      class_methods = JavascriptSourceScan.method_definition_count(@javascript_content)
+      function_declarations = JavascriptSourceScan.function_declaration_count(source, source_is_valid_utf8: true)
+      arrow_functions = JavascriptSourceScan.function_assignment_count(source, source_is_valid_utf8: true)
+      class_methods = JavascriptSourceScan.method_definition_count(source, source_is_valid_utf8: true)
 
       functions = function_declarations + arrow_functions + class_methods
-      classes = JavascriptSourceScan.class_declaration_count(@javascript_content)
-      event_listeners = JavascriptSourceScan.event_listener_count(@javascript_content)
+      classes = JavascriptSourceScan.class_declaration_count(source, source_is_valid_utf8: true)
+      event_listeners = JavascriptSourceScan.event_listener_count(source, source_is_valid_utf8: true)
 
       suggestions = [] of String
 

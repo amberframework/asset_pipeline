@@ -34,6 +34,12 @@ and the framework registry (the script renderer and platform gates had none).
   linkage script builds a third probe,
   `spec/web/linkage/generated_app_initializers_probe.cr`, with exactly those
   requires.
+- The scanners are at least as fast as the patterns they replaced. Literal
+  searches jump with `memchr` to the literal's least common byte, `\s` and `\w`
+  runs are read byte by byte until the first non-ASCII byte, and
+  `DependencyAnalyzer` checks its content for valid UTF-8 once instead of once
+  per scanner (scanners take `source_is_valid_utf8: true` from a caller that
+  has checked). `PageAnswer.refuses_coding?` reads the last parameter in place.
 - The UI system, components, CSS engine, and generators keep their code and
   are reached only through their own requires; the README lists which require
   loads what.

@@ -13,6 +13,11 @@ module AssetPipeline
   # leftmost-first and do not overlap, as with `String#scan`.
   #
   # The scanners run in time linear in the length of the source.
+  #
+  # Each scanner raises `ArgumentError` for a source that is not valid UTF-8,
+  # as the PCRE2 match did. A caller that has already checked its source
+  # passes `source_is_valid_utf8: true`, so a text scanned by several
+  # scanners is validated once.
   module JavascriptSourceScan
     extend self
 
@@ -66,8 +71,8 @@ module AssetPipeline
 
     # Returns the external library names whose usage signal appears in
     # *source*, each once, in signal order.
-    def external_library_names(source : String) : Array(String)
-      TextScanning.ensure_valid_utf8!(source)
+    def external_library_names(source : String, *, source_is_valid_utf8 : Bool = false) : Array(String)
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       detected = Set(String).new
       LIST_OF_LIBRARY_SIGNALS.each do |signal|
         detected.add(signal.library) if signal_present?(source, signal)
@@ -77,17 +82,18 @@ module AssetPipeline
 
     # Yields every class name the three former `LOCAL_MODULE_PATTERNS` captured,
     # pattern by pattern and in source order within each pattern.
-    def each_local_class_reference(source : String, & : String ->) : Nil
-      each_constructed_class_name(source) { |class_name| yield class_name }
-      each_class_with_method_call(source) { |class_name| yield class_name }
-      each_class_with_constant_reference(source) { |class_name| yield class_name }
+    def each_local_class_reference(source : String, *, source_is_valid_utf8 : Bool = false, & : String ->) : Nil
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
+      each_constructed_class_name(source, source_is_valid_utf8: true) { |class_name| yield class_name }
+      each_class_with_method_call(source, source_is_valid_utf8: true) { |class_name| yield class_name }
+      each_class_with_constant_reference(source, source_is_valid_utf8: true) { |class_name| yield class_name }
     end
 
     # Yields each capture of `/new\s+([A-Z][a-zA-Z0-9_]*)\s*\(/` in *source*.
-    def each_constructed_class_name(source : String, & : String ->) : Nil
-      TextScanning.ensure_valid_utf8!(source)
+    def each_constructed_class_name(source : String, *, source_is_valid_utf8 : Bool = false, & : String ->) : Nil
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       offset = 0
-      while start = source.byte_index("new", offset)
+      while start = TextScanning.literal_index(source, "new", offset)
         name_start = TextScanning.skip_spaces(source, start + 3)
         first_byte = TextScanning.byte_at(source, name_start)
         if name_start > start + 3 && first_byte && TextScanning.ascii_uppercase_byte?(first_byte)
@@ -105,31 +111,33 @@ module AssetPipeline
 
     # Yields each first capture of
     # `/([A-Z][a-zA-Z0-9_]*)\.[a-zA-Z_][a-zA-Z0-9_]*\s*\(/` in *source*.
-    def each_class_with_method_call(source : String, & : String ->) : Nil
+    def each_class_with_method_call(source : String, *, source_is_valid_utf8 : Bool = false, & : String ->) : Nil
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       each_class_member_reference(source, constant_member: false) { |name| yield name }
     end
 
     # Yields each first capture of
     # `/([A-Z][a-zA-Z0-9_]*)\.[A-Z_][A-Z0-9_]*\s*[=\(]/` in *source*.
-    def each_class_with_constant_reference(source : String, & : String ->) : Nil
+    def each_class_with_constant_reference(source : String, *, source_is_valid_utf8 : Bool = false, & : String ->) : Nil
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       each_class_member_reference(source, constant_member: true) { |name| yield name }
     end
 
     # Returns the module specifiers captured by the static-import pattern
     # `/import\s+(?:(?:\{[^}]+\}|\*\s+as\s+\w+|\w+)(?:\s*,\s*(?:\{[^}]+\}|\*\s+as\s+\w+|\w+))*\s+from\s+)?["']([^"']+)["']/`,
     # in source order.
-    def static_import_specifiers(source : String) : Array(String)
-      TextScanning.ensure_valid_utf8!(source)
+    def static_import_specifiers(source : String, *, source_is_valid_utf8 : Bool = false) : Array(String)
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       StaticImportScan.new(source).specifiers
     end
 
     # Returns the module specifiers captured by
     # `/import\s*\(\s*["']([^"']+)["']\s*\)/`, in source order.
-    def dynamic_import_specifiers(source : String) : Array(String)
-      TextScanning.ensure_valid_utf8!(source)
+    def dynamic_import_specifiers(source : String, *, source_is_valid_utf8 : Bool = false) : Array(String)
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       specifiers = [] of String
       offset = 0
-      while start = source.byte_index("import", offset)
+      while start = TextScanning.literal_index(source, "import", offset)
         parenthesis = TextScanning.skip_spaces(source, start + 6)
         if TextScanning.byte_at(source, parenthesis) == '('.ord
           opening_quote = TextScanning.skip_spaces(source, parenthesis + 1)
@@ -149,22 +157,30 @@ module AssetPipeline
     end
 
     # Counts the matches of `/function\s+\w+/` in *source*.
-    def function_declaration_count(source : String) : Int32
+    def function_declaration_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       keyword_then_word_count(source, "function")
     end
 
     # Counts the matches of `/class\s+\w+/` in *source*.
-    def class_declaration_count(source : String) : Int32
+    def class_declaration_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       keyword_then_word_count(source, "class")
     end
 
     # Counts the matches of
     # `/(?:const|let|var)\s+\w+\s*=\s*(?:function|\()/` in *source*.
-    def function_assignment_count(source : String) : Int32
-      TextScanning.ensure_valid_utf8!(source)
+    def function_assignment_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
+      bytes = source.to_slice
       count = 0
       position = 0
-      while position < source.bytesize
+      while position < bytes.size
+        # Only `c`, `l` and `v` can start `const`, `let` or `var`.
+        unless function_assignment_start_byte?(bytes[position])
+          position += 1
+          next
+        end
         if match_end = function_assignment_end(source, position)
           count += 1
           position = match_end
@@ -180,8 +196,9 @@ module AssetPipeline
     #
     # `constructor` is itself an identifier, so the pattern matches exactly
     # where `^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\(` does.
-    def method_definition_count(source : String) : Int32
-      TextScanning.ensure_valid_utf8!(source)
+    def method_definition_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
+      bytes = source.to_slice
       count = 0
       line_start = 0
       while line_start < source.bytesize
@@ -199,7 +216,8 @@ module AssetPipeline
         # Every later line start inside the skipped spaces reaches the same
         # first non-space character, so the scan resumes at the next line
         # start past this attempt.
-        next_newline = source.byte_index('\n', resume_at)
+        break if resume_at >= bytes.size
+        next_newline = bytes.index('\n'.ord.to_u8, resume_at)
         break unless next_newline
         line_start = next_newline + 1
       end
@@ -207,20 +225,22 @@ module AssetPipeline
     end
 
     # Counts the matches of `/addEventListener|on\w+\s*=/` in *source*.
-    def event_listener_count(source : String) : Int32
-      TextScanning.ensure_valid_utf8!(source)
+    def event_listener_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
+      TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
       count = 0
       position = 0
       # Attempts at `on` before this byte index are known to fail.
       on_attempts_fail_before = 0
       bytes = source.to_slice
       while position < bytes.size
-        if TextScanning.literal_at?(source, position, "addEventListener")
+        # Only `a` and `o` can start `addEventListener` or `on`.
+        byte = bytes[position]
+        if byte == 'a'.ord && TextScanning.literal_at?(source, position, "addEventListener")
           count += 1
           position += "addEventListener".bytesize
           next
         end
-        if position >= on_attempts_fail_before && TextScanning.literal_at?(source, position, "on")
+        if byte == 'o'.ord && position >= on_attempts_fail_before && TextScanning.byte_at(source, position + 1) == 'n'.ord
           word_end = TextScanning.skip_word_chars(source, position + 2)
           if word_end > position + 2
             equals = TextScanning.skip_spaces(source, word_end)
@@ -244,7 +264,7 @@ module AssetPipeline
     def each_stimulus_registered_class(source : String, & : String ->) : Nil
       TextScanning.ensure_valid_utf8!(source)
       offset = 0
-      while start = source.byte_index("Stimulus.register", offset)
+      while start = TextScanning.literal_index(source, "Stimulus.register", offset)
         if match = stimulus_registration_class_range(source, start + "Stimulus.register".bytesize)
           class_start, class_end, match_end = match
           yield source.byte_slice(class_start, class_end - class_start)
@@ -260,7 +280,7 @@ module AssetPipeline
     def each_default_import_name(source : String, & : String ->) : Nil
       TextScanning.ensure_valid_utf8!(source)
       offset = 0
-      while start = source.byte_index("import", offset)
+      while start = TextScanning.literal_index(source, "import", offset)
         name_start = TextScanning.skip_spaces(source, start + 6)
         first_byte = TextScanning.byte_at(source, name_start)
         if name_start > start + 6 && first_byte && first_byte.unsafe_chr.ascii_letter?
@@ -277,7 +297,7 @@ module AssetPipeline
 
     private def signal_present?(source : String, signal : LibrarySignal) : Bool
       offset = 0
-      while start = source.byte_index(signal.prefix, offset)
+      while start = TextScanning.literal_index(source, signal.prefix, offset)
         return true if continues_signal?(source, start + signal.prefix.bytesize, signal)
         offset = start + 1
       end
@@ -306,8 +326,8 @@ module AssetPipeline
       end
     end
 
+    # The caller has validated *source*.
     private def each_class_member_reference(source : String, constant_member : Bool, & : String ->) : Nil
-      TextScanning.ensure_valid_utf8!(source)
       bytes = source.to_slice
       position = 0
       while position < bytes.size
@@ -360,16 +380,21 @@ module AssetPipeline
       index
     end
 
+    # `c`, `l` or `v`, the first bytes of `const`, `let` and `var`.
+    private def function_assignment_start_byte?(byte : UInt8) : Bool
+      byte == 'c'.ord || byte == 'l'.ord || byte == 'v'.ord
+    end
+
     # `[a-zA-Z_]`
     private def identifier_start_byte?(byte : UInt8) : Bool
       byte.unsafe_chr.ascii_letter? || byte == '_'.ord
     end
 
+    # The caller has validated *source*.
     private def keyword_then_word_count(source : String, keyword : String) : Int32
-      TextScanning.ensure_valid_utf8!(source)
       count = 0
       offset = 0
-      while start = source.byte_index(keyword, offset)
+      while start = TextScanning.literal_index(source, keyword, offset)
         word_start = TextScanning.skip_spaces(source, start + keyword.bytesize)
         if word_start > start + keyword.bytesize
           word_end = TextScanning.skip_word_chars(source, word_start)
@@ -462,7 +487,7 @@ module AssetPipeline
       def specifiers : Array(String)
         list_of_specifiers = [] of String
         offset = 0
-        while start = @source.byte_index("import", offset)
+        while start = TextScanning.literal_index(@source, "import", offset)
           if match = match_at(start)
             text_start, text_end, match_end = match
             list_of_specifiers << @source.byte_slice(text_start, text_end - text_start)
@@ -554,7 +579,7 @@ module AssetPipeline
           return closing if closing.nil? || position <= closing
         end
         @closing_brace_search_from = position
-        @closing_brace_at = @source.byte_index('}', position)
+        @closing_brace_at = @source.to_slice.index('}'.ord.to_u8, position)
       end
     end
   end

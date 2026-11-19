@@ -164,20 +164,20 @@ module AssetPipeline
           import_entry["type"] = "controller"
           import_entry["framework"] = "stimulus"
           # Auto-detect framework imports ("@hotwired/stimulus" contains "stimulus")
-        elsif import_name.includes?("stimulus")
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "stimulus")
           import_entry["type"] = "framework"
           import_entry["framework"] = "stimulus"
-        elsif import_name.includes?("alpine")
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "alpine")
           import_entry["type"] = "framework"
           import_entry["framework"] = "alpine"
-        elsif import_name.includes?("vue")
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "vue")
           import_entry["type"] = "framework"
           import_entry["framework"] = "vue"
-        elsif import_name.includes?("react")
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "react")
           import_entry["type"] = "framework"
           import_entry["framework"] = "react"
           # Auto-detect common libraries
-        elsif {"lodash", "underscore", "jquery", "axios", "fetch"}.any? { |library| import_name.includes?(library) }
+        elsif {"lodash", "underscore", "jquery", "axios", "fetch"}.any? { |library| AssetPipeline::TextScanning.contains_literal?(import_name, library) }
           import_entry["type"] = "library"
           # Default to utility for unrecognized patterns
         else

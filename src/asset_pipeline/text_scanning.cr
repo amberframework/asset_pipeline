@@ -28,6 +28,10 @@ module AssetPipeline
     # and last code point of each block as a letter; PCRE2 marks all of them.
     TANGUT_IDEOGRAPH_RANGES = {0x17000..0x187FF, 0x18D00..0x18D1E}
 
+    # Bytes of JavaScript source ordered from least to most common. A byte
+    # that is not listed counts as rarer than all of them.
+    BYTES_BY_INCREASING_FREQUENCY = "qjzxkvybgpmfhducl$_.(=wrsnoiate "
+
     # Raises `ArgumentError` when *text* is not valid UTF-8, matching the error
     # class a PCRE2 match raised for such a subject.
     def ensure_valid_utf8!(text : String) : Nil
@@ -63,14 +67,36 @@ module AssetPipeline
 
     # Returns the byte index just past the run of `\s` characters that starts
     # at byte index *position* of *text*.
+    #
+    # ASCII bytes are checked directly; a `Char` is decoded only from the
+    # first byte of 0x80 or above.
     def skip_spaces(text : String, position : Int32) : Int32
-      skip_chars(text, position) { |char| space?(char) }
+      bytes = text.to_slice
+      index = position
+      while index < bytes.size
+        byte = bytes[index]
+        return skip_chars(text, index) { |char| space?(char) } if byte >= 0x80
+        break unless byte.unsafe_chr.ascii_whitespace?
+        index += 1
+      end
+      index
     end
 
     # Returns the byte index just past the run of `\w` characters that starts
     # at byte index *position* of *text*.
+    #
+    # ASCII bytes are checked directly; a `Char` is decoded only from the
+    # first byte of 0x80 or above.
     def skip_word_chars(text : String, position : Int32) : Int32
-      skip_chars(text, position) { |char| word_char?(char) }
+      bytes = text.to_slice
+      index = position
+      while index < bytes.size
+        byte = bytes[index]
+        return skip_chars(text, index) { |char| word_char?(char) } if byte >= 0x80
+        break unless ascii_identifier_byte?(byte)
+        index += 1
+      end
+      index
     end
 
     # Returns the byte index just past the run of `[a-zA-Z0-9_]` bytes that
@@ -98,6 +124,35 @@ module AssetPipeline
     # Returns the byte at byte index *position*, or `nil` past the end.
     def byte_at(text : String, position : Int32) : UInt8?
       text.to_slice[position]?
+    end
+
+    # Returns the byte index of the first occurrence of *literal* (not empty)
+    # in *text* at or after byte index *offset*, or `nil` when there is none.
+    # Answers as `String#byte_index(String, Int32)` does.
+    #
+    # Jumps with `memchr` to each occurrence of the literal's least common
+    # byte and compares the whole literal only there.
+    def literal_index(text : String, literal : String, offset : Int32) : Int32?
+      bytes = text.to_slice
+      literal_size = literal.bytesize
+      last_start = bytes.size - literal_size
+      return nil if offset > last_start
+      anchor = rarest_byte_offset(literal)
+      anchor_byte = literal.to_unsafe[anchor]
+      search_from = offset + anchor
+      while candidate = bytes.index(anchor_byte, search_from)
+        start = candidate - anchor
+        return nil if start > last_start
+        return start if (bytes.to_unsafe + start).memcmp(literal.to_unsafe, literal_size) == 0
+        search_from = candidate + 1
+      end
+      nil
+    end
+
+    # Returns `true` when *text* contains *literal* (not empty). Answers as
+    # `String#includes?(String)` does, through `literal_index`.
+    def contains_literal?(text : String, literal : String) : Bool
+      !literal_index(text, literal, 0).nil?
     end
 
     # Returns `true` when *text* holds *literal* starting at byte index *position*.
@@ -197,6 +252,20 @@ module AssetPipeline
           io << char
         end
       end
+    end
+
+    # Returns the byte offset in *literal* of its least common byte, by
+    # `BYTES_BY_INCREASING_FREQUENCY`.
+    private def rarest_byte_offset(literal : String) : Int32
+      best_offset = 0
+      best_rank = Int32::MAX
+      literal.to_slice.each_with_index do |byte, offset|
+        rank = BYTES_BY_INCREASING_FREQUENCY.to_slice.index(byte) || -1
+        next unless rank < best_rank
+        best_rank = rank
+        best_offset = offset
+      end
+      best_offset
     end
 
     # Returns *text* without one final `\n`; a PCRE2 `$` (without the
