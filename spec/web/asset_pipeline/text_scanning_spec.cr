@@ -553,6 +553,23 @@ describe "the faster scanning forms" do
     end
   end
 
+  it "rejects exactly the text that String#valid_encoding? rejects" do
+    random = Random.new(5)
+    list_of_bytes = [0x00_u8, 0x41_u8, 0x7f_u8, 0x80_u8, 0xbf_u8, 0xc2_u8, 0xc3_u8, 0xa9_u8, 0xe2_u8, 0x82_u8,
+                     0xac_u8, 0xf0_u8, 0x9f_u8, 0x98_u8, 0x80_u8, 0xff_u8, 0xed_u8, 0xa0_u8, 0xc0_u8]
+    20_000.times do
+      bytes = Bytes.new(random.rand(0..40)) { random.rand(4) == 0 ? list_of_bytes.sample(random) : random.rand(0x20_u8..0x7e_u8) }
+      text = String.new(bytes)
+      rejected = begin
+        AssetPipeline::TextScanning.ensure_valid_utf8!(text)
+        false
+      rescue ArgumentError
+        true
+      end
+      rejected.should eq(!text.valid_encoding?)
+    end
+  end
+
   it "skips the same \\s and \\w runs as the Char-by-Char form" do
     random = Random.new(11)
     5_000.times do

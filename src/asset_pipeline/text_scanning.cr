@@ -34,9 +34,32 @@ module AssetPipeline
 
     # Raises `ArgumentError` when *text* is not valid UTF-8, matching the error
     # class a PCRE2 match raised for such a subject.
+    #
+    # Text made only of ASCII bytes, the common case for source code, is
+    # recognized eight bytes at a time; any other text gets the full check.
     def ensure_valid_utf8!(text : String) : Nil
-      return if text.valid_encoding?
+      return if ascii_only_bytes?(text.to_slice) || text.valid_encoding?
       raise ArgumentError.new("Text scan error: subject is not valid UTF-8")
+    end
+
+    # Returns `true` when every byte of *bytes* is below 0x80.
+    private def ascii_only_bytes?(bytes : Bytes) : Bool
+      pointer = bytes.to_unsafe
+      word_end = bytes.size - bytes.size % 8
+      high_bits = 0_u64
+      index = 0
+      while index < word_end
+        word = 0_u64
+        # An eight-byte copy compiles to one unaligned load.
+        (pointer + index).copy_to(pointerof(word).as(UInt8*), 8)
+        high_bits |= word
+        index += 8
+      end
+      while index < bytes.size
+        high_bits |= pointer[index]
+        index += 1
+      end
+      high_bits & 0x8080808080808080_u64 == 0
     end
 
     # Returns `true` when *char* belongs to the PCRE2 `\s` class (UCP mode).

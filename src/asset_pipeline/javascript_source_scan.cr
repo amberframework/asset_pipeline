@@ -172,21 +172,25 @@ module AssetPipeline
     # `/(?:const|let|var)\s+\w+\s*=\s*(?:function|\()/` in *source*.
     def function_assignment_count(source : String, *, source_is_valid_utf8 : Bool = false) : Int32
       TextScanning.ensure_valid_utf8!(source) unless source_is_valid_utf8
-      bytes = source.to_slice
       count = 0
       position = 0
-      while position < bytes.size
-        # Only `c`, `l` and `v` can start `const`, `let` or `var`.
-        unless function_assignment_start_byte?(bytes[position])
-          position += 1
-          next
-        end
-        if match_end = function_assignment_end(source, position)
+      # A match can start only at a `const`, `let` or `var`; the next of each
+      # at or after `position` is kept, so the text between is never read.
+      next_const = TextScanning.literal_index(source, "const", 0)
+      next_let = TextScanning.literal_index(source, "let", 0)
+      next_var = TextScanning.literal_index(source, "var", 0)
+      loop do
+        start = earliest(earliest(next_const, next_let), next_var)
+        break unless start
+        if match_end = function_assignment_end(source, start)
           count += 1
           position = match_end
         else
-          position += 1
+          position = start + 1
         end
+        next_const = literal_index_from(source, "const", next_const, position)
+        next_let = literal_index_from(source, "let", next_let, position)
+        next_var = literal_index_from(source, "var", next_var, position)
       end
       count
     end
@@ -231,30 +235,33 @@ module AssetPipeline
       position = 0
       # Attempts at `on` before this byte index are known to fail.
       on_attempts_fail_before = 0
-      bytes = source.to_slice
-      while position < bytes.size
-        # Only `a` and `o` can start `addEventListener` or `on`.
-        byte = bytes[position]
-        if byte == 'a'.ord && TextScanning.literal_at?(source, position, "addEventListener")
+      # A match can start only at an `addEventListener` or an `on`; the next
+      # of each that can still match is kept, so the text between is never read.
+      next_listener = TextScanning.literal_index(source, "addEventListener", 0)
+      next_on = TextScanning.literal_index(source, "on", 0)
+      loop do
+        listener_start = next_listener
+        on_start = next_on
+        if listener_start && (on_start.nil? || listener_start < on_start)
           count += 1
-          position += "addEventListener".bytesize
-          next
-        end
-        if byte == 'o'.ord && position >= on_attempts_fail_before && TextScanning.byte_at(source, position + 1) == 'n'.ord
-          word_end = TextScanning.skip_word_chars(source, position + 2)
-          if word_end > position + 2
-            equals = TextScanning.skip_spaces(source, word_end)
-            if TextScanning.byte_at(source, equals) == '='.ord
-              count += 1
-              position = equals + 1
-              next
-            end
+          position = listener_start + "addEventListener".bytesize
+        elsif on_start
+          word_end = TextScanning.skip_word_chars(source, on_start + 2)
+          equals = TextScanning.skip_spaces(source, word_end)
+          if word_end > on_start + 2 && TextScanning.byte_at(source, equals) == '='.ord
+            count += 1
+            position = equals + 1
+          else
+            # Any `on` that starts inside this word run reaches the same end
+            # and fails the same way.
+            on_attempts_fail_before = word_end
+            position = on_start + 1
           end
-          # Any `on` that starts inside this word run reaches the same end
-          # and fails the same way.
-          on_attempts_fail_before = word_end
+        else
+          break
         end
-        position += 1
+        next_listener = literal_index_from(source, "addEventListener", next_listener, position)
+        next_on = literal_index_from(source, "on", next_on, Math.max(position, on_attempts_fail_before))
       end
       count
     end
@@ -380,9 +387,19 @@ module AssetPipeline
       index
     end
 
-    # `c`, `l` or `v`, the first bytes of `const`, `let` and `var`.
-    private def function_assignment_start_byte?(byte : UInt8) : Bool
-      byte == 'c'.ord || byte == 'l'.ord || byte == 'v'.ord
+    # Returns *current*, the last known index of *literal*, when it is at or
+    # after *position*; otherwise the next index of *literal* from *position*.
+    # A `nil` *current* stays `nil`: there is no later occurrence.
+    private def literal_index_from(source : String, literal : String, current : Int32?, position : Int32) : Int32?
+      return current unless current && current < position
+      TextScanning.literal_index(source, literal, position)
+    end
+
+    # The smaller of two optional byte indexes.
+    private def earliest(first : Int32?, second : Int32?) : Int32?
+      return second unless first
+      return first unless second
+      Math.min(first, second)
     end
 
     # `[a-zA-Z_]`
