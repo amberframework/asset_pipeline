@@ -26,7 +26,7 @@ Add the shard to your `shard.yml`:
 dependencies:
   asset_pipeline:
     github: amberframework/asset_pipeline
-    version: 0.37.0
+    version: 0.38.0
 ```
 
 Then run:
@@ -34,6 +34,35 @@ Then run:
 ```bash
 shards install
 ```
+
+### What each require loads
+
+| Require | Loads | Regular expressions |
+|---|---|---|
+| `require "asset_pipeline"` | FrontLoader, import maps, static assets, script and Stimulus renderers, framework registry, dependency analyzer, platform gates | None; links no PCRE2 |
+| `require "asset_pipeline/components/base/stateless_view"` and `require "asset_pipeline/components/cache/configuration"` (what a generated Amber app's `config/initializers/page_cache.cr` requires) | Stateless views, the page cache and its stores | None; links no PCRE2 |
+| `require "asset_pipeline/components"` | Components, the CSS engine, reactive components | Uses `Regex` |
+| `require "asset_pipeline/ui"` | The cross-platform UI system | Uses `Regex` |
+| `require "asset_pipeline/generators/brand_kit"` | The brand kit generator | Uses `Regex` |
+| Other `asset_pipeline/...` entry points (`design_system`, `amber_integration`, native app support) | What their names say | Not checked; load them only when needed |
+
+The default require scans text with hand-written, linear-time checks instead
+of regular expressions, so an Amber application that loads only it does not
+link libpcre2. The UI, components, CSS engine, and generators are reached only
+through their own requires above. `scripts/check_default_require_linkage.rb`
+proves both: it lists the files the default require loads and builds two
+probes whose binaries must show no PCRE2: `spec/web/linkage/default_require_probe.cr`
+for the default require, and `spec/web/linkage/generated_app_initializers_probe.cr`
+for exactly the requires a generated Amber app's initializers make. A control
+probe that uses `Regex` must show it.
+
+```bash
+/usr/bin/ruby scripts/check_default_require_linkage.rb
+```
+
+`AssetPipeline::FrameworkRegistry.register_framework` takes import-name checks
+(`Array(FrameworkRegistry::ImportNameMatcher)`). The overload that takes
+`Array(Regex)` still works; an application that calls it links PCRE2.
 
 ## What This Repo Does Now
 

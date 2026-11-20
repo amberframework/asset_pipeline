@@ -13,7 +13,7 @@ require "./asset_pipeline/platform"
 
 # Top-level shard namespace housing FrontLoader, import maps, framework registry, and the cross-platform UI surface.
 module AssetPipeline
-  VERSION = "0.37.0"
+  VERSION = "0.38.0"
 
   # Initialize the framework registry with built-in framework support
   FrameworkRegistry.register_builtin_frameworks
@@ -213,13 +213,13 @@ module AssetPipeline
     def render_initialization_script_with_analysis(custom_js_block : String = "", import_map_name : String = "application") : String
       import_map = get_import_map(import_map_name)
       renderer = ScriptRenderer.new(import_map, custom_js_block, enable_dependency_analysis: true)
-      
+
       script_content = renderer.generate_script_content
       analysis = renderer.analyze_dependencies_with_suggestions
-      
+
       # Add dependency analysis comments if warnings exist, but only for dependencies not already in import map
       warning_comments = [] of String
-      
+
       if external_libs = analysis[:external]?
         external_libs.each do |library|
           # Check if dependency is already in import map before adding warning
@@ -228,7 +228,7 @@ module AssetPipeline
           end
         end
       end
-      
+
       if local_modules = analysis[:local]?
         local_modules.each do |module_name|
           # Check if dependency is already in import map before adding warning
@@ -237,12 +237,12 @@ module AssetPipeline
           end
         end
       end
-      
+
       final_content = warning_comments.empty? ? script_content : ([warning_comments.join("\n"), script_content].join("\n\n"))
-      
+
       # Wrap content in script tag manually since wrap_in_script_tag is protected
       return "" if final_content.strip.empty?
-      
+
       <<-HTML
       <script type="module">
       #{final_content}
@@ -269,7 +269,7 @@ module AssetPipeline
     def render_framework_script(framework_name : String, custom_js_block : String = "", import_map_name : String = "application") : String
       import_map = get_import_map(import_map_name)
       renderer = FrameworkRegistry.create_renderer(framework_name, import_map, custom_js_block)
-      
+
       if renderer.responds_to?(:render_framework_initialization_script)
         renderer.render_framework_initialization_script
       elsif renderer.responds_to?(:render_stimulus_initialization_script)
@@ -292,7 +292,7 @@ module AssetPipeline
     def framework_capabilities
       {
         "supported_frameworks" => FrameworkRegistry.supported_frameworks,
-        "registry_summary" => FrameworkRegistry.registry_summary
+        "registry_summary"     => FrameworkRegistry.registry_summary,
       }
     end
 
@@ -355,7 +355,7 @@ module AssetPipeline
     # Returns metrics about the JavaScript code including:
     # - lines: Number of non-empty lines
     # - functions: Number of function definitions
-    # - classes: Number of class definitions  
+    # - classes: Number of class definitions
     # - event_listeners: Number of event listener registrations
     # - suggestions: Array of code organization recommendations
     #

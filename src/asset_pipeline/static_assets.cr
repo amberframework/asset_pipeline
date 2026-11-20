@@ -5,6 +5,7 @@ require "file_utils"
 require "json"
 require "random/secure"
 require "uri"
+require "./text_scanning"
 
 module AssetPipeline
   # A deterministic, content-addressed compiler for application-owned web assets.
@@ -118,7 +119,7 @@ module AssetPipeline
         @assets.keys.sort.each do |logical|
           asset = @assets[logical]
           normalized_logical = LogicalPath.normalize(logical)
-          unless asset.digest.matches?(/\A[a-f0-9]{64}\z/)
+          unless TextScanning.sha256_hex_digest?(asset.digest)
             raise VerificationError.new("Static asset '#{normalized_logical}' has an invalid SHA-256 digest")
           end
           expected_path = expected_public_url(normalized_logical, asset.digest)
@@ -224,7 +225,7 @@ module AssetPipeline
         unless value.starts_with?('/') && !value.starts_with?("//") && !value.includes?('?') && !value.includes?('#')
           raise VerificationError.new("Manifest public path must be a root-relative URL path")
         end
-        value = value.gsub(/\/{2,}/, "/")
+        value = TextScanning.collapse_slash_runs(value)
         value = value.rstrip('/') unless value == "/"
         value
       end
@@ -518,10 +519,11 @@ module AssetPipeline
               line_end += 1
             end
             comment = contents.byte_slice(index, line_end - index)
-            if match = comment.match(/\A\/\/[#@]\s*sourceMappingURL=([^\s]+)/)
-              start_index = index + match.byte_begin(1)
-              end_index = index + match.byte_end(1)
-              reference = match[1]
+            if url_range = TextScanning.source_mapping_url_byte_range(comment)
+              url_begin, url_end = url_range
+              start_index = index + url_begin
+              end_index = index + url_end
+              reference = comment.byte_slice(url_begin, url_end - url_begin)
               target = rewrite_reference(reference, source_logical, sources, emitted, states)
               replacements << {start_index, end_index, target} unless target == reference
             end
@@ -778,11 +780,11 @@ module AssetPipeline
           value.starts_with?('#') ||
           value.starts_with?('/') ||
           value.starts_with?("//") ||
-          value.starts_with?(/(?i:data|https?|blob|mailto|tel):/)
+          TextScanning.starts_with_url_scheme?(value)
       end
 
       private def split_reference(reference : String) : {String, String}
-        if index = reference.index(/[?#]/)
+        if index = TextScanning.query_or_fragment_index(reference)
           {reference[0, index], reference[index..]}
         else
           {reference, ""}
@@ -824,7 +826,7 @@ module AssetPipeline
       end
 
       private def compiler_owned_entry?(logical : String, entry : ManifestEntry) : Bool
-        return false unless entry.digest.matches?(/\A[a-f0-9]{64}\z/)
+        return false unless TextScanning.sha256_hex_digest?(entry.digest)
         normalized = LogicalPath.normalize(logical)
         entry.path == public_url(fingerprinted_path(normalized, entry.digest))
       rescue ConfigurationError
@@ -894,7 +896,7 @@ module AssetPipeline
         unless value.starts_with?('/') && !value.starts_with?("//") && !value.includes?('?') && !value.includes?('#')
           raise ConfigurationError.new("Static asset public path must be a root-relative URL path")
         end
-        value = value.gsub(/\/{2,}/, "/")
+        value = TextScanning.collapse_slash_runs(value)
         value = value.rstrip('/') unless value == "/"
         value
       end

@@ -1,3 +1,5 @@
+require "../asset_pipeline/text_scanning"
+
 module AssetPipeline
   # The `ImportMap` is the main way that javascript is handled. This is a no-bundle approach using the "import map" browser standard.
   #
@@ -77,8 +79,8 @@ module AssetPipeline
     # Enhanced import method with metadata support for categorizing imports by type and framework
     #
     # ```
-    # import_map.add_import_with_metadata("HelloController", "hello_controller.js", 
-    #                                     type: "controller", framework: "stimulus")
+    # import_map.add_import_with_metadata("HelloController", "hello_controller.js",
+    #   type: "controller", framework: "stimulus")
     # ```
     #
     # Supported types: "controller", "library", "utility", "framework", "component"
@@ -94,14 +96,17 @@ module AssetPipeline
     #
     # To learn how to use scopes, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap" target="_blank">read about import maps and scopes here</a>
     def add_scope(scope : String, name : String, to : String)
-      raise "Scope key must start with `/`, `./`, or `../`" unless scope.starts_with?(/\/|\.\/|\.\.\//)
+      AssetPipeline::TextScanning.ensure_valid_utf8!(scope)
+      unless scope.starts_with?('/') || scope.starts_with?("./") || scope.starts_with?("../")
+        raise "Scope key must start with `/`, `./`, or `../`"
+      end
       @scopes[scope] << {name => to}
     end
 
     # Returns imports filtered by type (e.g., "controller", "library", "utility")
     #
     # ```
-    # import_map.imports_by_type("controller")  # Returns only controller imports
+    # import_map.imports_by_type("controller") # Returns only controller imports
     # ```
     def imports_by_type(type : String) : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["type"]? == type }
@@ -110,7 +115,7 @@ module AssetPipeline
     # Returns imports filtered by framework (e.g., "stimulus", "alpine", "vue")
     #
     # ```
-    # import_map.imports_by_framework("stimulus")  # Returns only Stimulus-related imports
+    # import_map.imports_by_framework("stimulus") # Returns only Stimulus-related imports
     # ```
     def imports_by_framework(framework : String) : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["framework"]? == framework }
@@ -119,7 +124,7 @@ module AssetPipeline
     # Returns imports that have no framework specified (framework-agnostic)
     #
     # ```
-    # import_map.framework_agnostic_imports  # Returns general/utility imports
+    # import_map.framework_agnostic_imports # Returns general/utility imports
     # ```
     def framework_agnostic_imports : Array(Hash(String, String | Bool))
       @imports.select { |import_entry| import_entry["framework"]?.nil? }
@@ -147,31 +152,34 @@ module AssetPipeline
     def auto_categorize_imports!
       @imports.each do |import_entry|
         import_name = import_entry.first_key
-        
+
         # Skip if already categorized
         next if import_entry.has_key?("type") || import_entry.has_key?("framework")
-        
+
         # Auto-detect Stimulus controllers
-        if import_name.match(/^[A-Z][a-zA-Z0-9_]*Controller$/)
+        # The controller check raises ArgumentError for invalid UTF-8 (as the
+        # former regular expressions did), so the substring checks below
+        # only see valid text.
+        if AssetPipeline::TextScanning.stimulus_controller_class_name?(import_name)
           import_entry["type"] = "controller"
           import_entry["framework"] = "stimulus"
-        # Auto-detect framework imports
-        elsif import_name.match(/@hotwired\/stimulus|stimulus/)
+          # Auto-detect framework imports ("@hotwired/stimulus" contains "stimulus")
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "stimulus")
           import_entry["type"] = "framework"
           import_entry["framework"] = "stimulus"
-        elsif import_name.match(/alpinejs|alpine/)
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "alpine")
           import_entry["type"] = "framework"
           import_entry["framework"] = "alpine"
-        elsif import_name.match(/vue/)
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "vue")
           import_entry["type"] = "framework"
           import_entry["framework"] = "vue"
-        elsif import_name.match(/react/)
+        elsif AssetPipeline::TextScanning.contains_literal?(import_name, "react")
           import_entry["type"] = "framework"
           import_entry["framework"] = "react"
-        # Auto-detect common libraries
-        elsif import_name.match(/lodash|underscore|jquery|axios|fetch/)
+          # Auto-detect common libraries
+        elsif {"lodash", "underscore", "jquery", "axios", "fetch"}.any? { |library| AssetPipeline::TextScanning.contains_literal?(import_name, library) }
           import_entry["type"] = "library"
-        # Default to utility for unrecognized patterns
+          # Default to utility for unrecognized patterns
         else
           import_entry["type"] = "utility"
         end
@@ -190,20 +198,20 @@ module AssetPipeline
     def import_summary : Hash(String, Hash(String, Int32))
       type_counts = Hash(String, Int32).new(0)
       framework_counts = Hash(String, Int32).new(0)
-      
+
       @imports.each do |import_entry|
         if type = import_entry["type"]?.as?(String)
           type_counts[type] += 1
         end
-        
+
         if framework = import_entry["framework"]?.as?(String)
           framework_counts[framework] += 1
         end
       end
-      
+
       {
-        "types" => type_counts,
-        "frameworks" => framework_counts
+        "types"      => type_counts,
+        "frameworks" => framework_counts,
       }
     end
 
@@ -231,10 +239,12 @@ module AssetPipeline
           @preload_module_links += %(<link rel="modulepreload" href="#{import.first_value}">\n)
         end
 
-        if !import.first_value.to_s.starts_with?(/http|\.\//)
+        import_path = import.first_value.to_s
+        AssetPipeline::TextScanning.ensure_valid_utf8!(import_path)
+        if !import_path.starts_with?("http") && !import_path.starts_with?("./")
           first_value = import[import.first_key].to_s
 
-          if !first_value.starts_with?(/\/|\.\//)
+          if !first_value.starts_with?('/') && !first_value.starts_with?("./")
             import[import.first_key] = @public_asset_base_path.join(first_value).to_s
           end
         end
