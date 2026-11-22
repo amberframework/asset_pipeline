@@ -1,4 +1,4 @@
-require "compress/gzip"
+require "../../asset_pipeline/gzip_coding"
 require "../../asset_pipeline/sha256_digest"
 require "./cache_store"
 require "./brotli_encoder"
@@ -47,12 +47,7 @@ module Components
 
       # A fixed modification time keeps the gzip bytes, and so the strong ETag, the same on every rebuild.
       def self.gzip(html : Bytes) : Bytes
-        compressed = IO::Memory.new(html.size // 2 + 64)
-        Compress::Gzip::Writer.open(compressed) do |gzip_writer|
-          gzip_writer.header.modification_time = Time.unix(0)
-          gzip_writer.write(html)
-        end
-        compressed.to_slice
+        AssetPipeline::GzipCoding.encode(html)
       end
 
       def self.brotli(html : Bytes) : Bytes?

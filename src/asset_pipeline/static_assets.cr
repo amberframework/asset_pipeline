@@ -1,5 +1,5 @@
 require "base64"
-require "compress/gzip"
+require "./gzip_coding"
 require "./sha256_digest"
 require "file_utils"
 require "json"
@@ -162,11 +162,11 @@ module AssetPipeline
               raise VerificationError.new("Precompressed static asset is missing: #{gzip_file}")
             end
             begin
-              expanded = Compress::Gzip::Reader.open(gzip_file, &.gets_to_end)
-              unless expanded.to_slice == bytes
+              expanded = GzipCoding.decode(File.open(gzip_file, "rb", &.getb_to_end))
+              unless expanded == bytes
                 raise VerificationError.new("Precompressed static asset content changed: #{normalized_logical}")
               end
-            rescue ex : Compress::Gzip::Error | Compress::Deflate::Error | IO::Error
+            rescue ex : GzipCoding::InvalidStreamError | IO::Error
               raise VerificationError.new("Precompressed static asset is invalid: #{normalized_logical}: #{ex.message}")
             end
           end
@@ -868,12 +868,7 @@ module AssetPipeline
       private def write_gzip(path : Path, bytes : Bytes) : Nil
         temporary = path.parent.join(".#{path.basename}.gz.tmp-#{Process.pid}-#{Random::Secure.hex(8)}")
         begin
-          File.open(temporary, "wb") do |file|
-            writer = Compress::Gzip::Writer.new(file)
-            writer.header.modification_time = Time.unix(0)
-            writer.write(bytes)
-            writer.close
-          end
+          File.open(temporary, "wb", &.write(GzipCoding.encode(bytes)))
           File.rename(temporary, "#{path}.gz")
         ensure
           File.delete(temporary) if File.exists?(temporary)
