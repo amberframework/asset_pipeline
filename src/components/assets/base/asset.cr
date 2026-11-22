@@ -1,3 +1,7 @@
+{% unless flag?(:ios) || flag?(:android) %}
+  require "../../../asset_pipeline/sha256_digest"
+{% end %}
+
 module Components
   module Assets
     # Base class for all assets in the pipeline
@@ -50,7 +54,7 @@ module Components
       
       # Generate a fingerprint for cache busting
       def fingerprint : String
-        digest = OpenSSL::Digest.new("SHA256")
+        digest = AssetPipeline::SHA256Digest.new
         digest.update(processed_content)
         digest.final.hexstring[0..7]
       end

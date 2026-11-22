@@ -1,5 +1,5 @@
 {% unless flag?(:ios) || flag?(:android) %}
-  require "digest/sha256"
+  require "../../asset_pipeline/sha256_digest"
 {% end %}
 
 module Components
@@ -43,7 +43,7 @@ module Components
         {% if flag?(:ios) || flag?(:android) %}
           fnv1a_128_hex(framed_parts.to_slice)
         {% else %}
-          Digest::SHA256.hexdigest(framed_parts)[0, HEX_LENGTH]
+          AssetPipeline::SHA256Digest.hexdigest(framed_parts)[0, HEX_LENGTH]
         {% end %}
       end
 

@@ -11,6 +11,10 @@
 #   * the default-require and generated-initializers probes link no libpcre2 and
 #     carry no pcre2_ symbols;
 #   * the control probe shows PCRE2, which proves the check can fail;
+#   * the default-require and generated-initializers probes, built with
+#     -Dwithout_openssl, link no libssl or libcrypto, carry no EVP_, SSL_ or
+#     OPENSSL_ symbol and run; built without the flag they show OpenSSL, which
+#     proves that check can fail;
 #   * the default require loads no UI, components, CSS engine, generator, or
 #     lint-rule file (those stay behind their own requires).
 #
@@ -55,6 +59,24 @@ Dir.mktmpdir("asset_pipeline_linkage") do |build_dir|
   end
 end
 
+openssl_library = /libssl|libcrypto/
+openssl_symbol = /[ _](EVP|SSL|OPENSSL)_/
+Dir.mktmpdir("asset_pipeline_openssl_linkage") do |build_dir|
+  %w[default_require_probe generated_app_initializers_probe].each do |probe|
+    { "with -Dwithout_openssl" => ["-Dwithout_openssl"], "without the flag" => [] }.each do |label, list_of_flags|
+      expect_openssl = list_of_flags.empty?
+      binary = File.join(build_dir, "#{probe}_#{expect_openssl ? "default" : "without_openssl"}")
+      run!(crystal, "build", *list_of_flags, File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
+      Dir.chdir(build_dir) { run!(binary) } unless expect_openssl # the flagged probe must also run cleanly
+      library_lines = run!(*dynamic_libraries_command, binary).lines.grep(openssl_library).size
+      symbol_lines = run!("nm", binary).lines.grep(openssl_symbol).size
+      has_openssl = library_lines > 0 || symbol_lines > 0
+      puts format("%-34s %-24s libssl/libcrypto lines: %d   OpenSSL symbols: %d", probe, label, library_lines, symbol_lines)
+      results["#{probe} #{label} #{expect_openssl ? "shows" : "is free of"} OpenSSL"] = (has_openssl == expect_openssl)
+    end
+  end
+end
+
 failed = results.reject { |_, passed| passed }.keys
 abort "FAIL: #{failed.join("; ")}" unless failed.empty?
-puts "PASS: the default require path and the generated app's initializer requires link no PCRE2, and the control probe shows the check detects it."
+puts "PASS: the default require path and the generated app's initializer requires link no PCRE2 and, with -Dwithout_openssl, no OpenSSL; the control builds show both checks detect what they look for."

@@ -51,7 +51,7 @@ module Components
       def fingerprint : String
         if path = source_path
           # For binary files, use file checksum
-          digest = OpenSSL::Digest.new("SHA256")
+          digest = AssetPipeline::SHA256Digest.new
           File.open(path, "rb") do |file|
             buffer = Bytes.new(8192)
             while (bytes_read = file.read(buffer)) > 0
