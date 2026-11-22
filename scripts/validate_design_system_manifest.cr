@@ -1,6 +1,7 @@
 require "file_utils"
 require "json"
 require "yaml"
+require "../spec/web/support/html_scanning"
 
 ROOT             = File.expand_path("..", __DIR__)
 DEFAULT_MANIFEST = File.join(ROOT, "docs/web-design-system/web-demo.routes.yml")
@@ -63,17 +64,11 @@ def ids_for(html : String) : Array(String)
 end
 
 def text_for_id(html : String, id : String) : String
-  if match = html.match(/<([a-zA-Z][\w:-]*)\b[^>]*\sid=(?:"#{Regex.escape(id)}"|'#{Regex.escape(id)}')[^>]*>(.*?)<\/\1>/m)
-    match[2].gsub(/<[^>]+>/, "").strip
-  else
-    ""
-  end
+  SpecSupport::HtmlScanning.element_text_by_id(html, id, either_quote: true)
 end
 
 def attr_values(html : String, name : String) : Array(String)
-  html.scan(/(?:^|[\s<])#{Regex.escape(name)}(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?(?=[\s>])/).map do |match|
-    match[1]? || match[2]? || ""
-  end
+  SpecSupport::HtmlScanning.attr_values(html, name, spaces_around_equals: true)
 end
 
 manifest_path = resolve_path(ARGV[0]? || DEFAULT_MANIFEST)
