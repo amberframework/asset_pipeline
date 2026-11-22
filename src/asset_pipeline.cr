@@ -1,7 +1,7 @@
 # Top-level entry point of the asset_pipeline shard: FrontLoader + namespace setup.
 # Part of the asset_pipeline shard.
 
-require "digest/sha256"
+require "./asset_pipeline/sha256_digest"
 require "file_utils"
 require "./asset_pipeline/static_assets"
 require "./import_map/import_map"
@@ -114,7 +114,7 @@ module AssetPipeline
       import_map = get_import_map(name)
       file_contents = import_map.build_import_map_json
 
-      digest = Digest::SHA256.new
+      digest = AssetPipeline::SHA256Digest.new
       digest << file_contents
 
       file_name = Path[name + "-" + digest.hexfinal + ".json"]
@@ -136,7 +136,7 @@ module AssetPipeline
       target_import_map = get_import_map(import_map_name)
 
       Dir.glob("#{@js_source_path}/**/*.js").each do |file|
-        file_hash = Digest::SHA256.new.file(file).hexfinal
+        file_hash = AssetPipeline::SHA256Digest.new.file(file).hexfinal
         file_index = file.index('.') || next
         cached_file_name = file.insert(file_index, "-" + file_hash).gsub(@js_source_path.to_s, @js_output_path.to_s)
 

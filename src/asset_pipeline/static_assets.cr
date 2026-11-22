@@ -1,6 +1,6 @@
 require "base64"
 require "compress/gzip"
-require "digest/sha256"
+require "./sha256_digest"
 require "file_utils"
 require "json"
 require "random/secure"
@@ -145,8 +145,8 @@ module AssetPipeline
           end
 
           bytes = File.read(file).to_slice
-          digest = Digest::SHA256.hexdigest(bytes)
-          integrity = "sha256-#{Base64.strict_encode(Digest::SHA256.digest(bytes))}"
+          digest = AssetPipeline::SHA256Digest.hexdigest(bytes)
+          integrity = "sha256-#{Base64.strict_encode(AssetPipeline::SHA256Digest.digest(bytes))}"
           unless asset.bytes == bytes.size
             raise VerificationError.new("Compiled static asset byte count changed: #{normalized_logical}")
           end
@@ -317,12 +317,12 @@ module AssetPipeline
 
         emitted.keys.sort.each do |logical|
           bytes = emitted[logical]
-          digest = Digest::SHA256.hexdigest(bytes)
+          digest = AssetPipeline::SHA256Digest.hexdigest(bytes)
           fingerprinted = fingerprinted_path(logical, digest)
           entries[logical] = ManifestEntry.new(
             path: public_url(fingerprinted),
             digest: digest,
-            integrity: "sha256-#{Base64.strict_encode(Digest::SHA256.digest(bytes))}",
+            integrity: "sha256-#{Base64.strict_encode(AssetPipeline::SHA256Digest.digest(bytes))}",
             content_type: MimeTypes.for(logical),
             bytes: bytes.size.to_i64,
           )
@@ -758,7 +758,7 @@ module AssetPipeline
         end
 
         dependency_bytes = compile_asset(target_logical, sources, emitted, states)
-        digest = Digest::SHA256.hexdigest(dependency_bytes)
+        digest = AssetPipeline::SHA256Digest.hexdigest(dependency_bytes)
         public_url(fingerprinted_path(target_logical, digest)) + suffix
       end
 

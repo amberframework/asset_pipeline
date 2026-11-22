@@ -2,6 +2,20 @@
 
 ## 0.38.0 (unreleased; the tag is cut after review)
 
+### No OpenSSL in an app built with `-Dwithout_openssl`
+
+Asset fingerprints, Subresource Integrity values and page-cache keys are
+SHA-256. Crystal's `Digest::SHA256` calls OpenSSL, which was the only reason
+this shard linked it. Every SHA-256 here now goes through
+`AssetPipeline::SHA256Digest`: Crystal's digest in an ordinary build, and in
+a build made with `crystal build -Dwithout_openssl` a pinned copy of
+[Beryl](https://github.com/amberframework/beryl)'s SHA-256, written in
+Crystal (`src/asset_pipeline/vendor`, pinned by commit and per-file sha256
+in `BERYL_VENDORED.json`; it needs Crystal 1.21 or newer). The digests are
+the same bytes either way, so fingerprints and cache keys do not change.
+`scripts/check_default_require_linkage.rb` now also builds its probes with
+the flag and checks that they link no libssl or libcrypto.
+
 ### Default require links no PCRE2
 
 `require "asset_pipeline"` no longer runs regular expressions, so an Amber

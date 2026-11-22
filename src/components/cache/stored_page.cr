@@ -1,5 +1,5 @@
 require "compress/gzip"
-require "digest/sha256"
+require "../../asset_pipeline/sha256_digest"
 require "./cache_store"
 require "./brotli_encoder"
 
@@ -64,7 +64,7 @@ module Components
       end
 
       def self.strong_etag(representation : Bytes) : Bytes
-        digest = Digest::SHA256.hexdigest { |context| context.update(representation) }
+        digest = AssetPipeline::SHA256Digest.hexdigest { |context| context.update(representation) }
         %("#{digest[0, 32]}").to_slice
       end
 
