@@ -14,6 +14,22 @@
 
 ## 0.38.0 (unreleased; the tag is cut after review)
 
+### No libz in an app built with `-Dwithout_zlib`
+
+Precompressed assets (`app.css.gz`) and the page cache's stored pages are
+gzip. Crystal's `Compress::Gzip` calls libz. Every gzip stream here now goes
+through `AssetPipeline::GzipCoding`: Crystal's `Compress::Gzip` in an
+ordinary build, and in a build made with `crystal build -Dwithout_zlib` a
+pinned copy of [Mica](https://github.com/amberframework/mica)'s DEFLATE,
+written in Crystal (`src/asset_pipeline/vendor`, pinned by commit and
+per-file sha256 in `MICA_VENDORED.json`; it needs Crystal 1.21 or newer).
+Both write one gzip member at level 6 with no modification time, and each
+expands what the other wrote. The compressed bytes of the two differ, so a
+`.gz` file and a stored page's gzip `ETag` change when an app switches the
+flag on; an ordinary build writes the bytes it wrote before.
+`scripts/check_default_require_linkage.rb` now also builds its probes with
+the flag and checks that they link no libz.
+
 ### No OpenSSL in an app built with `-Dwithout_openssl`
 
 Asset fingerprints, Subresource Integrity values and page-cache keys are

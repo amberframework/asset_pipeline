@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 # Checks that `require "asset_pipeline"`, and what a generated Amber app's
-# initializers require, keep applications free of PCRE2.
+# initializers require, keep applications free of PCRE2, and of OpenSSL and
+# libz in a build made with -Dwithout_openssl and -Dwithout_zlib.
 #
 # It builds and runs three probes under spec/web/linkage/:
 # default_require_probe.cr (everything the default require loads, exercised),
@@ -15,6 +16,11 @@
 #     -Dwithout_openssl, link no libssl or libcrypto, carry no EVP_, SSL_ or
 #     OPENSSL_ symbol and run; built without the flag they show OpenSSL, which
 #     proves that check can fail;
+#   * the default-require and generated-initializers probes, built with
+#     -Dwithout_zlib, link no libz, take no inflate, deflate or crc32 symbol
+#     from it and run (they gzip assets and cached pages and expand them
+#     again); built without the flag they show libz, which proves that check
+#     can fail;
 #   * the default require loads no UI, components, CSS engine, generator, or
 #     lint-rule file (those stay behind their own requires).
 #
@@ -77,6 +83,24 @@ Dir.mktmpdir("asset_pipeline_openssl_linkage") do |build_dir|
   end
 end
 
+zlib_library = /libz\./
+zlib_symbol = /\s_?(inflate|deflate|crc32|adler32)(Init2?_|End|Reset)?(@.*)?$/
+Dir.mktmpdir("asset_pipeline_zlib_linkage") do |build_dir|
+  %w[default_require_probe generated_app_initializers_probe].each do |probe|
+    { "with -Dwithout_zlib" => ["-Dwithout_zlib"], "without the flag" => [] }.each do |label, list_of_flags|
+      expect_zlib = list_of_flags.empty?
+      binary = File.join(build_dir, "#{probe}_#{expect_zlib ? "default" : "without_zlib"}")
+      run!(crystal, "build", *list_of_flags, File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
+      Dir.chdir(build_dir) { run!(binary) } unless expect_zlib # the flagged probe must also run cleanly
+      library_lines = run!(*dynamic_libraries_command, binary).lines.grep(zlib_library).size
+      symbol_lines = run!("nm", binary).lines.grep(zlib_symbol).size
+      has_zlib = library_lines > 0 || symbol_lines > 0
+      puts format("%-34s %-24s libz lines: %d   libz symbols: %d", probe, label, library_lines, symbol_lines)
+      results["#{probe} #{label} #{expect_zlib ? "shows" : "is free of"} libz"] = (has_zlib == expect_zlib)
+    end
+  end
+end
+
 failed = results.reject { |_, passed| passed }.keys
 abort "FAIL: #{failed.join("; ")}" unless failed.empty?
-puts "PASS: the default require path and the generated app's initializer requires link no PCRE2 and, with -Dwithout_openssl, no OpenSSL; the control builds show both checks detect what they look for."
+puts "PASS: the default require path and the generated app's initializer requires link no PCRE2, no OpenSSL with -Dwithout_openssl and no libz with -Dwithout_zlib; the control builds show each check detects what it looks for."
