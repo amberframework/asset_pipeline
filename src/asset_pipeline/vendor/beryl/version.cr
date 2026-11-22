@@ -1,0 +1,3 @@
+module AssetPipeline::Beryl
+  VERSION = "0.1.0"
+end
