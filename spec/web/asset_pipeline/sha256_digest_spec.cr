@@ -5,20 +5,20 @@ require "../../../src/asset_pipeline/sha256_digest"
 # The copy of Beryl under src/asset_pipeline/vendor is pinned: each file must
 # hold the bytes scripts/vendor_into.rb (in the Beryl repository) wrote for
 # the commit named in BERYL_VENDORED.json.
-private struct VendoredFile
+struct PinnedFileOfVendoredBeryl
   include JSON::Serializable
 
   getter path : String = ""
   getter sha256 : String = ""
 end
 
-private struct VendoredManifest
+struct ManifestOfVendoredBeryl
   include JSON::Serializable
 
   getter source : String = ""
   getter commit : String = ""
   getter namespace : String = ""
-  getter list_of_files : Array(VendoredFile) = [] of VendoredFile
+  getter list_of_files : Array(PinnedFileOfVendoredBeryl) = [] of PinnedFileOfVendoredBeryl
 end
 
 private VENDOR_ROOT = Path[__DIR__].parent.parent.parent / "src" / "asset_pipeline" / "vendor"
@@ -45,7 +45,7 @@ describe AssetPipeline::SHA256Digest do
 end
 
 describe "the vendored copy of Beryl" do
-  manifest = VendoredManifest.from_json(File.read(VENDOR_ROOT / "BERYL_VENDORED.json"))
+  manifest = ManifestOfVendoredBeryl.from_json(File.read(VENDOR_ROOT / "BERYL_VENDORED.json"))
 
   it "names its source, a full commit and the AssetPipeline::Beryl namespace" do
     manifest.source.should eq("https://github.com/amberframework/beryl")
