@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- The markup helpers behind the accessibility matchers
+  (`spec/web/support`) and `scripts/validate_design_system_manifest.cr` read
+  attribute values and element text without lookahead or backreferences
+  (`SpecSupport::HtmlScanning`), so the spec suite and the script run on
+  Mica, the default `Regex` engine of crystal-alpha from
+  1.21.0-incremental-6. On PCRE2 they give the answers the old patterns
+  gave. Nothing under `src` changed.
+- CI checks every regex in `src`, `spec` and `scripts` against Mica's
+  dialect (`scripts/check_regex_on_mica.sh`).
+
 ## 0.38.0 (unreleased; the tag is cut after review)
 
 ### No OpenSSL in an app built with `-Dwithout_openssl`

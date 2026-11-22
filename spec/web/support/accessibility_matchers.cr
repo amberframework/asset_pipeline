@@ -1,4 +1,5 @@
 require "../../../src/components/safe/safe_html"
+require "./html_scanning"
 
 module SpecSupport
   # These matchers scan already-rendered markup with regexes, so they
@@ -183,9 +184,7 @@ module SpecSupport
     end
 
     private def attr_values(html : String, name : String) : Array(String)
-      html.scan(/(?:^|[\s<])#{Regex.escape(name)}(?:=(?:"([^"]*)"|'([^']*)'))?(?=[\s>])/).map do |match|
-        match[1]? || match[2]? || ""
-      end
+      HtmlScanning.attr_values(html, name)
     end
 
     private def id_exists?(html : String, id : String) : Bool
@@ -193,11 +192,7 @@ module SpecSupport
     end
 
     private def element_text_by_id(html : String, id : String) : String
-      if match = html.match(/<([a-zA-Z][\w:-]*)\b[^>]*\sid="#{Regex.escape(id)}"[^>]*>(.*?)<\/\1>/m)
-        match[2].gsub(/<[^>]+>/, "").strip
-      else
-        ""
-      end
+      HtmlScanning.element_text_by_id(html, id)
     end
 
     private def live_region_attrs?(attrs : String, politeness : String? = nil) : Bool
