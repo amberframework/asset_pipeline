@@ -11,16 +11,21 @@
 #
 #   * the default-require and generated-initializers probes link no libpcre2 and
 #     carry no pcre2_ symbols;
-#   * the control probe shows PCRE2, which proves the check can fail;
+#   * the control probe, built with -Duse_pcre2, shows PCRE2, which proves the
+#     check can fail;
 #   * the default-require and generated-initializers probes, built with
 #     -Dwithout_openssl, link no libssl or libcrypto, carry no EVP_, SSL_ or
-#     OPENSSL_ symbol and run; built without the flag they show OpenSSL, which
-#     proves that check can fail;
+#     OPENSSL_ symbol and run; built without the flag they make no OpenSSL
+#     digest call (EVP_Digest*, EVP_MD*) on Crystal 1.21 or newer, where
+#     Beryl is the default SHA-256, and make one on older compilers;
+#     openssl_control_probe.cr (the default require plus Crystal's
+#     Digest::SHA256) makes one, which proves that check can fail;
 #   * the default-require and generated-initializers probes, built with
 #     -Dwithout_zlib, link no libz, take no inflate, deflate or crc32 symbol
 #     from it and run (they gzip assets and cached pages and expand them
-#     again); built without the flag they show libz, which proves that check
-#     can fail;
+#     again); built with -Duse_libz they show libz, which proves that check
+#     can fail (stock Crystal links libz by default, crystal-alpha only with
+#     that flag);
 #   * the default require loads no UI, components, CSS engine, generator, or
 #     lint-rule file (those stay behind their own requires).
 #
@@ -55,7 +60,10 @@ end
 Dir.mktmpdir("asset_pipeline_linkage") do |build_dir|
   { "default_require_probe" => false, "generated_app_initializers_probe" => false, "regex_control_probe" => true }.each do |probe, expect_pcre2|
     binary = File.join(build_dir, probe)
-    run!(crystal, "build", File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
+    # -Duse_pcre2 selects PCRE2 on compilers whose default Regex engine is
+    # Mica (crystal-alpha); stock Crystal uses PCRE2 either way.
+    list_of_flags = expect_pcre2 ? ["-Duse_pcre2"] : []
+    run!(crystal, "build", *list_of_flags, File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
     Dir.chdir(build_dir) { run!(binary) } # the probe must also run cleanly
     library_lines = run!(*dynamic_libraries_command, binary).lines.grep(/pcre2/).size
     symbol_lines = run!("nm", binary).lines.grep(/pcre2_/).size
@@ -67,19 +75,34 @@ end
 
 openssl_library = /libssl|libcrypto/
 openssl_symbol = /[ _](EVP|SSL|OPENSSL)_/
+# OpenSSL's message-digest calls: what Crystal's Digest::SHA256 imports.
+openssl_digest_symbol = /[ _]EVP_(Digest|MD)/
+compiler_version = run!(crystal, "--version")[/Crystal (\d+\.\d+\.\d+)/, 1] || abort("cannot read the #{crystal} version")
+beryl_is_the_default = Gem::Version.new(compiler_version) >= Gem::Version.new("1.21.0")
 Dir.mktmpdir("asset_pipeline_openssl_linkage") do |build_dir|
+  # With -Dwithout_openssl: no OpenSSL at all, and the probe runs.
   %w[default_require_probe generated_app_initializers_probe].each do |probe|
-    { "with -Dwithout_openssl" => ["-Dwithout_openssl"], "without the flag" => [] }.each do |label, list_of_flags|
-      expect_openssl = list_of_flags.empty?
-      binary = File.join(build_dir, "#{probe}_#{expect_openssl ? "default" : "without_openssl"}")
-      run!(crystal, "build", *list_of_flags, File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
-      Dir.chdir(build_dir) { run!(binary) } unless expect_openssl # the flagged probe must also run cleanly
-      library_lines = run!(*dynamic_libraries_command, binary).lines.grep(openssl_library).size
-      symbol_lines = run!("nm", binary).lines.grep(openssl_symbol).size
-      has_openssl = library_lines > 0 || symbol_lines > 0
-      puts format("%-34s %-24s libssl/libcrypto lines: %d   OpenSSL symbols: %d", probe, label, library_lines, symbol_lines)
-      results["#{probe} #{label} #{expect_openssl ? "shows" : "is free of"} OpenSSL"] = (has_openssl == expect_openssl)
-    end
+    binary = File.join(build_dir, "#{probe}_without_openssl")
+    run!(crystal, "build", "-Dwithout_openssl", File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
+    Dir.chdir(build_dir) { run!(binary) }
+    library_lines = run!(*dynamic_libraries_command, binary).lines.grep(openssl_library).size
+    symbol_lines = run!("nm", binary).lines.grep(openssl_symbol).size
+    puts format("%-34s %-24s libssl/libcrypto lines: %d   OpenSSL symbols: %d", probe, "with -Dwithout_openssl", library_lines, symbol_lines)
+    results["#{probe} with -Dwithout_openssl is free of OpenSSL"] = library_lines == 0 && symbol_lines == 0
+  end
+
+  # Without the flag: SHA-256 is Beryl's on Crystal 1.21 or newer, so no
+  # OpenSSL digest call. (A probe that requires http/server can still link
+  # OpenSSL for TLS; that is Crystal's, not asset_pipeline's.) The control
+  # probe hashes with Crystal's Digest::SHA256 and must show the digest calls.
+  %w[default_require_probe generated_app_initializers_probe openssl_control_probe].each do |probe|
+    expect_digest = probe == "openssl_control_probe" || !beryl_is_the_default
+    binary = File.join(build_dir, "#{probe}_default")
+    run!(crystal, "build", File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
+    Dir.chdir(build_dir) { run!(binary) }
+    digest_lines = run!("nm", binary).lines.grep(openssl_digest_symbol).size
+    puts format("%-34s %-24s OpenSSL digest symbols: %d", probe, "without the flag", digest_lines)
+    results["#{probe} without the flag #{expect_digest ? "shows" : "is free of"} OpenSSL's SHA-256"] = (digest_lines > 0) == expect_digest
   end
 end
 
@@ -87,8 +110,10 @@ zlib_library = /libz\./
 zlib_symbol = /\s_?(inflate|deflate|crc32|adler32)(Init2?_|End|Reset)?(@.*)?$/
 Dir.mktmpdir("asset_pipeline_zlib_linkage") do |build_dir|
   %w[default_require_probe generated_app_initializers_probe].each do |probe|
-    { "with -Dwithout_zlib" => ["-Dwithout_zlib"], "without the flag" => [] }.each do |label, list_of_flags|
-      expect_zlib = list_of_flags.empty?
+    # The control is built with -Duse_libz: compilers whose Compress runs on
+    # Mica (crystal-alpha) need it to link libz; stock Crystal links it anyway.
+    { "with -Dwithout_zlib" => ["-Dwithout_zlib"], "control, -Duse_libz" => ["-Duse_libz"] }.each do |label, list_of_flags|
+      expect_zlib = list_of_flags == ["-Duse_libz"]
       binary = File.join(build_dir, "#{probe}_#{expect_zlib ? "default" : "without_zlib"}")
       run!(crystal, "build", *list_of_flags, File.join(repo_root, "spec/web/linkage/#{probe}.cr"), "-o", binary)
       Dir.chdir(build_dir) { run!(binary) } unless expect_zlib # the flagged probe must also run cleanly
@@ -103,4 +128,4 @@ end
 
 failed = results.reject { |_, passed| passed }.keys
 abort "FAIL: #{failed.join("; ")}" unless failed.empty?
-puts "PASS: the default require path and the generated app's initializer requires link no PCRE2, no OpenSSL with -Dwithout_openssl and no libz with -Dwithout_zlib; the control builds show each check detects what it looks for."
+puts "PASS: the default require path and the generated app's initializer requires link no PCRE2, no OpenSSL with -Dwithout_openssl, no OpenSSL SHA-256 by default on Crystal 1.21 or newer, and no libz with -Dwithout_zlib; the control builds show each check detects what it looks for."

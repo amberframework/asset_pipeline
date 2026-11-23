@@ -1,5 +1,7 @@
 require "./spec_helper"
 require "file_utils"
+# The expected fingerprints are computed with Crystal's own SHA-256.
+require "digest/sha256"
 
 describe AssetPipeline::FrontLoader do
   after_each do
