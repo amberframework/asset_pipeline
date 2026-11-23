@@ -5,8 +5,9 @@
 An app compiled with asset_pipeline 0.39.0 can be built with
 `-Dwithout_zlib -Dwithout_openssl` and link neither libz nor OpenSSL:
 precompressed assets and stored pages are gzipped by Mica's DEFLATE and
-fingerprints are hashed by Beryl's SHA-256, both in Crystal. An ordinary
-build behaves as 0.38.0 did.
+fingerprints are hashed by Beryl's SHA-256, both in Crystal, and on Apple
+Silicon, Linux AArch64 and x86-64 Beryl hashes with the processor's SHA
+instructions. An ordinary build behaves as 0.38.0 did.
 
 ### No libz in an app built with `-Dwithout_zlib`
 
@@ -40,6 +41,15 @@ the flag and checks that they link no libssl or libcrypto.
 
 ### Also
 
+- The vendored copy of Beryl under `src/asset_pipeline/vendor` (`AssetPipeline::Beryl`) moves from
+  `6eef806d` (B2, portable code) to amberframework/beryl `7d678c08`
+  (F1, amberframework/beryl#3, and F2, amberframework/beryl#4), pinned by
+  commit and per-file sha256 in `BERYL_VENDORED.json`. SHA-2, HMAC, AES-GCM,
+  ChaCha20-Poly1305 and XChaCha20-Poly1305 run on the processor's SHA, AES,
+  carry-less multiply and vector instructions on Apple Silicon, Linux AArch64
+  and x86-64, and on portable code elsewhere; Beryl measures every hash, HMAC
+  and AEAD at least as fast as OpenSSL 4.1.0 on an Apple M1 Max. The bytes
+  each one produces are unchanged.
 - The vendored copy of Mica under `src/asset_pipeline/vendor` (`AssetPipeline::Mica`) moves to
   amberframework/mica `37e8b019` (amberframework/mica#29, faster Inflate),
   pinned by commit and per-file sha256 in `MICA_VENDORED.json`. Only
