@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Beryl is the default SHA-256 on Crystal 1.21 or newer
+
+`AssetPipeline::SHA256Digest` (asset fingerprints, Subresource Integrity
+values, page-cache keys) is the vendored Beryl SHA-256 whenever the compiler
+is Crystal 1.21 or newer, with or without `-Dwithout_openssl`, so an app
+links no OpenSSL for it. Older compilers keep Crystal's `Digest::SHA256`.
+Both give the same bytes.
+
 ## 0.39.0 (2026-11-22)
 
 An app compiled with asset_pipeline 0.39.0 can be built with
