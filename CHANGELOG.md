@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- The vendored copy of Mica under `src/asset_pipeline/vendor` (`AssetPipeline::Mica`) moves to
+  amberframework/mica `37e8b019` (amberframework/mica#29, faster Inflate),
+  pinned by commit and per-file sha256 in `MICA_VENDORED.json`. Only
+  the decoder (`mica/deflate/inflater.cr`) changed: it inflates the same
+  bytes faster.
+
 - The markup helpers behind the accessibility matchers
   (`spec/web/support`) and `scripts/validate_design_system_manifest.cr` read
   attribute values and element text without lookahead or backreferences
