@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.40.0 (2026-11-24)
+
+On Crystal 1.21 or newer, asset_pipeline 0.40.0 hashes with Beryl's SHA-256
+in every build, and its page cache and reactive components require only the
+server side of HTTP. With Amber 2.0.0-beta.15 on crystal-alpha, whose
+`http/server` leaves TLS out unless an app asks for it, a default
+`amber new` app links no OpenSSL without any build flag. Fingerprints,
+Subresource Integrity values and cache keys are the same bytes as before.
 
 ### The page cache and reactive components require only the server side of HTTP
 
