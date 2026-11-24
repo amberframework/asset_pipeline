@@ -1,4 +1,4 @@
-require "http"
+require "http/server"
 require "./page_cache"
 require "./configuration"
 
