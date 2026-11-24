@@ -1,4 +1,4 @@
-require "http/web_socket"
+require "http/server/handlers/websocket_handler"
 require "../base/component"
 
 module Components

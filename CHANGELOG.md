@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### The page cache and reactive components require only the server side of HTTP
+
+The page cache (`components/cache`) requires `http/server` instead of `http`,
+and the reactive components require
+`http/server/handlers/websocket_handler` instead of `http/web_socket`. Neither
+used `HTTP::Client` or opened a WebSocket connection. On crystal-alpha, whose
+`http/server` leaves TLS out unless the program asks for it, a default Amber
+app then links no OpenSSL; on stock Crystal nothing changes, since its
+`http/server` still requires `openssl`.
+
 ### Beryl is the default SHA-256 on Crystal 1.21 or newer
 
 `AssetPipeline::SHA256Digest` (asset fingerprints, Subresource Integrity

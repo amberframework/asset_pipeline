@@ -1,4 +1,4 @@
-require "http"
+require "http/server"
 require "./stored_page"
 
 module Components
