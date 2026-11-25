@@ -69,7 +69,7 @@ module Components
 
         generation = @page_cache.store.current_generation
         context.response.headers["Cache-Control"] = PageAnswer::CACHE_CONTROL
-        context.response.headers["Vary"] = "Accept-Encoding" if @page_cache.settings.compresses?
+        context.response.headers["Vary"] = BreachGuard::VARY_FIELDS if @page_cache.settings.compresses?
         original_output = context.response.output
         capturing_output = CapturingOutput.new(original_output)
         context.response.output = capturing_output

@@ -3,6 +3,7 @@ require "log"
 require "./cacheable"
 require "./stored_page"
 require "./page_answer"
+require "./breach_guard"
 
 module Components
   module Cache
@@ -155,9 +156,14 @@ module Components
       end
 
       # Writes *page* for this request, including its 304 and its compression choice.
+      # A cross-site request that `BreachGuard` refuses is answered with the
+      # uncompressed copy.
       def answer_from(context : HTTP::Server::Context, page : StoredPage) : Nil
-        request_headers = context.request.headers
-        PageAnswer.new(page, request_headers["Accept-Encoding"]?, request_headers["If-None-Match"]?, @settings.compresses?).write_to(context)
+        request = context.request
+        request_headers = request.headers
+        # A request BreachGuard refuses gets the identity copy, whatever it accepts.
+        accept_encoding = BreachGuard.may_compress_response_to?(request) ? request_headers["Accept-Encoding"]? : nil
+        PageAnswer.new(page, accept_encoding, request_headers["If-None-Match"]?, @settings.compresses?).write_to(context)
       end
 
       # Builds a page and stores it unless a write cleared it while it was rendering.

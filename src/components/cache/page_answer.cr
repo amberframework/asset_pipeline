@@ -1,5 +1,6 @@
 require "http/server"
 require "./stored_page"
+require "./breach_guard"
 
 module Components
   module Cache
@@ -50,7 +51,7 @@ module Components
       def write_to(context : HTTP::Server::Context) : Nil
         response = context.response
         response.headers["Cache-Control"] = CACHE_CONTROL
-        response.headers["Vary"] = "Accept-Encoding" if @varies_by_encoding
+        response.headers["Vary"] = BreachGuard::VARY_FIELDS if @varies_by_encoding
         current_etag = @etag
         response.headers["ETag"] = current_etag if current_etag
         if not_modified?
