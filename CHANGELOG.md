@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **BREACH guard for the page cache (CVE-2013-3587).** `PageCache#answer_from`
+  serves a stored gzip or Brotli copy only when
+  `Components::Cache::BreachGuard.may_compress_response_to?` allows it, the
+  same rule as Amber's `Amber::Pipe::Compression`: same-origin, same-site and
+  user-initiated requests, and top-level page loads from other sites, get the
+  compressed copy; cross-site iframes and subresources, and clients without
+  fetch metadata whose `Referer` names another host or port, get the
+  uncompressed copy. Page-cache answers now carry `Vary: Accept-Encoding,
+  Sec-Fetch-Site, Sec-Fetch-Mode, Sec-Fetch-Dest`.
+
 ## 0.40.1 (2026-11-25)
 
 The vendored Beryl moves from 7d678c08 (0.1.0) to 0.2.1, the Beryl the Amber

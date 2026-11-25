@@ -53,7 +53,48 @@ private def etag_for(cache, accept_encoding : String? = nil) : String
   answer(cache, "pet:1", accept_encoding).headers["ETag"]
 end
 
+# Sends one GET through the page cache with *headers* and returns the parsed response.
+private def answer_with_headers(cache, page_key : String, headers : HTTP::Headers) : HTTP::Client::Response
+  context, output = context_for(headers: headers)
+  cache.answer(context, page_key) { |_build| PAGE_HTML }
+  context.response.close
+  output.rewind
+  HTTP::Client::Response.from_io(output, decompress: false)
+end
+
 describe Components::Cache::PageCache do
+  describe "the BREACH guard" do
+    it "serves the stored gzip copy to same-origin requests and top-level cross-site page loads" do
+      cache = warmed_cache
+      {
+        HTTP::Headers{"Accept-Encoding" => "gzip", "Sec-Fetch-Site" => "same-origin", "Sec-Fetch-Mode" => "navigate", "Sec-Fetch-Dest" => "document"},
+        HTTP::Headers{"Accept-Encoding" => "gzip", "Sec-Fetch-Site" => "cross-site", "Sec-Fetch-Mode" => "navigate", "Sec-Fetch-Dest" => "document"},
+        HTTP::Headers{"Accept-Encoding" => "gzip", "Host" => "example.com", "Referer" => "https://example.com/posts"},
+      }.each do |headers|
+        response = answer_with_headers(cache, "pet:1", headers)
+        response.headers["Content-Encoding"].should eq("gzip")
+        response.headers["Vary"].should eq(Components::Cache::BreachGuard::VARY_FIELDS)
+        gunzip(response.body).should eq(PAGE_HTML)
+      end
+    end
+
+    it "serves the uncompressed copy to cross-site subresources and foreign Referers" do
+      cache = warmed_cache
+      identity_etag = etag_for(cache)
+      {
+        HTTP::Headers{"Accept-Encoding" => "gzip", "Sec-Fetch-Site" => "cross-site", "Sec-Fetch-Mode" => "no-cors", "Sec-Fetch-Dest" => "image"},
+        HTTP::Headers{"Accept-Encoding" => "gzip", "Sec-Fetch-Site" => "cross-site", "Sec-Fetch-Mode" => "navigate", "Sec-Fetch-Dest" => "iframe"},
+        HTTP::Headers{"Accept-Encoding" => "gzip,deflate,compress,br", "Host" => "example.com", "Referer" => "https://google.com/"},
+      }.each do |headers|
+        response = answer_with_headers(cache, "pet:1", headers)
+        response.headers["Content-Encoding"]?.should be_nil
+        response.headers["ETag"].should eq(identity_etag)
+        response.headers["Vary"].should eq(Components::Cache::BreachGuard::VARY_FIELDS)
+        response.body.should eq(PAGE_HTML)
+      end
+    end
+  end
+
   describe "the second-request compression policy" do
     it "sends the first request plain, with no ETag" do
       cache = new_cache
@@ -100,10 +141,10 @@ describe Components::Cache::PageCache do
     it "sends Vary and no-cache on every answer" do
       cache = new_cache
       first = answer(cache, "pet:1")
-      first.headers["Vary"].should eq("Accept-Encoding")
+      first.headers["Vary"].should eq(Components::Cache::BreachGuard::VARY_FIELDS)
       first.headers["Cache-Control"].should eq("no-cache")
       second = answer(cache, "pet:1", "gzip")
-      second.headers["Vary"].should eq("Accept-Encoding")
+      second.headers["Vary"].should eq(Components::Cache::BreachGuard::VARY_FIELDS)
       second.headers["Cache-Control"].should eq("no-cache")
     end
 
