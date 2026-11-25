@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.40.1 (2026-11-25)
+
+The vendored Beryl moves from 7d678c08 (0.1.0) to 0.2.1, the Beryl the Amber
+stack's Beryl-adoption release carries everywhere (Amber 2.0.0-beta.16,
+Grant 0.28.0). asset_pipeline still requires only `crypto` from it (SHA-256
+for fingerprints, Subresource Integrity and page-cache keys), so an app's
+binary and the hashes are unchanged; the copy now holds the whole of Beryl,
+so one security fix to Beryl is one re-vendor across the stack.
+
 ## 0.40.0 (2026-11-24)
 
 On Crystal 1.21 or newer, asset_pipeline 0.40.0 hashes with Beryl's SHA-256

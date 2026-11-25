@@ -26,7 +26,7 @@ Add the shard to your `shard.yml`:
 dependencies:
   asset_pipeline:
     github: amberframework/asset_pipeline
-    version: 0.40.0
+    version: 0.40.1
 ```
 
 Then run:
