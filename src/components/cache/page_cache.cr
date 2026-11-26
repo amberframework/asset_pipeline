@@ -34,7 +34,8 @@ module Components
 
       # What the page cache derives and stores. Set through `Components::Cache.configure`.
       class Settings
-        BROTLI_IS_COMPILED_IN = {{ flag?(:asset_pipeline_brotli) }}
+        # Mica, which encodes the Brotli copy, needs Crystal 1.21 or newer.
+        BROTLI_IS_AVAILABLE = {{ compare_versions(Crystal::VERSION, "1.21.0") >= 0 }}
 
         # Stores a gzip copy beside the HTML, so a hit spends no CPU compressing.
         property? stores_gzip : Bool = true
@@ -49,15 +50,9 @@ module Components
         # request rebuild it, so it stays off unless an application asks for it.
         property? rebuilds_after_write : Bool = false
 
-        getter? stores_brotli : Bool = BROTLI_IS_COMPILED_IN
-
-        # Brotli needs libbrotlienc linked, so turning it on needs `-Dasset_pipeline_brotli`.
-        def stores_brotli=(value : Bool) : Bool
-          if value && !BROTLI_IS_COMPILED_IN
-            raise Error.new("Brotli needs the -Dasset_pipeline_brotli compile-time flag")
-          end
-          @stores_brotli = value
-        end
+        # Stores a Brotli copy beside the HTML, encoded by the pinned Mica copy, so a hit spends no CPU
+        # compressing and the app links no libbrotlienc.
+        property? stores_brotli : Bool = BROTLI_IS_AVAILABLE
 
         def compresses? : Bool
           stores_gzip? || stores_brotli?
