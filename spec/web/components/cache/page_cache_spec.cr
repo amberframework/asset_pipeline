@@ -234,20 +234,25 @@ describe Components::Cache::PageCache do
       answer(cache, "pet:1").headers["ETag"]?.should be_nil
     end
 
-    {% if flag?(:asset_pipeline_brotli) %}
-      it "stores Brotli when compiled in and prefers it over gzip" do
+    {% if compare_versions(Crystal::VERSION, "1.21.0") >= 0 %}
+      it "stores Brotli by default and prefers it over gzip" do
         cache = warmed_cache
         response = answer(cache, "pet:1", "gzip, br")
         response.headers["Content-Encoding"].should eq("br")
-        decoded = IO::Memory.new
-        Process.run("brotli", {"-d", "-c"}, input: IO::Memory.new(response.body), output: decoded).success?.should be_true
-        decoded.to_s.should eq(PAGE_HTML)
+        String.new(AssetPipeline::Mica::Brotli.decode(response.body.to_slice, limits: AssetPipeline::Mica::Brotli::DecodeLimits::TRUSTED_ASSET, timeout: nil)).should eq(PAGE_HTML)
+      end
+
+      it "answers gzip when Brotli is turned off" do
+        settings = Components::Cache::PageCache::Settings.new
+        settings.stores_brotli = false
+        cache = new_cache(settings)
+        2.times { answer(cache, "pet:1") }
+        answer(cache, "pet:1", "gzip, br").headers["Content-Encoding"].should eq("gzip")
       end
     {% else %}
-      it "refuses Brotli without the compile-time flag" do
-        settings = Components::Cache::PageCache::Settings.new
-        settings.stores_brotli?.should be_false
-        expect_raises(Components::Cache::Error, /asset_pipeline_brotli/) { settings.stores_brotli = true }
+      it "stores no Brotli on a compiler older than Crystal 1.21" do
+        Components::Cache::PageCache::Settings.new.stores_brotli?.should be_false
+        answer(warmed_cache, "pet:1", "gzip, br").headers["Content-Encoding"].should eq("gzip")
       end
     {% end %}
   end

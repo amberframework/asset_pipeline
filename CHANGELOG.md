@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **The page cache stores Brotli by default, with no build flag.** A stored
+  page gets its Brotli copy (quality 5, window 22) from Mica, written in
+  Crystal, beside its gzip copy, so `Accept-Encoding: br` gets `br` on every
+  page-cache hit and the app links no libbrotlienc. The
+  `-Dasset_pipeline_brotli` flag and the libbrotlienc binding are removed;
+  `PageCache::Settings#stores_brotli = false` turns Brotli off. The vendored
+  Mica moves from 37e8b019 (`deflate`) to v0.3.0, 68e5c22c (`compression`:
+  DEFLATE plus Brotli), the copy Amber carries. Crystal older than 1.21,
+  which cannot build Mica, stores no Brotli copy, as before.
+
 - **BREACH guard for the page cache (CVE-2013-3587).** `PageCache#answer_from`
   serves a stored gzip or Brotli copy only when
   `Components::Cache::BreachGuard.may_compress_response_to?` allows it, the

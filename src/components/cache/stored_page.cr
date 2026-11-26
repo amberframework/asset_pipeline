@@ -50,8 +50,9 @@ module Components
         AssetPipeline::GzipCoding.encode(html)
       end
 
+      # Nil on a compiler older than Crystal 1.21, which cannot build Mica.
       def self.brotli(html : Bytes) : Bytes?
-        {% if flag?(:asset_pipeline_brotli) %}
+        {% if compare_versions(Crystal::VERSION, "1.21.0") >= 0 %}
           BrotliEncoder.compress(html)
         {% else %}
           nil
