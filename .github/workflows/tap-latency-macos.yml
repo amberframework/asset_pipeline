@@ -1,0 +1,86 @@
+# macOS tap-latency lane on GitHub's hosted runner: builds the probe and runs
+# every row of spec/native_macos/latency/thresholds.yml on each pull request
+# and push that touches the native UI, and prints the measurements and gate
+# tables. It reports only: on the hosted macos-26 virtual machine the same
+# rows varied by orders of magnitude between two runs of one commit (the
+# rebuild row's pressed time was 1.5 s at p50 in one run and 26 s in the
+# next, against 1.9 ms on the reference mini), so its timing cannot gate.
+#
+# The timing gate runs on our own Mac mini, which has a logged-in GUI
+# session and steady timing: scripts/check_tap_latency_for_open_branches.rb
+# runs `make test-latency-macos` for every same-repository pull request and
+# push to main that touches the native UI, and posts the commit status
+# "tap-latency (m4-mini-01, our runner)". It is a commit-status check rather
+# than an Actions runner because this repository is public, and a
+# self-hosted runner would run workflows edited in fork pull requests.
+#
+# Every Action is pinned by full commit SHA. The compiler comes from the
+# agent-crystal tap checked out at a fixed commit, whose formula verifies the
+# bottle by sha256.
+
+name: Tap latency (macOS)
+
+on:
+  pull_request:
+    paths:
+      - "src/ui/**"
+      - "swift/**"
+      - "spec/native_macos/latency/**"
+      - "Makefile"
+      - ".github/workflows/tap-latency-macos.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/ui/**"
+      - "swift/**"
+      - "spec/native_macos/latency/**"
+      - "Makefile"
+      - ".github/workflows/tap-latency-macos.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tap-latency-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HOMEBREW_NO_ANALYTICS: "1"
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+  AGENT_CRYSTAL_TAP_COMMIT: c1f592484db8518067139e33733a4adf5a2e652a
+  AGENT_CRYSTAL_VERSION: 1.22.3-incremental-6
+
+jobs:
+  tap-latency-macos:
+    name: Tap latency lane (macOS, hosted, report only)
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - name: Check out the library
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Install crystal-alpha from the pinned tap commit
+        run: |
+          brew tap crimson-knight/agent-crystal
+          tap_dir="$(brew --repo crimson-knight/agent-crystal)"
+          git -C "$tap_dir" fetch --quiet origin "$AGENT_CRYSTAL_TAP_COMMIT"
+          git -C "$tap_dir" checkout --quiet "$AGENT_CRYSTAL_TAP_COMMIT"
+          test "$(git -C "$tap_dir" rev-parse HEAD)" = "$AGENT_CRYSTAL_TAP_COMMIT"
+          brew install crimson-knight/agent-crystal/agent-crystal
+          installed="$(brew list --versions agent-crystal)"
+          echo "$installed"
+          test "$installed" = "agent-crystal $AGENT_CRYSTAL_VERSION"
+
+      - name: Build SwiftKit (release)
+        run: swift build -c release --package-path swift/AssetPipelineSwiftKit
+
+      - name: Describe the runner
+        run: |
+          sysctl -n machdep.cpu.brand_string hw.model hw.ncpu
+          sw_vers
+          crystal-alpha --version
+
+      - name: make test-latency-macos (report only)
+        run: make test-latency-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_FLAGS=--report-only

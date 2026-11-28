@@ -1,0 +1,46 @@
+{
+  "recorded_on": "2026-11-28T16:39:37Z",
+  "machine": {
+    "model": "Mac16,10",
+    "chip": "Apple M4",
+    "cores": 10,
+    "memory_gb": 24,
+    "macos": "26.5 (25F71)"
+  },
+  "compiler": "Crystal 1.22.3 (2026-11-13)",
+  "compiler_package": "agent-crystal 1.22.3-incremental-4 1.22.3-incremental-6",
+  "asset_pipeline_commit": "9848c929b5bdd7cb2fa6acde3bd9e48bfd1d2bb5",
+  "note": "Recorded by `make record-latency-baseline-macos`. Gate values per row; full summaries in lane_summary.json of the recording run.",
+  "rows": {
+    "press": {
+      "pressed_within_16ms_percent": 100.0,
+      "stall_count": 1,
+      "stall_p95_ms": 30.09,
+      "collection_pause_p95_ms": 0.0
+    },
+    "rerender": {
+      "pressed_within_16ms_percent": 100.0,
+      "stall_count": 32,
+      "stall_p95_ms": 260.21,
+      "collection_pause_p95_ms": 5.06
+    },
+    "rerender_rapid": {
+      "pressed_within_16ms_percent": 97.5,
+      "stall_count": 41,
+      "stall_p95_ms": 243.77,
+      "collection_pause_p95_ms": 2.99
+    },
+    "slow": {
+      "pressed_within_16ms_percent": 100.0,
+      "stall_count": 9,
+      "stall_p95_ms": 1242.04,
+      "collection_pause_p95_ms": 0.0
+    },
+    "gc": {
+      "pressed_within_16ms_percent": 100.0,
+      "stall_count": 2,
+      "stall_p95_ms": 29.65,
+      "collection_pause_p95_ms": 28.89
+    }
+  }
+}

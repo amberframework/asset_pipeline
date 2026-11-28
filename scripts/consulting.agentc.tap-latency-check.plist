@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- LaunchAgent for the tap-latency commit-status check
+     (scripts/check_tap_latency_for_open_branches.rb). It must load in the
+     logged-in GUI session: the lane opens AppKit windows. Paths assume the
+     check is installed in ~/build/tap-latency-ci of the user agentc. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>consulting.agentc.tap-latency-check</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/ruby</string>
+    <string>/Users/agentc/build/tap-latency-ci/check_tap_latency_for_open_branches.rb</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/agentc/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>StartInterval</key>
+  <integer>300</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>LimitLoadToSessionType</key>
+  <string>Aqua</string>
+  <key>StandardOutPath</key>
+  <string>/Users/agentc/build/tap-latency-ci/launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/agentc/build/tap-latency-ci/launchd.err.log</string>
+</dict>
+</plist>
