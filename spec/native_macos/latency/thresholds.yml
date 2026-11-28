@@ -1,0 +1,58 @@
+# Gates for the macOS tap-latency lane (`make test-latency-macos`).
+#
+# The contract (PLAN phase 0, Seth's ruling of 2026-11-28): on touch-down the
+# control shows its pressed state at once, and the main thread never pauses
+# for an action or a garbage collection.
+#
+#   pressed_within_16ms_percent  share of taps whose pressed look was committed
+#                                within 16 ms of the click reaching the app
+#   stall_count                  main-thread passes longer than 16 ms
+#   stall_p95_ms                 95th-percentile length of those stalls (0 when
+#                                there are none); the run-to-run stable measure
+#                                of how long the main thread is held
+#   collection_pause_p95_ms      95th-percentile garbage-collection pause; Boehm
+#                                stops the world, so this is a main-thread pause
+#
+# Each row is one probe run. A gate either passes, or carries
+# `known_failure: true`: today's code is known to cross it, and the lane stays
+# green while the measured value is no worse than the row's value in
+# baseline.json plus the metric's tolerance below. A known failure that starts
+# passing is reported so its mark can be removed (Phase 1 removes the marks
+# for the rows it fixes). Any other crossing turns the lane red.
+
+tolerance:
+  # A known failure regresses when it is worse than
+  #   baseline + max(baseline * relative, absolute)
+  # (for "at_least" gates: baseline - max(baseline * relative, absolute)).
+  pressed_within_16ms_percent: { relative: 0.0, absolute: 5.0 }
+  stall_count: { relative: 0.15, absolute: 2 }
+  stall_p95_ms: { relative: 0.25, absolute: 8.0 }
+  collection_pause_p95_ms: { relative: 0.25, absolute: 5.0 }
+
+gates:
+  pressed_within_16ms_percent: { at_least: 100.0 }
+  stall_count: { at_most: 0 }
+  stall_p95_ms: { at_most: 16.0 }
+  collection_pause_p95_ms: { at_most: 16.0 }
+
+rows:
+  press:
+    description: "UI::Button, handler does nothing, 40-row screen"
+    probe: { scenario: press, rows: 40, taps: 100, interval_ms: 300 }
+    known_failures: [stall_count, stall_p95_ms] # first press warms SwiftUI (one 18-32 ms pass)
+  rerender:
+    description: "Tap rebuilds the 40-row screen"
+    probe: { scenario: rerender, rows: 40, taps: 30, interval_ms: 600 }
+    known_failures: [stall_count, stall_p95_ms] # full rebuild, ~210 ms per tap (Phase 2)
+  rerender_rapid:
+    description: "Taps every 0.3 s on the 40-row screen"
+    probe: { scenario: rerender, rows: 40, taps: 40, interval_ms: 300 }
+    known_failures: [pressed_within_16ms_percent, stall_count, stall_p95_ms] # the press waits behind the previous rebuild
+  slow:
+    description: "Action makes a 1 s blocking call, then rebuilds"
+    probe: { scenario: slow, rows: 40, taps: 8, interval_ms: 2000 }
+    known_failures: [stall_count, stall_p95_ms] # the action runs on the main thread (Phase 1)
+  gc:
+    description: "No rebuild; 230 MB retained, a background thread allocates"
+    probe: { scenario: gc, rows: 40, taps: 100, interval_ms: 300, retain: 40000 }
+    known_failures: [stall_count, stall_p95_ms, collection_pause_p95_ms] # stop-the-world collection, ~25 ms (Phase 4)

@@ -1,0 +1,103 @@
+# macOS tap-latency lane: every change to the native UI is checked for a tap
+# that feels native (pressed look within 16 ms, no main-thread stall over
+# 16 ms). The lane and its gates live in spec/native_macos/latency/.
+#
+# Runner: the repository is public, so the lane runs on GitHub's hosted
+# Apple-silicon macOS runner (a logged-in GUI session, which AppKit needs).
+# Its known-failure baselines are recorded on that runner image
+# (baseline-github-macos-26.json); the mini baseline (baseline.json) is the
+# reference for local runs. Record a new hosted baseline with the
+# workflow_dispatch input `record_baseline` and commit the uploaded file.
+#
+# Every Action is pinned by full commit SHA. The compiler comes from the
+# agent-crystal tap checked out at a fixed commit, whose formula verifies the
+# bottle by sha256.
+
+name: Tap latency (macOS)
+
+on:
+  pull_request:
+    paths:
+      - "src/ui/**"
+      - "swift/**"
+      - "spec/native_macos/latency/**"
+      - "Makefile"
+      - ".github/workflows/tap-latency-macos.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/ui/**"
+      - "swift/**"
+      - "spec/native_macos/latency/**"
+      - "Makefile"
+      - ".github/workflows/tap-latency-macos.yml"
+  workflow_dispatch:
+    inputs:
+      record_baseline:
+        description: "Record baseline-github-macos-26.json instead of gating"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tap-latency-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HOMEBREW_NO_ANALYTICS: "1"
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+  AGENT_CRYSTAL_TAP_COMMIT: c1f592484db8518067139e33733a4adf5a2e652a
+  AGENT_CRYSTAL_VERSION: 1.22.3-incremental-6
+
+jobs:
+  tap-latency-macos:
+    name: Tap latency lane (macOS, hosted)
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - name: Check out the library
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Install crystal-alpha from the pinned tap commit
+        run: |
+          brew tap crimson-knight/agent-crystal
+          tap_dir="$(brew --repo crimson-knight/agent-crystal)"
+          git -C "$tap_dir" fetch --quiet origin "$AGENT_CRYSTAL_TAP_COMMIT"
+          git -C "$tap_dir" checkout --quiet "$AGENT_CRYSTAL_TAP_COMMIT"
+          test "$(git -C "$tap_dir" rev-parse HEAD)" = "$AGENT_CRYSTAL_TAP_COMMIT"
+          brew install crimson-knight/agent-crystal/agent-crystal
+          installed="$(brew list --versions agent-crystal)"
+          echo "$installed"
+          test "$installed" = "agent-crystal $AGENT_CRYSTAL_VERSION"
+
+      - name: Build SwiftKit (release)
+        run: swift build -c release --package-path swift/AssetPipelineSwiftKit
+
+      - name: Describe the runner
+        run: |
+          sysctl -n machdep.cpu.brand_string hw.model hw.ncpu
+          sw_vers
+          crystal-alpha --version
+
+      - name: make test-latency-macos
+        if: ${{ !inputs.record_baseline }}
+        run: make test-latency-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_BASELINE=spec/native_macos/latency/baseline-github-macos-26.json
+
+      - name: Record the hosted-runner baseline
+        if: ${{ inputs.record_baseline }}
+        run: make record-latency-baseline-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_BASELINE=spec/native_macos/latency/baseline-github-macos-26.json
+
+      - name: Upload lane output
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tap-latency-macos
+          path: |
+            build/latency-macos/runs/ci/
+            spec/native_macos/latency/baseline-github-macos-26.json
+          if-no-files-found: warn
+          retention-days: 14

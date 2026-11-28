@@ -12,6 +12,13 @@
 #   test-android   — placeholder; see native-compile-matrix.md.
 #                    Currently `attempted-blocked` on Crystal stdlib host-only.
 #                    Implementation deferred to Phase 10D / native runner phase.
+#   test-latency-macos — builds the tap-latency probe and runs the macOS
+#                    tap-latency lane (spec/native_macos/latency/): prints the
+#                    measurements table and exits nonzero when a gate in
+#                    thresholds.yml is crossed. Needs a logged-in GUI session.
+#   record-latency-baseline-macos — reruns the lane and rewrites baseline.json.
+#   test-latency-ios / test-latency-android — placeholders; see
+#                    spec/native_macos/latency/README.md.
 #   test-all       — runs `test-web` + `test-macos`.
 #   lint           — runs Phase 10A.0a's convention-rule runner
 #                    (`scripts/lint_conventions.cr`).
@@ -50,7 +57,8 @@ MACOS_LINK_FLAGS := \
 	$(MACOS_FRAMEWORKS) \
 	-Wl,-rpath,/usr/lib/swift
 
-.PHONY: test-web test-macos test-ios test-android test-all lint clean-bridges
+.PHONY: test-web test-macos test-ios test-android test-all lint clean-bridges \
+	test-latency-macos record-latency-baseline-macos test-latency-ios test-latency-android
 
 test-web:
 	$(CRYSTAL) spec spec/web/
@@ -72,6 +80,41 @@ test-android:
 	@echo "[test-android] First actionable error: Crystal stdlib host-only"
 	@echo "[test-android]   (require \"c/sys/epoll\" only ships on Linux Crystal builds)."
 	@echo "[test-android] Needs Linux-targeted Crystal compiler + Android NDK."
+
+# --- Tap-latency lane (macOS) -------------------------------------------
+# The probe is a standalone AppKit program, not a spec; it is built here and
+# run once per row of spec/native_macos/latency/thresholds.yml.
+LATENCY_CRYSTAL    ?= crystal-alpha
+LATENCY_DIR        := spec/native_macos/latency
+LATENCY_BUILD_DIR  := build/latency-macos
+LATENCY_HELPER_OBJ := $(LATENCY_BUILD_DIR)/tap_latency_probe_helper.o
+LATENCY_PROBE      := $(LATENCY_BUILD_DIR)/tap_latency_probe
+LATENCY_OUT        ?= $(LATENCY_BUILD_DIR)/runs/$(shell date -u +%Y%m%dT%H%M%SZ)
+LATENCY_BASELINE   ?= $(LATENCY_DIR)/baseline.json
+
+$(LATENCY_HELPER_OBJ): $(LATENCY_DIR)/tap_latency_probe_helper.m
+	mkdir -p $(LATENCY_BUILD_DIR)
+	clang -c $< -o $@ -fobjc-arc
+
+$(LATENCY_PROBE): $(LATENCY_DIR)/tap_latency_probe.cr $(LATENCY_HELPER_OBJ) $(AP_BRIDGE_OBJ) $(SK_BRIDGE_OBJ) $(SWIFTKIT_LIB) $(shell find src/ui -name "*.cr")
+	$(LATENCY_CRYSTAL) build $(LATENCY_DIR)/tap_latency_probe.cr -o $@ -Dmacos \
+		--link-flags="$(abspath $(LATENCY_HELPER_OBJ)) $(MACOS_LINK_FLAGS)"
+
+test-latency-macos: $(LATENCY_PROBE)
+	LATENCY_CRYSTAL=$(LATENCY_CRYSTAL) /usr/bin/ruby $(LATENCY_DIR)/run_tap_latency_lane.rb \
+		--probe $(LATENCY_PROBE) --out $(LATENCY_OUT) --baseline $(LATENCY_BASELINE)
+
+record-latency-baseline-macos: $(LATENCY_PROBE)
+	LATENCY_CRYSTAL=$(LATENCY_CRYSTAL) /usr/bin/ruby $(LATENCY_DIR)/run_tap_latency_lane.rb \
+		--probe $(LATENCY_PROBE) --out $(LATENCY_OUT) --baseline $(LATENCY_BASELINE) --record-baseline
+
+test-latency-ios:
+	@echo "[test-latency-ios] not built yet; see $(LATENCY_DIR)/README.md (iOS Simulator lane)."
+	@exit 2
+
+test-latency-android:
+	@echo "[test-latency-android] not built yet; see $(LATENCY_DIR)/README.md (Android emulator lane)."
+	@exit 2
 
 test-all: test-web test-macos
 	@echo "[test-all] web + macOS lanes complete."
