@@ -17,8 +17,7 @@ It needs a Mac with a logged-in GUI session (AppKit opens a real window).
 | `tap_latency_analysis.rb` | Derives per-tap latencies, stalls over 16 ms split by cause (collection, render, synchronous action work, other), collection pauses and dropped frames. |
 | `run_tap_latency_lane.rb` | Runs each row of `thresholds.yml` once under a deadline (a hung probe is sampled, then killed), prints both tables and applies the gates. |
 | `thresholds.yml` | The gates, the per-row probe settings, the known-failure marks and the regression tolerances. |
-| `baseline.json` | Today's values on the reference mini, with the machine, compiler and date. |
-| `baseline-github-macos-26.json` | The same, recorded on GitHub's hosted `macos-26` runner, used by CI. |
+| `baseline.json` | Today's values on the reference mini (the worst of three runs per gate), with the machine, compiler and date. |
 
 ## Rows
 
@@ -60,14 +59,30 @@ notice; remove the mark in the same change that fixed it.
 
 ```
 make test-latency-macos                 # gate against baseline.json
-make record-latency-baseline-macos      # rewrite baseline.json from a fresh run
-make test-latency-macos LATENCY_BASELINE=spec/native_macos/latency/baseline-github-macos-26.json
+make record-latency-baseline-macos      # rewrite baseline.json: worst of three fresh runs
+make test-latency-macos LATENCY_FLAGS=--report-only   # print, never fail on timing
 /usr/bin/ruby spec/native_macos/latency/tap_latency_analysis.rb build/latency-macos/runs/<stamp>/<row>
 ```
 
 Each run writes `rows.txt`, `summary.json`, `taps.json`, `stalls.json` and
 `stderr.txt` per row, plus `lane_summary.json` and `candidate_baseline.json`,
 under `build/latency-macos/runs/<stamp>/`.
+
+## CI
+
+- **Gate: our Mac mini.** `scripts/check_tap_latency_for_open_branches.rb`
+  runs as a LaunchAgent in the mini's GUI session (plist beside it). Every
+  5 minutes it runs `make test-latency-macos` for each same-repository pull
+  request and push to main that touches the native UI, posts the commit
+  status `tap-latency (m4-mini-01, our runner)`, and comments both tables on
+  the pull request. It is a status check, not an Actions runner, because the
+  repository is public and a self-hosted runner would run workflows edited in
+  fork pull requests.
+- **Report: GitHub's hosted runner.** `.github/workflows/tap-latency-macos.yml`
+  builds and runs the lane on `macos-26` with `--report-only`. Its timing
+  does not hold steady (two runs of one commit: the rebuild row's pressed
+  time was 1.5 s and 26 s at p50, against 1.9 ms on the mini), so it proves
+  the lane builds and runs, and never gates on timing.
 
 ## iOS Simulator and Android emulator lanes
 

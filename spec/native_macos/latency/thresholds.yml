@@ -55,4 +55,4 @@ rows:
   gc:
     description: "No rebuild; 230 MB retained, a background thread allocates"
     probe: { scenario: gc, rows: 40, taps: 100, interval_ms: 300, retain: 40000 }
-    known_failures: [stall_count, stall_p95_ms, collection_pause_p95_ms] # stop-the-world collection, ~25 ms (Phase 4)
+    known_failures: [pressed_within_16ms_percent, stall_count, stall_p95_ms, collection_pause_p95_ms] # stop-the-world collection, ~25 ms; a pause on a press costs it its frame (Phase 4)

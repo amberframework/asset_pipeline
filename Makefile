@@ -91,6 +91,7 @@ LATENCY_HELPER_OBJ := $(LATENCY_BUILD_DIR)/tap_latency_probe_helper.o
 LATENCY_PROBE      := $(LATENCY_BUILD_DIR)/tap_latency_probe
 LATENCY_OUT        ?= $(LATENCY_BUILD_DIR)/runs/$(shell date -u +%Y%m%dT%H%M%SZ)
 LATENCY_BASELINE   ?= $(LATENCY_DIR)/baseline.json
+LATENCY_FLAGS      ?=
 
 $(LATENCY_HELPER_OBJ): $(LATENCY_DIR)/tap_latency_probe_helper.m
 	mkdir -p $(LATENCY_BUILD_DIR)
@@ -102,7 +103,7 @@ $(LATENCY_PROBE): $(LATENCY_DIR)/tap_latency_probe.cr $(LATENCY_HELPER_OBJ) $(AP
 
 test-latency-macos: $(LATENCY_PROBE)
 	LATENCY_CRYSTAL=$(LATENCY_CRYSTAL) /usr/bin/ruby $(LATENCY_DIR)/run_tap_latency_lane.rb \
-		--probe $(LATENCY_PROBE) --out $(LATENCY_OUT) --baseline $(LATENCY_BASELINE)
+		--probe $(LATENCY_PROBE) --out $(LATENCY_OUT) --baseline $(LATENCY_BASELINE) $(LATENCY_FLAGS)
 
 record-latency-baseline-macos: $(LATENCY_PROBE)
 	LATENCY_CRYSTAL=$(LATENCY_CRYSTAL) /usr/bin/ruby $(LATENCY_DIR)/run_tap_latency_lane.rb \

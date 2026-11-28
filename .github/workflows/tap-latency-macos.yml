@@ -1,13 +1,18 @@
-# macOS tap-latency lane: every change to the native UI is checked for a tap
-# that feels native (pressed look within 16 ms, no main-thread stall over
-# 16 ms). The lane and its gates live in spec/native_macos/latency/.
+# macOS tap-latency lane on GitHub's hosted runner: builds the probe and runs
+# every row of spec/native_macos/latency/thresholds.yml on each pull request
+# and push that touches the native UI, and prints the measurements and gate
+# tables. It reports only: on the hosted macos-26 virtual machine the same
+# rows varied by orders of magnitude between two runs of one commit (the
+# rebuild row's pressed time was 1.5 s at p50 in one run and 26 s in the
+# next, against 1.9 ms on the reference mini), so its timing cannot gate.
 #
-# Runner: the repository is public, so the lane runs on GitHub's hosted
-# Apple-silicon macOS runner (a logged-in GUI session, which AppKit needs).
-# Its known-failure baselines are recorded on that runner image
-# (baseline-github-macos-26.json); the mini baseline (baseline.json) is the
-# reference for local runs. Record a new hosted baseline with the
-# workflow_dispatch input `record_baseline` and commit the uploaded file.
+# The timing gate runs on our own Mac mini, which has a logged-in GUI
+# session and steady timing: scripts/check_tap_latency_for_open_branches.rb
+# runs `make test-latency-macos` for every same-repository pull request and
+# push to main that touches the native UI, and posts the commit status
+# "tap-latency (m4-mini-01, our runner)". It is a commit-status check rather
+# than an Actions runner because this repository is public, and a
+# self-hosted runner would run workflows edited in fork pull requests.
 #
 # Every Action is pinned by full commit SHA. The compiler comes from the
 # agent-crystal tap checked out at a fixed commit, whose formula verifies the
@@ -32,12 +37,6 @@ on:
       - "spec/native_macos/latency/**"
       - "Makefile"
       - ".github/workflows/tap-latency-macos.yml"
-  workflow_dispatch:
-    inputs:
-      record_baseline:
-        description: "Record baseline-github-macos-26.json instead of gating"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -55,7 +54,7 @@ env:
 
 jobs:
   tap-latency-macos:
-    name: Tap latency lane (macOS, hosted)
+    name: Tap latency lane (macOS, hosted, report only)
     runs-on: macos-26
     timeout-minutes: 40
     steps:
@@ -83,21 +82,5 @@ jobs:
           sw_vers
           crystal-alpha --version
 
-      - name: make test-latency-macos
-        if: ${{ !inputs.record_baseline }}
-        run: make test-latency-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_BASELINE=spec/native_macos/latency/baseline-github-macos-26.json
-
-      - name: Record the hosted-runner baseline
-        if: ${{ inputs.record_baseline }}
-        run: make record-latency-baseline-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_BASELINE=spec/native_macos/latency/baseline-github-macos-26.json
-
-      - name: Upload lane output
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: tap-latency-macos
-          path: |
-            build/latency-macos/runs/ci/
-            spec/native_macos/latency/baseline-github-macos-26.json
-          if-no-files-found: warn
-          retention-days: 14
+      - name: make test-latency-macos (report only)
+        run: make test-latency-macos LATENCY_OUT=build/latency-macos/runs/ci LATENCY_FLAGS=--report-only

@@ -5,8 +5,11 @@
 #
 #   /usr/bin/ruby run_tap_latency_lane.rb --probe PATH --out DIR [options]
 #     --only ROW[,ROW]     run only these rows
-#     --record-baseline    write baseline.json from this run (no gating)
+#     --record-baseline    write the baseline from several runs (no gating)
 #     --baseline PATH      compare against this baseline (default: beside this file)
+#     --baseline-runs N    runs to take the worst value from when recording (default 3)
+#     --report-only        print both tables but exit 0 unless a probe fails (hosts
+#                          whose timing is not steady enough to gate)
 require "json"
 require "yaml"
 require "optparse"
@@ -31,13 +34,17 @@ class RunTapLatencyLane
     @out_dir = File.join(Dir.pwd, "build", "latency-macos", Time.now.utc.strftime("%Y%m%dT%H%M%SZ"))
     @list_of_selected_rows = nil
     @records_baseline = false
+    @baseline_run_count = 3
+    @reports_only = false
     @baseline_path = File.join(LANE_DIR, "baseline.json")
     OptionParser.new do |options|
       options.on("--probe PATH") { |path| @probe_path = File.expand_path(path) }
       options.on("--out DIR") { |dir| @out_dir = File.expand_path(dir) }
       options.on("--only ROWS") { |rows| @list_of_selected_rows = rows.split(",") }
       options.on("--record-baseline") { @records_baseline = true }
+      options.on("--baseline-runs N", Integer) { |count| @baseline_run_count = count }
       options.on("--baseline PATH") { |path| @baseline_path = File.expand_path(path) }
+      options.on("--report-only") { @reports_only = true }
     end.parse!(argv)
     abort "run_tap_latency_lane.rb: --probe PATH is required" unless @probe_path && File.executable?(@probe_path)
     @thresholds = YAML.safe_load(File.read(File.join(LANE_DIR, "thresholds.yml")))
@@ -47,28 +54,12 @@ class RunTapLatencyLane
     FileUtils.mkdir_p(@out_dir)
     rows = @thresholds.fetch("rows")
     rows = rows.select { |name, _| @list_of_selected_rows.include?(name) } if @list_of_selected_rows
-    summaries = {}
-    probe_failures = []
-    rows.each do |name, row|
-      summary, failure = run_row(name, row)
-      summaries[name] = summary if summary
-      probe_failures << failure if failure
-    end
+    return record_baseline(rows) if @records_baseline
 
-    puts
-    puts measurements_table(rows, summaries)
-    puts
-    File.write(File.join(@out_dir, "lane_summary.json"), JSON.pretty_generate(summaries))
-    # What --record-baseline would write, kept with every run so a new runner
-    # image can be baselined from a CI artifact.
-    write_baseline(summaries, File.join(@out_dir, "candidate_baseline.json")) if probe_failures.empty?
-
-    if @records_baseline
-      abort_with(EXIT_PROBE_FAILED, probe_failures) unless probe_failures.empty?
-      write_baseline(summaries, @baseline_path)
-      puts "Baseline written to #{@baseline_path}"
-      return 0
-    end
+    summaries, probe_failures = run_rows(rows, @out_dir)
+    # What --record-baseline would write from this one run, kept with every
+    # run so a new runner image can be baselined from its output.
+    write_baseline([summaries], File.join(@out_dir, "candidate_baseline.json")) if probe_failures.empty?
 
     results = evaluate_gates(rows, summaries)
     puts gate_table(results)
@@ -76,11 +67,15 @@ class RunTapLatencyLane
     crossed = results.select { |result| result[:status] == "FAIL" }
     notices = results.select { |result| result[:status] == "NOW PASSES" }
     notices.each do |result|
-      puts "notice: #{result[:row]} / #{result[:gate]} now passes; remove it from known_failures in thresholds.yml"
+      puts "notice: #{result[:row]} / #{result[:gate]} passed in this run; once it passes on repeated runs, remove it from known_failures in thresholds.yml"
     end
-    unless probe_failures.empty?
-      abort_with(EXIT_PROBE_FAILED, probe_failures)
+    if @reports_only
+      probe_failures.each { |failure| puts "probe failed: #{failure}" }
+      puts "tap-latency lane: REPORT ONLY (#{crossed.size} of #{results.size} gates would be crossed, " \
+           "#{probe_failures.size} probe runs did not finish; timing on this host is not gated)"
+      return 0
     end
+    abort_with(EXIT_PROBE_FAILED, probe_failures) unless probe_failures.empty?
     if crossed.empty?
       puts "tap-latency lane: PASS (#{results.size} gates; #{results.count { |result| result[:status] == "KNOWN FAIL" }} known failures held at baseline)"
       0
@@ -94,6 +89,38 @@ class RunTapLatencyLane
   end
 
   private
+
+  # Runs every row once into out_dir and prints the measurements table.
+  def run_rows(rows, out_dir)
+    summaries = {}
+    probe_failures = []
+    rows.each do |name, row|
+      summary, failure = run_row(name, row, out_dir)
+      summaries[name] = summary if summary
+      probe_failures << failure if failure
+    end
+    puts
+    puts measurements_table(rows, summaries)
+    puts
+    File.write(File.join(out_dir, "lane_summary.json"), JSON.pretty_generate(summaries))
+    [summaries, probe_failures]
+  end
+
+  # Runs the lane several times and keeps, per gate, the worst value seen, so
+  # a known failure that varies from run to run is not baselined at its best.
+  def record_baseline(rows)
+    list_of_summaries = (1..@baseline_run_count).map do |run_number|
+      puts "--- baseline run #{run_number} of #{@baseline_run_count}"
+      run_dir = File.join(@out_dir, "run#{run_number}")
+      FileUtils.mkdir_p(run_dir)
+      summaries, probe_failures = run_rows(rows, run_dir)
+      abort_with(EXIT_PROBE_FAILED, probe_failures) unless probe_failures.empty?
+      summaries
+    end
+    write_baseline(list_of_summaries, @baseline_path)
+    puts "Baseline (worst of #{@baseline_run_count} runs) written to #{@baseline_path}"
+    0
+  end
 
   def abort_with(code, failures)
     failures.each { |failure| puts "probe failed: #{failure}" }
@@ -114,8 +141,8 @@ class RunTapLatencyLane
   end
 
   # Runs one probe under a deadline; a hung probe is sampled, then killed.
-  def run_row(name, row)
-    row_out_dir = File.join(@out_dir, name)
+  def run_row(name, row, out_dir)
+    row_out_dir = File.join(out_dir, name)
     FileUtils.mkdir_p(row_out_dir)
     env = probe_environment(row, row_out_dir)
     budget = env["PROBE_TAPS"].to_i * env["PROBE_INTERVAL_MS"].to_f / 1000 + 45
@@ -257,17 +284,38 @@ class RunTapLatencyLane
     }
   end
 
-  def write_baseline(summaries, path)
+  # The compiler package that crystal-alpha resolves to, read from its Cellar
+  # path (e.g. agent-crystal 1.22.3-incremental-6).
+  def compiler_package(compiler)
+    path = command_output("/usr/bin/which", compiler)
+    return "" if path.empty?
+    cellar_parts = File.realpath(path).split("/Cellar/").last.to_s.split("/")
+    cellar_parts.size >= 2 ? "#{cellar_parts[0]} #{cellar_parts[1]}" : ""
+  rescue SystemCallError
+    ""
+  end
+
+  # Per row and gate, the worst value across the given runs.
+  def write_baseline(list_of_summaries, path)
     compiler = ENV.fetch("LATENCY_CRYSTAL", "crystal-alpha")
-    gate_metrics = @thresholds.fetch("gates").keys
+    gates = @thresholds.fetch("gates")
+    row_names = list_of_summaries.map(&:keys).flatten.uniq
+    rows = row_names.map do |name|
+      values = gates.map do |metric, rule|
+        measured = list_of_summaries.map { |summaries| summaries.dig(name, metric) }.compact
+        [metric, rule.key?("at_least") ? measured.min : measured.max]
+      end
+      [name, values.to_h]
+    end.to_h
     document = {
       "recorded_on" => Time.now.utc.iso8601,
       "machine" => machine_description,
       "compiler" => command_output(compiler, "--version").lines.first.to_s.strip,
-      "compiler_package" => command_output("/opt/homebrew/bin/brew", "list", "--versions", "agent-crystal"),
+      "compiler_package" => compiler_package(compiler),
       "asset_pipeline_commit" => ENV.fetch("LATENCY_SOURCE_COMMIT") { command_output("git", "-C", LANE_DIR, "rev-parse", "HEAD") },
-      "note" => "Recorded by `make record-latency-baseline-macos`. Gate values per row; full summaries in lane_summary.json of the recording run.",
-      "rows" => summaries.map { |name, summary| [name, summary.select { |key, _| gate_metrics.include?(key) }] }.to_h,
+      "runs" => list_of_summaries.size,
+      "note" => "Recorded by `make record-latency-baseline-macos`: per row and gate, the worst value of the runs. Full summaries are in each run's lane_summary.json.",
+      "rows" => rows,
     }
     File.write(path, JSON.pretty_generate(document) + "\n")
   end
